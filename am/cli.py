@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from . import state as S
+from .doctor import cmd_doctor
 
 
 def _p(args):
@@ -140,6 +141,10 @@ def build_parser():
     ap = argparse.ArgumentParser(prog="am", description="agent-manager: 여러 프로젝트의 단계·승인·작업 상태")
     ap.add_argument("--root", default=None, help=argparse.SUPPRESS)  # tests point this at a temp dir
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("doctor", help="Check local tools and runtime")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(fn=cmd_doctor)
 
     s = sub.add_parser("new", help="새 프로젝트(아이디어) 등록")
     s.add_argument("slug"); s.add_argument("--idea", required=True); s.add_argument("--name")
