@@ -1,0 +1,46 @@
+{
+  "slug": "taeng-agent-manager",
+  "name": "agent-manager (매니저 레포 자체)",
+  "idea": "멀티 에이전트 매니저 시스템 — 이 레포 자체도 같은 승인 규칙을 받는다",
+  "phase": "planning",
+  "repo": "taehyeooo/taeng-agent-manager",
+  "test_cmd": "python -m unittest discover -s tests",
+  "approvals": [],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "실행 시점 가드(am guard)·교차 검증·보고·CI",
+      "agent": "claude",
+      "status": "dispatched",
+      "branch": "feat/mvp-cli",
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "선택 이유: 보안 핵심 + 설계 변경이 커서 매니저 세션이 직접(사용자 지시). 검증은 codex로 교차"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-09T22:55:19+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-09T22:55:19+09:00",
+      "event": "repo=taehyeooo/taeng-agent-manager"
+    },
+    {
+      "at": "2026-11-09T22:55:19+09:00",
+      "event": "test_cmd=python -m unittest discover -s tests"
+    },
+    {
+      "at": "2026-11-09T23:01:23+09:00",
+      "event": "작업 추가 T1 (claude): 실행 시점 가드(am guard)·교차 검증·보고·CI"
+    },
+    {
+      "at": "2026-11-09T23:01:23+09:00",
+      "event": "작업 T1 변경: status=dispatched, branch=feat/mvp-cli, note=선택 이유: 보안 핵심 + 설계 변경이 커서 매니저 세션이 직접(사용자 지시). 검증은 codex로 교차"
+    }
+  ],
+  "created_at": "2026-11-09T22:55:19+09:00",
+  "updated_at": "2026-11-09T23:01:23+09:00"
+}

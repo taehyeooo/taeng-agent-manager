@@ -58,17 +58,44 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 - phase: `planning → spec_ready → repo_ready → developing → done` (+ `paused`).
   `spec_ready`는 승인 `spec`, `repo_ready`는 승인 `repo_create`와 기록된 repo가 있어야 들어간다(CLI가 막음).
 - approvals: `{gate, ref, note, at}` 누적. 다른 세션·다른 에이전트가 "이미 승인됐나"를 대화 기억 없이 안다.
-- tasks: `{id, title, agent, status(todo|dispatched|review|done|failed|blocked), branch, worktree, pr, dispatch, note}`.
+- tasks: `{id, title, agent, status(todo|dispatched|review|done|failed|blocked), branch, worktree, pr, dispatch, note, files, verification}`.
+  `review`·`done`은 `verification`(tests·review·security 모두 pass, 구현 모델과 다른 검증자)이 있어야 하고, `done`은 그 PR의 `merge_main` 승인도 있어야 한다.
+- requests: 가드가 막은 승인 요청 `{gate, ref, cmd, impact, risk}` — 승인이 기록되면 대기 목록에서 빠진다(`am report`).
 - `am status <slug>`의 "다음:" 줄이 이어하기 힌트.
 
-## 5. 결정
+## 5. 역할·신뢰 계층·실행 시점 강제 (2026-11-09 추가)
+- 역할 4계층: 매니저(조율·승인 요청) → 코디네이터(Orca orchestration) → 작업 에이전트(Claude Code·Codex, 역할 고정 없음) → 검증 에이전트(구현 모델의 반대쪽). 세부는 AGENTS.md.
+- 신뢰 계층: ① 구조·규칙 ② Lint·Test·CI ③ AGENTS.md·CLAUDE.md 지침(reviewflow) ④ 중요한 변경만 사용자.
+- **`am guard`** (`am/guard.py`): Claude Code·Codex PreToolUse 훅이 도구 실행 **전에** 부른다. 훅은 레포의 `.claude/settings.json`(커밋됨 → 모든 워크트리에 적용)에 있고, 가드 위치는 기기마다 `~/.config/agent-manager/home`(`am setup`).
+
+```
+도구 호출 ─▶ 금지? ──예──▶ 차단 (승인으로도 불가)
+              │아니오
+              ▼
+          am approve? ──예──▶ Claude: 사용자 확인 창 / Codex: 차단(사용자가 직접)
+              │아니오
+              ▼
+          승인 필요 명령? ──아니오──▶ 허용 (읽기·수정·테스트·로컬 커밋)
+              │예
+              ▼
+          cwd → git common dir → 프로젝트 → project.json에 gate(+ref) 승인? ──예──▶ 허용 + 기록
+              │아니오
+              ▼
+          차단 + 승인 요청(명령·영향 범위·위험) 기록 → 매니저가 사용자에게 보여 줌
+```
+- 명령은 `&& ; | 줄바꿈` 단위로 나눠 하나씩 본다. `rm -rf node_modules` 같은 빌드 산출물·임시 폴더 삭제는 자동 진행.
+- ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
+- 가드 자체가 오류 나면 위험해 보이는 명령만 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
+- CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only).
+
+## 6. 결정
 - **CLI는 Python 표준 라이브러리** — intaeng 스크립트와 같은 방식, 설치 없이 Claude·Codex 어디서나 `python -m am`.
 - **디스패치는 Orca에 맡긴다** — worker-start가 워크트리 생성·에이전트 실행·완료 메일·질문을 이미 한다. `am`은 dispatch id만 기록.
 - **기획 문서는 레포 생성 전 매니저 레포에** — 요구사항 10(다른 노트북)과 레포 생성 승인 전 기획을 함께 만족.
 - **기기 경로는 git 밖** — 같은 project.json을 노트북마다 다른 폴더에서 쓴다.
 - **승인은 기록이지 우회가 아님** — `am approve`는 사용자가 OK한 뒤에만 쓴다(AGENTS.md).
 
-## 6. 개발 계획
+## 7. 개발 계획
 | # | 내용 | 담당 | 상태 |
 |---|---|---|---|
 | 1 | `am` 핵심: new·list·status·phase·approve·require·set·task·restore + 테스트 | claude(매니저) | 완료 |
@@ -79,3 +106,6 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 | 6 | 첫 실제 프로젝트로 끝까지 리허설(작은 웹앱) | 전체 | 예정 |
 | 7 | 매니저 레포에 intaeng 지식베이스(규칙·CI) 적용 여부 결정 | 사용자 | 질문 |
 | 8 | 클라우드 실행(Orca 원격 환경 `--environment`) | — | 나중 |
+| 9 | 역할 4계층·승인 3분류·신뢰 계층·`am guard`(실행 시점 권한 검사)·`am task verify`·`am report`·CI | claude(매니저) | 완료 |
+| 10 | Codex 워커에 가드 연결 — Codex 훅 형식 확인 후 프로젝트 레포에 설치 | codex | 예정 (Codex는 `pre_tool_use` 훅 지원 확인, 레포 단위 설정 위치는 미확인) |
+| 11 | `am doctor`에 가드 설치 여부(`~/.config/agent-manager/home`, 레포 훅) 확인 추가 | codex | 예정 |

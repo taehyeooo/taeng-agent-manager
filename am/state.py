@@ -24,7 +24,9 @@ GATES = {
     "credentials": "인증정보 접근",
     "system_permission": "시스템 권한 변경",
     "paid_service": "유료 서비스 사용",
+    "architecture_policy": "주요 아키텍처·서비스 정책 변경",
 }
+VERIFY_KEYS = ["tests", "review", "security"]  # 검증 에이전트가 채우는 칸 — 모두 pass여야 review/done
 AGENTS = ["claude", "codex"]
 TASK_STATUSES = ["todo", "dispatched", "review", "done", "failed", "blocked"]
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,38}$")
@@ -87,7 +89,8 @@ def new_project(slug, name, idea, root=None):
 
 
 def has_approval(p, gate, ref=None):
-    return any(a["gate"] == gate and (ref is None or a.get("ref") == ref) for a in p["approvals"])
+    """An approval without ref covers every instance of the gate; one with ref covers only that ref."""
+    return any(a["gate"] == gate and (ref is None or a.get("ref") in (None, ref)) for a in p["approvals"])
 
 
 def approve(p, gate, ref=None, note=""):
@@ -95,6 +98,19 @@ def approve(p, gate, ref=None, note=""):
         raise StateError(f"알 수 없는 승인 항목: {gate} (가능: {', '.join(GATES)})")
     p["approvals"].append({"gate": gate, "ref": ref, "note": note, "at": now()})
     event(p, f"승인 기록: {gate}" + (f" ({ref})" if ref else ""))
+
+
+def add_request(p, gate, ref=None, cmd="", impact="", risk="", project_scope=""):
+    """Record that an action is waiting for the user's approval (shown in am report). Deduplicated."""
+    reqs = p.setdefault("requests", [])
+    if any(r["gate"] == gate and r.get("ref") == ref and r.get("cmd") == cmd for r in reqs):
+        return
+    reqs.append({"gate": gate, "ref": ref, "cmd": cmd, "impact": impact, "risk": risk, "at": now()})
+    event(p, f"승인 요청: {gate}" + (f" ({ref})" if ref else ""))
+
+
+def pending_requests(p):
+    return [r for r in p.get("requests", []) if not has_approval(p, r["gate"], r.get("ref"))]
 
 
 def set_phase(p, phase):
@@ -135,8 +151,43 @@ def update_task(p, task_id, **fields):
     if fields.get("agent") and fields["agent"] not in AGENTS:
         raise StateError(f"agent는 {AGENTS} 중 하나")
     changed = {k: v for k, v in fields.items() if v is not None and k in TASK_FIELDS}
+    st = changed.get("status")
+    if st in ("review", "done") and not verified(t):
+        raise StateError(f"{task_id}: 검증(tests·review·security 모두 pass)이 기록돼야 '{st}'로 갈 수 있습니다 — am task verify")
+    if st == "done":
+        pr = changed.get("pr") or t.get("pr")
+        if pr and not has_approval(p, "merge_main", pr_ref(pr)):
+            raise StateError(f"{task_id}: {pr_ref(pr)} main 병합 승인이 기록되지 않았습니다")
     t.update(changed)
     event(p, f"작업 {task_id} 변경: " + ", ".join(f"{k}={v}" for k, v in changed.items()))
+    return t
+
+
+def pr_ref(pr):
+    return "PR#" + str(pr).lstrip("#").removeprefix("PR#")
+
+
+def verified(t):
+    v = t.get("verification") or {}
+    return all(v.get(k) == "pass" for k in VERIFY_KEYS)
+
+
+def verify_task(p, task_id, by, tests, review, security, summary="", files=None):
+    """Record the verification agent's result. Anything other than pass keeps the task out of review/done."""
+    t = next((t for t in p["tasks"] if t["id"] == task_id), None)
+    if not t:
+        raise StateError(f"작업이 없습니다: {task_id}")
+    vals = {"tests": tests, "review": review, "security": security}
+    for k, v in vals.items():
+        if v not in ("pass", "fail", "skip"):
+            raise StateError(f"{k}는 pass|fail|skip")
+    # 교차 검증: 구현한 모델과 다른 모델이 검증한다 (예: codex 구현 → claude:reviewflow, claude 구현 → codex:review)
+    if by.split(":")[0] == t["agent"]:
+        raise StateError(f"검증은 구현한 에이전트({t['agent']})와 다른 에이전트가 해야 합니다 (예: claude:reviewflow, codex:review)")
+    t["verification"] = {**vals, "by": by, "summary": summary, "at": now()}
+    if files:
+        t["files"] = files
+    event(p, f"작업 {task_id} 검증({by}): " + ", ".join(f"{k}={v}" for k, v in vals.items()))
     return t
 
 
@@ -156,8 +207,8 @@ def next_action(p):
         t = open_t[0]
         return {
             "todo": f"{t['id']} 위임: orca orchestration worker-start --agent {t['agent']} (AGENTS.md '위임')",
-            "dispatched": f"{t['id']} 작업자 보고 대기 (dispatch {t['dispatch']})",
-            "review": f"{t['id']} 검증: 테스트 + reviewflow 리뷰 → main 병합 승인 요청",
+            "dispatched": f"{t['id']} 작업자 보고 대기 (dispatch {t['dispatch']}) → 보고 오면 교차 검증 후 am task verify",
+            "review": f"{t['id']} 검증 통과 — main 병합 승인 요청 (명령·영향 범위·위험 표시) → am approve <slug> merge_main --ref PR#n",
             "failed": f"{t['id']} 실패 — 원인 확인 후 재위임 또는 사용자에게 보고",
             "blocked": f"{t['id']} 막힘 — note 확인: {t.get('note', '')}",
         }[t["status"]]

@@ -137,6 +137,64 @@ def cmd_restore(a):
         print("실행하려면 --apply")
 
 
+def cmd_task_verify(a):
+    p = _p(a)
+    S.verify_task(p, a.id, a.by, a.tests, a.review, a.security, a.summary, a.files)
+    S.save(p, a.root)
+    t = next(t for t in p["tasks"] if t["id"] == a.id)
+    print(f"검증 기록 {a.id}: " + ("통과 — review로 넘길 수 있음" if S.verified(t) else "미통과 — 같은 워커에 수정 요청"))
+
+
+def cmd_request(a):
+    p = _p(a)
+    S.add_request(p, a.gate, a.ref, a.cmd, a.impact, a.risk)
+    S.save(p, a.root)
+    print(f"승인 요청 기록: {a.gate} — 사용자에게 명령·영향 범위·위험을 보여 주고 답을 받으세요")
+
+
+def cmd_report(a):
+    from .report import render
+    print(render(_p(a)))
+
+
+def cmd_guard(a):
+    from .guard import main as guard_main
+    sys.exit(guard_main([a.agent]))
+
+
+POINTER = Path.home() / ".config" / "agent-manager" / "home"
+HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then python "$(cat "$f")/am/guard.py" {agent}; fi')
+HOOK_MATCHER = "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit"
+
+
+def guard_settings(agent="claude"):
+    return {"hooks": {"PreToolUse": [{"matcher": HOOK_MATCHER, "hooks": [
+        {"type": "command", "command": HOOK_CMD.format(agent=agent), "timeout": 15}]}]}}
+
+
+def install_guard(repo_path):
+    """Add the guard hook to <repo>/.claude/settings.json (checked in → every worktree gets it). Idempotent."""
+    f = Path(repo_path) / ".claude" / "settings.json"
+    cfg = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    pre = cfg.setdefault("hooks", {}).setdefault("PreToolUse", [])
+    if any("am/guard.py" in h.get("command", "") for e in pre for h in e.get("hooks", [])):
+        return f, False
+    pre.append(guard_settings()["hooks"]["PreToolUse"][0])
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return f, True
+
+
+def cmd_setup(a):
+    """Per machine: tell hooks where this manager repo lives (~/.config/agent-manager/home)."""
+    POINTER.parent.mkdir(parents=True, exist_ok=True)
+    POINTER.write_text(str(S.ROOT).replace("\\", "/"), encoding="utf-8")
+    print(f"가드 위치 기록: {POINTER} → {S.ROOT}")
+    if a.install:
+        f, added = install_guard(a.install)
+        print(f"{'추가' if added else '이미 있음'}: {f} — 프로젝트 레포에 커밋해야 워크트리에도 적용됩니다")
+
+
 def build_parser():
     ap = argparse.ArgumentParser(prog="am", description="agent-manager: 여러 프로젝트의 단계·승인·작업 상태")
     ap.add_argument("--root", default=None, help=argparse.SUPPRESS)  # tests point this at a temp dir
@@ -181,6 +239,26 @@ def build_parser():
     for f in ("branch", "worktree", "pr", "dispatch", "note"):
         s.add_argument(f"--{f}")
     s.set_defaults(fn=cmd_task_set)
+    s = t.add_parser("verify", help="검증 에이전트 결과 기록 (구현한 에이전트와 다른 에이전트)")
+    s.add_argument("slug"); s.add_argument("id"); s.add_argument("--by", required=True)
+    for k in S.VERIFY_KEYS:
+        s.add_argument(f"--{k}", required=True, choices=["pass", "fail", "skip"])
+    s.add_argument("--summary", default=""); s.add_argument("--files", nargs="*")
+    s.set_defaults(fn=cmd_task_verify)
+
+    s = sub.add_parser("request", help="승인 요청 기록 (명령·영향 범위·위험)")
+    s.add_argument("slug"); s.add_argument("gate", choices=list(S.GATES)); s.add_argument("--ref")
+    s.add_argument("--cmd", required=True); s.add_argument("--impact", required=True); s.add_argument("--risk", required=True)
+    s.set_defaults(fn=cmd_request)
+
+    s = sub.add_parser("report", help="결과 보고 (에이전트·변경·검증·미해결·자동 진행·승인 필요)")
+    s.add_argument("slug"); s.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("guard", help="PreToolUse 훅에서 호출 — 실행 전 권한 검사 (stdin JSON)")
+    s.add_argument("agent", nargs="?", default="claude", choices=S.AGENTS); s.set_defaults(fn=cmd_guard)
+
+    s = sub.add_parser("setup", help="이 기기에서 가드 위치 기록, --install <레포>로 가드 훅 설치")
+    s.add_argument("--install", metavar="REPO_PATH"); s.set_defaults(fn=cmd_setup)
 
     s = sub.add_parser("restore", help="다른 기기에서: 없는 프로젝트 레포 clone + Orca 등록")
     s.add_argument("--workspace"); s.add_argument("--apply", action="store_true")
