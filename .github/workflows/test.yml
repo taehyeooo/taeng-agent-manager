@@ -10,6 +10,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 승인 기록 비교에 이전 커밋이 필요하다
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -18,20 +20,8 @@ jobs:
           git config --global user.email ci@example.com
           git config --global user.name ci
       - run: python -m unittest discover -s tests -v
-      - name: forbid hand-edited approvals in project state
+      - name: approvals are append-only
         shell: bash
-        run: |
-          # approvals must be added by `am approve`, never removed or rewritten
-          if git rev-parse HEAD~1 >/dev/null 2>&1; then
-            for f in $(git diff --name-only HEAD~1 HEAD -- 'projects/*/project.json'); do
-              git cat-file -e "HEAD~1:$f" 2>/dev/null || continue
-              python - "$f" <<'EOF'
-          import json, subprocess, sys
-          f = sys.argv[1]
-          old = json.loads(subprocess.run(["git", "show", f"HEAD~1:{f}"], capture_output=True, text=True, encoding="utf-8").stdout)
-          new = json.load(open(f, encoding="utf-8"))
-          if new["approvals"][:len(old["approvals"])] != old["approvals"]:
-              sys.exit(f"{f}: 기존 승인 기록이 바뀌거나 지워졌습니다 (append-only)")
-          EOF
-            done
-          fi
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python scripts/check_approvals.py "$BASE" HEAD

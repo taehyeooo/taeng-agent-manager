@@ -13,18 +13,19 @@ PHASES = ["planning", "spec_ready", "repo_ready", "developing", "done", "paused"
 PHASE_GATES = {"spec_ready": "spec", "repo_ready": "repo_create"}
 # Gates the agent must get the user's OK for (AGENTS.md "승인 규칙"). `ref` narrows a gate
 # to one instance, e.g. merge_main ref=PR#3.
+# 값은 사용자에게 그대로 보여 줄 쉬운 말 (개발 용어 없이)
 GATES = {
-    "spec": "요구사항·정책 확정",
-    "repo_create": "GitHub 레포 생성·공개 설정",
-    "merge_main": "main 병합",
-    "push": "원격 push",
-    "deploy": "배포",
-    "destructive_delete": "파괴적인 파일 삭제",
-    "db_change": "DB 변경·삭제",
-    "credentials": "인증정보 접근",
-    "system_permission": "시스템 권한 변경",
-    "paid_service": "유료 서비스 사용",
-    "architecture_policy": "주요 아키텍처·서비스 정책 변경",
+    "spec": "기획 내용(무엇을 만들고 어떤 규칙으로 할지) 확정하기",
+    "repo_create": "GitHub에 새 저장소 만들기 (또는 공개/비공개 바꾸기)",
+    "merge_main": "작업한 코드를 완성본(main)에 합치기",
+    "push": "내 PC의 코드를 GitHub에 올리기",
+    "deploy": "서비스를 실제로 배포하기 (사용자에게 공개)",
+    "destructive_delete": "파일·작업 기록을 지우기 (되살리기 어려움)",
+    "db_change": "데이터베이스의 구조나 데이터 바꾸기",
+    "credentials": "비밀번호·API 키 같은 비밀값 읽기",
+    "system_permission": "이 PC 전체 설정 바꾸기 / 프로그램을 PC 전체에 설치하기",
+    "paid_service": "돈이 드는 서비스 쓰기",
+    "architecture_policy": "프로젝트의 큰 규칙·구조 결정 바꾸기",
 }
 VERIFY_KEYS = ["tests", "review", "security"]  # 검증 에이전트가 채우는 칸 — 모두 pass여야 review/done
 AGENTS = ["claude", "codex"]
@@ -89,8 +90,9 @@ def new_project(slug, name, idea, root=None):
 
 
 def has_approval(p, gate, ref=None):
-    """An approval without ref covers every instance of the gate; one with ref covers only that ref."""
-    return any(a["gate"] == gate and (ref is None or a.get("ref") in (None, ref)) for a in p["approvals"])
+    """An approval without ref covers every instance of the gate; one with ref covers only that ref.
+    An action whose target is unknown (ref=None) needs a ref-less (blanket) approval."""
+    return any(a["gate"] == gate and a.get("ref") in (None, ref) for a in p["approvals"])
 
 
 def approve(p, gate, ref=None, note=""):
@@ -156,7 +158,9 @@ def update_task(p, task_id, **fields):
         raise StateError(f"{task_id}: 검증(tests·review·security 모두 pass)이 기록돼야 '{st}'로 갈 수 있습니다 — am task verify")
     if st == "done":
         pr = changed.get("pr") or t.get("pr")
-        if pr and not has_approval(p, "merge_main", pr_ref(pr)):
+        if not pr:
+            raise StateError(f"{task_id}: PR 번호가 기록돼야 done으로 갈 수 있습니다 (am task set --pr <번호>)")
+        if not has_approval(p, "merge_main", pr_ref(pr)):
             raise StateError(f"{task_id}: {pr_ref(pr)} main 병합 승인이 기록되지 않았습니다")
     t.update(changed)
     event(p, f"작업 {task_id} 변경: " + ", ".join(f"{k}={v}" for k, v in changed.items()))
@@ -182,6 +186,8 @@ def verify_task(p, task_id, by, tests, review, security, summary="", files=None)
         if v not in ("pass", "fail", "skip"):
             raise StateError(f"{k}는 pass|fail|skip")
     # 교차 검증: 구현한 모델과 다른 모델이 검증한다 (예: codex 구현 → claude:reviewflow, claude 구현 → codex:review)
+    if by.split(":")[0] not in AGENTS:
+        raise StateError(f"검증자는 {AGENTS} 중 하나로 시작해야 합니다 (예: claude:reviewflow, codex:review)")
     if by.split(":")[0] == t["agent"]:
         raise StateError(f"검증은 구현한 에이전트({t['agent']})와 다른 에이전트가 해야 합니다 (예: claude:reviewflow, codex:review)")
     t["verification"] = {**vals, "by": by, "summary": summary, "at": now()}

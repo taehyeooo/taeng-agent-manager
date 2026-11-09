@@ -86,7 +86,10 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 - 명령은 `&& ; | 줄바꿈` 단위로 나눠 하나씩 본다. `rm -rf node_modules` 같은 빌드 산출물·임시 폴더 삭제는 자동 진행.
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
 - 가드 자체가 오류 나면 위험해 보이는 명령만 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
-- CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only).
+- CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only, `scripts/check_approvals.py`).
+- **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음): 따옴표 밖에서만 명령을 나누고, `bash -c`·`powershell -Command`·`cmd /c`·`env`·`&` 감싸기를 벗기고, `git -C <폴더>`는 그 폴더 기준으로 판정. 명령어 자리만 보므로 커밋 메시지 속 "git push"는 무시. 변수·eval·스크립트 안 subprocess처럼 미리 알 수 없는 실행은 사람에게 넘긴다(Claude 확인 창, Codex 차단).
+- **한계(남는 위험)**: 가드는 안전벨트지 샌드박스가 아니다. `python script.py`처럼 파일로 된 스크립트 안의 동작, 별칭·PATH 바꿔치기는 실행 전에 알 수 없다. 그래서 뒤에 두 겹을 더 둔다 — ① CI의 승인 기록 append-only 검사, ② GitHub 쪽 main 보호 규칙(PR·CI 통과 없이는 main에 못 들어감 — 서버가 강제, 저장소 설정 변경이라 승인 후 적용).
+- 2026-11-09 교차 검증(codex)에서 우회 13건을 찾아 모두 고치고, 각 재현을 `tests/test_guard.py` `VerifierFindingsTest`에 회귀 테스트로 남겼다. 변형 검사 17/17.
 
 ## 6. 결정
 - **CLI는 Python 표준 라이브러리** — intaeng 스크립트와 같은 방식, 설치 없이 Claude·Codex 어디서나 `python -m am`.

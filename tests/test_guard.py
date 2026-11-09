@@ -63,8 +63,8 @@ class GuardTest(unittest.TestCase):
             self.approve(gate)
         for cmd in ("claude --dangerously-skip-permissions", "codex --dangerously-bypass-approvals-and-sandbox exec x",
                     "git commit --no-verify -m x", "gh auth token", "echo $GITHUB_TOKEN", "git push --force origin main",
-                    "echo '{}' > projects/app/project.json", "sed -i s/a/b/ .am/local.json"):
-            d, msg = self.bash(cmd)
+                    f"echo '{{}}' > projects/app/project.json", "sed -i s/a/b/ .am/local.json"):
+            d, msg = self.bash(cmd, cwd=self.root if "project" in cmd or ".am" in cmd else None)
             self.assertEqual(d, "deny", cmd)
             self.assertIn("금지", msg)
         self.assertEqual(self.bash("git push --force-with-lease origin feat/x")[0], "allow")
@@ -155,6 +155,90 @@ class GuardTest(unittest.TestCase):
         self.assertEqual((code, out, err), (0, "", ""))
 
 
+class VerifierFindingsTest(GuardTest):
+    """Regression tests for the codex cross-verification report (ctx_ea5039169e86) — each bypass it found."""
+
+    def test_quotes_options_and_wrappers_dont_hide_push(self):
+        for cmd in ('"git" "push" origin main', "git -C . push origin main", "git -c x=y push origin main",
+                    'bash -c "git push origin main"', "powershell -Command git push origin main", "cmd /c git push origin main",
+                    "env A=1 git push origin main", "& git push origin main"):
+            d, msg = self.bash(cmd)
+            self.assertEqual(d, "deny", cmd)
+            self.assertIn("push", msg, cmd)
+
+    def test_git_dash_C_judged_in_target_repo(self):
+        d, msg = self.bash(f"git -C {self.other} push origin main")
+        self.assertEqual(d, "deny")  # 다른 저장소 변경 = 관련 없는 프로젝트
+        self.assertIn("관련 없는 프로젝트", msg)
+        self.assertEqual(self.bash(f"git -C {self.other} log --oneline -1")[0], "allow")  # 읽기는 허용
+
+    def test_variables_and_eval_need_a_human(self):
+        for cmd in ("$g push origin main", "& $g push origin main", "iex 'git push'", "eval git push", "git $sub origin main"):
+            self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+            self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+
+    def test_gh_api_mutations_are_gated(self):
+        self.assertIn("repo_create", self.bash("gh api user/repos -X POST -f name=x")[1])
+        self.assertIn("merge_main", self.bash("gh api repos/me/x/pulls/3/merge -X PUT")[1])
+        self.assertIn("destructive_delete", self.bash("gh api repos/me/x -X DELETE")[1])
+        self.assertEqual(self.bash("gh api repos/me/x/issues -f title=t")[0], "deny")  # -f implies POST
+        self.assertEqual(self.bash("gh api repos/me/x/pulls")[0], "allow")  # GET
+
+    def test_scripts_cant_forge_state_or_self_approve(self):
+        for body in ("from pathlib import Path; Path('projects/app/' + 'project' + '.json').write_text('{}')",
+                     "from am import state as S; p=S.load('app'); S.approve(p,'push'); S.save(p)"):
+            d, msg = self.bash(f'python -c "{body}"')
+            self.assertEqual(d, "deny", body)
+        heredoc = "python - <<'EOF'\nfrom am import state as S\nEOF"
+        self.assertEqual(self.bash(heredoc)[0], "deny")
+        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
+
+    def test_shell_write_targets_and_patches_checked(self):
+        self.assertEqual(self.bash(f"Set-Content {self.other / 'main.py'} x")[0], "deny")
+        self.assertEqual(self.bash(f"echo x > {self.other / 'main.py'}")[0], "deny")
+        self.assertEqual(self.bash(f"cp a.py {self.other / 'a.py'}")[0], "deny")
+        self.assertEqual(self.bash("echo x > out.txt")[0], "allow")  # 작업 폴더 안
+        patch = f"*** Begin Patch\n*** Update File: {self.other / 'main.py'}\n@@\n-a\n+b\n*** End Patch"
+        d = G.decide({"tool_name": "apply_patch", "tool_input": {"patch": patch}, "cwd": str(self.app)}, "codex", self.root)[0]
+        self.assertEqual(d, "deny")
+        d = G.decide({"tool_name": "shell", "tool_input": {"command": ["apply_patch", patch]}, "cwd": str(self.app)}, "codex", self.root)[0]
+        self.assertEqual(d, "deny")
+        ok = "*** Begin Patch\n*** Update File: src/a.py\n@@\n-a\n+b\n*** End Patch"
+        self.assertEqual(G.decide({"tool_name": "apply_patch", "tool_input": {"patch": ok}, "cwd": str(self.app)}, "codex", self.root)[0], "allow")
+
+    def test_state_file_name_case_insensitive(self):
+        self.assertEqual(self.tool("Write", Path(self.root) / "projects/app/PROJECT.JSON", cwd=self.root)[0], "deny")
+
+    def test_every_pushed_ref_needs_approval(self):
+        self.approve("push", "feat/x")
+        self.assertEqual(self.bash("git push origin feat/x main")[0], "deny")
+        self.assertEqual(self.bash("git push origin HEAD:main")[0], "deny")
+        self.assertEqual(self.bash("git push --all origin")[0], "deny")  # 대상 불분명 → 전체 승인 필요
+
+    def test_unknown_target_needs_blanket_approval(self):
+        self.approve("merge_main", "PR#3")
+        self.assertEqual(self.bash("gh pr merge --squash")[0], "deny")
+        self.assertFalse(S.has_approval(S.load("app", self.root), "merge_main", None))
+
+    def test_force_push_to_main_in_any_form_forbidden(self):
+        self.approve("push")
+        for cmd in ("git push --force-with-lease origin main", "git push origin +HEAD:main", "git push -f origin main",
+                    "git push --force --all origin"):  # 대상이 불분명한 강제 push
+            self.assertIn("금지", self.bash(cmd)[1], cmd)
+        self.assertEqual(self.bash("git push --force-with-lease origin feat/x")[0], "allow")  # 내 작업 브랜치는 허용
+        git(self.app, "checkout", "-q", "main")
+        self.assertIn("금지", self.bash("git push --force origin")[1])  # 지금 브랜치가 main
+
+    def test_delete_checks_full_path_not_basename(self):
+        self.assertEqual(self.bash(f"rm -rf {self.other / 'dist'}")[0], "deny")
+        self.assertEqual(self.bash("rm -rf dist node_modules")[0], "allow")
+
+    def test_strings_inside_arguments_are_not_commands(self):
+        self.assertEqual(self.bash('git commit -m "fix: git push documentation"')[0], "allow")
+        self.assertEqual(self.bash('echo "git push origin main"')[0], "allow")
+        self.assertEqual(self.bash('git commit -m "a; git push"')[0], "allow")
+
+
 class TrustLayerStateTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -179,6 +263,14 @@ class TrustLayerStateTest(unittest.TestCase):
             S.update_task(self.p, "T1", status="done")
         S.approve(self.p, "merge_main", "PR#7")
         S.update_task(self.p, "T1", status="done")
+
+    def test_done_needs_pr_and_verifier_must_be_real_other_agent(self):
+        with self.assertRaises(S.StateError):
+            S.verify_task(self.p, "T1", "banana", "pass", "pass", "pass")
+        S.verify_task(self.p, "T1", "claude", "pass", "pass", "pass")
+        S.approve(self.p, "merge_main")  # 전체 병합 승인이 있어도
+        with self.assertRaises(S.StateError):  # PR 없이 done 불가
+            S.update_task(self.p, "T1", status="done")
 
     def test_report_sections(self):
         S.verify_task(self.p, "T1", "claude", "fail", "pass", "pass", "테스트 2개 실패", ["api.py"])
