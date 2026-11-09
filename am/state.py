@@ -128,23 +128,47 @@ def set_phase(p, phase):
     event(p, f"단계 {old} → {phase}")
 
 
-def add_task(p, title, agent, task_id=None):
+def add_task(p, title, agent=None, task_id=None, kind="general", root=None):
+    """agent=None → config/agents.json 선호대로 자동 배정 (이유를 note에 남긴다)."""
+    auto = agent is None
+    if auto:
+        agent = pick_agent(kind, root)
+    elif not routing(root)["available"].get(agent, True):
+        raise StateError(f"{agent}는 사용 기간이 끝났습니다(config/agents.json) — 다른 에이전트로 배정하세요")
     if agent not in AGENTS:
         raise StateError(f"agent는 {AGENTS} 중 하나")
     tid = task_id or f"T{len(p['tasks']) + 1}"
     if any(t["id"] == tid for t in p["tasks"]):
         raise StateError(f"이미 있는 작업 id: {tid}")
-    t = {"id": tid, "title": title, "agent": agent, "status": "todo",
-         "branch": None, "worktree": None, "pr": None, "dispatch": None, "note": ""}
+    t = {"id": tid, "title": title, "agent": agent, "kind": kind, "status": "todo",
+         "branch": None, "worktree": None, "pr": None, "dispatch": None,
+         "note": f"자동 배정: {kind} → {agent} (config/agents.json 선호)" if auto else ""}
     p["tasks"].append(t)
-    event(p, f"작업 추가 {tid} ({agent}): {title}")
+    event(p, f"작업 추가 {tid} ({agent}{', 자동' if auto else ''}): {title}")
     return t
 
 
 TASK_FIELDS = ["status", "agent", "branch", "worktree", "pr", "dispatch", "note"]
 
 
-def update_task(p, task_id, **fields):
+def check_task_invariants(p, t, root=None):
+    st = t.get("status")
+    if st not in ("review", "done"):
+        return
+    if not verified(t):
+        raise StateError(f"{t['id']}: 검증(tests·review·security 모두 pass)이 기록돼야 '{st}'로 갈 수 있습니다 — am task verify")
+    by = (t.get("verification") or {}).get("by", "")
+    other_available = any(ok for a, ok in routing(root)["available"].items() if a != t["agent"])
+    if by.split(":")[0] == t["agent"] and other_available:
+        raise StateError(f"{t['id']}: 검증자({by})가 구현 에이전트({t['agent']})와 같습니다 — 다른 에이전트가 다시 검증해야 합니다")
+    if st == "done":
+        if not t.get("pr"):
+            raise StateError(f"{t['id']}: PR 번호가 기록돼야 done으로 갈 수 있습니다 (am task set --pr <번호>)")
+        if not has_approval(p, "merge_main", pr_ref(t["pr"])):
+            raise StateError(f"{t['id']}: {pr_ref(t['pr'])} main 병합 승인이 기록되지 않았습니다")
+
+
+def update_task(p, task_id, root=None, **fields):
     t = next((t for t in p["tasks"] if t["id"] == task_id), None)
     if not t:
         raise StateError(f"작업이 없습니다: {task_id}")
@@ -153,15 +177,7 @@ def update_task(p, task_id, **fields):
     if fields.get("agent") and fields["agent"] not in AGENTS:
         raise StateError(f"agent는 {AGENTS} 중 하나")
     changed = {k: v for k, v in fields.items() if v is not None and k in TASK_FIELDS}
-    st = changed.get("status")
-    if st in ("review", "done") and not verified(t):
-        raise StateError(f"{task_id}: 검증(tests·review·security 모두 pass)이 기록돼야 '{st}'로 갈 수 있습니다 — am task verify")
-    if st == "done":
-        pr = changed.get("pr") or t.get("pr")
-        if not pr:
-            raise StateError(f"{task_id}: PR 번호가 기록돼야 done으로 갈 수 있습니다 (am task set --pr <번호>)")
-        if not has_approval(p, "merge_main", pr_ref(pr)):
-            raise StateError(f"{task_id}: {pr_ref(pr)} main 병합 승인이 기록되지 않았습니다")
+    check_task_invariants(p, {**t, **changed}, root)  # 바뀐 뒤의 상태로 검사 (에이전트·PR을 나중에 바꿔도 빠져나가지 못하게)
     t.update(changed)
     event(p, f"작업 {task_id} 변경: " + ", ".join(f"{k}={v}" for k, v in changed.items()))
     return t
@@ -176,7 +192,7 @@ def verified(t):
     return all(v.get(k) == "pass" for k in VERIFY_KEYS)
 
 
-def verify_task(p, task_id, by, tests, review, security, summary="", files=None):
+def verify_task(p, task_id, by, tests, review, security, summary="", files=None, root=None):
     """Record the verification agent's result. Anything other than pass keeps the task out of review/done."""
     t = next((t for t in p["tasks"] if t["id"] == task_id), None)
     if not t:
@@ -188,13 +204,53 @@ def verify_task(p, task_id, by, tests, review, security, summary="", files=None)
     # 교차 검증: 구현한 모델과 다른 모델이 검증한다 (예: codex 구현 → claude:reviewflow, claude 구현 → codex:review)
     if by.split(":")[0] not in AGENTS:
         raise StateError(f"검증자는 {AGENTS} 중 하나로 시작해야 합니다 (예: claude:reviewflow, codex:review)")
-    if by.split(":")[0] == t["agent"]:
+    # 다른 모델을 쓸 수 없을 때(예: Codex 사용 기간 끝)만 같은 모델의 다른 세션이 검증해도 된다
+    other_available = any(ok for a, ok in routing(root)["available"].items() if a != t["agent"])
+    if by.split(":")[0] == t["agent"] and other_available:
         raise StateError(f"검증은 구현한 에이전트({t['agent']})와 다른 에이전트가 해야 합니다 (예: claude:reviewflow, codex:review)")
     t["verification"] = {**vals, "by": by, "summary": summary, "at": now()}
     if files:
         t["files"] = files
     event(p, f"작업 {task_id} 검증({by}): " + ", ".join(f"{k}={v}" for k, v in vals.items()))
     return t
+
+
+TASK_KINDS = ["general", "design", "test", "docs"]
+
+
+def routing(root=None, today=None):
+    """config/agents.json → {'pick': {kind: agent}, 'available': {agent: bool}, 'days_left': int|None, ...}"""
+    f = Path(root or ROOT) / "config" / "agents.json"
+    cfg = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    today = today or datetime.now().date()
+    until = cfg.get("prefer_until")
+    days_left = (datetime.fromisoformat(until).date() - today).days if until else None
+    active = days_left is None or days_left >= 0
+    prefer, after = cfg.get("prefer"), cfg.get("after", "claude")
+    available = {a: True for a in AGENTS}
+    if prefer and not active:
+        available[prefer] = False  # 사용 기간이 끝난 에이전트
+    pick = {k: (cfg.get("kinds", {}).get(k, prefer) if active else after) or "claude" for k in TASK_KINDS}
+    return {"pick": pick, "available": available, "prefer": prefer, "until": until, "days_left": days_left, "active": active}
+
+
+def pick_agent(kind="general", root=None, today=None):
+    if kind not in TASK_KINDS:
+        raise StateError(f"kind는 {TASK_KINDS} 중 하나")
+    return routing(root, today)["pick"][kind]
+
+
+def routing_warning(p=None, root=None, today=None):
+    r = routing(root, today)
+    if not r["prefer"] or r["days_left"] is None:
+        return ""
+    if not r["active"]:
+        stuck = [t["id"] for t in (p or {}).get("tasks", []) if t["agent"] == r["prefer"] and t["status"] not in ("done",)]
+        return f"{r['prefer']} 사용 기간({r['until']})이 끝났습니다 — 새 작업은 {r['pick']['general']}로 배정" + (
+            f". {r['prefer']}에 남은 작업 재배정 필요: {', '.join(stuck)}" if stuck else "")
+    if r["days_left"] <= 3:
+        return f"{r['prefer']} 사용 기간 D-{r['days_left']} ({r['until']}까지) — 큰 작업은 지금 맡기거나 {r['pick']['general'] if not r['active'] else 'claude'}로 넘길 준비"
+    return ""
 
 
 def next_action(p):

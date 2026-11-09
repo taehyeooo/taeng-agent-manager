@@ -1,0 +1,16 @@
+{
+  "_설명": "작업 배정 선호. am task add에서 --agent를 안 주면 여기서 고른다. 사용자 지시(2026-11-09): Codex를 11/30까지 쓰고, 디자인까지 Codex를 더 많이.",
+  "prefer": "codex",
+  "prefer_until": "2026-11-30",
+  "after": "claude",
+  "kinds": {
+    "general": "codex",
+    "design": "codex",
+    "test": "codex",
+    "docs": "codex"
+  },
+  "claude_only": {
+    "review": "reviewflow 4관점 리뷰는 Claude 플러그인 — Codex 작업의 교차 검증을 Claude가 맡는다",
+    "design-polish": "ui-ux-pro-max·emil-design-eng 같은 디자인 보조 스킬은 Claude에만 설치돼 있다 — 필요할 때만"
+  }
+}

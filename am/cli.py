@@ -28,6 +28,9 @@ def cmd_list(a):
     for p in ps:
         open_n = sum(t["status"] != "done" for t in p["tasks"])
         print(f"{p['slug']:<24} {p['phase']:<11} 작업 {open_n}/{len(p['tasks'])} 남음  {p.get('repo') or '-'}")
+        w = S.routing_warning(p, a.root)
+        if w:
+            print(f"  ⚠ {w}")
 
 
 def cmd_status(a):
@@ -46,6 +49,13 @@ def cmd_status(a):
     for t in p["tasks"]:
         extra = " ".join(f"{k}={t[k]}" for k in ("branch", "pr", "dispatch") if t.get(k))
         print(f"  [{t['status']:<10}] {t['id']} ({t['agent']}) {t['title']} {extra}")
+    r = S.routing(a.root)
+    if r["prefer"]:
+        print(f"배정 선호: {r['prefer']}" + (f" ({r['until']}까지, D-{r['days_left']})" if r["active"] and r["until"] else
+                                          f" 기간 끝 → {r['pick']['general']}") + f" · 디자인 → {r['pick']['design']}")
+    w = S.routing_warning(p, a.root)
+    if w:
+        print(f"⚠ {w}")
     print("다음:", S.next_action(p).replace("<slug>", p["slug"]))
 
 
@@ -90,14 +100,14 @@ def cmd_set(a):
 
 def cmd_task_add(a):
     p = _p(a)
-    t = S.add_task(p, a.title, a.agent, a.id)
+    t = S.add_task(p, a.title, a.agent, a.id, a.kind, a.root)
     S.save(p, a.root)
-    print(f"작업 {t['id']} ({t['agent']}): {t['title']}")
+    print(f"작업 {t['id']} ({t['agent']}{' — 자동 배정' if not a.agent else ''}): {t['title']}")
 
 
 def cmd_task_set(a):
     p = _p(a)
-    S.update_task(p, a.id, status=a.status, agent=a.agent, branch=a.branch, worktree=a.worktree,
+    S.update_task(p, a.id, root=a.root, status=a.status, agent=a.agent, branch=a.branch, worktree=a.worktree,
                   pr=a.pr, dispatch=a.dispatch, note=a.note)
     S.save(p, a.root)
     print(f"작업 {a.id} 갱신")
@@ -139,7 +149,7 @@ def cmd_restore(a):
 
 def cmd_task_verify(a):
     p = _p(a)
-    S.verify_task(p, a.id, a.by, a.tests, a.review, a.security, a.summary, a.files)
+    S.verify_task(p, a.id, a.by, a.tests, a.review, a.security, a.summary, a.files, a.root)
     S.save(p, a.root)
     t = next(t for t in p["tasks"] if t["id"] == a.id)
     print(f"검증 기록 {a.id}: " + ("통과 — review로 넘길 수 있음" if S.verified(t) else "미통과 — 같은 워커에 수정 요청"))
@@ -232,7 +242,8 @@ def build_parser():
 
     t = sub.add_parser("task", help="작업").add_subparsers(dest="tcmd", required=True)
     s = t.add_parser("add"); s.add_argument("slug"); s.add_argument("title")
-    s.add_argument("--agent", required=True, choices=S.AGENTS); s.add_argument("--id")
+    s.add_argument("--agent", choices=S.AGENTS, help="생략하면 config/agents.json 선호대로 자동 배정")
+    s.add_argument("--kind", default="general", choices=S.TASK_KINDS); s.add_argument("--id")
     s.set_defaults(fn=cmd_task_add)
     s = t.add_parser("set"); s.add_argument("slug"); s.add_argument("id")
     s.add_argument("--status", choices=S.TASK_STATUSES); s.add_argument("--agent", choices=S.AGENTS)

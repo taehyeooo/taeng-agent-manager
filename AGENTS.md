@@ -14,11 +14,13 @@
 | 작업 에이전트 | Orca 워커 — Claude Code 또는 Codex | 설계·구현·버그 수정·테스트, 자기 워크트리에서 PR까지 | 머지·승인 필요 작업 |
 | 검증 에이전트 | 구현한 쪽과 **다른 모델**의 워커 | 리뷰·테스트·보안 검사 → `am task verify` | 코드 수정(지적만) |
 
-### 에이전트 선택 (역할 고정 없음)
-작업마다 매니저가 고르고, 고른 이유를 `am task add ... --agent` 뒤 `am task set --note`로 남긴다.
-- 필요한 맥락이 많고 요구가 애매하다 → 대화로 좁혀 가며 일하기 좋은 쪽, 전용 스킬이 필요하면 그 스킬이 있는 쪽(intaeng 디자인·reviewflow는 Claude)
-- 입출력·완료 기준이 명확하다 → 둘 다 가능, 그때 비어 있는 쪽
-- 한 에이전트가 같은 작업에서 2번 실패했다 → 다른 에이전트로 교체
+### 에이전트 선택 (역할 고정 없음 — 선호는 `config/agents.json`)
+**지금 선호: Codex 우선, 디자인 포함 — 2026-11-30까지**(사용자 지시 2026-11-09). 이후에는 Claude로 자동 전환.
+- `am task add <slug> "<제목>" --kind general|design|test|docs` — `--agent`를 생략하면 선호대로 배정되고 이유가 note에 남는다. 다른 쪽을 고르면 `--agent`와 `--note "이유"`.
+- Claude로 돌리는 경우는 이것만: 검증(교차 검증, reviewflow), Codex가 같은 작업에서 2번 실패, Claude에만 있는 스킬이 꼭 필요할 때.
+- 디자인을 Codex에 맡길 때: intaeng `design-flow`·`design-review`·`ux-writing-ko`는 Codex에도 설치해 쓴다(intaeng은 Codex 플러그인 형식 지원). 시안 고르기(1·2단계)는 여전히 사용자 몫.
+- 기한이 3일 안으로 남으면 `am status`가 경고한다 — 큰 작업은 미리 맡기고, 기한이 지나면 Codex에 남은 작업을 Claude로 재배정한다(`am task set --agent claude`).
+- 사용 기간이 끝난 에이전트에는 배정할 수 없다(CLI가 막음). 다른 모델을 쓸 수 없을 때만 같은 모델의 다른 세션이 검증해도 된다.
 - 검증은 항상 구현한 모델의 반대쪽(교차 검증): codex 구현 → `claude:reviewflow`, claude 구현 → `codex:review`
 - 서로 기대지 않는 작업만 병렬(최대 2개), 같은 파일을 두 워커에 주지 않는다.
 

@@ -189,8 +189,9 @@ class VerifierFindingsTest(GuardTest):
                      "from am import state as S; p=S.load('app'); S.approve(p,'push'); S.save(p)"):
             d, msg = self.bash(f'python -c "{body}"')
             self.assertEqual(d, "deny", body)
-        heredoc = "python - <<'EOF'\nfrom am import state as S\nEOF"
+        heredoc = "python - <<'EOF'\nfrom am import state as S\np = S.load('app'); S.approve(p, 'push'); S.save(p)\nEOF"
         self.assertEqual(self.bash(heredoc)[0], "deny")
+        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "allow")  # 읽기만
         self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
 
     def test_shell_write_targets_and_patches_checked(self):
@@ -237,6 +238,75 @@ class VerifierFindingsTest(GuardTest):
         self.assertEqual(self.bash('git commit -m "fix: git push documentation"')[0], "allow")
         self.assertEqual(self.bash('echo "git push origin main"')[0], "allow")
         self.assertEqual(self.bash('git commit -m "a; git push"')[0], "allow")
+
+
+class VerifierRound2Test(GuardTest):
+    """Regression tests for the codex re-verification report (ctx_d834afedd938)."""
+
+    def test_substitutions_and_blocks_are_analysed(self):
+        self.assertIn("금지", self.bash("echo $(gh auth token)")[1])
+        self.assertEqual(self.bash('echo "$(git push origin main)"')[0], "deny")
+        self.assertEqual(self.bash("echo `git push origin main`")[0], "deny")
+        self.assertEqual(self.bash('powershell -Command "& { git push origin main }"')[0], "deny")
+        self.assertEqual(self.bash("cmd /c git pu^sh origin main")[0], "deny")
+        self.assertEqual(self.bash("powershell -Command git pu`sh origin main")[0], "ask")  # 짝 없는 ` → 사람 확인
+        self.assertEqual(self.bash("powershell -Command git pu`sh origin main", agent="codex")[0], "deny")
+        self.assertEqual(self.bash("$(echo git) push origin main")[0], "ask")
+        self.assertEqual(self.bash("echo $(git rev-parse --show-toplevel)")[0], "allow")
+        self.assertEqual(self.bash("echo $(oops")[0], "ask")  # 닫히지 않은 치환
+
+    def test_python_options_dont_hide_self_approval(self):
+        for cmd in ("python -u -m am approve app push", "python -X utf8 -m am approve app push", "python3 -B -m am approve app push"):
+            self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+
+    def test_gh_repo_option_and_other_repos(self):
+        p = S.load("app", self.root)
+        p["repo"] = "me/app"
+        S.save(p, self.root)
+        self.approve("merge_main", "PR#3")
+        self.assertEqual(self.bash("gh pr merge 3 --squash")[0], "allow")
+        for cmd in ("gh --repo me/other pr merge 3 --squash", "gh pr merge 3 -R me/unrelated --squash",
+                    "gh api repos/me/other/pulls/3/merge -X PUT"):
+            d, msg = self.bash(cmd)
+            self.assertEqual(d, "deny", cmd)
+            self.assertIn("다른 저장소", msg, cmd)
+
+    def test_gh_api_attached_option_forms(self):
+        for cmd in ("gh api user/repos -XPOST", "gh api user/repos --input=data.json", "gh api user/repos --method=POST"):
+            self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+
+    def test_push_repo_option(self):
+        self.approve("push", "feat/x")
+        self.assertEqual(self.bash("git push --repo=origin main")[0], "deny")
+        self.assertEqual(self.bash("git push --repo origin main")[0], "deny")
+        self.assertEqual(self.bash("git push --repo=origin feat/x")[0], "allow")
+
+    def test_inline_script_writes_and_env_dumps(self):
+        self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path(r'{self.other / 'main.py'}').write_text('x')\"")[0], "deny")
+        self.assertIn("인증정보", self.bash('python -c "import os; print(os.environ)"')[1])
+        self.assertIn("인증정보", self.bash("env")[1])
+        self.assertEqual(self.bash("env A=1 python -m unittest")[0], "allow")
+
+    def test_long_recursive_flag_and_wildcards(self):
+        self.assertEqual(self.bash("rm --recursive src")[0], "deny")
+        self.assertEqual(self.bash("Remove-Item src/*")[0], "deny")
+        self.assertEqual(self.bash("rm src/old.py")[0], "allow")  # 파일 하나는 git으로 되살릴 수 있다
+
+    def test_package_runners_unwrapped(self):
+        for cmd in ("npx vercel --prod", "pnpm dlx vercel --prod", "npm exec -- vercel --prod", "bunx vercel"):
+            self.assertIn("deploy", self.bash(cmd)[1], cmd)
+
+    def test_git_aliases(self):
+        self.assertEqual(self.bash("git -c alias.publish=push publish origin main")[0], "ask")
+        git(self.app, "config", "alias.publish", "push")
+        self.assertEqual(self.bash("git publish origin main")[0], "deny")
+        git(self.app, "config", "alias.sh", "!sh -c 'git push'")
+        self.assertEqual(self.bash("git sh")[0], "ask")
+
+    def test_no_false_positives(self):
+        for cmd in ('echo "documentation > C:/other/file.txt"', 'python -c "from am import state; print(state.GATES)"',
+                    "npm list -g", 'git commit -m "document --yolo flag"', "git log --oneline -5"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
 
 
 class TrustLayerStateTest(unittest.TestCase):

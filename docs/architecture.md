@@ -87,9 +87,18 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
 - 가드 자체가 오류 나면 위험해 보이는 명령만 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
 - CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only, `scripts/check_approvals.py`).
-- **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음): 따옴표 밖에서만 명령을 나누고, `bash -c`·`powershell -Command`·`cmd /c`·`env`·`&` 감싸기를 벗기고, `git -C <폴더>`는 그 폴더 기준으로 판정. 명령어 자리만 보므로 커밋 메시지 속 "git push"는 무시. 변수·eval·스크립트 안 subprocess처럼 미리 알 수 없는 실행은 사람에게 넘긴다(Claude 확인 창, Codex 차단).
-- **한계(남는 위험)**: 가드는 안전벨트지 샌드박스가 아니다. `python script.py`처럼 파일로 된 스크립트 안의 동작, 별칭·PATH 바꿔치기는 실행 전에 알 수 없다. 그래서 뒤에 두 겹을 더 둔다 — ① CI의 승인 기록 append-only 검사, ② GitHub 쪽 main 보호 규칙(PR·CI 통과 없이는 main에 못 들어감 — 서버가 강제, 저장소 설정 변경이라 승인 후 적용).
-- 2026-11-09 교차 검증(codex)에서 우회 13건을 찾아 모두 고치고, 각 재현을 `tests/test_guard.py` `VerifierFindingsTest`에 회귀 테스트로 남겼다. 변형 검사 17/17.
+- **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음):
+  - 따옴표 밖에서만 `; | & { } ( )`·줄바꿈으로 나누고, `$(...)`·`` `...` `` 안의 명령도 따로 검사한다.
+  - `bash -c`·`powershell -Command`(`` ` `` escape 해석)·`cmd /c`(`^` escape 해석)·`env`·`&`·`sudo`·`npx`/`pnpm dlx`/`npm exec`를 벗긴다.
+  - git 앞 옵션(`-C <폴더>`는 그 폴더 기준), git 별칭(실제 내용으로 펼침, `!셸` 별칭은 사람 확인), gh `-R/--repo`(이 프로젝트 저장소와 다르면 금지), python 옵션(`-u -m am approve`)을 해석한다.
+  - 명령어 자리만 보므로 커밋 메시지·echo 인수 속 글자는 무시한다.
+  - 변수·eval·인코딩된 명령·짝 없는 치환·스크립트 안 subprocess처럼 미리 알 수 없는 실행은 사람에게 넘긴다(Claude 확인 창, Codex 차단).
+- **한계(남는 위험) — 정직하게**: 가드는 안전벨트지 샌드박스가 아니다.
+  - 실행 전에 알 수 없는 것: 파일로 된 스크립트(`python script.py`, `npm run x`의 내용) 안의 동작, PATH·셸 함수 바꿔치기, 이미 저장소 설정에 있던 훅.
+  - CI의 append-only 검사는 **기존 승인이 바뀌거나 지워지는 것**만 잡는다. 새 승인이 정말 사용자에게서 왔는지는 증명하지 못한다 — 그건 가드(`am approve`는 사람 확인)에 기댄다.
+  - 비밀값 유출·외부 저장소 변경을 CI가 막지는 못한다(가드가 실행 전에 막는 것이 전부).
+  - 그래서 서버가 강제하는 마지막 겹이 필요하다: GitHub main 보호 규칙(PR·CI 통과 없이는 main에 못 들어감). 저장소 설정 변경이라 **사용자 승인 후 적용 — 아직 적용 안 됨**.
+- 교차 검증 기록(codex): 1차 우회 13건 → 수정·회귀 테스트(`VerifierFindingsTest`), 2차 우회 11건·과잉 차단 4건 → 수정·회귀 테스트(`VerifierRound2Test`). 각 재현이 테스트로 남아 있다.
 
 ## 6. 결정
 - **CLI는 Python 표준 라이브러리** — intaeng 스크립트와 같은 방식, 설치 없이 Claude·Codex 어디서나 `python -m am`.
