@@ -1,0 +1,4 @@
+# machine-local paths (each laptop has its own)
+.am/
+__pycache__/
+*.pyc
