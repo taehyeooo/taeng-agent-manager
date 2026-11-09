@@ -309,6 +309,72 @@ class VerifierRound2Test(GuardTest):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
 
 
+class VerifierRound3Test(GuardTest):
+    """Regression tests for the codex 3rd verification report (ctx_2f1f23369f8d) + the tripwire."""
+
+    def test_python_attached_options(self):
+        d, msg = self.bash("python -mam approve app push")
+        self.assertEqual(d, "ask")
+        self.assertIn("승인 기록은 사용자", msg)  # 두 번째 그물이 아니라 해석기가 알아봐야 한다
+        self.assertEqual(self.bash("python -um am approve app push")[0], "ask")
+        self.assertIn("인증정보", self.bash('python -c"import os; print(os.environ)"')[1])
+
+    def test_shell_keywords_and_backslash_escapes(self):
+        self.assertEqual(self.bash("bash -c 'if true; then git push origin main; fi'")[0], "deny")
+        self.assertEqual(self.bash("bash -c 'g\\it pu\\sh origin main'")[0], "deny")
+        self.assertNotEqual(self.bash("g\\it pu\\sh origin main")[0], "allow")  # 최상위: 두 번째 그물
+
+    def test_wrapper_options(self):
+        self.assertIn("deploy", self.bash("npx --yes vercel --prod")[1])
+        self.assertIn("deploy", self.bash("npx -p vercel vercel --prod")[1])
+        self.assertNotEqual(self.bash(f"env --chdir={self.other} git push origin main")[0], "allow")
+
+    def test_gh_attached_and_url_targets(self):
+        p = S.load("app", self.root)
+        p["repo"] = "me/app"
+        S.save(p, self.root)
+        self.assertEqual(self.bash("gh api user/repos -fname=x")[0], "deny")
+        self.approve("merge_main", "PR#3")
+        self.assertIn("다른 저장소", self.bash("gh pr merge 3 -Rme/other --squash")[1])
+        self.approve("merge_main")
+        self.assertIn("다른 저장소", self.bash("gh pr merge https://github.com/me/other/pull/3 --squash")[1])
+        self.assertEqual(self.bash("gh pr merge https://github.com/me/app/pull/3 --squash")[0], "allow")
+
+    def test_git_option_forms(self):
+        self.approve("push")
+        self.assertIn("금지", self.bash("git push -fu origin main")[1])
+        self.assertIn("관련 없는 프로젝트", self.bash(f"git -C{self.other} push origin main")[1])
+        self.assertIn("관련 없는 프로젝트", self.bash(f"git --git-dir={self.other / '.git'} push origin main")[1])
+        self.assertIn("금지", self.bash("git -c core.hooksPath=NUL commit --no-verify -m x")[1])
+        self.assertIn("금지", self.bash("git -c core.hooksPath=/dev/null commit -m x")[1])
+        self.assertEqual(self.bash("git push -n origin feat/x")[0], "allow")  # push -n = dry-run, 우회 아님
+        self.assertIn("금지", self.bash("git commit -nm x")[1])  # commit -n = --no-verify
+
+    def test_fd_redirect_targets(self):
+        self.assertEqual(self.bash(f"python -m unittest 2>{self.other / 'main.py'}")[0], "deny")
+        self.assertEqual(self.bash("python -m unittest 2>&1")[0], "allow")
+        self.assertEqual(self.bash("python -m unittest 2>err.log")[0], "allow")
+
+    def test_state_file_delete_or_move(self):
+        for cmd in ("rm projects/app/project.json", "mv projects/app/project.json old.json", "git rm projects/app/project.json",
+                    "Remove-Item .am/local.json"):
+            self.assertIn("금지", self.bash(cmd, cwd=self.root)[1], cmd)
+
+    def test_no_false_positives_round3(self):
+        self.assertEqual(self.bash("echo '$GITHUB_TOKEN'")[0], "allow")  # 작은따옴표 = 글자 그대로
+        d = G.decide({"tool_name": "PowerShell", "tool_input": {"command": 'echo "uses `n for newline"'}, "cwd": str(self.app)}, "claude", self.root)
+        self.assertEqual(d[0], "allow")
+        for cmd in ('git commit -m "fix push bug"', "git log --grep=push", "git merge-base main HEAD", "git merge origin/main",
+                    'git commit -m "merge approve flow"', "gh pr review 3 --approve", "python -m unittest discover -s tests"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_tripwire_catches_unparsed_risky_words(self):
+        # 파일 스크립트의 내용은 구조적 한계(문서) — 위험 단어가 명령줄에 보이면 그물이 잡는다
+        self.assertEqual(self.bash("npm run push")[0], "ask")
+        self.assertEqual(self.bash("npm run push", agent="codex")[0], "deny")
+        self.assertEqual(self.bash("node -e \"require('child_process')\" && echo vercel")[0], "ask")
+
+
 class TrustLayerStateTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

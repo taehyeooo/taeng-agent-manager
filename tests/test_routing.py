@@ -61,9 +61,33 @@ class RoutingTest(unittest.TestCase):
             S.add_task(self.p, "UI", "claude", root=self.root)
             with self.assertRaises(S.StateError):
                 S.verify_task(self.p, "T1", "claude:other-session", "pass", "pass", "pass", root=self.root)
-        with self.at(date(2026, 12, 2)):  # codex 기간 끝 → claude 작업을 claude의 다른 세션이 검증 가능
-            S.verify_task(self.p, "T1", "claude:other-session", "pass", "pass", "pass", root=self.root)
+        S.update_task(self.p, "T1", root=self.root, dispatch="ctx_aaa111")
+        with self.at(date(2026, 12, 2)):  # codex 기간 끝 → claude 작업을 claude의 '다른 세션'이 검증 가능
+            for bad in ("claude", "claude:other-session", "claude:ctx_aaa111"):  # 세션 id 없음·형식 틀림·구현 세션과 같음
+                with self.assertRaises(S.StateError, msg=bad):
+                    S.verify_task(self.p, "T1", bad, "pass", "pass", "pass", root=self.root)
+            S.verify_task(self.p, "T1", "claude:ctx_bbb222", "pass", "pass", "pass", root=self.root)
             S.update_task(self.p, "T1", root=self.root, status="review")
+
+    def test_expired_agent_cannot_be_reassigned(self):
+        with self.at(date(2026, 12, 1)):
+            S.add_task(self.p, "x", "claude", root=self.root)
+            with self.assertRaises(S.StateError):
+                S.update_task(self.p, "T1", root=self.root, agent="codex")
+
+    def test_failed_verification_after_review_or_done(self):
+        with self.at(date(2026, 11, 20)):
+            S.add_task(self.p, "x", "codex", root=self.root)
+            S.verify_task(self.p, "T1", "claude", "pass", "pass", "pass", root=self.root)
+            S.update_task(self.p, "T1", root=self.root, status="review", pr="3")
+            S.verify_task(self.p, "T1", "claude", "fail", "pass", "pass", root=self.root)
+            self.assertEqual(self.p["tasks"][0]["status"], "dispatched")  # review → 다시 수정
+            S.verify_task(self.p, "T1", "claude", "pass", "pass", "pass", root=self.root)
+            S.approve(self.p, "merge_main", "PR#3")
+            S.update_task(self.p, "T1", root=self.root, status="done")
+            with self.assertRaises(S.StateError):  # done 작업에 실패 검증을 덮어쓰지 못함
+                S.verify_task(self.p, "T1", "claude", "fail", "fail", "fail", root=self.root)
+            self.assertTrue(S.verified(self.p["tasks"][0]))
 
     def test_invariants_checked_after_change(self):
         with self.at(date(2026, 11, 20)):

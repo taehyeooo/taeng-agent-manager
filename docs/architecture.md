@@ -6,7 +6,7 @@
 | 도구 | 상태 |
 |---|---|
 | Claude Code | 2.1.319 — 사용 가능, taeng-marketplace 플러그인 설치됨 |
-| Codex CLI | **설치 안 됨** (`~/.codex/hooks.json`만 있음 — Orca가 만든 것) |
+| Codex CLI | 0.167.0 — 2026-11-09 사용자 승인 후 설치·로그인(ChatGPT). PowerShell 실행 정책 CurrentUser RemoteSigned(승인). intaeng 0.6.0 플러그인 설치(승인) — design-flow 등 11개 스킬 사용 가능. `pre_tool_use` 훅 지원 |
 | Orca | 1.4.253 — 실행 중, runtime ready. `orchestration`(task·dispatch·worker·gate), `worktree create`, `agent launch --agent codex\|claude` |
 | GitHub CLI | 2.102.0 — taehyeooo 로그인됨 |
 | git / python / node | 2.55 / 3.14 / 24 |
@@ -98,7 +98,8 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
   - CI의 append-only 검사는 **기존 승인이 바뀌거나 지워지는 것**만 잡는다. 새 승인이 정말 사용자에게서 왔는지는 증명하지 못한다 — 그건 가드(`am approve`는 사람 확인)에 기댄다.
   - 비밀값 유출·외부 저장소 변경을 CI가 막지는 못한다(가드가 실행 전에 막는 것이 전부).
   - 그래서 서버가 강제하는 마지막 겹이 필요하다: GitHub main 보호 규칙(PR·CI 통과 없이는 main에 못 들어감). 저장소 설정 변경이라 **사용자 승인 후 적용 — 아직 적용 안 됨**.
-- 교차 검증 기록(codex): 1차 우회 13건 → 수정·회귀 테스트(`VerifierFindingsTest`), 2차 우회 11건·과잉 차단 4건 → 수정·회귀 테스트(`VerifierRound2Test`). 각 재현이 테스트로 남아 있다.
+- **두 번째 그물(tripwire)**: 해석기가 명령을 볼 때마다 "봤다" 표시(`git:push`, `gh:pr.merge`, `cmd:vercel`…)를 남긴다. 명령줄(코드로 실행되는 인용문 포함, 커밋 메시지 같은 일반 인용문 제외)에 위험 단어(push·merge·approve·배포 도구·environ·project.json·no-verify·DB 변경어)가 있는데 그 단어를 설명하는 표시가 없으면 판단 불가로 사람에게 넘긴다. 해석기가 모르는 새 형태를 "모르는 것"으로 거르는 장치다.
+- 교차 검증 기록(codex): 1차 우회 13건(`VerifierFindingsTest`) → 2차 11건·과잉 차단 4건(`VerifierRound2Test`) → 3차 9건·과잉 차단 3건(`VerifierRound3Test`: 붙여 쓴 옵션, 셸 조건문·역슬래시, 실행기 옵션, gh URL·-R 붙여쓰기, git -CX·--git-dir·core.hooksPath, 2> 리다이렉트, 상태 파일 rm/mv, done 뒤 실패 검증, 기간 끝난 에이전트 재배정). 3차부터는 사례별 수정과 함께 두 번째 그물을 더했다. 각 재현이 테스트로 남아 있다.
 
 ## 6. 결정
 - **CLI는 Python 표준 라이브러리** — intaeng 스크립트와 같은 방식, 설치 없이 Claude·Codex 어디서나 `python -m am`.

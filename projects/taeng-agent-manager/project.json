@@ -5,7 +5,14 @@
   "phase": "planning",
   "repo": "taehyeooo/taeng-agent-manager",
   "test_cmd": "python -m unittest discover -s tests",
-  "approvals": [],
+  "approvals": [
+    {
+      "gate": "system_permission",
+      "ref": "codex-plugin-intaeng",
+      "note": "2026-11-09 사용자: '그래 진행해' — Codex에 taeng-marketplace 등록·intaeng 설치",
+      "at": "2026-11-09T23:56:29+09:00"
+    }
+  ],
   "tasks": [
     {
       "id": "T1",
@@ -15,15 +22,15 @@
       "branch": "feat/mvp-cli",
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_d834afedd938",
-      "note": "2차 지적 모두 수정(86 테스트, 변형 29/29) → codex 3차 재검증 요청",
+      "dispatch": "ctx_2f1f23369f8d",
+      "note": "3차 지적 수정 + 두 번째 그물(tripwire) 추가 — 109 테스트, 변형 40/40 → codex 4차 재검증 요청",
       "verification": {
         "tests": "pass",
         "review": "fail",
         "security": "fail",
         "by": "codex:verifier",
-        "summary": "2차 재검증: 1차 13건 해결 확인, 새 우회 11건·과잉 차단 4건(치환·블록·escape, python 옵션, gh -R, gh api 붙여쓰기, push --repo, 인라인 스크립트 쓰기·env 출력, rm --recursive·와일드카드, npx, 상태 불변식, 별칭)",
-        "at": "2026-11-09T23:50:25+09:00"
+        "summary": "3차: 2차 15건 해결 확인, 새 9건(붙여쓴 옵션·셸 조건문·escape·실행기 옵션·gh URL/-R·git -CX/--git-dir/hooksPath·2>·상태 파일 rm/mv·상태 불변식) + 과잉 차단 3건",
+        "at": "2026-11-10T00:24:35+09:00"
       },
       "files": [
         "am/guard.py",
@@ -83,8 +90,24 @@
     {
       "at": "2026-11-09T23:50:25+09:00",
       "event": "작업 T1 변경: note=2차 지적 모두 수정(86 테스트, 변형 29/29) → codex 3차 재검증 요청"
+    },
+    {
+      "at": "2026-11-09T23:50:42+09:00",
+      "event": "작업 T1 변경: dispatch=ctx_2f1f23369f8d"
+    },
+    {
+      "at": "2026-11-09T23:56:29+09:00",
+      "event": "승인 기록: system_permission (codex-plugin-intaeng)"
+    },
+    {
+      "at": "2026-11-10T00:24:35+09:00",
+      "event": "작업 T1 검증(codex:verifier): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-10T00:24:35+09:00",
+      "event": "작업 T1 변경: note=3차 지적 수정 + 두 번째 그물(tripwire) 추가 — 109 테스트, 변형 40/40 → codex 4차 재검증 요청"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-09T23:50:25+09:00"
+  "updated_at": "2026-11-10T00:24:35+09:00"
 }

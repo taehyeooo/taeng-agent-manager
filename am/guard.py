@@ -42,6 +42,7 @@ SHELL_CMD_FLAGS = {"-c", "-lc", "-ic", "-command", "/c", "/k", "/s"}
 SCRIPTERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl"}
 PY_OPTS_WITH_ARG = {"-X", "-W", "--check-hash-based-pycs"}
 PREFIXES = {"&", ".", "call", "time", "nohup", "exec", "command", "builtin", "start", "start-process", "npx", "pnpx", "bunx"}
+SHELL_KEYWORDS = {"if", "then", "else", "elif", "do", "while", "until", "!", "fi", "done", "esac", "time"}
 OPAQUE_WORDS = {"eval", "iex", "invoke-expression", "invoke-command", "xargs", "source"}
 GIT_GLOBAL_WITH_ARG = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--config-env", "--super-prefix"}
 GIT_BUILTINS = {"add", "am", "apply", "archive", "bisect", "blame", "branch", "bundle", "cat-file", "checkout", "cherry-pick",
@@ -114,6 +115,10 @@ def resolve_project(cwd, root=None):
         if _norm(path) == _norm(main_checkout):
             return slug
     return None
+
+
+def _seen(tag, seg):
+    return {"kind": "seen", "seg": seg, "tag": tag}
 
 
 def _finding(kind, seg, **kw):
@@ -208,6 +213,29 @@ def tokens(seg):
     return toks
 
 
+def bash_unescape(s):
+    """Backslash escapes outside single quotes, as bash removes them (g\\it → git)."""
+    out, q, i = [], None, 0
+    while i < len(s):
+        ch = s[i]
+        if q == "'":
+            q = None if ch == "'" else q
+            out.append(ch)
+        elif ch == "'" and q is None:
+            q = "'"
+            out.append(ch)
+        elif ch == '"':
+            q = None if q == '"' else '"'
+            out.append(ch)
+        elif ch == "\\" and i + 1 < len(s) and (q is None or s[i + 1] in '$`"\\'):
+            out.append(s[i + 1])
+            i += 1
+        else:
+            out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def unquoted(seg):
     """seg with quoted text blanked — for operators like > that only count outside quotes."""
     out, q = [], None
@@ -253,10 +281,12 @@ def _check_script(body, seg, cwd, root):
 
 def _write_targets(word, args, seg):
     """Paths a shell command writes to (redirections only outside quotes)."""
-    targets = [m.group(1) for m in re.finditer(r"(?<![\d&])>>?\s*(\S+)", unquoted(seg))]
+    redirect = r"(?<![&<>])\d*>>?(?!&)\s*"  # >, >>, 2>, 1>> … but not 2>&1
+    uq = unquoted(seg)
+    targets = [m.group(1) for m in re.finditer(redirect + r"(\S+)", uq)]
     # unquoted() blanks quoted targets; recover them from the original text at the same position
-    for m in re.finditer(r"(?<![\d&])>>?\s*[\"']([^\"']+)[\"']", seg):
-        if unquoted(seg)[m.start()] == ">":
+    for m in re.finditer(redirect + r"[\"']([^\"']+)[\"']", seg):
+        if ">" in uq[m.start():m.start() + 4]:
             targets.append(m.group(1))
     plain = [a for a in args if not a.startswith("-")]
     if word in ("set-content", "add-content", "out-file", "new-item", "sc", "ac"):
@@ -276,10 +306,15 @@ def _write_targets(word, args, seg):
     return [t for t in targets if t and t != "/dev/null" and t.lower() != "nul" and not t.startswith("&")]
 
 
+def _short_flag(args, letter):
+    """-f, -fu, -uf … (a single-dash cluster containing the letter)."""
+    return any(re.fullmatch(r"-[a-zA-Z]+", a) and letter in a[1:] for a in args)
+
+
 def _push(args, seg, where):
     out = []
-    force = any(a in ("--force", "-f") or a.startswith("--force-with-lease") or a == "--force-if-includes" for a in args)
-    delete = "--delete" in args or "-d" in args
+    force = _short_flag(args, "f") or any(a == "--force" or a.startswith("--force-with-lease") or a == "--force-if-includes" for a in args)
+    delete = "--delete" in args or _short_flag(args, "d")
     remote, pos, i = None, [], 0
     while i < len(args):
         a = args[i]
@@ -331,8 +366,8 @@ def _gh_api(args, seg, where, repo):
         elif a.startswith("-X") and len(a) > 2:
             method = a[2:].lstrip("=").upper()
     if method == "GET" and any(a in ("-f", "-F", "--field", "--raw-field", "--input") or
-                               a.startswith(("--field=", "--raw-field=", "--input=", "-f=", "-F=")) for a in args):
-        method = "POST"
+                               a.startswith(("--field=", "--raw-field=", "--input=", "-f", "-F")) for a in args):
+        method = "POST"  # gh api: any field (also attached, -fname=x) makes it a POST
     endpoint = next((a for a in args if not a.startswith("-") and a.upper() != method), "")
     m = re.match(r"/?repos/([^/]+/[^/]+)", endpoint)
     repo = repo or (m.group(1) if m else None)
@@ -365,19 +400,32 @@ def _delete_safe(paths, cwd):
 
 def _strip_prefixes(toks, seg, out):
     """env/sudo/&/npx… → the real command. `env` alone prints every secret."""
+    def drop_opts(ts, with_value=()):
+        """Drop leading options of a wrapper (npx --yes -p pkg …) so the real command word comes next."""
+        while ts and ts[0].startswith("-"):
+            o = ts.pop(0)
+            if o in with_value and ts:
+                ts.pop(0)
+        return ts
+
     while toks:
         w = _word(toks[0])
-        if re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
+        if toks[0] in SHELL_KEYWORDS:
             toks = toks[1:]
+        elif re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
+            toks = drop_opts(toks[1:], ("-p", "--package", "-c", "--call")) if w in ("npx", "pnpx", "bunx") else toks[1:]
         elif w == "env":
+            if any(t in ("-C", "--chdir", "-S", "--split-string") or t.startswith(("--chdir=", "-C", "-S")) for t in toks[1:]):
+                out.append(_finding("opaque", seg, reason="env가 폴더·명령 문자열을 바꿔 실행"))
+                return []
             rest = [t for t in toks[1:] if not t.startswith("-")]
             if not any(not re.match(r"^[A-Za-z_]\w*=", t) for t in rest):
                 out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 전체 출력)"))
                 return []
-            toks = toks[1:]
+            toks = drop_opts(toks[1:], ("-u", "--unset"))
         elif w == "sudo":
             out.append(_gated("system_permission", seg))
-            toks = toks[1:]
+            toks = drop_opts(toks[1:], ("-u", "-g", "-C", "-h", "-p"))
         elif w in ("pnpm", "yarn") and len(toks) > 1 and toks[1].lower() == "dlx" or w == "npm" and len(toks) > 1 and toks[1].lower() == "exec":
             toks = toks[2:]
             if toks and toks[0] == "--":
@@ -394,6 +442,7 @@ def analyze(seg, cwd, root, depth=0):
     if not toks:
         return out
     word, args = _word(toks[0]), toks[1:]
+    out.append(_seen(f"cmd:{word}", seg))
     low = [a.lower() for a in args]
     joined = " ".join(toks)
 
@@ -404,12 +453,11 @@ def analyze(seg, cwd, root, depth=0):
     if any(a in BYPASS_FLAGS or a.startswith("--permission-mode=bypass") for a in args) or \
             any(a == "--permission-mode" and i + 1 < len(args) and args[i + 1].lower().startswith("bypass") for i, a in enumerate(args)):
         out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
-    if word == "git" and any(a in ("--no-verify", "--no-gpg-sign", "-n") and sub_is(args, ("commit", "push")) for a in args):
-        out.append(_finding("forbidden", seg, reason="검증 단계 우회"))
     if (word == "gh" and [a for a in low if not a.startswith("-")][:2] == ["auth", "token"]) or joined.lower() in SECRET_LISTERS \
             or word in ("printenv",):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
-    if word in ("echo", "write-output", "write-host", "printf") and re.search(r"\$\{?(env:)?\w*(TOKEN|SECRET|PASSWORD|API_?KEY)\w*", seg, re.I):
+    no_single = re.sub(r"'[^']*'", "''", seg)  # '$TOKEN' in single quotes is literal text, not the secret
+    if word in ("echo", "write-output", "write-host", "printf") and re.search(r"\$\{?(env:)?\w*(TOKEN|SECRET|PASSWORD|API_?KEY)\w*", no_single, re.I):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
     if word in ("cat", "type", "get-content", "gc", "less", "more", "head", "tail", "bat") and any(
             re.search(r"(auth\.json|\.git-credentials|credentials\.json)$", a, re.I) for a in args):
@@ -426,6 +474,8 @@ def analyze(seg, cwd, root, depth=0):
                     inner = re.sub(r"`(.)", r"\1", inner)
                 elif word == "cmd":
                     inner = inner.replace("^", "")
+                else:  # bash/sh: g\it pu\sh → git push
+                    inner = bash_unescape(inner)
                 if depth >= 4:
                     return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
                 return out + classify_command(inner, cwd, root, depth + 1)
@@ -440,25 +490,46 @@ def analyze(seg, cwd, root, depth=0):
             if a in PY_OPTS_WITH_ARG:
                 i += 2
                 continue
-            if a in ("-m",) and i + 1 < len(args):
+            if a == "-m" and i + 1 < len(args):
                 module, margs = args[i + 1], [x.lower() for x in args[i + 2:]]
+                break
+            if a.startswith("-m") and len(a) > 2 and word.startswith(("python", "py")):  # python -mam
+                module, margs = a[2:], [x.lower() for x in args[i + 1:]]
                 break
             if a in ("-c", "-e", "--eval", "-p") and i + 1 < len(args):
                 body = " ".join(args[i + 1:])
+                break
+            if re.match(r"^-[ce].", a):  # python -c"…" / node -e"…" attached
+                body = " ".join([a[2:], *args[i + 1:]])
+                break
+            if re.fullmatch(r"-[a-zA-Z]+", a) and a[-1] in "mce" and i + 1 < len(args):  # python -um am / -Bc "…"
+                if a[-1] == "m":
+                    module, margs = args[i + 1], [x.lower() for x in args[i + 2:]]
+                else:
+                    body = " ".join(args[i + 1:])
                 break
             if not a.startswith("-"):
                 if re.search(r"am[/\\](__main__|cli)\.py$", a) and "approve" in low:
                     out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
                 break
             i += 1
+        if module:
+            out.append(_seen(f"{_word(module)}:{(margs or [''])[0]}", seg))
         if module == "am" and "approve" in margs:
             out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
         if body is not None:
+            out.append(_seen("script", seg))
             out += _check_script(body, seg, cwd, root)
 
     # writes through the shell
     for t in _write_targets(word, args, seg):
         out += classify_file("Write", t, cwd, root, via=seg)
+
+    # removing or moving a state file is forging it too
+    if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
+                "rename-item", "rni", "truncate", "clear-content", "clc"):
+        if any(_is_state_file(a, cwd, root) for a in args if not a.startswith("-")):
+            out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
 
     # deletes: recursive, or wildcard — single explicit files stay recoverable through git
     if word in ("rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink"):
@@ -494,9 +565,11 @@ def analyze(seg, cwd, root, depth=0):
     return out
 
 
-def sub_is(args, subs):
-    rest = [a for a in args if not a.startswith("-")]
-    return bool(rest) and rest[0] in subs
+def _is_state_file(path, cwd, root=None):
+    root = Path(root or S.ROOT)
+    p = _abs(path, cwd)
+    return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
+        or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(path), re.I) is not None and _under(cwd, root)
 
 
 def _analyze_git(args, seg, cwd, root, depth):
@@ -504,15 +577,33 @@ def _analyze_git(args, seg, cwd, root, depth):
     while rest and rest[0].startswith("-"):
         opt = rest.pop(0)
         name, _, val = opt.partition("=")
-        if name in GIT_GLOBAL_WITH_ARG and not val and rest:
+        if opt.startswith("-C") and len(opt) > 2:  # git -C<dir> (attached)
+            name, val = "-C", opt[2:]
+        elif opt.startswith("-c") and len(opt) > 2 and not opt.startswith("--"):
+            name, val = "-c", opt[2:]
+        elif name in GIT_GLOBAL_WITH_ARG and not val and rest:
             val = rest.pop(0)
         if name == "-C":
             where = str(_abs(val, where))
-        if name in ("-c", "--config-env") and val.lower().startswith("alias."):
-            return out + [_finding("opaque", seg, reason="명령 안에서 git 별칭을 새로 정의")]
+        elif name in ("--git-dir", "--work-tree"):
+            d = _abs(val, where)
+            where = str(d.parent if d.name == ".git" else d)
+        if name in ("-c", "--config-env"):
+            key = val.split("=", 1)[0].lower()
+            if key.startswith("alias."):
+                return out + [_finding("opaque", seg, reason="명령 안에서 git 별칭을 새로 정의")]
+            if key in ("core.hookspath", "core.sshcommand", "core.fsmonitor", "core.editor", "core.pager", "credential.helper") \
+                    or key.startswith(("filter.", "diff.", "merge.")) and key.endswith((".clean", ".smudge", ".textconv", ".driver", ".command")):
+                return out + [_finding("forbidden", seg, reason=f"git 설정({key})으로 훅·검사를 바꾸거나 명령을 끼워 넣음")]
     if not rest:
         return out
     sub, sargs = rest[0].lower(), rest[1:]
+    out.append(_seen(f"git:{sub}", seg))
+    if sub in ("commit", "push", "merge", "rebase", "am", "cherry-pick", "revert") and (
+            any(a in ("--no-verify", "--no-gpg-sign") for a in sargs) or sub == "commit" and _short_flag(sargs, "n")):
+        out.append(_finding("forbidden", seg, reason="검증 단계 우회"))
+    if sub in ("rm", "mv") and any(_is_state_file(a, where, root) for a in sargs if not a.startswith("-")):
+        out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
     if SUBST in sub or sub.startswith("$"):
         return out + [_finding("opaque", seg, reason="git 하위 명령을 미리 알 수 없음")]
     if sub not in GIT_BUILTINS:
@@ -544,6 +635,8 @@ def _analyze_gh(args, seg, cwd):
     while i < len(args):  # -R/--repo can appear before or after the subcommand
         a = args[i]
         name, _, val = a.partition("=")
+        if a.startswith("-R") and len(a) > 2:  # gh -Rme/other (attached)
+            name, val = "-R", a[2:]
         if name in GH_GLOBAL_WITH_ARG:
             if not val and i + 1 < len(args):
                 val = args[i + 1]
@@ -555,6 +648,7 @@ def _analyze_gh(args, seg, cwd):
         i += 1
     low = [a.lower() for a in rest]
     pos = [a for a in low if not a.startswith("-")]
+    out.append(_seen("gh:" + ".".join(pos[:2]), seg))
     if any(SUBST in a for a in pos[:2]):
         return [_finding("opaque", seg, reason="gh 하위 명령을 미리 알 수 없음")]
     if pos[:2] == ["auth", "token"]:
@@ -567,6 +661,10 @@ def _analyze_gh(args, seg, cwd):
         out.append(_gated("destructive_delete", seg, what="repo_delete", repo=repo or (pos[2] if len(pos) > 2 else None)))
     elif pos[:2] == ["pr", "merge"]:
         num = next((a.lstrip("#") for a in pos[2:] if re.fullmatch(r"#?\d+", a)), None)
+        for a in pos[2:]:  # gh pr merge https://github.com/<owner>/<name>/pull/<n>
+            m = re.match(r"https?://[^/]+/([^/]+/[^/]+)/pull/(\d+)", a)
+            if m:
+                repo, num = repo or m.group(1), m.group(2)
         out.append(_gated("merge_main", seg, ref=S.pr_ref(num) if num else None, repo=repo))
     elif pos[:1] == ["api"]:
         idx = low.index("api")
@@ -587,9 +685,61 @@ def classify_command(cmd, cwd, root=None, depth=0):
         out += classify_command(sub, cwd, root, depth + 1) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     for seg in split_commands(flat):
         out += analyze(seg, cwd, root, depth)
+    if depth == 0:
+        out += tripwire(cmd, out)
     for f in out:
         f["seg"] = f["seg"].replace(SUBST, "$(…)")
     return out
+
+
+# ---------- second net: risky words the interpreter did not account for ----------
+# (pattern on the decoded command text, tags that mean "a parser looked at this")
+TRIPWIRES = [
+    (r"push", ("git:push", "cmd:docker", "gh:")),
+    (r"merge", ("git:merge", "gh:pr.merge", "gh:api")),
+    (r"approve", ("am:approve",)),
+    (r"(vercel|netlify|firebase|wrangler|railway|flyctl|kubectl|eas)",
+     ("cmd:vercel", "cmd:netlify", "cmd:firebase", "cmd:wrangler", "cmd:railway", "cmd:flyctl", "cmd:kubectl", "cmd:eas")),
+    (r"(environ|printenv|process\.env)", ("script", "cmd:printenv")),
+    (r"auth\s+token", ("gh:auth.token",)),
+    (r"(project\.json|local\.json)", ("cmd:", "git:")),
+    (r"(no-verify|hookspath)", ("git:",)),
+    (r"(drop\s+(table|database)|truncate\s+table|migrate\s+(reset|deploy)|db\s+(push|reset))",
+     ("cmd:psql", "cmd:mysql", "cmd:sqlite3", "cmd:sqlcmd", "cmd:supabase", "cmd:prisma")),
+]
+EXEC_FLAG_BEFORE = re.compile(r"(?:^|\s)(?:-c|-lc|-ic|-command|/c|/k|-e|--eval|eval|iex|invoke-expression)\s*$", re.I)
+
+
+def tripwire_text(cmd):
+    """Decoded command text where quoted strings count only if they are code (bash -c '…', python -c "…")."""
+    s = bash_unescape(cmd).replace("`", "").replace("^", "")
+    out, i = [], 0
+    while i < len(s):
+        ch = s[i]
+        if ch in "\"'":
+            j = s.find(ch, i + 1)
+            j = len(s) if j < 0 else j
+            body = s[i + 1:j]
+            out.append(body if EXEC_FLAG_BEFORE.search("".join(out)) else " " * len(body))
+            i = j + 1
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out).lower()
+
+
+def tripwire(cmd, found):
+    if any(f["kind"] in ("forbidden", "opaque", "approve") for f in found):
+        return []  # already stopped
+    text = tripwire_text(cmd)
+    tags = [f["tag"] for f in found if f["kind"] == "seen"]
+    hits = []
+    for pat, owners in TRIPWIRES:
+        if re.search(r"(?<![\w=/.:-])" + pat + r"(?![\w=/.-])", text) and not any(t.startswith(owners) for t in tags):
+            hits.append(re.search(pat, text).group(0))
+    if hits:
+        return [_finding("opaque", cmd[:160], reason=f"위험 단어({', '.join(dict.fromkeys(hits))})가 있는데 어떤 명령인지 해석하지 못함")]
+    return []
 
 
 def _patch_paths(text, cwd, root):
@@ -648,12 +798,15 @@ def decide(payload, agent="claude", root=None):
     """→ (decision, message). decision: allow | deny | ask"""
     tool, cmd, path, patch, cwd = extract(payload)
     findings = []
+    if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
+        cmd = re.sub(r"`(.)", r"\1", cmd)
     if cmd:
         findings += classify_command(cmd, cwd, root)
     if path:
         findings += classify_file(tool, path, cwd, root)
     if patch:
         findings += _patch_paths(patch, cwd, root)
+    findings = [f for f in findings if f["kind"] != "seen"]
     if not findings:
         return "allow", ""
 

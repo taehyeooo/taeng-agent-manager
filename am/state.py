@@ -177,6 +177,8 @@ def update_task(p, task_id, root=None, **fields):
     if fields.get("agent") and fields["agent"] not in AGENTS:
         raise StateError(f"agent는 {AGENTS} 중 하나")
     changed = {k: v for k, v in fields.items() if v is not None and k in TASK_FIELDS}
+    if changed.get("agent") and changed["agent"] != t["agent"] and not routing(root)["available"].get(changed["agent"], True):
+        raise StateError(f"{changed['agent']}는 사용 기간이 끝났습니다(config/agents.json) — 다른 에이전트로 배정하세요")
     check_task_invariants(p, {**t, **changed}, root)  # 바뀐 뒤의 상태로 검사 (에이전트·PR을 나중에 바꿔도 빠져나가지 못하게)
     t.update(changed)
     event(p, f"작업 {task_id} 변경: " + ", ".join(f"{k}={v}" for k, v in changed.items()))
@@ -204,11 +206,21 @@ def verify_task(p, task_id, by, tests, review, security, summary="", files=None,
     # 교차 검증: 구현한 모델과 다른 모델이 검증한다 (예: codex 구현 → claude:reviewflow, claude 구현 → codex:review)
     if by.split(":")[0] not in AGENTS:
         raise StateError(f"검증자는 {AGENTS} 중 하나로 시작해야 합니다 (예: claude:reviewflow, codex:review)")
-    # 다른 모델을 쓸 수 없을 때(예: Codex 사용 기간 끝)만 같은 모델의 다른 세션이 검증해도 된다
+    # 다른 모델을 쓸 수 없을 때(예: Codex 사용 기간 끝)만 같은 모델의 다른 세션이 검증해도 된다 —
+    # 그때는 검증 세션을 `<모델>:<dispatch id>`로 적고, 구현 dispatch와 달라야 한다
     other_available = any(ok for a, ok in routing(root)["available"].items() if a != t["agent"])
-    if by.split(":")[0] == t["agent"] and other_available:
-        raise StateError(f"검증은 구현한 에이전트({t['agent']})와 다른 에이전트가 해야 합니다 (예: claude:reviewflow, codex:review)")
+    if by.split(":")[0] == t["agent"]:
+        if other_available:
+            raise StateError(f"검증은 구현한 에이전트({t['agent']})와 다른 에이전트가 해야 합니다 (예: claude:reviewflow, codex:review)")
+        session = by.partition(":")[2]
+        if not re.fullmatch(r"ctx_[0-9a-f]+", session) or session == t.get("dispatch"):
+            raise StateError(f"같은 모델로 검증할 때는 다른 세션이어야 합니다: --by {t['agent']}:<검증 워커 dispatch id> (구현 dispatch {t.get('dispatch')}와 달라야 함)")
+    if t["status"] == "done" and any(v != "pass" for v in vals.values()):
+        raise StateError(f"{task_id}는 이미 main에 병합된 작업입니다 — 문제는 새 작업(수정)으로 등록하세요: am task add")
     t["verification"] = {**vals, "by": by, "summary": summary, "at": now()}
+    if t["status"] == "review" and not verified(t):
+        t["status"] = "dispatched"  # 검토 대기였는데 검증 실패 → 다시 수정으로
+        event(p, f"작업 {task_id} 검증 실패로 review → dispatched")
     if files:
         t["files"] = files
     event(p, f"작업 {task_id} 검증({by}): " + ", ".join(f"{k}={v}" for k, v in vals.items()))
