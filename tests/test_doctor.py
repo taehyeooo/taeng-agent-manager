@@ -9,6 +9,28 @@ from am import cli, doctor
 
 
 class DoctorTest(unittest.TestCase):
+    def test_resolved_paths_used_for_every_command(self):
+        calls = []
+
+        def run(args, **kwargs):
+            calls.append(args)
+            self.assertTrue(args[0].startswith('C:/x/'), args)
+            output = 'runtimeReachable: true' if args[1:] == ['status'] else 'version'
+            return subprocess.CompletedProcess(args, 0, output, '')
+
+        doctor.run_checks(which=lambda name: f'C:/x/{name}.CMD', run=run)
+        self.assertEqual(calls, [
+            [f'C:/x/{name}.CMD', '--version']
+            for name in ('git', 'gh', 'orca', 'claude', 'codex')
+        ] + [['C:/x/gh.CMD', 'auth', 'status'], ['C:/x/orca.CMD', 'status']])
+
+    def test_missing_commands_are_not_executed(self):
+        def run(args, **kwargs):
+            self.fail(f'Missing command executed: {args}')
+
+        results = doctor.run_checks(which=lambda name: None, run=run)
+        self.assertTrue(all(not row['ok'] for row in results if row['name'] != 'python'))
+
     def checks(self, missing=(), failed=(), error=None):
         def run(args, **kwargs):
             self.assertEqual(kwargs['timeout'], 15)

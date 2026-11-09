@@ -7,10 +7,14 @@ import sys
 
 def run_checks(which=shutil.which, run=subprocess.run):
     results = []
+    paths = {name: which(name) for name in ('git', 'gh', 'orca', 'claude', 'codex')}
 
     def execute(args):
+        path = paths[args[0]]
+        if path is None:
+            return False, ''
         try:
-            result = run(args, capture_output=True, text=True, encoding='utf-8',
+            result = run([path, *args[1:]], capture_output=True, text=True, encoding='utf-8',
                          errors='replace', timeout=15)
             return result.returncode == 0, result.stdout or result.stderr or ''
         except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -18,7 +22,7 @@ def run_checks(which=shutil.which, run=subprocess.run):
 
     present = {}
     for name in ('git', 'gh', 'orca', 'claude', 'codex'):
-        present[name] = bool(which(name))
+        present[name] = bool(paths[name])
         ok, output = execute([name, '--version']) if present[name] else (False, '')
         results.append(dict(name=name, ok=present[name] and ok,
                             detail=output.splitlines()[0] if ok and output else '',
