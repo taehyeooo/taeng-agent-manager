@@ -72,7 +72,7 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 | # | 내용 | 담당 | 상태 |
 |---|---|---|---|
 | 1 | `am` 핵심: new·list·status·phase·approve·require·set·task·restore + 테스트 | claude(매니저) | 완료 |
-| 2 | `am doctor` — 도구 설치·gh 로그인·Orca runtime 확인 | **codex** (첫 위임) | 진행 |
+| 2 | `am doctor` — 도구 설치·gh 로그인·Orca runtime 확인 | **codex** (첫 위임) | 완료 — 매니저 검증에서 Windows .cmd 버그 1건 발견 → 같은 워커가 수정 |
 | 3 | `am brief <slug> <task>` — intaeng delegate-pr 템플릿을 채운 지시문 파일 생성 | codex | 예정 |
 | 4 | `am dispatch` — brief + `orca orchestration worker-start` 실행 + dispatch 기록 한 번에 | claude | 예정 |
 | 5 | `am verify` — 워크트리에서 test_cmd 실행·diff 범위 확인·결과 기록 | codex | 예정 |
