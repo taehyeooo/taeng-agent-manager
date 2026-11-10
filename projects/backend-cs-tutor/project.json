@@ -376,19 +376,19 @@
       "title": "학습 지도: 개념 지도·상태 색 (R-3, R-4)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
       "pr": "20",
       "dispatch": "ctx_59e51339af33",
-      "note": "사용자 '고쳐서 합쳐': 묶음 7개·좁은 화면 펼침 수정 위임. 병합 승인 기록됨(수정·CI 후 병합)",
+      "note": "PR #20 병합(선 없는 7묶음 지도, 사용자 '고쳐서 합쳐')",
       "verification": {
         "tests": "pass",
         "review": "pass",
         "security": "pass",
         "by": "claude:manager",
-        "summary": "수정 확인: 실제 15개 지도 스크린샷 — 노드 가로지르는 선 없음, 선행 화살표 방향 반전, 선택 시 이웃 강조, 약함=분홍. 프론트 36·백엔드 93·CI 6 통과(구현자), 병합 가능. 상단 평행선 묶음은 사용자 의견으로 다듬기 후보",
-        "at": "2026-11-10T21:00:03+09:00"
+        "summary": "최종 확인: 묶음 7개(명세 표), 좁은 화면 선택 설명이 개념 바로 아래 펼침, 스크린샷 1280·390 확인, 테스트 34·CI 6 통과",
+        "at": "2026-11-10T21:57:47+09:00"
       },
       "files": [
         "frontend/src"
@@ -1163,8 +1163,20 @@
     {
       "at": "2026-11-10T21:39:07+09:00",
       "event": "작업 S7 변경: status=done, note=PR #22 병합(캡처 13장, 사용자 확인 전 숨김)"
+    },
+    {
+      "at": "2026-11-10T21:57:40+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#20)"
+    },
+    {
+      "at": "2026-11-10T21:57:47+09:00",
+      "event": "작업 S10 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:57:47+09:00",
+      "event": "작업 S10 변경: status=done, note=PR #20 병합(선 없는 7묶음 지도, 사용자 '고쳐서 합쳐')"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T21:39:07+09:00"
+  "updated_at": "2026-11-10T21:57:47+09:00"
 }
