@@ -411,7 +411,8 @@ def _gh_api(args, seg, where, repo):
         return [_gated("repo_create", seg, where=where)]
     if method == "DELETE":
         return [_gated("destructive_delete", seg, where=where, what="repo_delete", repo=repo)]
-    return [_gated("push", seg, where=where, what="remote_api", repo=repo)]
+    # 승인 단위 = 정확한 API 대상 (예: "PUT repos/me/app/branches/main/protection") — 넓은 push 승인 없이 이것만 허락할 수 있게
+    return [_gated("push", seg, ref=f"{method} {endpoint.lstrip('/')}", where=where, what="remote_api", repo=repo)]
 
 
 def _delete_safe(paths, cwd):

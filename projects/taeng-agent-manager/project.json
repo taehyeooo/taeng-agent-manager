@@ -23,6 +23,18 @@
       "ref": "main",
       "note": "2026-11-10 사용자: '승인' — 매니저 레포 첫 업로드(feat/mvp-cli → main, 공개 저장소)",
       "at": "2026-11-10T09:57:05+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "PUT repos/taehyeooo/taeng-agent-manager/branches/main/protection",
+      "note": "2026-11-10 사용자: '승인' — main 보호 규칙(PR만, CI 2개 통과 필수, 강제 push·삭제 금지)",
+      "at": "2026-11-10T10:30:19+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "work-branches",
+      "note": "2026-11-10 사용자: '승인' — 이 레포에 한해 main이 아닌 작업 브랜치 push·PR 생성은 묻지 않음. main 병합은 매번 승인",
+      "at": "2026-11-10T10:33:04+09:00"
     }
   ],
   "tasks": [
@@ -154,10 +166,26 @@
     {
       "at": "2026-11-10T10:03:12+09:00",
       "event": "승인된 작업 실행: push(main)"
+    },
+    {
+      "at": "2026-11-10T10:30:19+09:00",
+      "event": "승인 기록: push (PUT repos/taehyeooo/taeng-agent-manager/branches/main/protection)"
+    },
+    {
+      "at": "2026-11-10T10:30:20+09:00",
+      "event": "승인된 작업 실행: push(PUT repos/taehyeooo/taeng-agent-manager/branches/main/protection)"
+    },
+    {
+      "at": "2026-11-10T10:33:04+09:00",
+      "event": "승인 기록: push (work-branches)"
+    },
+    {
+      "at": "2026-11-10T10:33:05+09:00",
+      "event": "승인된 작업 실행: push(fix/gh-api-exact-ref)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T10:03:12+09:00",
+  "updated_at": "2026-11-10T10:33:05+09:00",
   "requests": [
     {
       "gate": "push",
