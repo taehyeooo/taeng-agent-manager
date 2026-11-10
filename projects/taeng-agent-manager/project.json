@@ -248,10 +248,14 @@
     {
       "at": "2026-11-10T12:05:41+09:00",
       "event": "작업 T2 변경: note=재현 3건: ① heredoc에 'projects/…' 경로+write_text → 상태 위조 오탐 ② 작업 폴더 안 상대 경로를 밖으로 판정 ③ heredoc 본문(Python set(...))을 셸 명령 'set'으로 분석 → 인증정보 노출 오탐. heredoc 본문은 셸로 분석하지 말 것"
+    },
+    {
+      "at": "2026-11-10T12:05:50+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T12:05:41+09:00",
+  "updated_at": "2026-11-10T12:05:50+09:00",
   "requests": [
     {
       "gate": "push",
