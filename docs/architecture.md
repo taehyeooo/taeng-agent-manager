@@ -94,6 +94,7 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
   - 명령어 자리만 보므로 커밋 메시지·echo 인수 속 글자는 무시한다.
   - 변수·eval·인코딩된 명령·짝 없는 치환·스크립트 안 subprocess처럼 미리 알 수 없는 실행은 사람에게 넘긴다(Claude 확인 창, Codex 차단).
 - **한계(남는 위험) — 정직하게**: 가드는 안전벨트지 샌드박스가 아니다.
+  - 테스트·빌드는 현재 Git 작업 트리에서 명시적으로 허용한다: `gradlew[.bat]`의 `test/build/check/compileJava/compileTestJava/classes/testClasses/assemble` 및 `--rerun/--rerun-tasks/--no-daemon/--console=plain/--stacktrace/--info`, 트리 안 경로의 `-p`; `npm ci`, package.json scripts에 있는 `npm test`·`npm run build/test/lint`, `npx vitest run`; `python -m unittest`, Git 추적 파일이며 HEAD와 비교해 수정·스테이징 변경이 없는 `.py`·`.sh`의 `python`·`sh` 실행이다. 금지·승인 검사와 출력 경로 검사는 계속 우선하며, Gradle publish/run·초기화 스크립트·시스템 속성 주입, npm exec·없는 스크립트, 미추적·수정·외부 스크립트, 인라인 `python -c`는 자동 허용하지 않는다. Python heredoc은 AST로 쓰기 대상 경로를 검사하고 본문을 셸로 재해석하지 않으며, 해석하지 못하는 쓰기 대상은 확인을 요청한다. 허용된 빌드 설정·npm lifecycle·기록된 스크립트 자체의 안전성을 증명하지는 않고, 검사 후 실행 전 변경도 막지 못한다.
   - 실행 전에 알 수 없는 것: 파일로 된 스크립트(`python script.py`, `npm run x`의 내용) 안의 동작, PATH·셸 함수 바꿔치기, 이미 저장소 설정에 있던 훅.
   - CI의 append-only 검사는 **기존 승인이 바뀌거나 지워지는 것**만 잡는다. 새 승인이 정말 사용자에게서 왔는지는 증명하지 못한다 — 그건 가드(`am approve`는 사람 확인)에 기댄다.
   - 비밀값 유출·외부 저장소 변경을 CI가 막지는 못한다(가드가 실행 전에 막는 것이 전부).

@@ -29,6 +29,7 @@ class GuardTest(unittest.TestCase):
             git(repo, "init", "-q", "-b", "main")
             git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "init")
         git(self.app, "checkout", "-q", "-b", "feat/x")
+        (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}), encoding="utf-8")
         S.new_project("app", "app", "x", self.root)
         cfg = S.load_local(self.root)
         cfg["paths"]["app"] = str(self.app)
@@ -203,8 +204,8 @@ class VerifierFindingsTest(GuardTest):
             self.assertEqual(d, "deny", body)
         heredoc = "python - <<'EOF'\nfrom am import state as S\np = S.load('app'); S.approve(p, 'push'); S.save(p)\nEOF"
         self.assertEqual(self.bash(heredoc)[0], "deny")
-        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "allow")  # 읽기만
-        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
+        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "ask")
+        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "ask")
 
     def test_shell_write_targets_and_patches_checked(self):
         self.assertEqual(self.bash(f"Set-Content {(self.other / 'main.py').as_posix()} x")[0], "deny")
@@ -399,7 +400,7 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash("git sh")[0], "ask")
 
     def test_no_false_positives(self):
-        for cmd in ('echo "documentation > C:/other/file.txt"', 'python -c "from am import state; print(state.GATES)"',
+        for cmd in ('echo "documentation > C:/other/file.txt"',
                     "npm list -g", 'git commit -m "document --yolo flag"', "git log --oneline -5"):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
 
@@ -468,7 +469,7 @@ class VerifierRound3Test(GuardTest):
         self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'")[0], "ask")
         self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'", agent="codex")[0], "deny")
         # 이미 알아본 명령의 인수는 데이터 (npm run의 스크립트 내용은 문서에 적은 구조적 한계)
-        self.assertEqual(self.bash("npm run push")[0], "allow")
+        self.assertEqual(self.bash("npm run push")[0], "ask")
         self.assertEqual(self.bash("node -e \"require('child_process')\" && echo vercel")[0], "ask")
 
 
@@ -493,7 +494,7 @@ class VerifierRound4Test(GuardTest):
     def test_relative_paths_in_inline_scripts(self):
         rel = os.path.relpath(self.other / "main.py", self.app).replace("\\", "/")
         self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path('{rel}').write_text('x')\"")[0], "deny")
-        self.assertEqual(self.bash("python -c \"from pathlib import Path; Path('out/a.txt').write_text('x')\"")[0], "allow")
+        self.assertEqual(self.bash("python -c \"from pathlib import Path; Path('out/a.txt').write_text('x')\"")[0], "ask")
 
     def test_gh_api_option_values_skipped(self):
         p = S.load("app", self.root)
@@ -534,17 +535,91 @@ class VerifierRound4Test(GuardTest):
         """The verifier's sample of 11 normal commands the second net used to block."""
         for cmd in ("git log --grep push", "git log --grep merge", "git commit -m push", "git grep push", "rg push src",
                     "pytest -k push", "python -m pytest -k merge", "npm test -- --grep merge", "echo push",
-                    "node -e \"console.log('push')\"", "python -c \"print('push')\""):
+                    "node -e \"console.log('push')\""):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
         # 매니저가 실제로 막혔던 오탐: 다른 폴더의 설정을 읽기만 하는 스크립트 (json.dumps는 쓰기가 아님)
         reader = ("python -c \"import json; d=json.load(open(r'C:/x/orca-data.json', encoding='utf-8')); "
                   "print(json.dumps(d)[:10])\"")
-        self.assertEqual(self.bash(reader)[0], "allow")
-        self.assertEqual(self.bash("python -c \"print(open('w.txt').read())\"")[0], "allow")  # 이름이 w로 시작해도 읽기
+        self.assertEqual(self.bash(reader)[0], "ask")
+        self.assertEqual(self.bash("python -c \"print(open('w.txt').read())\"")[0], "ask")
         self.assertEqual(self.bash(f"python -c \"open('{(self.other / 'w.txt').as_posix()}', 'w').write('x')\"")[0], "deny")
         # 매니저가 실제로 막혔던 오탐: 정규식 문자열이 들어간 heredoc 스크립트
         heredoc = "python - <<'EOF'\nimport re\nopen('out.txt', 'w').write(re.sub(r\"[/\\\\]\", \"-\", 'a/b') + '(G, \"x\")')\nEOF"
         self.assertEqual(self.bash(heredoc)[0], "allow")
+
+
+class BuildAllowlistTest(GuardTest):
+    def setUp(self):
+        super().setUp()
+        (self.app / "scripts").mkdir()
+        for name in ("check.py", "check.sh"):
+            (self.app / "scripts" / name).write_text("# test\n", encoding="utf-8")
+        (self.app / "package.json").write_text(json.dumps({"scripts": {
+            "test": "vitest run", "build": "vite build", "lint": "eslint ."}}), encoding="utf-8")
+        git(self.app, "add", ".")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
+
+    def test_build_invocations(self):
+        for cmd in ("gradlew test", "gradlew.bat build --no-daemon", "./gradlew check --rerun",
+                    "./gradlew compileJava -p scripts", "npm ci", "npm test", "npm run build",
+                    "npm run test", "npm run lint", "npx vitest run", "python scripts/check.py",
+                    "sh scripts/check.sh", "python -m unittest discover -s tests",
+                    "sh scripts/check.sh 2>&1 | tail -4", "gradlew test 2>&1 | grep PASS"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_script_trust_boundaries(self):
+        for suffix, launcher in (("py", "python"), ("sh", "sh")):
+            script = self.app / "scripts" / ("check." + suffix)
+            script.write_text("# modified\n", encoding="utf-8")
+            self.assertEqual(self.bash(f"{launcher} scripts/check.{suffix}")[0], "ask")
+            git(self.app, "add", str(script))
+            self.assertEqual(self.bash(f"{launcher} scripts/check.{suffix}")[0], "ask")
+            fresh = self.app / ("fresh." + suffix)
+            fresh.write_text("# new\n", encoding="utf-8")
+            self.assertEqual(self.bash(f"{launcher} fresh.{suffix}")[0], "ask")
+            outside = self.other / ("check." + suffix)
+            outside.write_text("# outside\n", encoding="utf-8")
+            git(self.other, "add", ".")
+            git(self.other, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixture")
+            self.assertEqual(self.bash(f'{launcher} "{outside.as_posix()}"')[0], "ask")
+
+    def test_unsafe_build_invocations(self):
+        for cmd in ("gradlew publish", "gradlew run", "gradlew test --init-script x.gradle",
+                    "gradlew test -I x.gradle", "gradlew test -Duser.home=elsewhere",
+                    "gradlew test -p ../other", "../other/gradlew test", "npm run missing",
+                    "npm run push", "npm exec -- vitest run", "npx --yes vitest run",
+                    "python -c \"print('hello')\"", "python fresh.py", "sh -x fresh.sh",
+                    "env npx --yes vitest run", "env npm exec -- vitest run", "cd ../other; python scripts/check.py"):
+            self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+            self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+        (self.app / "package.json").write_text('{"scripts": {}}', encoding="utf-8")
+        self.assertEqual(self.bash("npm test")[0], "ask")
+
+    def test_policy_precedes_build_allowlist(self):
+        for cmd in ("sh scripts/check.sh --yolo", "npx --yolo vitest run", "gradlew test --dangerously-skip-permissions",
+                    "python scripts/check.py --yolo", "npm test; gh auth token",
+                    "gradlew test; git push origin main",
+                    f'sh scripts/check.sh > "{(self.other / "out.txt").as_posix()}"'):
+            self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+
+    def test_heredoc_false_positives(self):
+        bodies = (
+            "from pathlib import Path\nPath('brief.md').write_text('projects/ and write_text and from am import state are documentation')",
+            "from pathlib import Path\nPath('scripts/../brief.md').write_text('ok')",
+            "values = set(['a', 'b'])\nopen('brief.md', 'w').write(str(values))",
+            "import io\np = 'brief.md'\ntext = 'project and .am/local.json'\nio.open(p, 'w').write(text.replace('project', 'task'))",
+        )
+        for body in bodies:
+            self.assertEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF")[0], "allow", body)
+
+    def test_heredoc_still_checks_actual_writes_and_commands(self):
+        for body in ("open('projects/app/project.json', 'w').write('{}')",
+                     "import io\nio.open('.am/local.json', 'w').write('{}')",
+                     "from pathlib import Path\np = Path('projects/app/project.json')\np.replace('old.json')",
+                     "from pathlib import Path\np = Path('projects/app/project.json')\np.write_text('{}')"):
+            self.assertEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF", cwd=self.root)[0], "deny", body)
+        self.assertEqual(self.bash("python - <<'EOF'\nprint('ok')\nEOF\ngit push origin main")[0], "deny")
+        self.assertEqual(self.bash("python - <<'EOF'\nimport subprocess\nsubprocess.run(['git', 'push'])\nEOF")[0], "ask")
 
 
 class TrustLayerStateTest(unittest.TestCase):

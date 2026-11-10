@@ -23,6 +23,7 @@ A guard is a seatbelt, not a sandbox: script files and PATH tricks are invisible
 are append-only approvals in CI and server-side branch protection (docs/architecture.md 5장).
 Blocking uses exit code 2 + stderr, which both Claude Code and Codex treat as "deny, tell the agent why".
 """
+import ast
 import json
 import os
 import re
@@ -103,7 +104,7 @@ def _under(path, root):
 
 
 def _abs(path, cwd):
-    return Path(path) if os.path.isabs(path) else Path(cwd) / path
+    return Path(os.path.abspath(Path(path) if os.path.isabs(path) else Path(cwd) / path))
 
 
 def _top(cwd):
@@ -266,18 +267,166 @@ def _word(tok):
 
 # ---------- command analysis ----------
 
-def _check_script(body, seg, cwd, root):
+def _clean_script(path, cwd, suffix):
+    """Only committed, unchanged regular files in this worktree are trusted."""
+    top = _git(cwd, "rev-parse", "--show-toplevel")
+    p = _abs(path, cwd)
+    if not top or not _under(p, top) or p.suffix != suffix or not p.is_file() or p.is_symlink():
+        return False
+    rel = os.path.relpath(p, top).replace("\\", "/")
+    try:
+        for args in (("ls-files", "--error-unmatch", "--", rel), ("diff", "--quiet", "HEAD", "--", rel)):
+            if subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5).returncode:
+                return False
+        return True
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def _build_allowed(toks, cwd):
+    """Narrow invocation grammar; never overrides forbidden/gated findings."""
+    if not toks or not _git(cwd, "rev-parse", "--show-toplevel"):
+        return False
+    word, args = _word(toks[0]), toks[1:]
+    if word == "gradlew":
+        if not _under(_abs(toks[0], cwd), _top(cwd)):
+            return False
+        tasks, i = [], 0
+        while i < len(args):
+            a = args[i]
+            if a in ("--rerun", "--rerun-tasks", "--no-daemon", "--console=plain", "--stacktrace", "--info"):
+                pass
+            elif a == "-p" and i + 1 < len(args):
+                i += 1
+                if not _under(_abs(args[i], cwd), _top(cwd)):
+                    return False
+            elif a in ("test", "build", "check", "compileJava", "compileTestJava", "classes", "testClasses", "assemble"):
+                tasks.append(a)
+            else:
+                return False
+            i += 1
+        return bool(tasks)
+    if word == "npm":
+        if args == ["ci"]:
+            return True
+        name = "test" if args[:1] == ["test"] else args[1] if args[:1] == ["run"] and len(args) == 2 else None
+        if name not in ("test", "build", "lint"):
+            return False
+        if args[:1] == ["test"] and len(args) > 1 and args[1] != "--":
+            return False
+        package = _abs("package.json", cwd)
+        if not _under(package, _top(cwd)):
+            return False
+        try:
+            scripts = json.loads(package.read_text(encoding="utf-8")).get("scripts", {})
+            return isinstance(scripts, dict) and isinstance(scripts.get(name), str)
+        except (OSError, ValueError, AttributeError):
+            return False
+    if word == "npx":
+        return args == ["vitest", "run"]
+    if word in ("python", "python3", "py"):
+        return args[:2] == ["-m", "unittest"] or bool(args and _clean_script(args[0], cwd, ".py"))
+    if word == "sh":
+        return bool(args and _clean_script(args[0], cwd, ".sh"))
+    return False
+
+
+def _python_write_paths(body):
+    """Resolve literal/variable Path and open targets, not file content strings."""
+    tree = ast.parse(body)
+    values, paths, path_names = {}, [], set()
+
+    def name(node):
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Attribute):
+            return name(node.value) + "." + node.attr
+        return ""
+
+    def value(node):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return node.value
+        if isinstance(node, ast.Name):
+            return values.get(node.id)
+        if isinstance(node, ast.Call) and node.args and name(node.func) in ("Path", "pathlib.Path", "str"):
+            return value(node.args[0])
+        if isinstance(node, ast.BinOp):
+            left, right = value(node.left), value(node.right)
+            if left is not None and right is not None:
+                if isinstance(node.op, ast.Div):
+                    return str(Path(left) / right)
+                if isinstance(node.op, ast.Add):
+                    return left + right
+        return None
+
+    def is_path(node):
+        return (isinstance(node, ast.Call) and name(node.func) in ("Path", "pathlib.Path") or
+                isinstance(node, ast.Name) and node.id in path_names or
+                isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div) and is_path(node.left))
+
+    def walk(node):
+        yield node
+        for child in ast.iter_child_nodes(node):
+            yield from walk(child)
+
+    for node in walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    values[target.id] = value(node.value)
+                    if is_path(node.value):
+                        path_names.add(target.id)
+                    else:
+                        path_names.discard(target.id)
+        if not isinstance(node, ast.Call):
+            continue
+        call = name(node.func)
+        if call in ("open", "io.open") or isinstance(node.func, ast.Attribute) and node.func.attr == "open":
+            builtin = call in ("open", "io.open")
+            mode_index = 1 if builtin else 0
+            mode = node.args[mode_index] if len(node.args) > mode_index else ast.Constant("r")
+            mode = next((k.value for k in node.keywords if k.arg == "mode"), mode)
+            m = value(mode)
+            if m is None or any(c in m for c in "wax+"):
+                target = (node.args[0] if node.args else next((k.value for k in node.keywords if k.arg == "file"), None)) if builtin else node.func.value
+                paths.append(value(target))
+        elif isinstance(node.func, ast.Attribute) and node.func.attr in ("write_text", "write_bytes", "unlink", "rename", "replace"):
+            # str.replace edits content; Path.replace moves a file.
+            if node.func.attr == "replace" and not is_path(node.func.value):
+                continue
+            paths.append(value(node.func.value))
+            if node.func.attr in ("rename", "replace") and node.args:
+                paths.append(value(node.args[0]))
+    return paths
+
+
+def _check_script(body, seg, cwd, root, python=False):
     """Inline python -c / node -e / heredoc bodies."""
     out = []
     touches_am = re.search(r"\bfrom\s+am\b|\bimport\s+am\b|\bam\.(state|guard|cli)\b", body)
+    if python:
+        try:
+            touches_am = any(
+                isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[0] == "am" or
+                isinstance(n, ast.Import) and any(a.name.split(".")[0] == "am" for a in n.names)
+                for n in ast.walk(ast.parse(body)))
+        except (SyntaxError, ValueError):
+            touches_am = False  # parsing failure below is opaque
     # writes: open(..., 'w'/'a'/'x'/'+' mode) — the mode argument, not a file name starting with w; json.dump( not json.dumps(
     writes = re.search(r"write_text|write_bytes|open\s*\([^)]*,\s*(mode\s*=\s*)?['\"][rbt]*[wax+]|writeFile|appendFile|json\.dump\s*\("
                        r"|unlink|rename|\.replace\s*\(\s*[^)]*[/\\]|rmtree|copyfile|\.save\s*\(", body)
     if touches_am and (writes or re.search(r"approve\s*\(|\.save\s*\(|save_local|approvals|add_request", body)):
         out.append(_finding("forbidden", seg, reason="스크립트로 승인·상태를 직접 조작(위조 위험)"))
-    elif re.search(r"project|\.am\b|local\.json", body, re.I) and writes:
-        out.append(_finding("forbidden", seg, reason="스크립트로 상태 파일을 직접 수정(위조 위험)"))
-    if writes:  # 스크립트가 쓰는 경로가 문자열로 드러나 있으면 그 경로를 검사
+    if python:
+        try:
+            for path in _python_write_paths(body):
+                if path is None:
+                    out.append(_finding("opaque", seg, reason="스크립트 쓰기 대상 경로를 확인할 수 없음"))
+                else:
+                    out += classify_file("Write", path, cwd, root, via=seg)
+        except (SyntaxError, ValueError):
+            out.append(_finding("opaque", seg, reason="Python 본문을 해석할 수 없음"))
+    elif writes:  # other languages retain conservative literal-path checks
         # string literals (same quote on both ends) that look like a path — absolute or relative (../other)
         for _q, lit in re.findall(r"(['\"])((?:(?!\1)[^\s()\[\]{}*?^$|<>;,])*[/\\](?:(?!\1)[^\s()\[\]{}*?^$|<>;,])*)\1", body):
             if re.search(r"[\w.]", lit):
@@ -442,7 +591,7 @@ def _drop_redirections(toks):
     return out
 
 
-def _strip_prefixes(toks, seg, out):
+def _strip_prefixes(toks, seg, out, cwd):
     """env/sudo/&/npx… → the real command. `env` alone prints every secret."""
     def drop_opts(ts, with_value=()):
         """Drop leading options of a wrapper (npx --yes -p pkg …) so the real command word comes next."""
@@ -454,6 +603,8 @@ def _strip_prefixes(toks, seg, out):
 
     while toks:
         w = _word(toks[0])
+        if (w == "npx" or w == "npm" and toks[1:2] == ["exec"]) and not _build_allowed(toks, cwd):
+            out.append(_finding("opaque", seg, reason="허용 목록 밖 패키지 실행기"))
         if toks[0] in SHELL_KEYWORDS:
             toks = toks[1:]
         elif re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
@@ -479,17 +630,22 @@ def _strip_prefixes(toks, seg, out):
     return toks
 
 
-def analyze(seg, cwd, root, depth=0):
+def analyze(seg, cwd, root, depth=0, script_stdin=False):
     """One simple command → findings."""
     out = []
     toks = _drop_redirections(tokens(seg))
-    toks = _strip_prefixes(toks, seg, out)
+    if any(a in BYPASS_FLAGS for a in toks[1:]):
+        out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
+    toks = _strip_prefixes(toks, seg, out, cwd)
     if not toks:
         return out
     word, args = _word(toks[0]), toks[1:]
     out.append(_seen(f"cmd:{word}", seg))
     low = [a.lower() for a in args]
     joined = " ".join(toks)
+    # Keep redirect and policy findings even when a launcher returns early.
+    for target in _write_targets(word, args, seg):
+        out += classify_file("Write", target, cwd, root, via=seg)
 
     if SUBST in toks[0] or word.startswith("$") or word in OPAQUE_WORDS:
         return out + [_finding("opaque", seg, reason="실행할 명령을 미리 알 수 없음(변수·치환·eval)")]
@@ -524,8 +680,8 @@ def analyze(seg, cwd, root, depth=0):
                 if depth >= 4:
                     return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
                 return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
-        if args and not args[0].startswith("-") and args[0].endswith((".sh", ".ps1", ".bat", ".cmd")):
-            return out + [_finding("opaque", seg, reason="셸 스크립트 파일 실행")]
+        if args:
+            return out if _build_allowed(toks, cwd) else out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트")]
         return out
 
     if word in SCRIPTERS:
@@ -562,11 +718,15 @@ def analyze(seg, cwd, root, depth=0):
             out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
         if body is not None:
             out.append(_seen("script", seg))
-            out += _check_script(body, seg, cwd, root)
+            out += _check_script(body, seg, cwd, root, python=word in ("python", "python3", "py"))
+            if word in ("python", "python3", "py"):
+                out.append(_finding("opaque", seg, reason="인라인 Python 실행은 자동 허용 목록 밖"))
+        elif not module and word in ("python", "python3", "py") and not script_stdin and not _build_allowed(toks, cwd):
+            out.append(_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 Python 스크립트"))
 
-    # writes through the shell
-    for t in _write_targets(word, args, seg):
-        out += classify_file("Write", t, cwd, root, via=seg)
+    if word == "gradlew" or word == "npm" and args[:1] in (["ci"], ["test"], ["run"]):
+        if not _build_allowed(toks, cwd):
+            out.append(_finding("opaque", seg, reason="허용 목록 밖 테스트·빌드 실행"))
 
     # removing or moving a state file is forging it too
     if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
@@ -616,7 +776,7 @@ def _is_state_file(path, cwd, root=None):
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
-        or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(path), re.I) is not None and _under(cwd, root)
+        or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
 
 
 def _analyze_git(args, seg, cwd, root, depth):
@@ -725,8 +885,21 @@ def _analyze_gh(args, seg, cwd):
 
 def classify_command(cmd, cwd, root=None, depth=0):
     out = []
-    if "<<" in cmd and re.search(r"\b(python3?|py|node)\b", cmd):  # heredoc script body
-        out += _check_script(cmd, cmd.splitlines()[0], cwd, root)
+    # Remove language bodies before shell lexing (set(...) is not shell `set`).
+    heredoc = re.compile(r"(?m)^(?P<head>[ \t]*(?P<lang>python3?|py|node)[ \t]+-[ \t]*<<(?P<quote>['\"]?)(?P<tag>\w+)(?P=quote)[ \t]*)\n(?P<body>.*?)(?:\n)(?P=tag)[ \t]*(?:\n|$)", re.S)
+    def script(match):
+        header, body = match.group("head"), match.group("body")
+        out.extend(_check_script(body, header, cwd, root, python=match.group("lang") != "node"))
+        # Shell expansions in unquoted heredocs still execute before the interpreter.
+        if not match.group("quote"):
+            _, substitutions, broken = extract_substitutions(body)
+            if broken or substitutions:
+                out.append(_finding("opaque", header, reason="인용하지 않은 heredoc의 셸 치환"))
+        out.extend(analyze(header.split("<<", 1)[0], cwd, root, depth, script_stdin=True))
+        return "\n"
+    cmd = heredoc.sub(script, cmd)
+    if out and re.search(r"(?:^|[;&\n])\s*(?:cd|pushd|set-location)\b", cmd, re.I):
+        out.append(_finding("opaque", cmd[:120], reason="폴더 변경과 heredoc을 함께 실행"))
     if "*** Begin Patch" in cmd:
         return out + _patch_paths(cmd, cwd, root)
     flat, inner, broken = extract_substitutions(cmd)
@@ -734,7 +907,14 @@ def classify_command(cmd, cwd, root=None, depth=0):
         return out + [_finding("opaque", cmd[:120], reason="닫히지 않은 명령 치환")]
     for sub in inner:
         out += classify_command(sub, cwd, root, depth + 1) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
+    initial_top = _top(cwd)
     for seg in split_commands(flat):
+        words = tokens(seg)
+        if words and _word(words[0]) in ("cd", "pushd", "popd", "set-location"):
+            if len(words) == 2 and _word(words[0]) == "cd" and _under(_abs(words[1], cwd), initial_top) and _abs(words[1], cwd).is_dir():
+                cwd = str(_abs(words[1], cwd))
+            else:
+                out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
         out += analyze(seg, cwd, root, depth)
     if depth == 0:
         out += tripwire(cmd, out)
@@ -819,7 +999,7 @@ def classify_file(tool, path, cwd, root=None, via=None):
     p = _abs(path, cwd)
     label = via or f"{tool} {p}"
     if tool in WRITE_TOOLS:
-        if _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")):
+        if _is_state_file(str(p), cwd, root):
             out.append(_finding("forbidden", label, reason="상태 파일을 am 없이 직접 수정(승인 위조 위험)"))
         elif re.search(r"[/\\]knowledge-base[/\\]decisions[/\\](?!readme)", str(p), re.I):
             out.append(_gated("architecture_policy", label, ref=p.name))
@@ -912,13 +1092,10 @@ def decide(payload, agent="claude", root=None):
         return "ask", msg
 
     opaque = [f for f in findings if f["kind"] == "opaque"]
-    if opaque:
-        msg = "[am guard] 무엇이 실행될지 미리 확인할 수 없는 명령입니다 — 사람이 직접 판단해야 합니다\n" + \
-              "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
-        return ("deny" if agent == "codex" else "ask"), msg
-
     missing, granted = [], []
     for f in findings:
+        if f["kind"] != "gated":
+            continue
         slug, p = proj(f.get("where") or cwd)
         if f.get("owner_slug"):
             slug, p = f["owner_slug"], projects[f["owner_slug"]]
@@ -931,6 +1108,10 @@ def decide(payload, agent="claude", root=None):
     for f in granted:
         S.event(projects[f["slug"]], f"승인된 작업 실행: {f['gate']}" + (f"({f['ref']})" if f.get("ref") else ""))
     if not missing:
+        if opaque:
+            msg = "[am guard] 무엇이 실행될지 미리 확인할 수 없는 명령입니다 — 사람이 직접 판단해야 합니다\n" + \
+                  "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
+            return ("deny" if agent == "codex" else "ask"), msg
         for p in projects.values():
             S.save(p, root)
         return "allow", ""
