@@ -1,0 +1,18 @@
+{
+  "slug": "backend-cs-tutor",
+  "name": "백엔드 CS 학습 서비스 (다독 중심 AI 튜터)",
+  "idea": "비전공자가 다독·문제 풀이·AI 튜터 설명 연습으로 백엔드 CS를 자기 말로 설명할 수 있게 되는 학습 서비스. 본인 프로젝트(Plan B·Trova·MOIT) 경험을 사례로 연결.",
+  "phase": "planning",
+  "repo": null,
+  "test_cmd": null,
+  "approvals": [],
+  "tasks": [],
+  "history": [
+    {
+      "at": "2026-11-10T10:43:41+09:00",
+      "event": "프로젝트 생성 (planning)"
+    }
+  ],
+  "created_at": "2026-11-10T10:43:41+09:00",
+  "updated_at": "2026-11-10T10:43:41+09:00"
+}
