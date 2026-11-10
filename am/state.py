@@ -131,7 +131,9 @@ def set_phase(p, phase):
     if phase not in PHASES:
         raise StateError(f"알 수 없는 단계: {phase} (가능: {', '.join(PHASES)})")
     gate = PHASE_GATES.get(phase)
-    if gate and not has_approval(p, gate):
+    # repo_create는 저장소 이름 단위로 승인한다 — 이 프로젝트의 저장소 이름으로 찾는다
+    ref = (p.get("repo") or "").lower() or None if gate == "repo_create" else None
+    if gate and not has_approval(p, gate, ref):
         raise StateError(f"'{phase}'로 가려면 먼저 사용자 승인 '{gate}'({GATES[gate]})이 기록돼야 합니다: am approve {p['slug']} {gate}")
     if phase == "repo_ready" and not p.get("repo"):
         raise StateError("repo_ready 전에 am set <slug> --repo owner/name 으로 레포를 기록하세요")
