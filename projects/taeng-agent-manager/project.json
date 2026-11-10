@@ -93,7 +93,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "재현 3건: ① heredoc에 'projects/…' 경로+write_text → 상태 위조 오탐 ② 작업 폴더 안 상대 경로를 밖으로 판정 ③ heredoc 본문(Python set(...))을 셸 명령 'set'으로 분석 → 인증정보 노출 오탐. heredoc 본문은 셸로 분석하지 말 것"
+      "note": "추가 사례(2026-11-10): scratchpad에서 python heredoc으로 지시문 텍스트를 치환하는 스크립트가 '상태 파일 직접 수정'으로 금지 판정됨(대상은 scratchpad의 .md)"
     },
     {
       "id": "T3",
@@ -416,10 +416,18 @@
     {
       "at": "2026-11-10T18:02:08+09:00",
       "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:09:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:09:38+09:00",
+      "event": "작업 T2 변경: note=추가 사례(2026-11-10): scratchpad에서 python heredoc으로 지시문 텍스트를 치환하는 스크립트가 '상태 파일 직접 수정'으로 금지 판정됨(대상은 scratchpad의 .md)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T18:02:08+09:00",
+  "updated_at": "2026-11-10T18:09:38+09:00",
   "requests": [
     {
       "gate": "push",

@@ -296,10 +296,10 @@
       "kind": "docs",
       "status": "dispatched",
       "branch": null,
-      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8c",
       "pr": "15",
-      "dispatch": "ctx_830bc56e8591",
-      "note": "2차 PR #15 병합(누적 11개). 3차(JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2) 남음. 2차 4개는 S6 병합 후 검증 기록 추가 필요",
+      "dispatch": "ctx_25ba17048955",
+      "note": "3차(마지막) 위임: JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -992,8 +992,12 @@
     {
       "at": "2026-11-10T18:08:36+09:00",
       "event": "작업 S8 변경: note=2차 PR #15 병합(누적 11개). 3차(JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2) 남음. 2차 4개는 S6 병합 후 검증 기록 추가 필요"
+    },
+    {
+      "at": "2026-11-10T18:09:38+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8c, dispatch=ctx_25ba17048955, note=3차(마지막) 위임: JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:08:36+09:00"
+  "updated_at": "2026-11-10T18:09:38+09:00"
 }
