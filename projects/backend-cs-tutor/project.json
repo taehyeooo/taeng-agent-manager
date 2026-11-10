@@ -68,11 +68,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": null,
+      "branch": "taehyeooo/backend-cs-tutor-P0b",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b",
       "pr": null,
       "dispatch": "ctx_7681a5fc8c21",
-      "note": "GitHub 403: 비공개 저장소 브랜치 보호는 Pro 필요. 업그레이드 안 함(비용 0원). 대신 로컬 pre-push 훅 + 가드(--no-verify 금지) + 매니저 병합 승인·CI 통과 확인"
+      "note": "구현 완료 3186a80, 검증 ctx_9e637d69d0af(claude)"
     },
     {
       "id": "S2",
@@ -80,11 +80,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": null,
+      "branch": "taehyeooo/backend-cs-tutor-S2",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S2",
       "pr": null,
       "dispatch": "ctx_fdb96d101308",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "구현 완료 79785e4, 검증 ctx_a0daedfe5d50(claude)"
     },
     {
       "id": "S3",
@@ -523,8 +523,16 @@
     {
       "at": "2026-11-10T14:32:05+09:00",
       "event": "작업 P0b 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b, dispatch=ctx_7681a5fc8c21"
+    },
+    {
+      "at": "2026-11-10T14:43:11+09:00",
+      "event": "작업 S2 변경: branch=taehyeooo/backend-cs-tutor-S2, note=구현 완료 79785e4, 검증 ctx_a0daedfe5d50(claude)"
+    },
+    {
+      "at": "2026-11-10T14:43:11+09:00",
+      "event": "작업 P0b 변경: branch=taehyeooo/backend-cs-tutor-P0b, note=구현 완료 3186a80, 검증 ctx_9e637d69d0af(claude)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T14:32:05+09:00"
+  "updated_at": "2026-11-10T14:43:11+09:00"
 }
