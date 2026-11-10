@@ -299,12 +299,12 @@
       "title": "디자인: 구조 시안 3개 → 세부 시안 → 토큰 적용 (사용자 선택)",
       "agent": "codex",
       "kind": "design",
-      "status": "review",
+      "status": "done",
       "branch": "feat/#7-design-variants",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
       "pr": "9",
       "dispatch": "ctx_500b234e4d14",
-      "note": "PR #9 병합 승인됨 — log.md 충돌로 main 맞추기 중",
+      "note": "PR #9 병합(밝은 화면, 구조 C)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -926,8 +926,16 @@
     {
       "at": "2026-11-10T17:33:38+09:00",
       "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b, dispatch=ctx_2552e0ac2152, note=2차 위임: 네트워크 왕복 지연·캐시·분산 락·비동기 처리"
+    },
+    {
+      "at": "2026-11-10T17:36:47+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#9)"
+    },
+    {
+      "at": "2026-11-10T17:36:55+09:00",
+      "event": "작업 S9 변경: status=done, note=PR #9 병합(밝은 화면, 구조 C)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T17:33:38+09:00"
+  "updated_at": "2026-11-10T17:36:55+09:00"
 }
