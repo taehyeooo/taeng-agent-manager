@@ -402,9 +402,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S11",
-      "pr": null,
+      "pr": "26",
       "dispatch": "ctx_c755e863bfaf",
-      "note": "카드 6장·출처 배지·그림 확대·읽음 기록 API"
+      "note": "구현 완료 PR #26(프론트 42·백엔드 96), 스크린샷 확인 — 배지·그림 깔끔. claude 검증 위임"
     },
     {
       "id": "S12",
@@ -1218,8 +1218,12 @@
     {
       "at": "2026-11-10T22:28:09+09:00",
       "event": "작업 S16 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T22:30:03+09:00",
+      "event": "작업 S11 변경: pr=26, note=구현 완료 PR #26(프론트 42·백엔드 96), 스크린샷 확인 — 배지·그림 깔끔. claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T22:28:09+09:00"
+  "updated_at": "2026-11-10T22:30:03+09:00"
 }
