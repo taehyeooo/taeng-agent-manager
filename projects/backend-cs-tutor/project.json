@@ -299,8 +299,19 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7",
       "pr": "22",
-      "dispatch": "ctx_5e39daae8e79",
-      "note": "캡처 13개 PR #22, 매니저가 3장 육안 확인(개인정보 없음), claude 검증 위임"
+      "dispatch": "ctx_2e90f804174e",
+      "note": "그림 검증 지적 수정 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_247b45598d67",
+        "summary": "개인정보·수치 대조 통과. 중 1: kafka 그림이 카드 인용 사건과 다르고 카드에 없는 수치 노출. 하 4: execution-plan 맥락, ABBA alt, cache 캡션 복사, 경로 가림 근거",
+        "at": "2026-11-10T20:59:51+09:00"
+      },
+      "files": [
+        "content/kafka-message-queue/content.yaml"
+      ]
     },
     {
       "id": "S8",
@@ -353,7 +364,7 @@
       "title": "학습 지도: 개념 지도·상태 색 (R-3, R-4)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
       "pr": "20",
@@ -361,11 +372,11 @@
       "note": "검증 지적 수정 위임(codex): 지도 경로 정리, 화살표 선행→후행(매니저 결정), 약함=분홍 강조 토큰(매니저 결정)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_2b9c640e2da3",
-        "summary": "상태 값·공개 경계·progress API·Mermaid strict 맞음. 머지 전: 지도 경로 엉킴(고정 좌표·곡선·related 중복), 선행 화살표 방향 반대. 약함 색 갈색, strict 테스트 없음, BOM",
-        "at": "2026-11-10T18:46:30+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: 실제 15개 지도 스크린샷 — 노드 가로지르는 선 없음, 선행 화살표 방향 반전, 선택 시 이웃 강조, 약함=분홍. 프론트 36·백엔드 93·CI 6 통과(구현자), 병합 가능. 상단 평행선 묶음은 사용자 의견으로 다듬기 후보",
+        "at": "2026-11-10T21:00:03+09:00"
       },
       "files": [
         "frontend/src"
@@ -1092,8 +1103,24 @@
     {
       "at": "2026-11-10T19:04:30+09:00",
       "event": "작업 S7 변경: pr=22, note=캡처 13개 PR #22, 매니저가 3장 육안 확인(개인정보 없음), claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T20:59:51+09:00",
+      "event": "작업 S7 검증(claude:reviewflow:ctx_247b45598d67): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S7 변경: dispatch=ctx_2e90f804174e, note=그림 검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S10 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S10 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T19:04:30+09:00"
+  "updated_at": "2026-11-10T21:00:03+09:00"
 }
