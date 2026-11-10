@@ -41,6 +41,12 @@
       "ref": "PR#1",
       "note": "2026-11-10 사용자: '승인' — dadok-cs PR #1(main 직접 push 차단 훅) squash 병합",
       "at": "2026-11-10T15:10:56+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#2",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #2(S2 뼈대) squash 병합",
+      "at": "2026-11-10T15:22:38+09:00"
     }
   ],
   "tasks": [
@@ -105,7 +111,7 @@
       "title": "레포 뼈대: Spring Boot 4.1 + React(Vite), Gradle wrapper, 127.0.0.1 바인딩, CI (R-28)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": "taehyeooo/backend-cs-tutor-S2",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S2",
       "pr": "2",
@@ -131,11 +137,11 @@
       "title": "DB 스키마(Flyway): 표 16개와 제약 (내장형 PostgreSQL 테스트)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
-      "branch": null,
-      "worktree": null,
+      "status": "dispatched",
+      "branch": "taehyeooo/backend-cs-tutor-S3",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_39c879d66f88",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -143,11 +149,11 @@
       "title": "콘텐츠 형식(Markdown+YAML)·불러오기·검사 스크립트, 예시 개념 1개 (R-27)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
-      "branch": null,
-      "worktree": null,
+      "status": "dispatched",
+      "branch": "taehyeooo/backend-cs-tutor-S4",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_b0eb49e278ab",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -623,8 +629,24 @@
     {
       "at": "2026-11-10T15:11:34+09:00",
       "event": "작업 S2 변경: dispatch=ctx_46e8da51709c, note=P0b 병합 후 main 맞추기(codex)"
+    },
+    {
+      "at": "2026-11-10T15:22:38+09:00",
+      "event": "승인 기록: merge_main (PR#2)"
+    },
+    {
+      "at": "2026-11-10T15:22:43+09:00",
+      "event": "작업 S2 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T15:32:10+09:00",
+      "event": "작업 S3 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-S3, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3, dispatch=ctx_39c879d66f88"
+    },
+    {
+      "at": "2026-11-10T15:32:10+09:00",
+      "event": "작업 S4 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-S4, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4, dispatch=ctx_b0eb49e278ab"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T15:11:34+09:00"
+  "updated_at": "2026-11-10T15:32:10+09:00"
 }
