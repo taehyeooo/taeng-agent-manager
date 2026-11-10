@@ -293,6 +293,24 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash("gh api repos/me/app/branches/main/protection -X DELETE")[0], "deny")  # 다른 대상
         self.assertEqual(self.bash("git push origin main")[0], "deny")  # 넓은 push 승인이 아님
 
+    def test_git_dash_C_into_a_managed_project_uses_its_approvals(self):
+        """매니저가 관리 중인 프로젝트 레포를 git -C로 다룰 때: 금지가 아니라 그 프로젝트의 승인으로 판정."""
+        S.new_project("other", "other", "x", self.root)
+        cfg = S.load_local(self.root)
+        cfg["paths"]["other"] = str(self.other)
+        S.save_local(cfg, self.root)
+        cmd = f"git -C {self.other.as_posix()} push -u origin main"
+        d, msg = self.bash(cmd)
+        self.assertEqual(d, "deny")
+        self.assertNotIn("관련 없는 프로젝트", msg)  # 금지가 아니라 승인 요청
+        self.assertIn("프로젝트 other", msg)
+        self.approve("push", "main")  # app 프로젝트의 승인은 other에 쓰이지 않는다
+        self.assertEqual(self.bash(cmd)[0], "deny")
+        p = S.load("other", self.root)
+        S.approve(p, "push", "main")
+        S.save(p, self.root)
+        self.assertEqual(self.bash(cmd)[0], "allow")
+
     def test_repo_create_checks_the_project_that_planned_it(self):
         """새 저장소는 로컬에 없으니, 그 이름을 예정한 프로젝트(am set --repo)의 승인을 본다 — 이름 단위."""
         new = S.new_project("newsvc", "newsvc", "x", self.root)

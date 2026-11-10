@@ -655,7 +655,9 @@ def _analyze_git(args, seg, cwd, root, depth):
             if alias.startswith("!") or depth >= 4:
                 return out + [_finding("opaque", seg, reason=f"git 별칭 '{sub}'이 셸 명령을 실행")]
             return out + classify_command("git " + alias + " " + " ".join(sargs), where, root, depth + 1)
-    if _norm(where) != _norm(cwd) and sub in GIT_MUTATING and not _under(_top(where), _top(cwd)):
+    # 다른 저장소 변경: 관리 대상이 아니면 금지. 관리 중인 프로젝트면 아래 판정이 그 프로젝트(where)의 승인 기록으로 한다
+    if _norm(where) != _norm(cwd) and sub in GIT_MUTATING and not _under(_top(where), _top(cwd)) \
+            and not resolve_project(where, root):
         out.append(_finding("forbidden", seg, reason=f"다른 저장소({where})를 변경 — 관련 없는 프로젝트 수정 금지"))
     if sub == "push":
         out += _push(sargs, seg, where)
