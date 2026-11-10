@@ -11,6 +11,12 @@
       "ref": "codex-plugin-intaeng",
       "note": "2026-11-09 사용자: '그래 진행해' — Codex에 taeng-marketplace 등록·intaeng 설치",
       "at": "2026-11-09T23:56:29+09:00"
+    },
+    {
+      "gate": "system_permission",
+      "ref": "orca-permission-auto",
+      "note": "2026-11-10 사용자: '바꿔' — Orca 에이전트 권한 YOLO → Auto (claude·codex만)",
+      "at": "2026-11-10T00:44:05+09:00"
     }
   ],
   "tasks": [
@@ -22,15 +28,15 @@
       "branch": "feat/mvp-cli",
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_2f1f23369f8d",
-      "note": "3차 지적 수정 + 두 번째 그물(tripwire) 추가 — 109 테스트, 변형 40/40 → codex 4차 재검증 요청",
+      "dispatch": "ctx_b142d32ffa40",
+      "note": "4차 수정 완료(129 테스트, 변형 36/36 — 메모리 부족으로 48개 중 36개에서 중단). 교차 검증 미통과 상태로 push(사용자 승인) — 5차 재검증 필요",
       "verification": {
         "tests": "pass",
         "review": "fail",
         "security": "fail",
         "by": "codex:verifier",
-        "summary": "3차: 2차 15건 해결 확인, 새 9건(붙여쓴 옵션·셸 조건문·escape·실행기 옵션·gh URL/-R·git -CX/--git-dir/hooksPath·2>·상태 파일 rm/mv·상태 불변식) + 과잉 차단 3건",
-        "at": "2026-11-10T00:24:35+09:00"
+        "summary": "4차: 3차 12건 해결 확인, 새 7건(명령 표시 섞임, -ucCODE, 단일 비밀 출력, ../ 경로, gh api -H, git restore 상태 파일, push 대상 저장소) + 그물 과잉 차단 11/48 → 모두 수정·회귀 테스트",
+        "at": "2026-11-10T09:56:39+09:00"
       },
       "files": [
         "am/guard.py",
@@ -106,8 +112,24 @@
     {
       "at": "2026-11-10T00:24:35+09:00",
       "event": "작업 T1 변경: note=3차 지적 수정 + 두 번째 그물(tripwire) 추가 — 109 테스트, 변형 40/40 → codex 4차 재검증 요청"
+    },
+    {
+      "at": "2026-11-10T00:24:53+09:00",
+      "event": "작업 T1 변경: dispatch=ctx_b142d32ffa40"
+    },
+    {
+      "at": "2026-11-10T00:44:05+09:00",
+      "event": "승인 기록: system_permission (orca-permission-auto)"
+    },
+    {
+      "at": "2026-11-10T09:56:39+09:00",
+      "event": "작업 T1 검증(codex:verifier): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-10T09:56:39+09:00",
+      "event": "작업 T1 변경: note=4차 수정 완료(129 테스트, 변형 36/36 — 메모리 부족으로 48개 중 36개에서 중단). 교차 검증 미통과 상태로 push(사용자 승인) — 5차 재검증 필요"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T00:24:35+09:00"
+  "updated_at": "2026-11-10T09:56:39+09:00"
 }

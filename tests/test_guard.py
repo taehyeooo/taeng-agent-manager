@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -167,10 +168,10 @@ class VerifierFindingsTest(GuardTest):
             self.assertIn("push", msg, cmd)
 
     def test_git_dash_C_judged_in_target_repo(self):
-        d, msg = self.bash(f"git -C {self.other} push origin main")
+        d, msg = self.bash(f"git -C {(self.other).as_posix()} push origin main")
         self.assertEqual(d, "deny")  # 다른 저장소 변경 = 관련 없는 프로젝트
         self.assertIn("관련 없는 프로젝트", msg)
-        self.assertEqual(self.bash(f"git -C {self.other} log --oneline -1")[0], "allow")  # 읽기는 허용
+        self.assertEqual(self.bash(f"git -C {(self.other).as_posix()} log --oneline -1")[0], "allow")  # 읽기는 허용
 
     def test_variables_and_eval_need_a_human(self):
         for cmd in ("$g push origin main", "& $g push origin main", "iex 'git push'", "eval git push", "git $sub origin main"):
@@ -195,11 +196,11 @@ class VerifierFindingsTest(GuardTest):
         self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
 
     def test_shell_write_targets_and_patches_checked(self):
-        self.assertEqual(self.bash(f"Set-Content {self.other / 'main.py'} x")[0], "deny")
-        self.assertEqual(self.bash(f"echo x > {self.other / 'main.py'}")[0], "deny")
-        self.assertEqual(self.bash(f"cp a.py {self.other / 'a.py'}")[0], "deny")
+        self.assertEqual(self.bash(f"Set-Content {(self.other / 'main.py').as_posix()} x")[0], "deny")
+        self.assertEqual(self.bash(f"echo x > {(self.other / 'main.py').as_posix()}")[0], "deny")
+        self.assertEqual(self.bash(f"cp a.py {(self.other / 'a.py').as_posix()}")[0], "deny")
         self.assertEqual(self.bash("echo x > out.txt")[0], "allow")  # 작업 폴더 안
-        patch = f"*** Begin Patch\n*** Update File: {self.other / 'main.py'}\n@@\n-a\n+b\n*** End Patch"
+        patch = f"*** Begin Patch\n*** Update File: {(self.other / 'main.py').as_posix()}\n@@\n-a\n+b\n*** End Patch"
         d = G.decide({"tool_name": "apply_patch", "tool_input": {"patch": patch}, "cwd": str(self.app)}, "codex", self.root)[0]
         self.assertEqual(d, "deny")
         d = G.decide({"tool_name": "shell", "tool_input": {"command": ["apply_patch", patch]}, "cwd": str(self.app)}, "codex", self.root)[0]
@@ -231,7 +232,7 @@ class VerifierFindingsTest(GuardTest):
         self.assertIn("금지", self.bash("git push --force origin")[1])  # 지금 브랜치가 main
 
     def test_delete_checks_full_path_not_basename(self):
-        self.assertEqual(self.bash(f"rm -rf {self.other / 'dist'}")[0], "deny")
+        self.assertEqual(self.bash(f"rm -rf {(self.other / 'dist').as_posix()}")[0], "deny")
         self.assertEqual(self.bash("rm -rf dist node_modules")[0], "allow")
 
     def test_strings_inside_arguments_are_not_commands(self):
@@ -282,7 +283,7 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash("git push --repo=origin feat/x")[0], "allow")
 
     def test_inline_script_writes_and_env_dumps(self):
-        self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path(r'{self.other / 'main.py'}').write_text('x')\"")[0], "deny")
+        self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path(r'{(self.other / 'main.py').as_posix()}').write_text('x')\"")[0], "deny")
         self.assertIn("인증정보", self.bash('python -c "import os; print(os.environ)"')[1])
         self.assertIn("인증정보", self.bash("env")[1])
         self.assertEqual(self.bash("env A=1 python -m unittest")[0], "allow")
@@ -327,7 +328,7 @@ class VerifierRound3Test(GuardTest):
     def test_wrapper_options(self):
         self.assertIn("deploy", self.bash("npx --yes vercel --prod")[1])
         self.assertIn("deploy", self.bash("npx -p vercel vercel --prod")[1])
-        self.assertNotEqual(self.bash(f"env --chdir={self.other} git push origin main")[0], "allow")
+        self.assertNotEqual(self.bash(f"env --chdir={(self.other).as_posix()} git push origin main")[0], "allow")
 
     def test_gh_attached_and_url_targets(self):
         p = S.load("app", self.root)
@@ -343,15 +344,15 @@ class VerifierRound3Test(GuardTest):
     def test_git_option_forms(self):
         self.approve("push")
         self.assertIn("금지", self.bash("git push -fu origin main")[1])
-        self.assertIn("관련 없는 프로젝트", self.bash(f"git -C{self.other} push origin main")[1])
-        self.assertIn("관련 없는 프로젝트", self.bash(f"git --git-dir={self.other / '.git'} push origin main")[1])
+        self.assertIn("관련 없는 프로젝트", self.bash(f"git -C{(self.other).as_posix()} push origin main")[1])
+        self.assertIn("관련 없는 프로젝트", self.bash(f"git --git-dir={(self.other / '.git').as_posix()} push origin main")[1])
         self.assertIn("금지", self.bash("git -c core.hooksPath=NUL commit --no-verify -m x")[1])
         self.assertIn("금지", self.bash("git -c core.hooksPath=/dev/null commit -m x")[1])
         self.assertEqual(self.bash("git push -n origin feat/x")[0], "allow")  # push -n = dry-run, 우회 아님
         self.assertIn("금지", self.bash("git commit -nm x")[1])  # commit -n = --no-verify
 
     def test_fd_redirect_targets(self):
-        self.assertEqual(self.bash(f"python -m unittest 2>{self.other / 'main.py'}")[0], "deny")
+        self.assertEqual(self.bash(f"python -m unittest 2>{(self.other / 'main.py').as_posix()}")[0], "deny")
         self.assertEqual(self.bash("python -m unittest 2>&1")[0], "allow")
         self.assertEqual(self.bash("python -m unittest 2>err.log")[0], "allow")
 
@@ -369,10 +370,78 @@ class VerifierRound3Test(GuardTest):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
 
     def test_tripwire_catches_unparsed_risky_words(self):
-        # 파일 스크립트의 내용은 구조적 한계(문서) — 위험 단어가 명령줄에 보이면 그물이 잡는다
-        self.assertEqual(self.bash("npm run push")[0], "ask")
-        self.assertEqual(self.bash("npm run push", agent="codex")[0], "deny")
+        # 해석기가 실행기(perl)는 알지만 그 코드 인수(-E)를 해석하지 못한 경우 → 그물이 잡는다
+        self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'")[0], "ask")
+        self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'", agent="codex")[0], "deny")
+        # 이미 알아본 명령의 인수는 데이터 (npm run의 스크립트 내용은 문서에 적은 구조적 한계)
+        self.assertEqual(self.bash("npm run push")[0], "allow")
         self.assertEqual(self.bash("node -e \"require('child_process')\" && echo vercel")[0], "ask")
+
+
+class VerifierRound4Test(GuardTest):
+    """Regression tests for the codex 4th verification report (ctx_b142d32ffa40)."""
+
+    def test_harmless_command_does_not_cover_a_later_one(self):
+        self.assertEqual(self.bash("gh --version; g\\it pu\\sh origin main")[0], "deny")
+        self.assertIn("금지", self.bash("git log --oneline; g\\it comm\\it --no-verify -m x")[1])
+
+    def test_interpreter_option_clusters_with_attached_code(self):
+        self.assertIn("인증정보", self.bash('python -uc"import os; print(os.environ)"')[1])
+        self.assertIn("금지", self.bash(
+            "python -uc\"from pathlib import Path; Path('projects/app/project.json').write_text('{}')\"", cwd=self.root)[1])
+        self.assertEqual(self.bash("python -um am approve app push")[0], "ask")
+
+    def test_single_secret_printed(self):
+        for body in ("import os; print(os.environ['GITHUB_TOKEN'])", "import os; print(os.getenv('GITHUB_TOKEN'))"):
+            self.assertIn("인증정보", self.bash(f'python -c "{body}"')[1], body)
+        self.assertIn("인증정보", self.bash("node -e \"console.log(process.env.API_KEY)\"")[1])
+
+    def test_relative_paths_in_inline_scripts(self):
+        rel = os.path.relpath(self.other / "main.py", self.app).replace("\\", "/")
+        self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path('{rel}').write_text('x')\"")[0], "deny")
+        self.assertEqual(self.bash("python -c \"from pathlib import Path; Path('out/a.txt').write_text('x')\"")[0], "allow")
+
+    def test_gh_api_option_values_skipped(self):
+        p = S.load("app", self.root)
+        p["repo"] = "me/app"
+        S.save(p, self.root)
+        self.approve("push")
+        d, msg = self.bash("gh api -H Accept:application/vnd.github+json repos/me/other/pulls/3/merge -XPUT")
+        self.assertEqual(d, "deny")
+        self.assertIn("다른 저장소", msg)
+
+    def test_git_restore_of_state_files(self):
+        for cmd in ("git restore projects/app/project.json", "git checkout HEAD~1 -- projects/app/project.json",
+                    "git stash push projects/app/project.json"):
+            self.assertIn("금지", self.bash(cmd, cwd=self.root)[1], cmd)
+        self.assertEqual(self.bash("git add projects/app/project.json", cwd=self.root)[0], "allow")  # am이 쓴 상태를 커밋하는 건 정상
+
+    def test_push_target_repo_compared(self):
+        p = S.load("app", self.root)
+        p["repo"] = "me/app"
+        S.save(p, self.root)
+        self.approve("push")
+        self.assertIn("다른 저장소", self.bash("git push https://example.invalid/other.git main")[1])
+        git(self.app, "remote", "add", "evil", "https://github.com/me/other.git")
+        self.assertIn("다른 저장소", self.bash("git push evil feat/x")[1])
+        git(self.app, "remote", "add", "origin", "https://github.com/me/app.git")
+        self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
+
+    def test_normal_dev_commands_not_blocked(self):
+        """The verifier's sample of 11 normal commands the second net used to block."""
+        for cmd in ("git log --grep push", "git log --grep merge", "git commit -m push", "git grep push", "rg push src",
+                    "pytest -k push", "python -m pytest -k merge", "npm test -- --grep merge", "echo push",
+                    "node -e \"console.log('push')\"", "python -c \"print('push')\""):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+        # 매니저가 실제로 막혔던 오탐: 다른 폴더의 설정을 읽기만 하는 스크립트 (json.dumps는 쓰기가 아님)
+        reader = ("python -c \"import json; d=json.load(open(r'C:/x/orca-data.json', encoding='utf-8')); "
+                  "print(json.dumps(d)[:10])\"")
+        self.assertEqual(self.bash(reader)[0], "allow")
+        self.assertEqual(self.bash("python -c \"print(open('w.txt').read())\"")[0], "allow")  # 이름이 w로 시작해도 읽기
+        self.assertEqual(self.bash(f"python -c \"open('{(self.other / 'w.txt').as_posix()}', 'w').write('x')\"")[0], "deny")
+        # 매니저가 실제로 막혔던 오탐: 정규식 문자열이 들어간 heredoc 스크립트
+        heredoc = "python - <<'EOF'\nimport re\nopen('out.txt', 'w').write(re.sub(r\"[/\\\\]\", \"-\", 'a/b') + '(G, \"x\")')\nEOF"
+        self.assertEqual(self.bash(heredoc)[0], "allow")
 
 
 class TrustLayerStateTest(unittest.TestCase):

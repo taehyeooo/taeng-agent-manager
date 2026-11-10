@@ -52,6 +52,9 @@ GIT_BUILTINS = {"add", "am", "apply", "archive", "bisect", "blame", "branch", "b
                 "stash", "status", "submodule", "switch", "symbolic-ref", "tag", "update-ref", "worktree", "help", "version"}
 GIT_MUTATING = {"commit", "add", "push", "merge", "reset", "checkout", "switch", "rm", "mv", "stash", "apply", "am",
                 "rebase", "cherry-pick", "revert", "tag", "branch", "clean", "worktree", "restore", "pull", "fetch", "update-ref"}
+GIT_REWRITES_FILES = {"rm", "mv", "restore", "checkout", "reset", "stash", "apply", "am", "cherry-pick", "revert", "switch"}
+GH_API_WITH_VALUE = {"-H", "--header", "-X", "--method", "-f", "-F", "--field", "--raw-field", "--input", "-q", "--jq",
+                     "-t", "--template", "--cache", "-p", "--preview", "--hostname"}
 GH_GLOBAL_WITH_ARG = {"-R", "--repo", "--hostname"}
 MAIN = {"main", "master"}
 SAFE_DELETE = {"node_modules", "dist", "build", ".next", "out", "coverage", "__pycache__", ".pytest_cache", ".turbo", ".cache", "target"}
@@ -263,18 +266,25 @@ def _check_script(body, seg, cwd, root):
     """Inline python -c / node -e / heredoc bodies."""
     out = []
     touches_am = re.search(r"\bfrom\s+am\b|\bimport\s+am\b|\bam\.(state|guard|cli)\b", body)
-    writes = re.search(r"write_text|write_bytes|open\s*\([^)]*['\"][wax+]|writeFile|appendFile|json\.dump|unlink|rename|replace\s*\(|rmtree|copyfile|\.save\s*\(", body)
+    # writes: open(..., 'w'/'a'/'x'/'+' mode) — the mode argument, not a file name starting with w; json.dump( not json.dumps(
+    writes = re.search(r"write_text|write_bytes|open\s*\([^)]*,\s*(mode\s*=\s*)?['\"][rbt]*[wax+]|writeFile|appendFile|json\.dump\s*\("
+                       r"|unlink|rename|\.replace\s*\(\s*[^)]*[/\\]|rmtree|copyfile|\.save\s*\(", body)
     if touches_am and (writes or re.search(r"approve\s*\(|\.save\s*\(|save_local|approvals|add_request", body)):
         out.append(_finding("forbidden", seg, reason="스크립트로 승인·상태를 직접 조작(위조 위험)"))
     elif re.search(r"project|\.am\b|local\.json", body, re.I) and writes:
         out.append(_finding("forbidden", seg, reason="스크립트로 상태 파일을 직접 수정(위조 위험)"))
     if writes:  # 스크립트가 쓰는 경로가 문자열로 드러나 있으면 그 경로를 검사
-        for lit in re.findall(r"['\"]([^'\"]*[/\\][^'\"]*)['\"]", body):
-            if os.path.isabs(lit):
+        # string literals (same quote on both ends) that look like a path — absolute or relative (../other)
+        for _q, lit in re.findall(r"(['\"])((?:(?!\1)[^\s()\[\]{}*?^$|<>;,])*[/\\](?:(?!\1)[^\s()\[\]{}*?^$|<>;,])*)\1", body):
+            if re.search(r"[\w.]", lit):
                 out += classify_file("Write", lit, cwd, root, via=seg)
     if re.search(r"print\s*\(\s*(dict\s*\()?\s*os\.environ\s*\)|console\.log\s*\(\s*process\.env\s*\)|os\.environ\.items\s*\(\)|JSON\.stringify\s*\(\s*process\.env", body):
         out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 전체 출력)"))
-    if re.search(r"\bsubprocess\b|os\.system|os\.popen|os\.exec|child_process|\bexecSync\b|\bspawn\w*\s*\(|\bexec\s*\(|\beval\s*\(", body):
+    elif re.search(r"(print|pprint|console\.(log|error|info)|sys\.std(out|err)\.write|logging\.\w+|process\.std(out|err)\.write)\s*\([^;]*"
+                   r"(os\.environ|getenv|process\.env)", body):
+        out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 값을 출력)"))
+    if re.search(r"\bsubprocess\b|os\.system|os\.popen|os\.exec|child_process|\bexecSync\b|\bspawn\w*\s*\(|\bexec\s*\(|\beval\s*\("
+                 r"|\bsystem\s*[\(\s'\"]|%x\{|`|\bIO\.popen|\bopen3\b|\bqx\s*[\(\{/]|\bDeno\.(run|Command)|\bBun\.spawn", body):
         out.append(_finding("opaque", seg, reason="스크립트 안에서 다른 명령·코드를 실행"))
     return out
 
@@ -330,6 +340,10 @@ def _push(args, seg, where):
         i += 1
     if remote is None and pos:
         remote, pos = pos[0], pos[1:]
+    url = (remote if re.search(r"://|@|\.git$|^[./\\]", remote) else _git(where, "remote", "get-url", remote)) if remote \
+        else _git(where, "remote", "get-url", "origin")
+    m = re.search(r"github\.com[:/]+([^/\s]+/[^/\s]+?)(?:\.git)?/?$", url or "")
+    target_repo = m.group(1) if m else (url or None)
     current = lambda: _git(where, "branch", "--show-current") or None  # noqa: E731
     refs = []  # (destination branch or None=unknown/all, force, deletes it)
     if any(a in ("--all", "--mirror", "--tags", "--branches") for a in args) or any(SUBST in a for a in pos):
@@ -350,9 +364,9 @@ def _push(args, seg, where):
         if f and (short in MAIN or dst is None):
             out.append(_finding("forbidden", seg, reason="main 강제 push(또는 대상이 불분명한 강제 push)"))
         elif delete or del_one:
-            out.append(_gated("destructive_delete", seg, ref=short or None, where=where))
+            out.append(_gated("destructive_delete", seg, ref=short or None, where=where, repo=target_repo))
         else:
-            out.append(_gated("push", seg, ref=short or None, where=where))
+            out.append(_gated("push", seg, ref=short or None, where=where, repo=target_repo))
     return out
 
 
@@ -368,7 +382,16 @@ def _gh_api(args, seg, where, repo):
     if method == "GET" and any(a in ("-f", "-F", "--field", "--raw-field", "--input") or
                                a.startswith(("--field=", "--raw-field=", "--input=", "-f", "-F")) for a in args):
         method = "POST"  # gh api: any field (also attached, -fname=x) makes it a POST
-    endpoint = next((a for a in args if not a.startswith("-") and a.upper() != method), "")
+    pos, i = [], 0
+    while i < len(args):
+        a = args[i]
+        if a in GH_API_WITH_VALUE:
+            i += 2
+            continue
+        if not a.startswith("-"):
+            pos.append(a)
+        i += 1
+    endpoint = pos[0] if pos else ""
     m = re.match(r"/?repos/([^/]+/[^/]+)", endpoint)
     repo = repo or (m.group(1) if m else None)
     if SUBST in endpoint or SUBST in method:
@@ -478,7 +501,7 @@ def analyze(seg, cwd, root, depth=0):
                     inner = bash_unescape(inner)
                 if depth >= 4:
                     return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
-                return out + classify_command(inner, cwd, root, depth + 1)
+                return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
         if args and not args[0].startswith("-") and args[0].endswith((".sh", ".ps1", ".bat", ".cmd")):
             return out + [_finding("opaque", seg, reason="셸 스크립트 파일 실행")]
         return out
@@ -490,23 +513,21 @@ def analyze(seg, cwd, root, depth=0):
             if a in PY_OPTS_WITH_ARG:
                 i += 2
                 continue
-            if a == "-m" and i + 1 < len(args):
-                module, margs = args[i + 1], [x.lower() for x in args[i + 2:]]
-                break
-            if a.startswith("-m") and len(a) > 2 and word.startswith(("python", "py")):  # python -mam
-                module, margs = a[2:], [x.lower() for x in args[i + 1:]]
-                break
-            if a in ("-c", "-e", "--eval", "-p") and i + 1 < len(args):
+            if a in ("--eval", "-p", "--print") and i + 1 < len(args):
                 body = " ".join(args[i + 1:])
                 break
-            if re.match(r"^-[ce].", a):  # python -c"…" / node -e"…" attached
-                body = " ".join([a[2:], *args[i + 1:]])
+            if a.startswith(("--eval=", "--print=")):
+                body = " ".join([a.split("=", 1)[1], *args[i + 1:]])
                 break
-            if re.fullmatch(r"-[a-zA-Z]+", a) and a[-1] in "mce" and i + 1 < len(args):  # python -um am / -Bc "…"
-                if a[-1] == "m":
-                    module, margs = args[i + 1], [x.lower() for x in args[i + 2:]]
+            # option clusters: -m am, -mam, -um am, -c "…", -c"…", -Bc "…", -ucCODE
+            m = None if a.startswith("--") else re.match(r"^-([bBdEhiIOPqsSuvx]*?)([cem])(.*)$", a)
+            if m:
+                attached = m.group(3)
+                if m.group(2) == "m":
+                    module, margs = (attached, args[i + 1:]) if attached else ((args[i + 1], args[i + 2:]) if i + 1 < len(args) else (None, []))
+                    margs = [x.lower() for x in margs]
                 else:
-                    body = " ".join(args[i + 1:])
+                    body = " ".join([attached, *args[i + 1:]]) if attached else (" ".join(args[i + 1:]) if i + 1 < len(args) else None)
                 break
             if not a.startswith("-"):
                 if re.search(r"am[/\\](__main__|cli)\.py$", a) and "approve" in low:
@@ -602,7 +623,7 @@ def _analyze_git(args, seg, cwd, root, depth):
     if sub in ("commit", "push", "merge", "rebase", "am", "cherry-pick", "revert") and (
             any(a in ("--no-verify", "--no-gpg-sign") for a in sargs) or sub == "commit" and _short_flag(sargs, "n")):
         out.append(_finding("forbidden", seg, reason="검증 단계 우회"))
-    if sub in ("rm", "mv") and any(_is_state_file(a, where, root) for a in sargs if not a.startswith("-")):
+    if sub in GIT_REWRITES_FILES and any(_is_state_file(a, where, root) for a in sargs if not a.startswith("-")):
         out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
     if SUBST in sub or sub.startswith("$"):
         return out + [_finding("opaque", seg, reason="git 하위 명령을 미리 알 수 없음")]
@@ -707,7 +728,7 @@ TRIPWIRES = [
     (r"(drop\s+(table|database)|truncate\s+table|migrate\s+(reset|deploy)|db\s+(push|reset))",
      ("cmd:psql", "cmd:mysql", "cmd:sqlite3", "cmd:sqlcmd", "cmd:supabase", "cmd:prisma")),
 ]
-EXEC_FLAG_BEFORE = re.compile(r"(?:^|\s)(?:-c|-lc|-ic|-command|/c|/k|-e|--eval|eval|iex|invoke-expression)\s*$", re.I)
+EXEC_FLAG_BEFORE = re.compile(r"(?:^|\s)(?:-c|-lc|-ic|-command|/c|/k|-e|--eval=?|--print=?|eval|iex|invoke-expression)\s*$", re.I)
 
 
 def tripwire_text(cmd):
@@ -729,14 +750,26 @@ def tripwire_text(cmd):
 
 
 def tripwire(cmd, found):
+    """Per command segment: a risky word in a segment that no parser explained → opaque.
+    A segment is explained when it got a tag other than "this is a shell/interpreter" — then its remaining
+    words are data (git log --grep push, rg merge, pytest -k push, print('push'))."""
     if any(f["kind"] in ("forbidden", "opaque", "approve") for f in found):
         return []  # already stopped
-    text = tripwire_text(cmd)
-    tags = [f["tag"] for f in found if f["kind"] == "seen"]
+    launchers = {f"cmd:{w}" for w in SHELLS | SCRIPTERS}
+    tags = {}
+    for f in found:
+        if f["kind"] == "seen":
+            tags.setdefault(f["seg"], set()).add(f["tag"])
+    flat, _, _ = extract_substitutions(cmd)
     hits = []
-    for pat, owners in TRIPWIRES:
-        if re.search(r"(?<![\w=/.:-])" + pat + r"(?![\w=/.-])", text) and not any(t.startswith(owners) for t in tags):
-            hits.append(re.search(pat, text).group(0))
+    for seg in split_commands(flat):
+        if tags.get(seg, set()) - launchers:
+            continue
+        text = tripwire_text(seg)
+        for pat, _owners in TRIPWIRES:
+            m = re.search(r"(?<![\w=/.:-])" + pat + r"(?![\w=/.-])", text)
+            if m:
+                hits.append(m.group(0))
     if hits:
         return [_finding("opaque", cmd[:160], reason=f"위험 단어({', '.join(dict.fromkeys(hits))})가 있는데 어떤 명령인지 해석하지 못함")]
     return []
@@ -800,6 +833,8 @@ def decide(payload, agent="claude", root=None):
     findings = []
     if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
         cmd = re.sub(r"`(.)", r"\1", cmd)
+    elif cmd and tool == "Bash":  # Claude Code's Bash tool: g\it pu\sh is git push
+        cmd = bash_unescape(cmd)
     if cmd:
         findings += classify_command(cmd, cwd, root)
     if path:
