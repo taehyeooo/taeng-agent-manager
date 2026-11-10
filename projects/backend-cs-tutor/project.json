@@ -298,9 +298,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7",
-      "pr": null,
+      "pr": "22",
       "dispatch": "ctx_5e39daae8e79",
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "note": "캡처 13개 PR #22, 매니저가 3장 육안 확인(개인정보 없음), claude 검증 위임"
     },
     {
       "id": "S8",
@@ -1088,8 +1088,12 @@
     {
       "at": "2026-11-10T18:53:32+09:00",
       "event": "작업 S7 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7, dispatch=ctx_5e39daae8e79"
+    },
+    {
+      "at": "2026-11-10T19:04:30+09:00",
+      "event": "작업 S7 변경: pr=22, note=캡처 13개 PR #22, 매니저가 3장 육안 확인(개인정보 없음), claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:53:32+09:00"
+  "updated_at": "2026-11-10T19:04:30+09:00"
 }
