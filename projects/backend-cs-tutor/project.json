@@ -512,12 +512,12 @@
       "title": "CLI 모델 어댑터·하루 30회·90초·AI 상태·12/1 전환 (R-21, R-31)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S18",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_de745960d686",
+      "note": "서버 AI 기반만. 실제 CLI 실행 금지(가짜 CLI로 테스트), 실제 연결 확인은 사용자 승인 후"
     },
     {
       "id": "S19",
@@ -1256,8 +1256,12 @@
     {
       "at": "2026-11-10T22:35:41+09:00",
       "event": "작업 S11 변경: dispatch=ctx_9cb0407df84e, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T22:36:27+09:00",
+      "event": "작업 S18 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S18, dispatch=ctx_de745960d686, note=서버 AI 기반만. 실제 CLI 실행 금지(가짜 CLI로 테스트), 실제 연결 확인은 사용자 승인 후"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T22:35:41+09:00"
+  "updated_at": "2026-11-10T22:36:27+09:00"
 }
