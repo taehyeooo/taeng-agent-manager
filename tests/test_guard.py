@@ -134,6 +134,17 @@ class GuardTest(unittest.TestCase):
         self.approve("push", "feat/y")
         self.assertEqual(self.bash("git push origin feat/y", cwd=wt)[0], "allow")
 
+    @unittest.skipUnless(sys.platform == "win32", "Windows 8.3 short names")
+    def test_windows_short_path_names(self):
+        """GitHub Actions Windows: temp is C:\\Users\\RUNNER~1\\… while git answers with the long name."""
+        import ctypes
+        buf = ctypes.create_unicode_buffer(1024)
+        if not ctypes.windll.kernel32.GetShortPathNameW(str(self.app), buf, 1024) or buf.value == str(self.app):
+            self.skipTest("8.3 short names are off on this volume")
+        short = buf.value
+        self.assertEqual(G.resolve_project(short, self.root), "app")
+        self.assertEqual(self.bash("rm -rf node_modules dist", cwd=short)[0], "allow")
+
     # --- hook protocol
     def test_main_exit_codes(self):
         def run(payload, agent="claude"):

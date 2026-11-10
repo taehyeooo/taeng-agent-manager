@@ -92,7 +92,9 @@ def _git(cwd, *args):
 
 
 def _norm(path):
-    return os.path.normcase(os.path.abspath(str(path))).rstrip("\\/")
+    # realpath: Windows 8.3 short names (C:\Users\RUNNER~1) and symlinks/junctions → the real long path, so
+    # the same folder compares equal however git, tempfile or the agent spelled it
+    return os.path.normcase(os.path.realpath(str(path))).rstrip("\\/")
 
 
 def _under(path, root):
