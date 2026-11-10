@@ -89,10 +89,22 @@ def new_project(slug, name, idea, root=None):
     return p
 
 
+WORK_BRANCHES = "work-branches"  # push 승인 ref: main/master가 아닌 작업 브랜치 전부 (main은 절대 포함 안 됨)
+
+
+def _ref_covers(approved, ref, gate):
+    if approved is None or approved == ref:
+        return True
+    # 사용자 승인 2026-11-10: "작업 브랜치 올리기는 묻지 않고" — 브랜치 이름이 분명하고 main이 아닐 때만
+    return (approved == WORK_BRANCHES and gate == "push" and ref is not None
+            and re.fullmatch(r"[\w./-]+", ref) is not None and ref not in ("main", "master"))
+
+
 def has_approval(p, gate, ref=None):
     """An approval without ref covers every instance of the gate; one with ref covers only that ref.
-    An action whose target is unknown (ref=None) needs a ref-less (blanket) approval."""
-    return any(a["gate"] == gate and a.get("ref") in (None, ref) for a in p["approvals"])
+    An action whose target is unknown (ref=None) needs a ref-less (blanket) approval.
+    ref "work-branches" (push only) covers every branch except main/master — never API changes or unknown targets."""
+    return any(a["gate"] == gate and _ref_covers(a.get("ref"), ref, gate) for a in p["approvals"])
 
 
 def approve(p, gate, ref=None, note=""):

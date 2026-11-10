@@ -106,6 +106,8 @@
 - 끊긴 뒤 새 세션은 "세션 시작할 때"만 하면 이어진다. Orca dispatch가 남아 있으면 `orca orchestration worker-show --dispatch <id>`.
 
 ## 이 레포 개발
+- main은 GitHub 보호 규칙으로 잠겨 있다(2026-11-10 승인): PR로만, CI 2개(Ubuntu·Windows) 통과 필수, 강제 push·삭제 금지, 관리자도 예외 없음.
+- **상시 승인(2026-11-10)**: 이 레포에 한해 main이 아닌 작업 브랜치 push와 PR 만들기는 묻지 않는다(`push --ref work-branches`). 올리기 전에 비밀값 검사는 매번 한다. **main 병합은 PR마다 승인.** 다른 서비스 레포에는 적용하지 않는다.
 - 테스트: `python -m unittest discover -s tests` (CI: `.github/workflows/test.yml`)
 - 의존성 없음(Python 표준 라이브러리만). 비용 0원 — 유료 API·서비스를 넣지 않는다.
 - 이 레포도 `projects/taeng-agent-manager`로 등록돼 같은 승인 규칙을 받는다.

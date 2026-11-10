@@ -293,6 +293,16 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash("gh api repos/me/app/branches/main/protection -X DELETE")[0], "deny")  # 다른 대상
         self.assertEqual(self.bash("git push origin main")[0], "deny")  # 넓은 push 승인이 아님
 
+    def test_work_branches_standing_approval(self):
+        """사용자 승인 2026-11-10: 작업 브랜치 올리기는 묻지 않음 — main은 여전히 막힘."""
+        self.approve("push", S.WORK_BRANCHES)
+        self.assertEqual(self.bash("git push -u origin feat/x")[0], "allow")
+        self.assertEqual(self.bash("git push origin fix/y:fix/y")[0], "allow")
+        for cmd in ("git push origin main", "git push origin feat/x:main", "git push origin master",
+                    "git push --all origin", "gh api repos/me/app/branches/main/protection -X DELETE",
+                    "gh api repos/me/app/hooks -X POST -f url=x"):
+            self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+
     def test_gh_api_attached_option_forms(self):
         for cmd in ("gh api user/repos -XPOST", "gh api user/repos --input=data.json", "gh api user/repos --method=POST"):
             self.assertEqual(self.bash(cmd)[0], "deny", cmd)
