@@ -252,12 +252,12 @@
       "title": "교차 검증 기록·노출 규칙 + 사례 카드 사실 확인 절차 (R-25)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_64c46e15e9be",
+      "note": "범위 확대: 콘텐츠 DB 적재(UPSERT)·검증 기록 도구·노출 규칙·읽기 API. 검증 마친 7개 개념 기록 추가"
     },
     {
       "id": "S7",
@@ -934,8 +934,12 @@
     {
       "at": "2026-11-10T17:36:55+09:00",
       "event": "작업 S9 변경: status=done, note=PR #9 병합(밝은 화면, 구조 C)"
+    },
+    {
+      "at": "2026-11-10T17:37:51+09:00",
+      "event": "작업 S6 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6, dispatch=ctx_64c46e15e9be, note=범위 확대: 콘텐츠 DB 적재(UPSERT)·검증 기록 도구·노출 규칙·읽기 API. 검증 마친 7개 개념 기록 추가"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T17:36:55+09:00"
+  "updated_at": "2026-11-10T17:37:51+09:00"
 }
