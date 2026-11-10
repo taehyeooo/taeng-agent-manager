@@ -283,6 +283,16 @@ class VerifierRound2Test(GuardTest):
             self.assertEqual(d, "deny", cmd)
             self.assertIn("다른 저장소", msg, cmd)
 
+    def test_gh_api_change_approved_by_exact_target(self):
+        cmd = "gh api repos/me/app/branches/main/protection -X PUT --input p.json"
+        d, msg = self.bash(cmd)
+        self.assertEqual(d, "deny")
+        self.assertIn("--ref PUT repos/me/app/branches/main/protection", msg.replace('"', ""))
+        self.approve("push", "PUT repos/me/app/branches/main/protection")
+        self.assertEqual(self.bash(cmd)[0], "allow")
+        self.assertEqual(self.bash("gh api repos/me/app/branches/main/protection -X DELETE")[0], "deny")  # 다른 대상
+        self.assertEqual(self.bash("git push origin main")[0], "deny")  # 넓은 push 승인이 아님
+
     def test_gh_api_attached_option_forms(self):
         for cmd in ("gh api user/repos -XPOST", "gh api user/repos --input=data.json", "gh api user/repos --method=POST"):
             self.assertEqual(self.bash(cmd)[0], "deny", cmd)
