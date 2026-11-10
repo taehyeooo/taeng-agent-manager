@@ -281,7 +281,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
       "pr": "9",
       "dispatch": "ctx_7b3387939267",
-      "note": "사용자 선택 2026-11-10: 구조 C(연결 지도). 2단계 세부 시안 위임(codex)"
+      "note": "사용자 선택 2026-11-10: 구조 C + 세부 '밤'. 3단계 적용 위임(codex)"
     },
     {
       "id": "S10",
@@ -824,8 +824,16 @@
     {
       "at": "2026-11-10T16:53:53+09:00",
       "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a, dispatch=ctx_f7f2955beeb1, note=4개씩 3차로 나눔. 1차: N+1·JDBC 배치·p95/부하 테스트·프로세스와 메모리"
+    },
+    {
+      "at": "2026-11-10T17:01:07+09:00",
+      "event": "작업 S9 변경: note=2단계 세부 시안 paper/clear/night 완료(b61d011). 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-10T17:02:11+09:00",
+      "event": "작업 S9 변경: note=사용자 선택 2026-11-10: 구조 C + 세부 '밤'. 3단계 적용 위임(codex)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T16:53:53+09:00"
+  "updated_at": "2026-11-10T17:02:11+09:00"
 }
