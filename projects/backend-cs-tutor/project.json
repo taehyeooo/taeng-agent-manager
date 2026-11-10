@@ -278,10 +278,10 @@
       "kind": "docs",
       "status": "dispatched",
       "branch": null,
-      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b",
       "pr": "12",
-      "dispatch": "ctx_fb67a045517f",
-      "note": "1차 PR #12 병합(4개, 누적 7개). 2차·3차 남음",
+      "dispatch": "ctx_2552e0ac2152",
+      "note": "2차 위임: 네트워크 왕복 지연·캐시·분산 락·비동기 처리",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -922,8 +922,12 @@
     {
       "at": "2026-11-10T17:32:47+09:00",
       "event": "작업 S9 변경: note=PR #9 병합 승인됨 — log.md 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-10T17:33:38+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b, dispatch=ctx_2552e0ac2152, note=2차 위임: 네트워크 왕복 지연·캐시·분산 락·비동기 처리"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T17:32:47+09:00"
+  "updated_at": "2026-11-10T17:33:38+09:00"
 }
