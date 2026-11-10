@@ -65,6 +65,12 @@
       "ref": "~/.dadok-cs/db.env",
       "note": "2026-11-10 사용자: '승인' — 관리자 비밀번호는 사용자가 별도 창에 입력, 앱 비밀번호는 무작위 생성해 사용자 전용 파일에 저장, 서버 실행 때 매니저가 읽음",
       "at": "2026-11-10T16:02:06+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#6",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #6(S4 콘텐츠 형식·검사) squash 병합",
+      "at": "2026-11-10T16:18:36+09:00"
     }
   ],
   "tasks": [
@@ -180,7 +186,7 @@
       "title": "콘텐츠 형식(Markdown+YAML)·불러오기·검사 스크립트, 예시 개념 1개 (R-27)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": "feat/#4-content-format",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4",
       "pr": "6",
@@ -205,11 +211,11 @@
       "title": "콘텐츠 생성·검증 파이프라인 + 그림 관리 + 첫 3개 개념 (R-24)",
       "agent": "codex",
       "kind": "docs",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S5",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_39997ce7671e",
       "note": "자동 배정: docs → codex (config/agents.json 선호)"
     },
     {
@@ -253,12 +259,12 @@
       "title": "디자인: 구조 시안 3개 → 세부 시안 → 토큰 적용 (사용자 선택)",
       "agent": "codex",
       "kind": "design",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: design → codex (config/agents.json 선호)"
+      "dispatch": "ctx_a880ca9d6702",
+      "note": "1단계 구조 시안 3개만. 사용자 선택 후 2단계"
     },
     {
       "id": "S10",
@@ -745,8 +751,24 @@
     {
       "at": "2026-11-10T16:12:26+09:00",
       "event": "작업 S4 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T16:18:36+09:00",
+      "event": "승인 기록: merge_main (PR#6)"
+    },
+    {
+      "at": "2026-11-10T16:18:40+09:00",
+      "event": "작업 S4 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T16:22:05+09:00",
+      "event": "작업 S5 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S5, dispatch=ctx_39997ce7671e"
+    },
+    {
+      "at": "2026-11-10T16:22:06+09:00",
+      "event": "작업 S9 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9, dispatch=ctx_a880ca9d6702, note=1단계 구조 시안 3개만. 사용자 선택 후 2단계"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T16:12:26+09:00"
+  "updated_at": "2026-11-10T16:22:06+09:00"
 }
