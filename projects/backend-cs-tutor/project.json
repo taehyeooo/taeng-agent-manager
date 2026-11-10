@@ -264,12 +264,12 @@
       "title": "나머지 12개 개념 콘텐츠",
       "agent": "codex",
       "kind": "docs",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "dispatch": "ctx_f7f2955beeb1",
+      "note": "4개씩 3차로 나눔. 1차: N+1·JDBC 배치·p95/부하 테스트·프로세스와 메모리"
     },
     {
       "id": "S9",
@@ -820,8 +820,12 @@
     {
       "at": "2026-11-10T16:53:08+09:00",
       "event": "작업 S5 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T16:53:53+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a, dispatch=ctx_f7f2955beeb1, note=4개씩 3차로 나눔. 1차: N+1·JDBC 배치·p95/부하 테스트·프로세스와 메모리"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T16:53:08+09:00"
+  "updated_at": "2026-11-10T16:53:53+09:00"
 }
