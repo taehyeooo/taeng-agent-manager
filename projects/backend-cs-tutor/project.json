@@ -364,12 +364,12 @@
       "title": "학습 지도: 개념 지도·상태 색 (R-3, R-4)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
       "pr": "20",
-      "dispatch": "ctx_77025aef7682",
-      "note": "검증 지적 수정 위임(codex): 지도 경로 정리, 화살표 선행→후행(매니저 결정), 약함=분홍 강조 토큰(매니저 결정)",
+      "dispatch": "ctx_887075a8af62",
+      "note": "사용자 피드백 2026-11-10: 지도가 어지럽다 → 선 없는 묶음·순서 번호·선택 시 글 패널로 단순화 위임. 병합 보류",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1119,8 +1119,12 @@
     {
       "at": "2026-11-10T21:00:03+09:00",
       "event": "작업 S10 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T21:00:50+09:00",
+      "event": "작업 S10 변경: status=dispatched, dispatch=ctx_887075a8af62, note=사용자 피드백 2026-11-10: 지도가 어지럽다 → 선 없는 묶음·순서 번호·선택 시 글 패널로 단순화 위임. 병합 보류"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T21:00:03+09:00"
+  "updated_at": "2026-11-10T21:00:50+09:00"
 }
