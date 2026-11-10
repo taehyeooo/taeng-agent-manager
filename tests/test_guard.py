@@ -583,6 +583,15 @@ class BuildAllowlistTest(GuardTest):
             git(self.other, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixture")
             self.assertEqual(self.bash(f'{launcher} "{outside.as_posix()}"')[0], "ask")
 
+    @unittest.skipUnless(sys.platform == "win32", "Windows 8.3 short names")
+    def test_windows_short_script_paths(self):
+        import ctypes
+        buf = ctypes.create_unicode_buffer(1024)
+        if not ctypes.windll.kernel32.GetShortPathNameW(str(self.app), buf, 1024):
+            self.skipTest("8.3 short names unavailable")
+        for cmd in ("python scripts/check.py", "sh scripts/check.sh"):
+            self.assertEqual(self.bash(cmd, cwd=buf.value)[0], "allow", cmd)
+
     def test_unsafe_build_invocations(self):
         for cmd in ("gradlew publish", "gradlew run", "gradlew test --init-script x.gradle",
                     "gradlew test -I x.gradle", "gradlew test -Duser.home=elsewhere",

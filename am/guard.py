@@ -273,7 +273,7 @@ def _clean_script(path, cwd, suffix):
     p = _abs(path, cwd)
     if not top or not _under(p, top) or p.suffix != suffix or not p.is_file() or p.is_symlink():
         return False
-    rel = os.path.relpath(p, top).replace("\\", "/")
+    rel = os.path.relpath(_norm(p), _norm(top)).replace("\\", "/")
     try:
         for args in (("ls-files", "--error-unmatch", "--", rel), ("diff", "--quiet", "HEAD", "--", rel)):
             if subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5).returncode:
