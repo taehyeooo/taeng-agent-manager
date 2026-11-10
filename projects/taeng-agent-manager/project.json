@@ -98,25 +98,24 @@
     {
       "id": "T3",
       "title": "가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3",
       "pr": null,
-      "dispatch": "ctx_1ee247464623",
-      "note": "수정 6f6b640(171 통과, 변형 8/8, CI 4/4). claude 재검증 위임",
+      "dispatch": "ctx_37db59473dfc",
+      "note": "Codex 2회 실패 → 구현자 Claude로 교체(규칙). 검증은 codex가 맡는다",
       "verification": {
         "tests": "pass",
         "review": "fail",
         "security": "fail",
-        "by": "claude:reviewflow:ctx_4a61293fb8fb",
-        "summary": "높음 회귀 4: node/python3.12 heredoc 본문 검사 누락, AST가 copyfile·+=·루프 재대입 놓침+안전망 제거, importlib로 승인 위조, 종료 태그 공백. base부터 높음 3: assume-unchanged·로컬 커밋, 수정된 gradlew·package.json, 환경 변수 접두. npm run-script deploy",
-        "at": "2026-11-10T23:45:36+09:00"
+        "by": "claude:reviewflow:ctx_1ee247464623",
+        "summary": "2차 재검증: 새 치명 우회(heredoc 머리줄이 ;·&& 삼킴 → 강제 push allow), 기준 ref 위조, export 환경 변수 우회, 9번 미해결, 오탐 증가",
+        "at": "2026-11-11T00:13:48+09:00"
       },
       "files": [
-        "am/guard.py",
-        "docs/architecture.md"
+        "am/guard.py"
       ]
     }
   ],
@@ -596,10 +595,22 @@
     {
       "at": "2026-11-11T00:08:37+09:00",
       "event": "작업 T3 변경: dispatch=ctx_1ee247464623, note=수정 6f6b640(171 통과, 변형 8/8, CI 4/4). claude 재검증 위임"
+    },
+    {
+      "at": "2026-11-11T00:13:48+09:00",
+      "event": "작업 T3 검증(claude:reviewflow:ctx_1ee247464623): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-11T00:13:55+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T00:13:57+09:00",
+      "event": "작업 T3 변경: agent=claude, dispatch=ctx_37db59473dfc, note=Codex 2회 실패 → 구현자 Claude로 교체(규칙). 검증은 codex가 맡는다"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T00:08:37+09:00",
+  "updated_at": "2026-11-11T00:13:57+09:00",
   "requests": [
     {
       "gate": "push",
