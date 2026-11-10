@@ -137,7 +137,7 @@
       "title": "DB 스키마(Flyway): 표 16개와 제약 (내장형 PostgreSQL 테스트)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": "feat/#3-db-schema",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3",
       "pr": "5",
@@ -145,15 +145,16 @@
       "note": "검증 지적 수정 위임(codex)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_3dc3dc0f0fb0",
-        "summary": "S4와 연결 어긋남: misconception 한글/영문, card_figure 표 없음. 그 외 prompt 개념 FK, tutor_session 시각 열, REVOKE CONNECT. 결정: 영문 코드·다대다 연결",
-        "at": "2026-11-10T15:48:55+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: card_figure(다대다·순서), tutor_session 개념 일치 복합 FK·started_at/ended_at, REVOKE CONNECT, 경계 테스트. 백엔드 60/60(--rerun), CI 5개 통과",
+        "at": "2026-11-10T15:57:20+09:00"
       },
       "files": [
         "backend/src/main/resources/db/migration/V1__init.sql",
-        "README.md"
+        "README.md",
+        "backend/src/test/java/kr/dadokcs/SchemaTests.java"
       ]
     },
     {
@@ -673,8 +674,16 @@
     {
       "at": "2026-11-10T15:48:56+09:00",
       "event": "작업 S4 변경: branch=feat/#4-content-format, pr=6, dispatch=ctx_e7f11b9b6dd6, note=구현 완료 PR #6, 매니저 테스트 Python 11·백엔드 12 통과. S3와 맞추기 수정 위임(codex), 그 뒤 claude 검증"
+    },
+    {
+      "at": "2026-11-10T15:57:20+09:00",
+      "event": "작업 S3 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:57:21+09:00",
+      "event": "작업 S3 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T15:48:56+09:00"
+  "updated_at": "2026-11-10T15:57:21+09:00"
 }
