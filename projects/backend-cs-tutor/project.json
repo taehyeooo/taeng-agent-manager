@@ -35,6 +35,12 @@
       "ref": "work-branches",
       "note": "2026-11-10 사용자: '승인' — 다독CS 저장소에 한해 main이 아닌 작업 브랜치 push·PR 만들기는 묻지 않음. main 병합은 PR마다 승인",
       "at": "2026-11-10T14:52:31+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#1",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #1(main 직접 push 차단 훅) squash 병합",
+      "at": "2026-11-10T15:10:56+09:00"
     }
   ],
   "tasks": [
@@ -73,7 +79,7 @@
       "title": "main 보호 대체: dadok-cs에 pre-push 훅(main 직접 push 거부) — 서버 보호가 무료 요금제 비공개 저장소에서 불가",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": "taehyeooo/backend-cs-tutor-P0b",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b",
       "pr": "1",
@@ -103,8 +109,8 @@
       "branch": "taehyeooo/backend-cs-tutor-S2",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S2",
       "pr": "2",
-      "dispatch": "ctx_0ea64803bfb5",
-      "note": "검증 지적 수정 위임(codex)",
+      "dispatch": "ctx_46e8da51709c",
+      "note": "P0b 병합 후 main 맞추기(codex)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -605,8 +611,20 @@
     {
       "at": "2026-11-10T15:10:08+09:00",
       "event": "작업 S2 변경: status=review, pr=2"
+    },
+    {
+      "at": "2026-11-10T15:10:56+09:00",
+      "event": "승인 기록: merge_main (PR#1)"
+    },
+    {
+      "at": "2026-11-10T15:11:07+09:00",
+      "event": "작업 P0b 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T15:11:34+09:00",
+      "event": "작업 S2 변경: dispatch=ctx_46e8da51709c, note=P0b 병합 후 main 맞추기(codex)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T15:10:08+09:00"
+  "updated_at": "2026-11-10T15:11:34+09:00"
 }
