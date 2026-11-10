@@ -89,6 +89,12 @@
       "ref": "PR#9",
       "note": "2026-11-10 사용자: '2 승인' — dadok-cs PR #9(S9 디자인 적용) squash 병합",
       "at": "2026-11-10T17:32:05+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#15",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #15(S8 2차 개념 4개) squash 병합",
+      "at": "2026-11-10T18:08:31+09:00"
     }
   ],
   "tasks": [
@@ -293,7 +299,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b",
       "pr": "15",
       "dispatch": "ctx_830bc56e8591",
-      "note": "2차 검증 지적 수정 위임(codex). S6 병합 후 검증 기록 형식 맞추기 필요",
+      "note": "2차 PR #15 병합(누적 11개). 3차(JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2) 남음. 2차 4개는 S6 병합 후 검증 기록 추가 필요",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -978,8 +984,16 @@
     {
       "at": "2026-11-10T18:04:22+09:00",
       "event": "작업 S8 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:08:31+09:00",
+      "event": "승인 기록: merge_main (PR#15)"
+    },
+    {
+      "at": "2026-11-10T18:08:36+09:00",
+      "event": "작업 S8 변경: note=2차 PR #15 병합(누적 11개). 3차(JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2) 남음. 2차 4개는 S6 병합 후 검증 기록 추가 필요"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:04:22+09:00"
+  "updated_at": "2026-11-10T18:08:36+09:00"
 }
