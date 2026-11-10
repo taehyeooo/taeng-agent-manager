@@ -538,7 +538,7 @@
       "title": "CLI 모델 어댑터·하루 30회·90초·AI 상태·12/1 전환 (R-21, R-31)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S18",
       "pr": "29",
@@ -546,11 +546,11 @@
       "note": "재검증: Windows 인자 따옴표 결함 등 수정 3차 위임(문서 확인 9개 포함)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
-        "security": "fail",
-        "by": "claude:reviewflow:ctx_19d4e8c3b003",
-        "summary": "1차 지적 대부분 해결. 핵심 결함: Windows에서 ProcessBuilder가 안쪽 따옴표를 이스케이프하지 않아 JSON 인자·developer_instructions가 깨짐(ubuntu CI로 안 잡힘). 셸 대체 도구 여부, Claude 상태 거짓 logged_out, Codex 상태 명령 사용자 config 로드",
-        "at": "2026-11-10T23:24:58+09:00"
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "3차 수정 확인: 따옴표 인자 제거(임시 설정 파일·TOML 작은따옴표·지시문 stdin), Windows argv 왕복 테스트 수정 전 실패/후 통과, Windows CI 추가, 응답 이벤트 허용 목록 밖이면 폐기(TOOL_USE_REJECTED), 문서 9개 확인 표. 남는 한계(상태 명령 config 격리 미보장, Codex 파일 읽기 도구)는 README·PR에 명시. 145(+1 skip)·CI 7 통과",
+        "at": "2026-11-10T23:44:10+09:00"
       },
       "files": [
         "backend/src/main/java/kr/dadokcs/ai"
@@ -1389,8 +1389,16 @@
     {
       "at": "2026-11-10T23:31:18+09:00",
       "event": "작업 S14 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S14, dispatch=ctx_3db56351ea45, note=문제 API(정답 비노출)·채점·중복 제출·화면. 복습 갱신은 제외"
+    },
+    {
+      "at": "2026-11-10T23:44:10+09:00",
+      "event": "작업 S18 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T23:44:10+09:00",
+      "event": "작업 S18 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T23:31:18+09:00"
+  "updated_at": "2026-11-10T23:44:10+09:00"
 }
