@@ -71,6 +71,12 @@
       "ref": "PR#6",
       "note": "2026-11-10 사용자: '승인' — dadok-cs PR #6(S4 콘텐츠 형식·검사) squash 병합",
       "at": "2026-11-10T16:18:36+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#10",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #10(S5 첫 개념 3개) squash 병합",
+      "at": "2026-11-10T16:53:02+09:00"
     }
   ],
   "tasks": [
@@ -211,7 +217,7 @@
       "title": "콘텐츠 생성·검증 파이프라인 + 그림 관리 + 첫 3개 개념 (R-24)",
       "agent": "codex",
       "kind": "docs",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S5",
       "pr": "10",
@@ -806,8 +812,16 @@
     {
       "at": "2026-11-10T16:52:32+09:00",
       "event": "작업 S5 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T16:53:02+09:00",
+      "event": "승인 기록: merge_main (PR#10)"
+    },
+    {
+      "at": "2026-11-10T16:53:08+09:00",
+      "event": "작업 S5 변경: status=done"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T16:52:32+09:00"
+  "updated_at": "2026-11-10T16:53:08+09:00"
 }
