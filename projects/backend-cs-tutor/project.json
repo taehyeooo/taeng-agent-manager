@@ -138,11 +138,23 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": "taehyeooo/backend-cs-tutor-S3",
+      "branch": "feat/#3-db-schema",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3",
-      "pr": null,
-      "dispatch": "ctx_39c879d66f88",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "pr": "5",
+      "dispatch": "ctx_0beb1b10acc7",
+      "note": "검증 지적 수정 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_3dc3dc0f0fb0",
+        "summary": "S4와 연결 어긋남: misconception 한글/영문, card_figure 표 없음. 그 외 prompt 개념 FK, tutor_session 시각 열, REVOKE CONNECT. 결정: 영문 코드·다대다 연결",
+        "at": "2026-11-10T15:48:55+09:00"
+      },
+      "files": [
+        "backend/src/main/resources/db/migration/V1__init.sql",
+        "README.md"
+      ]
     },
     {
       "id": "S4",
@@ -150,11 +162,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": "taehyeooo/backend-cs-tutor-S4",
+      "branch": "feat/#4-content-format",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4",
-      "pr": null,
-      "dispatch": "ctx_b0eb49e278ab",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "pr": "6",
+      "dispatch": "ctx_e7f11b9b6dd6",
+      "note": "구현 완료 PR #6, 매니저 테스트 Python 11·백엔드 12 통과. S3와 맞추기 수정 위임(codex), 그 뒤 claude 검증"
     },
     {
       "id": "S5",
@@ -645,8 +657,24 @@
     {
       "at": "2026-11-10T15:32:10+09:00",
       "event": "작업 S4 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-S4, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4, dispatch=ctx_b0eb49e278ab"
+    },
+    {
+      "at": "2026-11-10T15:45:48+09:00",
+      "event": "작업 S3 변경: branch=feat/#3-db-schema, pr=5, note=구현 완료 PR #5, 매니저 테스트 41/41, 검증 claude 위임"
+    },
+    {
+      "at": "2026-11-10T15:48:55+09:00",
+      "event": "작업 S3 검증(claude:reviewflow:ctx_3dc3dc0f0fb0): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:48:55+09:00",
+      "event": "작업 S3 변경: dispatch=ctx_0beb1b10acc7, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T15:48:56+09:00",
+      "event": "작업 S4 변경: branch=feat/#4-content-format, pr=6, dispatch=ctx_e7f11b9b6dd6, note=구현 완료 PR #6, 매니저 테스트 Python 11·백엔드 12 통과. S3와 맞추기 수정 위임(codex), 그 뒤 claude 검증"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T15:32:10+09:00"
+  "updated_at": "2026-11-10T15:48:56+09:00"
 }
