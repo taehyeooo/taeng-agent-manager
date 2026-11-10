@@ -29,6 +29,12 @@
       "ref": "PUT repos/taehyeooo/dadok-cs/branches/main/protection",
       "note": "2026-11-10 사용자: '승인' — dadok-cs main 보호(PR만, 검사 4개, 강제 push·삭제 금지). 무료 요금제에서 안 되면 업그레이드 없이 보고",
       "at": "2026-11-10T12:30:01+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "work-branches",
+      "note": "2026-11-10 사용자: '승인' — 다독CS 저장소에 한해 main이 아닌 작업 브랜치 push·PR 만들기는 묻지 않음. main 병합은 PR마다 승인",
+      "at": "2026-11-10T14:52:31+09:00"
     }
   ],
   "tasks": [
@@ -71,8 +77,21 @@
       "branch": "taehyeooo/backend-cs-tutor-P0b",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b",
       "pr": null,
-      "dispatch": "ctx_7681a5fc8c21",
-      "note": "구현 완료 3186a80, 검증 ctx_9e637d69d0af(claude)"
+      "dispatch": "ctx_73c23c215f42",
+      "note": "검증 지적 수정 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_210b428248ee",
+        "summary": "판정 로직 정확. 고칠 것: log.md 항목 형식(## 날짜 제목 + 한 것/확인한 것/확인하지 않은 것/남긴 지식), AGENTS.md에 훅 켜는 명령 없음. 권장: 래퍼 통합 테스트, master 삭제 케이스, commit-msg 실행 비트 100644",
+        "at": "2026-11-10T14:52:31+09:00"
+      },
+      "files": [
+        "knowledge-base/log.md",
+        "AGENTS.md",
+        "scripts/test-check-pre-push.sh"
+      ]
     },
     {
       "id": "S2",
@@ -531,8 +550,20 @@
     {
       "at": "2026-11-10T14:43:11+09:00",
       "event": "작업 P0b 변경: branch=taehyeooo/backend-cs-tutor-P0b, note=구현 완료 3186a80, 검증 ctx_9e637d69d0af(claude)"
+    },
+    {
+      "at": "2026-11-10T14:52:31+09:00",
+      "event": "승인 기록: push (work-branches)"
+    },
+    {
+      "at": "2026-11-10T14:52:31+09:00",
+      "event": "작업 P0b 검증(claude:reviewflow:ctx_210b428248ee): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T14:52:59+09:00",
+      "event": "작업 P0b 변경: dispatch=ctx_73c23c215f42, note=검증 지적 수정 위임(codex)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T14:43:11+09:00"
+  "updated_at": "2026-11-10T14:52:59+09:00"
 }
