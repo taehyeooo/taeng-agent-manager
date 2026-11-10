@@ -17,6 +17,12 @@
       "ref": "taehyeooo/dadok-cs",
       "note": "2026-11-10 사용자: '승인' — taehyeooo/dadok-cs 비공개 생성, C:/Users/user/orca/dadok-cs에 clone",
       "at": "2026-11-10T12:12:31+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "main",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs 첫 커밋 3개를 main에 push (비공개)",
+      "at": "2026-11-10T12:23:56+09:00"
     }
   ],
   "tasks": [
@@ -91,8 +97,16 @@
     {
       "at": "2026-11-10T12:20:07+09:00",
       "event": "단계 spec_ready → repo_ready"
+    },
+    {
+      "at": "2026-11-10T12:23:56+09:00",
+      "event": "승인 기록: push (main)"
+    },
+    {
+      "at": "2026-11-10T12:23:57+09:00",
+      "event": "승인된 작업 실행: push(main)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T12:20:07+09:00"
+  "updated_at": "2026-11-10T12:23:57+09:00"
 }

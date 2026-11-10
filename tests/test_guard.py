@@ -311,6 +311,25 @@ class VerifierRound2Test(GuardTest):
         S.save(p, self.root)
         self.assertEqual(self.bash(cmd)[0], "allow")
 
+    def test_gh_api_on_another_managed_project_uses_its_approvals(self):
+        p = S.load("app", self.root)
+        p["repo"] = "me/app"
+        S.save(p, self.root)
+        svc = S.new_project("svc", "svc", "x", self.root)
+        svc["repo"] = "me/svc"
+        S.save(svc, self.root)
+        cmd = "gh api repos/me/svc/branches/main/protection -X PUT --input p.json"
+        d, msg = self.bash(cmd)
+        self.assertEqual(d, "deny")
+        self.assertIn("프로젝트 svc", msg)  # 금지가 아니라 svc의 승인 요청
+        self.approve("push", "PUT repos/me/svc/branches/main/protection")  # app의 승인은 안 통함
+        self.assertEqual(self.bash(cmd)[0], "deny")
+        svc = S.load("svc", self.root)
+        S.approve(svc, "push", "PUT repos/me/svc/branches/main/protection")
+        S.save(svc, self.root)
+        self.assertEqual(self.bash(cmd)[0], "allow")
+        self.assertIn("다른 저장소", self.bash("gh api repos/me/unmanaged/pulls/1/merge -X PUT")[1])  # 관리 밖은 금지
+
     def test_repo_create_checks_the_project_that_planned_it(self):
         """새 저장소는 로컬에 없으니, 그 이름을 예정한 프로젝트(am set --repo)의 승인을 본다 — 이름 단위."""
         new = S.new_project("newsvc", "newsvc", "x", self.root)

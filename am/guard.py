@@ -879,11 +879,23 @@ def decide(payload, agent="claude", root=None):
         if slug and slug not in projects:
             projects[slug] = S.load(slug, root)
         return slug, projects.get(slug)
+    def planned_owner(repo_name):
+        """The managed project whose repo is owner/name (also one recorded before the repo exists)."""
+        for q in S.all_projects(root):
+            if (q.get("repo") or "").lower() == repo_name:
+                projects.setdefault(q["slug"], q)
+                return q["slug"], projects[q["slug"]]
+        return None, None
+
     for f in findings:
         if f["kind"] == "gated" and f.get("repo"):
             slug, p = proj(f.get("where") or cwd)
             if p and _repo_of(p) and f["repo"].lower() != _repo_of(p):
-                findings.append(_finding("forbidden", f["seg"], reason=f"다른 저장소({f['repo']})를 변경 — 이 프로젝트 저장소는 {p['repo']}"))
+                owner, _ = planned_owner(f["repo"].lower())
+                if owner:
+                    f["owner_slug"] = owner  # 관리 중인 다른 프로젝트의 저장소 → 그 프로젝트의 승인으로 판정
+                else:
+                    findings.append(_finding("forbidden", f["seg"], reason=f"다른 저장소({f['repo']})를 변경 — 이 프로젝트 저장소는 {p['repo']}"))
 
     forb = [f for f in findings if f["kind"] == "forbidden"]
     if forb:
@@ -901,17 +913,11 @@ def decide(payload, agent="claude", root=None):
               "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
         return ("deny" if agent == "codex" else "ask"), msg
 
-    def planned_owner(repo_name):
-        """The project that recorded this not-yet-created repo (am set <slug> --repo owner/name)."""
-        for q in S.all_projects(root):
-            if (q.get("repo") or "").lower() == repo_name:
-                projects.setdefault(q["slug"], q)
-                return q["slug"], projects[q["slug"]]
-        return None, None
-
     missing, granted = [], []
     for f in findings:
         slug, p = proj(f.get("where") or cwd)
+        if f.get("owner_slug"):
+            slug, p = f["owner_slug"], projects[f["owner_slug"]]
         if f["gate"] == "repo_create" and f.get("ref") and "/" in f["ref"]:
             owner = planned_owner(f["ref"])  # 새 저장소는 그 이름을 예정한 프로젝트의 승인만 본다
             if owner[0]:
