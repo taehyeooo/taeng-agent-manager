@@ -435,7 +435,7 @@
       "title": "용어 풀이 팝업과 갔다 돌아오기 (R-5, R-7)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S12",
       "pr": "30",
@@ -443,15 +443,17 @@
       "note": "범위 확대 허용: 용어 교차 개념 연결을 위해 check_content.py·ContentLoader term 검증 수정(존재하는 개념 또는 null, 알 수 없는 ID 거부)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_0666ebbd0bd8",
-        "summary": "보안·3단계 스택·이력 맞음. 리뷰 fail: 모든 용어 concept_id가 자기 개념이라 '보러 가기'가 같은 개념으로 가며 자기 복귀 띠를 쌓음. 이동 후 초점·안내, 조사 오류(락로), 이력 복원 테스트",
-        "at": "2026-11-10T23:12:26+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: content 변경은 term concept_id 26줄뿐, 자기 연결 버튼 숨김, 초점·aria-live·조사, Python·Java 대상 검증 일치. 프론트 63·백엔드 114·Python 19·실제 API E2E·CI 7 통과",
+        "at": "2026-11-10T23:28:59+09:00"
       },
       "files": [
-        "frontend/src/LearningApp.tsx",
-        "content"
+        "frontend/src",
+        "content",
+        "scripts/check_content.py",
+        "backend/src/main/java/kr/dadokcs/content/ContentLoader.java"
       ]
     },
     {
@@ -1361,8 +1363,16 @@
     {
       "at": "2026-11-10T23:25:14+09:00",
       "event": "작업 S18 변경: dispatch=ctx_746da91d1af8, note=재검증: Windows 인자 따옴표 결함 등 수정 3차 위임(문서 확인 9개 포함)"
+    },
+    {
+      "at": "2026-11-10T23:28:59+09:00",
+      "event": "작업 S12 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T23:28:59+09:00",
+      "event": "작업 S12 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T23:25:14+09:00"
+  "updated_at": "2026-11-10T23:28:59+09:00"
 }
