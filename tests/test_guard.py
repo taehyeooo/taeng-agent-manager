@@ -330,6 +330,17 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash(cmd)[0], "allow")
         self.assertIn("다른 저장소", self.bash("gh api repos/me/unmanaged/pulls/1/merge -X PUT")[1])  # 관리 밖은 금지
 
+    def test_package_install_approved_per_package(self):
+        cmd = "winget install EclipseAdoptium.Temurin.21.JDK"
+        d, msg = self.bash(cmd)
+        self.assertEqual(d, "deny")
+        self.assertIn("winget install eclipseadoptium.temurin.21.jdk", msg)
+        self.approve("system_permission", "winget install eclipseadoptium.temurin.21.jdk")
+        self.assertEqual(self.bash(cmd)[0], "allow")
+        self.assertEqual(self.bash("winget install Some.Other.App")[0], "deny")  # 다른 패키지는 안 됨
+        self.assertEqual(self.bash("winget install A.B C.D")[0], "deny")  # 여러 개면 대상 불분명 → 전체 승인 필요
+        self.assertEqual(self.bash("Set-ExecutionPolicy RemoteSigned")[0], "deny")
+
     def test_repo_create_checks_the_project_that_planned_it(self):
         """새 저장소는 로컬에 없으니, 그 이름을 예정한 프로젝트(am set --repo)의 승인을 본다 — 이름 단위."""
         new = S.new_project("newsvc", "newsvc", "x", self.root)

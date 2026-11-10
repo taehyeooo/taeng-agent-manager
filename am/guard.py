@@ -601,7 +601,11 @@ def analyze(seg, cwd, root, depth=0):
             or word == "reg" and low[:1] in (["add"], ["delete"])
             or word in ("winget", "choco", "scoop") and low[:1] in (["install"], ["uninstall"])
             or word == "chmod" and "777" in args):
-        out.append(_gated("system_permission", seg))
+        # 패키지 설치는 승인 단위 = "<도구> <동작> <패키지>" (예: "winget install eclipseadoptium.temurin.21.jdk")
+        pkgs = [a for a in low[1:] if not a.startswith("-")] if word in ("winget", "choco", "scoop", "npm", "pnpm", "yarn", "bun") else []
+        verb = next((a for a in low if not a.startswith("-") and a != "global"), "")
+        ref = f"{word} {verb} {' '.join(pkgs)}" if len(pkgs) == 1 and SUBST not in pkgs[0] else None
+        out.append(_gated("system_permission", seg, ref=ref))
     if word in ("cat", "type", "less", "more", "head", "tail", "get-content", "gc", "source", "bat") and any(
             re.search(r"(^|[/\\])\.env(\.(?!example$)[\w.]+)?$", a) for a in args):
         out.append(_gated("credentials", seg))
