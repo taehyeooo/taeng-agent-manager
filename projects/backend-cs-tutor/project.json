@@ -77,6 +77,18 @@
       "ref": "PR#10",
       "note": "2026-11-10 사용자: '승인' — dadok-cs PR #10(S5 첫 개념 3개) squash 병합",
       "at": "2026-11-10T16:53:02+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#12",
+      "note": "2026-11-10 사용자: '1 승인' — dadok-cs PR #12(S8 1차 개념 4개) squash 병합",
+      "at": "2026-11-10T17:32:05+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#9",
+      "note": "2026-11-10 사용자: '2 승인' — dadok-cs PR #9(S9 디자인 적용) squash 병합",
+      "at": "2026-11-10T17:32:05+09:00"
     }
   ],
   "tasks": [
@@ -269,7 +281,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a",
       "pr": "12",
       "dispatch": "ctx_fb67a045517f",
-      "note": "1차 검증 지적 수정 위임(codex)",
+      "note": "1차 PR #12 병합(4개, 누적 7개). 2차·3차 남음",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -292,7 +304,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
       "pr": "9",
       "dispatch": "ctx_500b234e4d14",
-      "note": "디자인 검증 지적 수정 위임(codex): Modal 포커스, 입력 가드 테스트",
+      "note": "PR #9 병합 승인됨 — log.md 충돌로 main 맞추기 중",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -894,8 +906,24 @@
     {
       "at": "2026-11-10T17:27:23+09:00",
       "event": "작업 S9 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T17:32:05+09:00",
+      "event": "승인 기록: merge_main (PR#12)"
+    },
+    {
+      "at": "2026-11-10T17:32:05+09:00",
+      "event": "승인 기록: merge_main (PR#9)"
+    },
+    {
+      "at": "2026-11-10T17:32:46+09:00",
+      "event": "작업 S8 변경: note=1차 PR #12 병합(4개, 누적 7개). 2차·3차 남음"
+    },
+    {
+      "at": "2026-11-10T17:32:47+09:00",
+      "event": "작업 S9 변경: note=PR #9 병합 승인됨 — log.md 충돌로 main 맞추기 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T17:27:23+09:00"
+  "updated_at": "2026-11-10T17:32:47+09:00"
 }
