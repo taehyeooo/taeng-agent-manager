@@ -347,11 +347,11 @@
       "title": "학습 지도: 개념 지도·상태 색 (R-3, R-4)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_c714d91bf066",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -1023,8 +1023,12 @@
     {
       "at": "2026-11-10T18:18:57+09:00",
       "event": "작업 S6 변경: status=done, note=PR #16 병합. 사례 카드는 사용자 fact_checked 전까지 숨김"
+    },
+    {
+      "at": "2026-11-10T18:19:40+09:00",
+      "event": "작업 S10 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10, dispatch=ctx_c714d91bf066"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:18:57+09:00"
+  "updated_at": "2026-11-10T18:19:40+09:00"
 }
