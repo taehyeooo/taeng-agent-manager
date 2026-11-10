@@ -462,9 +462,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16",
-      "pr": null,
+      "pr": "25",
       "dispatch": "ctx_d14aded0acb3",
-      "note": "1부: 서버 계산 로직만(review 패키지). 화면·API 연결은 2부"
+      "note": "사용자 결정 2026-11-10: 오답이면 간격 한 단계 뒤로(예: 8일→4일), 연속 정답 초기화. 검증 결과와 함께 수정 지시 예정"
     },
     {
       "id": "S17",
@@ -1183,8 +1183,16 @@
     {
       "at": "2026-11-10T22:02:45+09:00",
       "event": "작업 S16 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16, dispatch=ctx_d14aded0acb3, note=1부: 서버 계산 로직만(review 패키지). 화면·API 연결은 2부"
+    },
+    {
+      "at": "2026-11-10T22:14:54+09:00",
+      "event": "작업 S16 변경: pr=25, note=계산 로직 PR #25(테스트 102, 가정 8개), claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T22:15:48+09:00",
+      "event": "작업 S16 변경: note=사용자 결정 2026-11-10: 오답이면 간격 한 단계 뒤로(예: 8일→4일), 연속 정답 초기화. 검증 결과와 함께 수정 지시 예정"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T22:02:45+09:00"
+  "updated_at": "2026-11-10T22:15:48+09:00"
 }
