@@ -258,7 +258,7 @@
       "title": "교차 검증 기록·노출 규칙 + 사례 카드 사실 확인 절차 (R-25)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6",
       "pr": "16",
@@ -266,15 +266,16 @@
       "note": "지적 7건 수정 완료(d3c0cbb, 테스트 90/90). PR #15 병합으로 충돌 — main 맞추기+2차 4개 검증 기록 위임",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_c6cc52f0269d",
-        "summary": "노출 규칙 일관·숨긴 사례 미노출·경로 탈출 차단 확인. 머지 전: record_verification created_by 기본값 codex(오노출 위험)→필수, records append-only CI 미강제. 낮음 4",
-        "at": "2026-11-10T18:02:01+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: created_by 필수·변경 거부, records append-only CI(변형 검사로 삭제·순서·작성자 변경 거부), 사례 전용 그림 숨김 테스트, 깨진 YAML 시작 실패, 미래 날짜 거부. main 맞춤 후 백엔드 90·Python 152(+1 skip)·CI 6 통과, 콘텐츠 본문 변경 없음, 병합 가능",
+        "at": "2026-11-10T18:18:25+09:00"
       },
       "files": [
-        "scripts/record_verification.py",
-        "scripts/check_content.py"
+        "scripts",
+        "backend",
+        "content/README.md"
       ]
     },
     {
@@ -1000,8 +1001,16 @@
     {
       "at": "2026-11-10T18:10:29+09:00",
       "event": "작업 S6 변경: note=지적 7건 수정 완료(d3c0cbb, 테스트 90/90). PR #15 병합으로 충돌 — main 맞추기+2차 4개 검증 기록 위임"
+    },
+    {
+      "at": "2026-11-10T18:18:25+09:00",
+      "event": "작업 S6 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:18:25+09:00",
+      "event": "작업 S6 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:10:29+09:00"
+  "updated_at": "2026-11-10T18:18:25+09:00"
 }
