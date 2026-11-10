@@ -53,6 +53,18 @@
       "ref": "PR#5",
       "note": "2026-11-10 사용자: '승인' — dadok-cs PR #5(S3 DB 스키마) squash 병합",
       "at": "2026-11-10T15:58:35+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs create",
+      "note": "2026-11-10 사용자: '승인' — 이 PC PostgreSQL에 dadokcs DB·dadokcs_app 계정 생성(빈 DB)",
+      "at": "2026-11-10T16:02:06+09:00"
+    },
+    {
+      "gate": "credentials",
+      "ref": "~/.dadok-cs/db.env",
+      "note": "2026-11-10 사용자: '승인' — 관리자 비밀번호는 사용자가 별도 창에 입력, 앱 비밀번호는 무작위 생성해 사용자 전용 파일에 저장, 서버 실행 때 매니저가 읽음",
+      "at": "2026-11-10T16:02:06+09:00"
     }
   ],
   "tasks": [
@@ -716,8 +728,16 @@
     {
       "at": "2026-11-10T15:59:21+09:00",
       "event": "작업 S4 변경: dispatch=ctx_24d235a61a2d, note=2차 수정 위임(codex): 정답 1개 테스트·CI 경로·로더 검증·main 맞추기"
+    },
+    {
+      "at": "2026-11-10T16:02:06+09:00",
+      "event": "승인 기록: db_change (local dadokcs create)"
+    },
+    {
+      "at": "2026-11-10T16:02:06+09:00",
+      "event": "승인 기록: credentials (~/.dadok-cs/db.env)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T15:59:21+09:00"
+  "updated_at": "2026-11-10T16:02:06+09:00"
 }
