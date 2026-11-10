@@ -175,15 +175,17 @@ def extract_substitutions(cmd):
 
 
 def split_commands(cmd):
-    """Split on ; | & { } ( ) and newlines that are outside quotes."""
+    """Split on ; | & { } ( ) and newlines that are outside quotes. `&` inside a redirection (2>&1, &>file, >&2) is not a separator."""
     out, cur, q = [], [], None
-    for ch in cmd:
+    for i, ch in enumerate(cmd):
         if q:
             cur.append(ch)
             if ch == q:
                 q = None
         elif ch in "\"'":
             q = ch
+            cur.append(ch)
+        elif ch == "&" and ((i > 0 and cmd[i - 1] in "<>") or (i + 1 < len(cmd) and cmd[i + 1] == ">")):
             cur.append(ch)
         elif ch in ";|&\n{}()":
             out.append("".join(cur))
@@ -421,6 +423,22 @@ def _delete_safe(paths, cwd):
     return all((Path(p).name in SAFE_DELETE and _under(_abs(p, cwd), top)) or scratch(_abs(p, cwd)) for p in paths)
 
 
+def _drop_redirections(toks):
+    """2>&1, >file, 2> file, &>file … are not arguments (their targets are checked by _write_targets)."""
+    out, skip = [], False
+    for t in toks:
+        if skip:
+            skip = False
+            continue
+        if re.fullmatch(r"\d*(>>?|<|&>>?)(&\d+|&-)?", t):  # bare operator: the next token is its target
+            skip = not re.search(r"&\d+$|&-$", t)
+            continue
+        if re.match(r"^\d*(>>?|<|&>>?)", t):  # operator with attached target / fd
+            continue
+        out.append(t)
+    return out
+
+
 def _strip_prefixes(toks, seg, out):
     """env/sudo/&/npx… → the real command. `env` alone prints every secret."""
     def drop_opts(ts, with_value=()):
@@ -461,7 +479,8 @@ def _strip_prefixes(toks, seg, out):
 def analyze(seg, cwd, root, depth=0):
     """One simple command → findings."""
     out = []
-    toks = _strip_prefixes(tokens(seg), seg, out)
+    toks = _drop_redirections(tokens(seg))
+    toks = _strip_prefixes(toks, seg, out)
     if not toks:
         return out
     word, args = _word(toks[0]), toks[1:]

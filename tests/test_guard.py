@@ -427,6 +427,15 @@ class VerifierRound4Test(GuardTest):
         git(self.app, "remote", "add", "origin", "https://github.com/me/app.git")
         self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
 
+    def test_redirections_are_not_arguments(self):
+        """매니저의 실제 push가 2>&1 때문에 대상 '2>'로 오인돼 막혔던 버그."""
+        self.approve("push", "main")
+        for cmd in ("git push -u origin feat/x:main 2>&1 | tail -4", "git push origin feat/x:main 2> err.log",
+                    "git push origin feat/x:main &> out.log", "git push origin feat/x:main >/dev/null 2>&1"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+        self.assertEqual(self.bash("git push origin feat/x:other 2>&1")[0], "deny")  # 대상은 여전히 정확히 본다
+        self.assertEqual(self.bash("echo a & git push origin feat/x:other")[0], "deny")  # 진짜 & 구분자
+
     def test_normal_dev_commands_not_blocked(self):
         """The verifier's sample of 11 normal commands the second net used to block."""
         for cmd in ("git log --grep push", "git log --grep merge", "git commit -m push", "git grep push", "rg push src",
