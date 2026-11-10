@@ -435,11 +435,11 @@
       "title": "용어 풀이 팝업과 갔다 돌아오기 (R-5, R-7)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S12",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_58ce532c0bc4",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -1282,8 +1282,12 @@
     {
       "at": "2026-11-10T22:48:29+09:00",
       "event": "작업 S11 변경: status=done, note=PR #26 병합"
+    },
+    {
+      "at": "2026-11-10T22:49:08+09:00",
+      "event": "작업 S12 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S12, dispatch=ctx_58ce532c0bc4"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T22:48:29+09:00"
+  "updated_at": "2026-11-10T22:49:08+09:00"
 }
