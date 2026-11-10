@@ -287,7 +287,7 @@
       "title": "디자인: 구조 시안 3개 → 세부 시안 → 토큰 적용 (사용자 선택)",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "review",
       "branch": "feat/#7-design-variants",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
       "pr": "9",
@@ -295,16 +295,14 @@
       "note": "디자인 검증 지적 수정 위임(codex): Modal 포커스, 입력 가드 테스트",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_0043893604d0",
-        "summary": "대비 AA 모두 충족, 시안 잔재·하드코딩 색 없음. 머지 전 수정: Modal StrictMode 포커스 복귀, 입력 가드 테스트가 가드를 검증 못 함. 고정 문구(인덱스)는 S10 API 연결 때",
-        "at": "2026-11-10T17:20:10+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: Modal StrictMode 포커스 복귀(재현 후 수정), 입력 가드 테스트 4종(제거 변형 4 실패), CSS 정리. 테스트 16/16·CI 5 통과, 병합 가능",
+        "at": "2026-11-10T17:27:23+09:00"
       },
       "files": [
-        "frontend/src/Common.tsx",
-        "frontend/src/LearningApp.test.tsx",
-        "frontend/src/Screens.tsx"
+        "frontend/src"
       ]
     },
     {
@@ -888,8 +886,16 @@
     {
       "at": "2026-11-10T17:25:20+09:00",
       "event": "작업 S8 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:27:23+09:00",
+      "event": "작업 S9 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:27:23+09:00",
+      "event": "작업 S9 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T17:25:20+09:00"
+  "updated_at": "2026-11-10T17:27:23+09:00"
 }
