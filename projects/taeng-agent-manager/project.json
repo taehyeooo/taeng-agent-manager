@@ -100,12 +100,12 @@
       "title": "가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_3490e7772c06",
+      "note": "T2 오탐 포함. 테스트·빌드 허용 목록(추적·미수정 스크립트만)"
     }
   ],
   "history": [
@@ -516,10 +516,18 @@
     {
       "at": "2026-11-10T23:07:26+09:00",
       "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:09:06+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:09:10+09:00",
+      "event": "작업 T3 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3, dispatch=ctx_3490e7772c06, note=T2 오탐 포함. 테스트·빌드 허용 목록(추적·미수정 스크립트만)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T23:07:26+09:00",
+  "updated_at": "2026-11-10T23:09:10+09:00",
   "requests": [
     {
       "gate": "push",
