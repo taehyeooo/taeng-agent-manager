@@ -262,33 +262,65 @@ def unquoted(seg):
 
 def _word(tok):
     name = re.split(r"[/\\]", tok)[-1].lower()
-    return re.sub(r"\.(exe|cmd|bat|ps1)$", "", name)
+    name = re.sub(r"\.(exe|cmd|bat|ps1)$", "", name)
+    if re.fullmatch(r"(?:python|pypy)[\d.]*", name):
+        return "python"
+    return "node" if name == "nodejs" else name
 
 
 # ---------- command analysis ----------
 
 def _clean_script(path, cwd, suffix):
-    """Only committed, unchanged regular files in this worktree are trusted."""
+    """Compare index, HEAD and actual bytes with the remote main baseline."""
     top = _git(cwd, "rev-parse", "--show-toplevel")
     p = _abs(path, cwd)
-    if not top or not _under(p, top) or p.suffix != suffix or not p.is_file() or p.is_symlink():
+    if not top or not _under(p, top) or suffix is not None and p.suffix != suffix or not p.is_file() or p.is_symlink():
         return False
     rel = os.path.relpath(_norm(p), _norm(top)).replace("\\", "/")
     try:
-        for args in (("ls-files", "--error-unmatch", "--", rel), ("diff", "--quiet", "HEAD", "--", rel)):
+        base = _git(top, "rev-parse", "--verify", "refs/remotes/origin/main^{commit}")
+        if not base or _git(top, "ls-files", "-v", "--", rel) != "H " + rel:
+            return False
+        for args in (("diff", "--quiet", base, "HEAD", "--", rel),
+                     ("diff", "--cached", "--quiet", base, "--", rel)):
             if subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5).returncode:
                 return False
-        return True
+        blob = subprocess.run(["git", "-C", top, "show", base + ":" + rel], capture_output=True, timeout=5)
+        return blob.returncode == 0 and blob.stdout.replace(b"\r\n", b"\n") == p.read_bytes().replace(b"\r\n", b"\n")
     except (OSError, subprocess.TimeoutExpired):
         return False
+
+
+def _clean_build_inputs(cwd, family):
+    top = _git(cwd, "rev-parse", "--show-toplevel")
+    base = _git(cwd, "rev-parse", "--verify", "refs/remotes/origin/main^{commit}")
+    if not top or not base:
+        return False
+    paths = set()
+    try:
+        for args in (("ls-files", "--cached", "--others", "-z"), ("ls-tree", "-r", "--name-only", "-z", base)):
+            result = subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5, check=True)
+            paths.update(result.stdout.decode("utf-8").split("\0"))
+    except (OSError, UnicodeError, subprocess.SubprocessError):
+        return False
+    pattern = (r"(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|\.npmrc)$" if family == "npm" else
+               r"(^|/)(gradlew(?:\.bat)?|build\.gradle(?:\.kts)?|settings\.gradle(?:\.kts)?|gradle\.properties)$|(^|/)(gradle/wrapper|init\.d|buildSrc|build-logic)/")
+    generated = {"node_modules", ".git", ".gradle", ".venv", "venv", "build", "dist", "coverage"}
+    inputs = [p for p in paths if not generated.intersection(p.split("/")[:-1]) and re.search(pattern, p)]
+    return bool(inputs) and all(_clean_script(p, top, None) for p in inputs)
 
 
 def _build_allowed(toks, cwd):
     """Narrow invocation grammar; never overrides forbidden/gated findings."""
     if not toks or not _git(cwd, "rev-parse", "--show-toplevel"):
         return False
+    excluded = {"node_modules", ".git", ".gradle", ".venv", "venv", "build", "dist", "coverage"}
+    if excluded.intersection(Path(os.path.relpath(cwd, _top(cwd))).parts):
+        return False
     word, args = _word(toks[0]), toks[1:]
     if word == "gradlew":
+        if not _clean_build_inputs(cwd, "gradle") or not _clean_script(toks[0], cwd, None):
+            return False
         if not _under(_abs(toks[0], cwd), _top(cwd)):
             return False
         tasks, i = [], 0
@@ -298,7 +330,7 @@ def _build_allowed(toks, cwd):
                 pass
             elif a == "-p" and i + 1 < len(args):
                 i += 1
-                if not _under(_abs(args[i], cwd), _top(cwd)):
+                if not _under(_abs(args[i], cwd), _top(cwd)) or excluded.intersection(Path(args[i]).parts):
                     return False
             elif a in ("test", "build", "check", "compileJava", "compileTestJava", "classes", "testClasses", "assemble"):
                 tasks.append(a)
@@ -307,9 +339,11 @@ def _build_allowed(toks, cwd):
             i += 1
         return bool(tasks)
     if word == "npm":
+        if not _clean_build_inputs(cwd, "npm"):
+            return False
         if args == ["ci"]:
             return True
-        name = "test" if args[:1] == ["test"] else args[1] if args[:1] == ["run"] and len(args) == 2 else None
+        name = "test" if args[:1] == ["test"] else args[1] if args[:1] in (["run"], ["run-script"]) and len(args) == 2 else None
         if name not in ("test", "build", "lint"):
             return False
         if args[:1] == ["test"] and len(args) > 1 and args[1] != "--":
@@ -323,7 +357,7 @@ def _build_allowed(toks, cwd):
         except (OSError, ValueError, AttributeError):
             return False
     if word == "npx":
-        return args == ["vitest", "run"]
+        return args == ["vitest", "run"] and _clean_build_inputs(cwd, "npm")
     if word in ("python", "python3", "py"):
         return args[:2] == ["-m", "unittest"] or bool(args and _clean_script(args[0], cwd, ".py"))
     if word == "sh":
@@ -381,8 +415,8 @@ def _python_write_paths(body):
         if not isinstance(node, ast.Call):
             continue
         call = name(node.func)
-        if call in ("open", "io.open") or isinstance(node.func, ast.Attribute) and node.func.attr == "open":
-            builtin = call in ("open", "io.open")
+        if call in ("open", "io.open", "builtins.open", "codecs.open") or isinstance(node.func, ast.Attribute) and node.func.attr == "open":
+            builtin = call in ("open", "io.open", "builtins.open", "codecs.open")
             mode_index = 1 if builtin else 0
             mode = node.args[mode_index] if len(node.args) > mode_index else ast.Constant("r")
             mode = next((k.value for k in node.keywords if k.arg == "mode"), mode)
@@ -406,12 +440,12 @@ def _check_script(body, seg, cwd, root, python=False):
     touches_am = re.search(r"\bfrom\s+am\b|\bimport\s+am\b|\bam\.(state|guard|cli)\b", body)
     if python:
         try:
-            touches_am = any(
+            touches_am = (touches_am and re.search(r"\b(importlib|__import__|runpy|exec|eval)\b", body)) or any(
                 isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[0] == "am" or
                 isinstance(n, ast.Import) and any(a.name.split(".")[0] == "am" for a in n.names)
                 for n in ast.walk(ast.parse(body)))
         except (SyntaxError, ValueError):
-            touches_am = False  # parsing failure below is opaque
+            pass  # keep the textual safety net even when parsing fails
     # writes: open(..., 'w'/'a'/'x'/'+' mode) — the mode argument, not a file name starting with w; json.dump( not json.dumps(
     writes = re.search(r"write_text|write_bytes|open\s*\([^)]*,\s*(mode\s*=\s*)?['\"][rbt]*[wax+]|writeFile|appendFile|json\.dump\s*\("
                        r"|unlink|rename|\.replace\s*\(\s*[^)]*[/\\]|rmtree|copyfile|\.save\s*\(", body)
@@ -419,6 +453,33 @@ def _check_script(body, seg, cwd, root, python=False):
         out.append(_finding("forbidden", seg, reason="스크립트로 승인·상태를 직접 조작(위조 위험)"))
     if python:
         try:
+            tree = ast.parse(body)
+            # This is deliberately not a Python evaluator. Flow-dependent paths and
+            # calls outside this small grammar cannot establish a safe write target.
+            safe_calls = {"open", "print", "str", "set", "Path", "pathlib.Path", "io.open",
+                          "builtins.open", "codecs.open", "json.dumps", "json.loads", "re.sub"}
+            safe_methods = {"write_text", "write_bytes", "read_text", "read_bytes", "write", "read", "replace", "open", "unlink", "rename"}
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.AugAssign, ast.AnnAssign, ast.Delete, ast.Match, ast.ClassDef,
+                                     ast.Global, ast.Nonlocal, ast.For, ast.AsyncFor, ast.While, ast.If, ast.Try,
+                                     ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.With,
+                                     ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp, ast.NamedExpr)):
+                    out.append(_finding("opaque", seg, reason="Python 제어 흐름의 쓰기 경로를 확정할 수 없음"))
+                    break
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    names = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module]
+                    if any(a.asname for a in node.names) or any(n not in {"pathlib", "io", "builtins", "codecs", "json", "re"} for n in names):
+                        out.append(_finding("opaque", seg, reason="Python import의 부작용·별칭을 확정할 수 없음"))
+                if isinstance(node, ast.Assign) and any(not isinstance(t, ast.Name) or t.id in safe_calls for t in node.targets):
+                    out.append(_finding("opaque", seg, reason="Python 대입의 부작용을 확정할 수 없음"))
+                if isinstance(node, ast.Call):
+                    call = ast.unparse(node.func)
+                    if call.startswith(("os.", "shutil.")) or call not in safe_calls and not (isinstance(node.func, ast.Attribute) and node.func.attr in safe_methods):
+                        out.append(_finding("opaque", seg, reason="Python 호출의 부작용을 확정할 수 없음"))
+            # Preserve the old safety net whenever the AST grammar is insufficient.
+            if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|\.am[/\\]", body):
+                if writes or re.search(r"\b(shutil|os|pathlib)\b|\bopen\b", body):
+                    out.append(_finding("forbidden", seg, reason="불명확한 Python 쓰기에서 상태 파일 경로 발견"))
             for path in _python_write_paths(body):
                 if path is None:
                     out.append(_finding("opaque", seg, reason="스크립트 쓰기 대상 경로를 확인할 수 없음"))
@@ -436,7 +497,7 @@ def _check_script(body, seg, cwd, root, python=False):
     elif re.search(r"(print|pprint|console\.(log|error|info)|sys\.std(out|err)\.write|logging\.\w+|process\.std(out|err)\.write)\s*\([^;]*"
                    r"(os\.environ|getenv|process\.env)", body):
         out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 값을 출력)"))
-    if re.search(r"\bsubprocess\b|os\.system|os\.popen|os\.exec|child_process|\bexecSync\b|\bspawn\w*\s*\(|\bexec\s*\(|\beval\s*\("
+    if re.search(r"\bimportlib\b|\b__import__\b|\brunpy\b|\bsubprocess\b|os\.system|os\.popen|os\.exec|child_process|\bexecSync\b|\bspawn\w*\s*\(|\bexec\s*\(|\beval\s*\("
                  r"|\bsystem\s*[\(\s'\"]|%x\{|`|\bIO\.popen|\bopen3\b|\bqx\s*[\(\{/]|\bDeno\.(run|Command)|\bBun\.spawn", body):
         out.append(_finding("opaque", seg, reason="스크립트 안에서 다른 명령·코드를 실행"))
     return out
@@ -608,6 +669,8 @@ def _strip_prefixes(toks, seg, out, cwd):
         if toks[0] in SHELL_KEYWORDS:
             toks = toks[1:]
         elif re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
+            if re.match(r"^[A-Za-z_]\w*=", toks[0]):
+                out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음"))
             toks = drop_opts(toks[1:], ("-p", "--package", "-c", "--call")) if w in ("npx", "pnpx", "bunx") else toks[1:]
         elif w == "env":
             if any(t in ("-C", "--chdir", "-S", "--split-string") or t.startswith(("--chdir=", "-C", "-S")) for t in toks[1:]):
@@ -724,9 +787,24 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False):
         elif not module and word in ("python", "python3", "py") and not script_stdin and not _build_allowed(toks, cwd):
             out.append(_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 Python 스크립트"))
 
-    if word == "gradlew" or word == "npm" and args[:1] in (["ci"], ["test"], ["run"]):
+    if word == "gradlew" or word == "npm" and args not in (["list", "-g"], ["--version"], ["--help"]):
         if not _build_allowed(toks, cwd):
             out.append(_finding("opaque", seg, reason="허용 목록 밖 테스트·빌드 실행"))
+    if word == "npm":
+        name = args[1] if args[:1] in (["run"], ["run-script"]) and len(args) > 1 else args[0] if args else ""
+        if re.search(r"deploy|release|publish|push", name, re.I):
+            out.append(_gated("deploy", seg))
+        if depth < 4 and name:
+            try:
+                scripts = json.loads(_abs("package.json", cwd).read_text(encoding="utf-8")).get("scripts", {})
+                for key in ("pre" + name, name, "post" + name):
+                    body = scripts.get(key)
+                    if isinstance(body, str):
+                        out.extend(classify_command(body, cwd, root, depth + 1))
+            except (OSError, ValueError, AttributeError):
+                pass
+        elif depth >= 4:
+            out.append(_finding("opaque", seg, reason="npm 스크립트 재귀를 확인할 수 없음"))
 
     # removing or moving a state file is forging it too
     if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
@@ -806,6 +884,8 @@ def _analyze_git(args, seg, cwd, root, depth):
         return out
     sub, sargs = rest[0].lower(), rest[1:]
     out.append(_seen(f"git:{sub}", seg))
+    if sub == "update-index" or sub == "config" and any(re.match(r"(?:filter|diff)\.", a, re.I) for a in sargs):
+        out.append(_finding("opaque", seg, reason="Git 파일 변경 검사를 바꿀 수 있는 명령"))
     if sub in ("commit", "push", "merge", "rebase", "am", "cherry-pick", "revert") and (
             any(a in ("--no-verify", "--no-gpg-sign") for a in sargs) or sub == "commit" and _short_flag(sargs, "n")):
         out.append(_finding("forbidden", seg, reason="검증 단계 우회"))
@@ -886,10 +966,10 @@ def _analyze_gh(args, seg, cwd):
 def classify_command(cmd, cwd, root=None, depth=0):
     out = []
     # Remove language bodies before shell lexing (set(...) is not shell `set`).
-    heredoc = re.compile(r"(?m)^(?P<head>[ \t]*(?P<lang>python3?|py|node)[ \t]+-[ \t]*<<(?P<quote>['\"]?)(?P<tag>\w+)(?P=quote)[ \t]*)\n(?P<body>.*?)(?:\n)(?P=tag)[ \t]*(?:\n|$)", re.S)
+    heredoc = re.compile(r"(?m)^(?P<head>[ \t]*(?P<lang>(?:python|pypy)[\d.]*|py|node|nodejs)(?:[ \t]+[^\n<]*)?[ \t]*<<(?P<quote>['\"]?)(?P<tag>\w+)(?P=quote)[ \t]*)\n(?P<body>.*?)(?:\n)(?P=tag)(?:\n|$)", re.S)
     def script(match):
         header, body = match.group("head"), match.group("body")
-        out.extend(_check_script(body, header, cwd, root, python=match.group("lang") != "node"))
+        out.extend(_check_script(body, header, cwd, root, python=_word(match.group("lang")) != "node"))
         # Shell expansions in unquoted heredocs still execute before the interpreter.
         if not match.group("quote"):
             _, substitutions, broken = extract_substitutions(body)
@@ -898,6 +978,8 @@ def classify_command(cmd, cwd, root=None, depth=0):
         out.extend(analyze(header.split("<<", 1)[0], cwd, root, depth, script_stdin=True))
         return "\n"
     cmd = heredoc.sub(script, cmd)
+    if "<<" in unquoted(cmd):
+        out.append(_finding("opaque", cmd[:120], reason="해석하지 못한 heredoc 경계·인터프리터"))
     if out and re.search(r"(?:^|[;&\n])\s*(?:cd|pushd|set-location)\b", cmd, re.I):
         out.append(_finding("opaque", cmd[:120], reason="폴더 변경과 heredoc을 함께 실행"))
     if "*** Begin Patch" in cmd:

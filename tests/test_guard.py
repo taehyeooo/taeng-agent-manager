@@ -30,6 +30,9 @@ class GuardTest(unittest.TestCase):
             git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "init")
         git(self.app, "checkout", "-q", "-b", "feat/x")
         (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}), encoding="utf-8")
+        git(self.app, "add", ".")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "baseline")
+        git(self.app, "update-ref", "refs/remotes/origin/main", "HEAD")
         S.new_project("app", "app", "x", self.root)
         cfg = S.load_local(self.root)
         cfg["paths"]["app"] = str(self.app)
@@ -381,7 +384,7 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash(f"python -c \"from pathlib import Path; Path(r'{(self.other / 'main.py').as_posix()}').write_text('x')\"")[0], "deny")
         self.assertIn("인증정보", self.bash('python -c "import os; print(os.environ)"')[1])
         self.assertIn("인증정보", self.bash("env")[1])
-        self.assertEqual(self.bash("env A=1 python -m unittest")[0], "allow")
+        self.assertEqual(self.bash("env A=1 python -m unittest")[0], "ask")
 
     def test_long_recursive_flag_and_wildcards(self):
         self.assertEqual(self.bash("rm --recursive src")[0], "deny")
@@ -469,7 +472,7 @@ class VerifierRound3Test(GuardTest):
         self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'")[0], "ask")
         self.assertEqual(self.bash("perl -E 'say 1; system \"git push origin main\"'", agent="codex")[0], "deny")
         # 이미 알아본 명령의 인수는 데이터 (npm run의 스크립트 내용은 문서에 적은 구조적 한계)
-        self.assertEqual(self.bash("npm run push")[0], "ask")
+        self.assertEqual(self.bash("npm run push")[0], "deny")
         self.assertEqual(self.bash("node -e \"require('child_process')\" && echo vercel")[0], "ask")
 
 
@@ -554,10 +557,101 @@ class BuildAllowlistTest(GuardTest):
         (self.app / "scripts").mkdir()
         for name in ("check.py", "check.sh"):
             (self.app / "scripts" / name).write_text("# test\n", encoding="utf-8")
+        (self.app / "gradlew").write_text("# baseline wrapper\n", encoding="utf-8")
+        (self.app / "gradlew.bat").write_text("@rem baseline wrapper\n", encoding="utf-8")
         (self.app / "package.json").write_text(json.dumps({"scripts": {
             "test": "vitest run", "build": "vite build", "lint": "eslint ."}}), encoding="utf-8")
         git(self.app, "add", ".")
         git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
+        git(self.app, "update-ref", "refs/remotes/origin/main", "HEAD")
+
+    def test_review_heredoc_interpreter_variants(self):
+        for interpreter in ("node", "nodejs", "python3.12 -", "python3 -", "py -3", "pypy3 -"):
+            body = "require('child_process').execSync('git push --force origin main')" if interpreter.startswith("node") else "import subprocess\nsubprocess.run(['git', 'push', '--force', 'origin', 'main'])"
+            self.assertNotEqual(self.bash(interpreter + " <<'EOF'\n" + body + "\nEOF")[0], "allow", interpreter)
+        self.assertEqual(self.bash("unknown-runtime <<'EOF'\nanything\nEOF")[0], "ask")
+
+    def test_review_python_writes_and_flow(self):
+        bodies = [
+            "import shutil\nshutil.%s('source', 'projects/app/project.json')" % method
+            for method in ("copyfile", "copy", "move")]
+        bodies += ["import os\nos.%s('source', 'projects/app/project.json')" % method for method in ("replace", "rename")]
+        bodies += ["open('projects/app/project.json', '%s')" % mode for mode in ("a", "w", "x", "r+")]
+        bodies += ["p='projects/app/'\np+='project.json'\nopen(p,'w')",
+                   "from pathlib import Path\np='ok.txt'\nfor i in range(2):\n Path(p).write_text('x')\n p='projects/app/project.json'",
+                   "from pathlib import Path\nPath('projects/app/project.json').touch()",
+                   "import builtins\nbuiltins.open('projects/app/project.json','a')",
+                   "o=open\no('projects/app/project.json','w')"]
+        for body in bodies:
+            self.assertNotEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF", cwd=self.root)[0], "allow", body)
+
+    def test_review_dynamic_imports(self):
+        for body in ("import importlib\nS=importlib.import_module('am.state')\nS.save(S.load('app'))",
+                     "S=__import__('am.state')", "import runpy\nrunpy.run_module('am.cli')",
+                     "exec('from am import state')", "eval('__import__(\"am.state\")')"):
+            self.assertNotEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF")[0], "allow", body)
+
+    def test_review_heredoc_exact_terminator(self):
+        for ending in ("EOF ", "EOF\t"):
+            command = "python - <<'EOF'\nprint('ok')\n" + ending + "\nopen('projects/app/project.json','w')\nEOF"
+            self.assertNotEqual(self.bash(command, cwd=self.root)[0], "allow")
+
+    def test_review_committed_script_and_index_flags(self):
+        script = self.app / "scripts/check.py"
+        for flag in ("--assume-unchanged", "--skip-worktree"):
+            git(self.app, "update-index", flag, "scripts/check.py")
+            self.assertEqual(self.bash("python scripts/check.py")[0], "ask", flag)
+            git(self.app, "update-index", "--no-" + flag[2:], "scripts/check.py")
+        script.write_text("# changed and committed\n", encoding="utf-8")
+        git(self.app, "add", ".")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "changed")
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+
+    def test_review_changed_build_inputs(self):
+        for name, command in (("gradlew", "gradlew test"), ("gradle/wrapper/gradle-wrapper.jar", "gradlew test"),
+                              ("build.gradle", "gradlew test"), ("build.gradle.kts", "gradlew test"),
+                              ("settings.gradle.kts", "gradlew test"), ("init.d/setup.gradle", "gradlew test"),
+                              ("package.json", "npm test"), ("package-lock.json", "npm ci"), (".npmrc", "npm test")):
+            path = self.app / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            old = path.read_bytes() if path.exists() else None
+            path.write_text("{}", encoding="utf-8")
+            self.assertNotEqual(self.bash(command)[0], "allow", name)
+            if old is None:
+                path.unlink()
+            else:
+                path.write_bytes(old)
+
+    def test_review_environment_prefixes(self):
+        for name in ("JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "GRADLE_OPTS", "GRADLE_USER_HOME", "NODE_OPTIONS",
+                     "PYTHONPATH", "PYTHONSTARTUP", "npm_config_script_shell", "LD_PRELOAD"):
+            for prefix in ("", "env "):
+                self.assertEqual(self.bash(prefix + name + "=x npm test")[0], "ask", name)
+
+    def test_review_build_config_commits_flags_and_dependencies(self):
+        installed = self.app / "node_modules/example/package.json"
+        installed.parent.mkdir(parents=True)
+        installed.write_text("{}", encoding="utf-8")
+        self.assertEqual(self.bash("npm test")[0], "allow")
+        for flag in ("--assume-unchanged", "--skip-worktree"):
+            git(self.app, "update-index", flag, "package.json")
+            self.assertEqual(self.bash("npm test")[0], "ask")
+            git(self.app, "update-index", "--no-" + flag[2:], "package.json")
+        for name, command in (("package.json", "npm test"), ("gradlew", "gradlew test")):
+            path = self.app / name
+            path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+            git(self.app, "add", name)
+            git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "changed config")
+            self.assertEqual(self.bash(command)[0], "ask", name)
+
+    def test_review_npm_deploy_scripts(self):
+        for launcher in ("run", "run-script"):
+            for name in ("deploy", "release", "publish", "push"):
+                findings = G.classify_command("npm " + launcher + " " + name, self.app, self.root)
+                self.assertTrue(any(f.get("gate") == "deploy" for f in findings), name)
+        (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "git push origin main"}}), encoding="utf-8")
+        findings = G.classify_command("npm test", self.app, self.root)
+        self.assertTrue(any(f.get("gate") == "push" for f in findings))
 
     def test_build_invocations(self):
         for cmd in ("gradlew test", "gradlew.bat build --no-daemon", "./gradlew check --rerun",
@@ -596,7 +690,7 @@ class BuildAllowlistTest(GuardTest):
         for cmd in ("gradlew publish", "gradlew run", "gradlew test --init-script x.gradle",
                     "gradlew test -I x.gradle", "gradlew test -Duser.home=elsewhere",
                     "gradlew test -p ../other", "../other/gradlew test", "npm run missing",
-                    "npm run push", "npm exec -- vitest run", "npx --yes vitest run",
+                    "npm exec -- vitest run", "npx --yes vitest run",
                     "python -c \"print('hello')\"", "python fresh.py", "sh -x fresh.sh",
                     "env npx --yes vitest run", "env npm exec -- vitest run", "cd ../other; python scripts/check.py"):
             self.assertEqual(self.bash(cmd)[0], "ask", cmd)
