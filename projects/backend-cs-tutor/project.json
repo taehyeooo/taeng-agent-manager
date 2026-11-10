@@ -263,7 +263,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6",
       "pr": "16",
       "dispatch": "ctx_405435021fcc",
-      "note": "검증 지적 수정 위임(codex): created_by 필수, records append-only CI",
+      "note": "지적 7건 수정 완료(d3c0cbb, 테스트 90/90). PR #15 병합으로 충돌 — main 맞추기+2차 4개 검증 기록 위임",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -996,8 +996,12 @@
     {
       "at": "2026-11-10T18:09:38+09:00",
       "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8c, dispatch=ctx_25ba17048955, note=3차(마지막) 위임: JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2"
+    },
+    {
+      "at": "2026-11-10T18:10:29+09:00",
+      "event": "작업 S6 변경: note=지적 7건 수정 완료(d3c0cbb, 테스트 90/90). PR #15 병합으로 충돌 — main 맞추기+2차 4개 검증 기록 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:09:38+09:00"
+  "updated_at": "2026-11-10T18:10:29+09:00"
 }
