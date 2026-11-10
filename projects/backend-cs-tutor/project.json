@@ -351,9 +351,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
-      "pr": null,
+      "pr": "20",
       "dispatch": "ctx_c714d91bf066",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "구현 완료 PR #20, 매니저 테스트 프론트 28·백엔드 93. 지도 화살표 엉킴 관찰. claude 검증 위임"
     },
     {
       "id": "S11",
@@ -1040,8 +1040,12 @@
     {
       "at": "2026-11-10T18:39:13+09:00",
       "event": "작업 S8 변경: dispatch=ctx_8535357ca9d2, note=3차 검증 지적 수정 + 검증 기록 추가 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T18:43:19+09:00",
+      "event": "작업 S10 변경: pr=20, note=구현 완료 PR #20, 매니저 테스트 프론트 28·백엔드 93. 지도 화살표 엉킴 관찰. claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:39:13+09:00"
+  "updated_at": "2026-11-10T18:43:19+09:00"
 }
