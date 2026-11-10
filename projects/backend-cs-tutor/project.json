@@ -399,12 +399,12 @@
       "title": "개념 학습: 카드 6장·출처 라벨·그림 확대 (R-6, R-8, R-9)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S11",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_c755e863bfaf",
+      "note": "카드 6장·출처 배지·그림 확대·읽음 기록 API"
     },
     {
       "id": "S12",
@@ -459,12 +459,12 @@
       "title": "복습 일정과 묶음 복습 (R-15, R-17)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_d14aded0acb3",
+      "note": "1부: 서버 계산 로직만(review 패키지). 화면·API 연결은 2부"
     },
     {
       "id": "S17",
@@ -1175,8 +1175,16 @@
     {
       "at": "2026-11-10T21:57:47+09:00",
       "event": "작업 S10 변경: status=done, note=PR #20 병합(선 없는 7묶음 지도, 사용자 '고쳐서 합쳐')"
+    },
+    {
+      "at": "2026-11-10T22:02:45+09:00",
+      "event": "작업 S11 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S11, dispatch=ctx_c755e863bfaf, note=카드 6장·출처 배지·그림 확대·읽음 기록 API"
+    },
+    {
+      "at": "2026-11-10T22:02:45+09:00",
+      "event": "작업 S16 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16, dispatch=ctx_d14aded0acb3, note=1부: 서버 계산 로직만(review 패키지). 화면·API 연결은 2부"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T21:57:47+09:00"
+  "updated_at": "2026-11-10T22:02:45+09:00"
 }
