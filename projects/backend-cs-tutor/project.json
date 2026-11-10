@@ -295,11 +295,11 @@
       "title": "그림: 코드 그림과 Trova 기록 캡처 + 측정 조건 캡션 (R-26)",
       "agent": "codex",
       "kind": "docs",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_5e39daae8e79",
       "note": "자동 배정: docs → codex (config/agents.json 선호)"
     },
     {
@@ -1084,8 +1084,12 @@
     {
       "at": "2026-11-10T18:52:48+09:00",
       "event": "작업 S8 변경: status=done, note=3차 PR #19 병합 — 15개 개념 콘텐츠 완성, 모두 claude 교차 검증 기록. 사례 카드 사용자 확인 남음"
+    },
+    {
+      "at": "2026-11-10T18:53:32+09:00",
+      "event": "작업 S7 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7, dispatch=ctx_5e39daae8e79"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-10T18:52:48+09:00"
+  "updated_at": "2026-11-10T18:53:32+09:00"
 }
