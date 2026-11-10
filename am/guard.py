@@ -697,7 +697,9 @@ def _analyze_gh(args, seg, cwd):
     if pos[:2] == ["auth", "token"]:
         return [_finding("forbidden", seg, reason="인증정보 노출")]
     if pos[:2] == ["repo", "create"]:
-        out.append(_gated("repo_create", seg))
+        # 승인 단위 = 만들 저장소 이름. 아직 로컬에 없으니 decide()가 그 이름을 예정한 프로젝트(am set --repo)에서 승인을 찾는다
+        name = next((a for a in rest[rest.index("create") + 1:] if not a.startswith("-")), None) if "create" in rest else None
+        out.append(_gated("repo_create", seg, ref=name.lower() if name else None))
     elif pos[:2] == ["repo", "edit"] and any(a.startswith("--visibility") for a in low):
         out.append(_gated("repo_create", seg, what="repo_visibility", repo=repo or (pos[2] if len(pos) > 2 else None)))
     elif pos[:2] == ["repo", "delete"]:
@@ -897,9 +899,21 @@ def decide(payload, agent="claude", root=None):
               "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
         return ("deny" if agent == "codex" else "ask"), msg
 
+    def planned_owner(repo_name):
+        """The project that recorded this not-yet-created repo (am set <slug> --repo owner/name)."""
+        for q in S.all_projects(root):
+            if (q.get("repo") or "").lower() == repo_name:
+                projects.setdefault(q["slug"], q)
+                return q["slug"], projects[q["slug"]]
+        return None, None
+
     missing, granted = [], []
     for f in findings:
         slug, p = proj(f.get("where") or cwd)
+        if f["gate"] == "repo_create" and f.get("ref") and "/" in f["ref"]:
+            owner = planned_owner(f["ref"])  # 새 저장소는 그 이름을 예정한 프로젝트의 승인만 본다
+            if owner[0]:
+                slug, p = owner  # 예정이 없으면 지금 작업 폴더 프로젝트 기준 그대로 → 차단 + 승인 요청
         f["slug"] = slug
         (granted if p and S.has_approval(p, f["gate"], f.get("ref")) else missing).append(f)
     for f in granted:

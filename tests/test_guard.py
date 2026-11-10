@@ -293,6 +293,21 @@ class VerifierRound2Test(GuardTest):
         self.assertEqual(self.bash("gh api repos/me/app/branches/main/protection -X DELETE")[0], "deny")  # 다른 대상
         self.assertEqual(self.bash("git push origin main")[0], "deny")  # 넓은 push 승인이 아님
 
+    def test_repo_create_checks_the_project_that_planned_it(self):
+        """새 저장소는 로컬에 없으니, 그 이름을 예정한 프로젝트(am set --repo)의 승인을 본다 — 이름 단위."""
+        new = S.new_project("newsvc", "newsvc", "x", self.root)
+        new["repo"] = "me/newsvc"
+        S.save(new, self.root)
+        cmd = "gh repo create me/newsvc --private --clone"
+        self.assertEqual(self.bash(cmd)[0], "deny")  # 예정은 있지만 승인 전 → 승인 요청
+        self.assertIn("newsvc", S.pending_requests(S.load("newsvc", self.root))[0]["ref"])
+        p = S.load("newsvc", self.root)
+        S.approve(p, "repo_create", "me/newsvc")
+        S.save(p, self.root)
+        self.assertEqual(self.bash(cmd)[0], "allow")  # 작업 폴더가 다른 프로젝트(app)여도 허용
+        self.assertNotEqual(self.bash("gh repo create me/other --private")[0], "allow")  # 다른 이름은 안 됨
+        self.assertEqual(self.bash("gh repo create me/other --private", agent="codex")[0], "deny")
+
     def test_work_branches_standing_approval(self):
         """사용자 승인 2026-11-10: 작업 브랜치 올리기는 묻지 않음 — main은 여전히 막힘."""
         self.approve("push", S.WORK_BRANCHES)
