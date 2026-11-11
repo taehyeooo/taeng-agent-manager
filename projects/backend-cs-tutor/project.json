@@ -233,6 +233,18 @@
       "ref": "codex sol eval sample 10",
       "note": "2026-11-11 사용자: '2 승인' — 실제 Codex(gpt-6.1-sol)로 설명 평가 표본 10개(구독 사용량 10~15회, 추가 요금 없음), 임시 DB",
       "at": "2026-11-11T19:03:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#55",
+      "note": "2026-11-11 사용자: '1 승인' — dadok-cs PR #55(평가 실제 AI 표본 실행기) squash 병합",
+      "at": "2026-11-11T20:14:15+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs first run",
+      "note": "2026-11-11 사용자: '2 승인' — 다독CS 첫 실행: dadokcs DB에 Flyway 스키마 적용·콘텐츠 적재(빈 DB)",
+      "at": "2026-11-11T20:14:15+09:00"
     }
   ],
   "tasks": [
@@ -827,7 +839,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
       "pr": "52",
       "dispatch": "ctx_09921502b1d3",
-      "note": "PR #52 병합(E2E·README), spec-check 90.6%",
+      "note": "2026-11-11 첫 실행 성공: dadokcs DB 스키마·콘텐츠 15개 적재, 백엔드 127.0.0.1:8080, 프론트 127.0.0.1:5173, AI 상태 codex·로그인됨·남은 30회. 실행 스크립트는 scratchpad/start-dadok.ps1, 로그 ~/.dadok-cs/logs",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2112,8 +2124,20 @@
     {
       "at": "2026-11-11T20:09:50+09:00",
       "event": "작업 S25 변경: dispatch=ctx_9a256b9283c3, note=검증 지적 수정 위임(codex): 4쌍 문구, core 3~4개(평가 규칙상 2개면 너무 쉬움), 수정 후 검증 기록 추가"
+    },
+    {
+      "at": "2026-11-11T20:14:15+09:00",
+      "event": "승인 기록: merge_main (PR#55)"
+    },
+    {
+      "at": "2026-11-11T20:14:15+09:00",
+      "event": "승인 기록: db_change (local dadokcs first run)"
+    },
+    {
+      "at": "2026-11-11T20:58:56+09:00",
+      "event": "작업 S24 변경: note=2026-11-11 첫 실행 성공: dadokcs DB 스키마·콘텐츠 15개 적재, 백엔드 127.0.0.1:8080, 프론트 127.0.0.1:5173, AI 상태 codex·로그인됨·남은 30회. 실행 스크립트는 scratchpad/start-dadok.ps1, 로그 ~/.dadok-cs/logs"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T20:09:50+09:00"
+  "updated_at": "2026-11-11T20:58:56+09:00"
 }
