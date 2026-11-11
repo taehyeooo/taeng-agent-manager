@@ -732,18 +732,17 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
       "pr": "42",
       "dispatch": "ctx_ee543091335f",
-      "note": "실제 AI 평가 표본 10개 진행 중 ctx_d19deb777767(승인 2026-11-11, 최대 15회)",
+      "note": "PR #42 병합. 실제 AI 평가 표본 10/10 일치, 실행기 PR #55",
       "verification": {
         "tests": "pass",
         "review": "pass",
         "security": "pass",
         "by": "claude:manager",
-        "summary": "사용자 결정 반영(틀린 내용 0 + core 최대 1 누락, 평가 완료 후 빠진 항목 이름+카드), busy finally 해제, 첫 평가 라벨, 되묻기 맥락 포함. 변형 3 검출, 백엔드 236·프론트 98·CI 7 통과",
-        "at": "2026-11-11T14:11:59+09:00"
+        "summary": "실제 Codex(gpt-6.1-sol) 평가 표본 10건(호출 10회) 교차 판정: 서버 최종 판정 10/10 기대 일치(통과 5·불통과 5 — 그럴듯한 원리 오류 3건도 불통과), 피드백 정답·체크리스트 원문 노출 0, 해요체 10/10. 관대함 1건(네트워크 원리 2점)은 판정 결과에 영향 없음",
+        "at": "2026-11-11T19:27:23+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/tutor",
-        "frontend/src"
+        "backend/src/test/java/kr/dadokcs/tutor"
       ]
     },
     {
@@ -2082,8 +2081,16 @@
     {
       "at": "2026-11-11T19:05:04+09:00",
       "event": "작업 S25 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25, dispatch=ctx_ae33e0456da7"
+    },
+    {
+      "at": "2026-11-11T19:27:23+09:00",
+      "event": "작업 S20 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T19:27:23+09:00",
+      "event": "작업 S20 변경: note=PR #42 병합. 실제 AI 평가 표본 10/10 일치, 실행기 PR #55"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T19:05:04+09:00"
+  "updated_at": "2026-11-11T19:27:23+09:00"
 }
