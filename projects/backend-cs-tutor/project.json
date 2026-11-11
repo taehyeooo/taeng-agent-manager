@@ -816,7 +816,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
       "pr": "52",
       "dispatch": "ctx_09921502b1d3",
-      "note": "PR #52(E2E)는 codex 구현, spec-check는 claude",
+      "note": "사용자 결정 2026-11-11: R-2는 분 단위만(기획서 수정), R-17은 연결 질문 콘텐츠 제작(S25)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -852,6 +852,30 @@
       "files": [
         "backend/src/test"
       ]
+    },
+    {
+      "id": "S25",
+      "title": "연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "S26",
+      "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2014,8 +2038,20 @@
     {
       "at": "2026-11-11T19:01:24+09:00",
       "event": "작업 S24 변경: status=review, pr=52"
+    },
+    {
+      "at": "2026-11-11T19:02:53+09:00",
+      "event": "작업 추가 S25 (codex, 자동): 연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인"
+    },
+    {
+      "at": "2026-11-11T19:02:54+09:00",
+      "event": "작업 추가 S26 (codex, 자동): 기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠"
+    },
+    {
+      "at": "2026-11-11T19:02:54+09:00",
+      "event": "작업 S24 변경: note=사용자 결정 2026-11-11: R-2는 분 단위만(기획서 수정), R-17은 연결 질문 콘텐츠 제작(S25)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T19:01:24+09:00"
+  "updated_at": "2026-11-11T19:02:54+09:00"
 }
