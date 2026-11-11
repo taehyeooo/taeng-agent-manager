@@ -77,9 +77,13 @@ WRITERS = {  # change files only; every target is checked with classify_file
     "rename-item", "rni", "ren", "rename", "unlink", "truncate", "clear-content", "clc", "chmod", "sed", "awk"}
 KNOWN = READ_ONLY | WRITERS | {"set", "cd", "chdir", "pushd", "popd", "set-location", "sl", "push-location",
                                "pop-location", "orca", "git", "gh", "find"}
-# options that make a "read only" tool run a program or write a file
-UNSAFE_OPTION_WORDS = {"rg": {"--pre", "--pre-glob"}, "sort": {"--compress-program", "-o", "--output"},
-                       "tree": {"-o"}, "diff": {"--output"}, "date": {"-s", "--set"}}
+# options that make a "read only" tool run a program (sort -o / uniq OUT / tree -o write files: _write_targets)
+UNSAFE_OPTION_WORDS = {"rg": {"--pre", "--pre-glob"}, "diff": {"--output"}, "date": {"-s", "--set"}}
+# read-only tools that may run with arguments nobody has seen (xargs, find -exec): no option of theirs runs a
+# program or writes a file — sort/uniq/tree/rg/diff/date/file have such options, so they need visible arguments
+STDIN_ARGS_SAFE = READ_ONLY - {"sort", "uniq", "tree", "rg", "diff", "date", "file"}
+# a variable name that holds a secret: printing it (echo $X, cmd %X%, PowerShell env:X) is 인증정보 노출
+SECRET_NAME = re.compile(r"TOKEN|SECRET|PASSW(?:OR)?D|API_?KEY|ACCESS_?KEY|PRIVATE_?KEY|CREDENTIAL|AUTH(?!OR)", re.I)
 GIT_GLOBAL_WITH_ARG = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--config-env", "--super-prefix"}
 GIT_BUILTINS = {"add", "am", "apply", "archive", "bisect", "blame", "branch", "bundle", "cat-file", "checkout", "cherry-pick",
                 "clean", "clone", "commit", "config", "describe", "diff", "fetch", "format-patch", "gc", "grep", "init", "log",
@@ -97,6 +101,118 @@ GIT_SAFE_CONFIG = re.compile(r"^(user\.(name|email)|core\.(autocrlf|quotepath|sa
 GIT_MUTATING = {"commit", "add", "push", "merge", "reset", "checkout", "switch", "rm", "mv", "stash", "apply", "am",
                 "rebase", "cherry-pick", "revert", "tag", "branch", "clean", "worktree", "restore", "pull", "fetch", "update-ref"}
 GIT_REWRITES_FILES = {"rm", "mv", "restore", "checkout", "reset", "stash", "apply", "am", "cherry-pick", "revert", "switch"}
+# git global options before the subcommand (exact names — git does not abbreviate these)
+GIT_GLOBAL_OK = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--config-env", "--no-pager",
+                 "-P", "--bare", "--no-replace-objects", "--literal-pathspecs", "--glob-pathspecs", "--noglob-pathspecs",
+                 "--icase-pathspecs", "--no-optional-locks", "--no-advice", "--version", "--help", "-v", "-h", "-p", "--paginate",
+                 "--html-path", "--man-path", "--info-path", "--no-lazy-fetch"}
+
+
+def _opts(text):
+    return frozenset(text.split())
+
+
+# Options of the reading subcommands (names without "--"; "--no-<name>" of a listed name is fine too). Anything else is
+# ask: --upload-pack/--exec run a program, --ext-diff/--textconv run a configured driver, -O (grep) a pager,
+# --output/-o/--file write a file (those are parsed and checked like any write, see _git_options).
+GIT_DIFF_LONG = _opts("""patch no-patch raw patch-with-raw patch-with-stat stat numstat shortstat dirstat dirstat-by-file
+    cumulative compact-summary summary name-only name-status submodule color color-moved color-moved-ws word-diff
+    word-diff-regex color-words renames rename-empty check ws-error-highlight full-index binary abbrev break-rewrites
+    find-renames find-copies find-copies-harder irreversible-delete diff-filter pickaxe-all pickaxe-regex find-object
+    skip-to rotate-to relative text ignore-cr-at-eol ignore-space-at-eol ignore-space-change ignore-all-space
+    ignore-blank-lines ignore-matching-lines inter-hunk-context function-context exit-code quiet
+    ignore-submodules src-prefix dst-prefix prefix default-prefix line-prefix ita-invisible-in-index
+    ita-visible-in-index minimal patience histogram anchored diff-algorithm unified indent-heuristic stat-width
+    stat-name-width stat-graph-width stat-count output-indicator-new output-indicator-old output-indicator-context
+    diff-merges combined-all-paths remerge-diff cc dd null merge-base cached staged index base ours theirs
+    no-ext-diff no-textconv""")
+GIT_REV_LONG = _opts("""max-count skip since after until before since-as-filter author committer grep-reflog grep
+    all-match invert-grep regexp-ignore-case basic-regexp extended-regexp fixed-strings perl-regexp remove-empty merges
+    min-parents max-parents first-parent exclude-first-parent-only not all branches tags remotes glob exclude
+    exclude-hidden reflog alternate-refs single-worktree ignore-missing bisect stdin cherry-mark cherry-pick left-only
+    right-only cherry walk-reflogs merge boundary simplify-by-decoration full-history dense sparse simplify-merges
+    ancestry-path show-pulls date-order author-date-order topo-order reverse walk do-walk pretty format abbrev-commit
+    oneline encoding expand-tabs notes show-notes standard-notes show-signature relative-date date parents children
+    left-right graph show-linear-break count decorate decorate-refs decorate-refs-exclude clear-decorations source
+    mailmap use-mailmap full-diff log-size objects objects-edge unpacked filter in-commit-order follow root""")
+GIT_LOG = (GIT_DIFF_LONG | GIT_REV_LONG, "psuzRawWDtmcrbhqigEFPv", "MCBX", "USGOlIXnL")
+GIT_DIFF = (GIT_DIFF_LONG, "psuzRawWDtmcrbhq", "MCBX", "USGOlI")
+GIT_READ_OPTS = {
+    "log": GIT_LOG, "show": GIT_LOG, "whatchanged": GIT_LOG, "rev-list": GIT_LOG, "diff": GIT_DIFF,
+    "diff-tree": (GIT_LOG[0] | _opts("no-commit-id always"), GIT_LOG[1], "MCBX", GIT_LOG[3]),
+    "diff-index": GIT_DIFF, "diff-files": GIT_DIFF,
+    "range-diff": (GIT_LOG[0] | _opts("creation-factor dual-color left-only right-only"), GIT_LOG[1], "MCBX", GIT_LOG[3]),
+    "shortlog": (GIT_REV_LONG | _opts("numbered summary email committer group"), "nsecig", "w", "L"),
+    "format-patch": (GIT_LOG[0] | _opts("""output-directory numbered start-number numbered-files keep-subject signoff
+        stdout cover-letter attach inline thread in-reply-to ignore-if-in-upstream always cover-from-description
+        description-file subject-prefix rfc filename-max-length reroll-count to from force-in-body-from
+        add-header signature signature-file suffix zero-commit progress interdiff range-diff creation-factor
+        encode-email-headers"""), "psuzRawWDtmcrbhqnNksv", "MCBX", "USGOlIo"),
+    "status": (_opts("""short branch show-stash porcelain long verbose untracked-files ignore-submodules ignored column
+        ahead-behind renames find-renames null"""), "sbvz", "uM", ""),
+    "ls-files": (_opts("""cached deleted modified others ignored stage unmerged killed directory empty-directory eol
+        full-name recurse-submodules abbrev exclude exclude-from exclude-per-directory exclude-standard error-unmatch
+        with-tree format deduplicate sparse resolve-undo debug"""), "cdmoiskutvfz", "", "xX"),
+    "rev-parse": (_opts("""show-toplevel git-dir git-common-dir absolute-git-dir is-inside-work-tree is-inside-git-dir
+        is-bare-repository is-shallow-repository show-prefix show-cdup abbrev-ref short verify quiet symbolic
+        symbolic-full-name all branches tags remotes glob exclude default revs-only revs flags sq sq-quote not prefix
+        local-env-vars git-path show-superproject-working-tree shared-index-path show-object-format show-ref-format
+        path-format since after until before disambiguate resolve-git-dir keep-dashdash stop-at-non-option stuck-long
+        exclude-hidden"""), "q", "", ""),
+    "ls-remote": (_opts("heads tags refs quiet get-url symref sort branches exit-code server-option"), "qhtb", "", "o"),
+    "ls-tree": (_opts("long name-only name-status object-only full-name full-tree abbrev format"), "drtlz", "", ""),
+    "cat-file": (_opts("""batch batch-check batch-command batch-all-objects buffer unordered follow-symlinks
+        allow-unknown-type mailmap use-mailmap path filter"""), "tsepZz", "", ""),
+    "blame": (_opts("""root show-stats score-debug show-name show-number porcelain line-porcelain reverse first-parent
+        encoding contents date ignore-rev ignore-revs-file color-lines color-by-age progress show-email abbrev
+        incremental minimal since until no-textconv"""), "bfnpltsewc", "MC", "LS"),
+    "describe": (_opts("""all tags contains abbrev candidates exact-match debug long match exclude always first-parent
+        dirty broken"""), "", "", ""),
+    "for-each-ref": (_opts("""count shell perl python tcl sort format color points-at merged contains ignore-case
+        omit-empty exclude include-root-refs stdin"""), "spi", "", ""),
+    "show-ref": (_opts("head branches heads tags dereference hash verify abbrev quiet exclude-existing exists"), "dsq", "", ""),
+    "merge-base": (_opts("all octopus independent is-ancestor fork-point"), "a", "", ""),
+    "name-rev": (_opts("tags refs exclude all annotate-stdin stdin name-only undefined always"), "", "", ""),
+    "count-objects": (_opts("verbose human-readable"), "vH", "", ""),
+    "check-ignore": (_opts("quiet verbose stdin non-matching index"), "qvnz", "", ""),
+    "check-attr": (_opts("all cached stdin source"), "az", "", ""),
+    "grep": (_opts("""cached index untracked exclude-standard recurse-submodules text no-textconv ignore-case max-depth
+        recursive word-regexp invert-match full-name extended-regexp basic-regexp perl-regexp fixed-strings
+        line-number column files-with-matches name-only files-without-match null only-matching count color break
+        heading show-function context after-context before-context function-context max-count threads and or not
+        all-match quiet"""), "aiIrwvhHEGPFnlLzocpWq", "", "ABCmef"),
+    "branch": (_opts("""list all remotes verbose quiet show-current contains merged points-at sort format color column
+        abbrev omit-empty ignore-case track set-upstream-to unset-upstream move copy delete force create-reflog
+        recurse-submodules"""), "arlvqitmMcCdDf", "", "u"),
+    "tag": (_opts("""list sort contains merged points-at format color column ignore-case omit-empty verify annotate
+        message file edit force delete cleanup create-reflog trailer sign local-user"""), "lviaefds", "n", "mFu"),
+    "config": (_opts("""global system local worktree file blob list get get-all get-regexp get-urlmatch replace-all add
+        unset unset-all rename-section remove-section get-color get-colorbool includes show-origin show-scope
+        name-only null type bool int bool-or-int path expiry-date default fixed-value comment regexp value url"""),
+               "lz", "", "f"),
+    "cherry": (_opts("verbose abbrev"), "v", "", ""),
+    "show-branch": (_opts("""remotes all current topo-order date-order sparse more list merge-base independent name
+        sha1-name topics reflog color"""), "rag", "", ""),
+    "bundle": (GIT_REV_LONG | _opts("quiet progress all-progress all-progress-implied version"), "q", "", "n"),
+    "var": (frozenset(), "l", "", ""), "version": (_opts("build-options"), "", "", ""),
+    "help": (_opts("all guides config verbose external-commands aliases user-interfaces developer-interfaces"), "agcv", "", ""),
+    "archive": (_opts("format list verbose prefix output add-file add-virtual-file worktree-attributes mtime"), "lv", "", "o"),
+    "worktree": (_opts("porcelain verbose expire"), "vz", "", ""),
+    "stash": (GIT_LOG[0] | _opts("include-untracked only-untracked"), GIT_LOG[1], GIT_LOG[2], GIT_LOG[3]),
+    "reflog": (GIT_LOG[0], GIT_LOG[1], GIT_LOG[2], GIT_LOG[3]),
+    "remote": (_opts("verbose push all"), "vn", "", ""),
+}
+# subcommands with modes: the allowlist covers the listed (reading) modes; other modes get the deny list below
+GIT_READ_MODES = {"stash": {"list", "show"}, "reflog": {"", "show", "list", "exists"}, "worktree": {"list"},
+                  "remote": {"", "show", "get-url"}}
+GIT_DIFF_OUTPUT = {"diff", "log", "show", "whatchanged", "rev-list", "diff-tree", "diff-index", "diff-files",
+                   "range-diff", "format-patch", "stash", "reflog"}
+# every other subcommand: these run a program or write a file (an abbreviation like --upload= counts too)
+GIT_EXEC_LONG = ("--upload-pack", "--receive-pack", "--exec", "--ext-diff", "--textconv", "--open-files-in-pager",
+                 "--template", "--config", "--config-env", "--separate-git-dir", "--output", "--output-directory",
+                 "--extcmd")
+GIT_EXEC_SHORT = {"clone": "uc", "rebase": "x"}
+GIT_STRATEGIES = {"ort", "recursive", "resolve", "octopus", "ours", "subtree"}
 GH_API_WITH_VALUE = {"-H", "--header", "-X", "--method", "-f", "-F", "--field", "--raw-field", "--input", "-q", "--jq",
                      "-t", "--template", "--cache", "-p", "--preview", "--hostname"}
 GH_GLOBAL_WITH_ARG = {"-R", "--repo", "--hostname"}
@@ -654,6 +770,21 @@ def _clean_siblings(path, cwd):
     return _rel(p, top) in flags and _clean_paths(top, flags, flags)
 
 
+def _sibling_blockers(path, cwd):
+    """Why _clean_siblings said no, for the message only (runs after the decision): the .py files next to the script
+    that are new, untracked or differ from the trusted remote main — or None when the script itself is not clean."""
+    top, p = _repo_top(cwd), _abs(path, cwd)
+    if not top or not _clean_script(path, cwd, ".py"):
+        return None
+    folder = _rel(p.parent, top)
+    spec = (folder + "/*.py") if folder != "." else "*.py"
+    names = [n for n in _git(top, "ls-files", "--others", "-z", "--", spec).split("\0") if n]
+    listed = _git(top, "ls-files", "-v", "-z", "--", spec)
+    flags = {e[2:]: e[0] for e in listed.split("\0") if len(e) > 2}
+    names += [r for r in sorted(flags) if r != _rel(p, top) and not _clean_paths(top, [r], flags)]
+    return names
+
+
 def _python_write_paths(body):
     """Resolve literal/variable Path and open targets, not file content strings."""
     tree = ast.parse(body)
@@ -821,7 +952,54 @@ def _write_targets(word, args, seg):
         targets += plain
     elif word == "sed" and any(a.startswith("-i") or a.startswith("--in-place") for a in args) and plain:
         targets += plain if any(a in ("-e", "-f") or a.startswith(("--expression", "--file")) for a in args) else plain[1:]
+    elif word in ("sort", "uniq", "tree"):
+        targets += _output_operands(word, args)
     return [restore(t) for t in targets if t and t != "/dev/null" and t.lower() != "nul" and not t.startswith("&")]
+
+
+def _output_operands(word, args):
+    """Files that sort -o/--output (also -noFILE, --out=FILE), uniq's operands after the input and tree -o write. An option
+    that cannot be read here becomes an unknown target ("$") → ask."""
+    targets, pos, i = [], [], 0
+    while i < len(args):
+        a, nxt = args[i], (args[i + 1] if i + 1 < len(args) else None)
+        i += 1
+        if a == "--":
+            pos += args[i:]
+            break
+        if word == "sort" and a.startswith("--"):
+            name, eq, val = a.partition("=")
+            if len(name) >= 3 and "--output".startswith(name):
+                if not eq:
+                    val, i = nxt, i + 1
+                targets.append(val or "$")
+            elif len(name) >= 4 and "--compress-program".startswith(name):
+                targets.append("$")  # runs a program
+        elif word == "sort" and len(a) > 1 and a[0] == "-":
+            for j, c in enumerate(a[1:], 1):
+                if c in "kotTS":  # takes a value: attached or the next argument
+                    val = a[j + 1:]
+                    if not val:
+                        val, i = nxt, i + 1
+                    if c == "o":
+                        targets.append(val or "$")
+                    break
+                if c not in "bdfgiMhnRrsVcCmuz":
+                    targets.append("$")
+                    break
+        elif word == "uniq" and a in ("-f", "-s", "-w"):
+            i += 1  # skip its number
+        elif word == "tree" and len(a) > 1 and a[0] == "-" and not a.startswith("--"):
+            if a == "-o":
+                targets.append(nxt or "$")
+                i += 1
+            elif "o" in a or "R" in a:  # -R writes 00Tree.html into every folder
+                targets.append("$")
+        elif not a.startswith("-") or a == "-":
+            pos.append(a)
+    if word == "uniq":
+        targets += pos[1:]  # OUTPUT is the second operand; --skip-fields 1 (value apart) shifts it, so every later one
+    return [t for t in targets if t != "-"]
 
 
 def _short_flag(args, letter):
@@ -1075,12 +1253,21 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
         else:
             out += classify_file("Write", target, cwd, root, via=seg)
 
+    no_single = re.sub(r"'[^']*'", "''", seg)  # '$TOKEN' in single quotes is literal text, not the secret
+    secrets = [n for n in re.findall(r"\$\{?(?:env:)?(\w+)", no_single, re.I) if SECRET_NAME.search(n)]
+    if secrets and (word.startswith("$") or word in READ_ONLY - {"test", "[", "[["}):
+        # echo $API_KEY prints it; PowerShell prints a bare $env:API_KEY; cat/ls $API_KEY print it in the error
+        out.append(_finding("forbidden", seg, reason=f"인증정보 노출(비밀 변수 {', '.join(dict.fromkeys(secrets))} 출력)"))
+    if word in READ_ONLY:  # PowerShell env: drive — Get-ChildItem env:, gci -Path Env:API_KEY, Get-Content env:X
+        for a in args:
+            m = re.match(r"(?i)^(?:-\w+:)?env:[\\/]?(.*)$", a)
+            if m and (not m.group(1) or re.search(r"[*?\[]", m.group(1)) or SECRET_NAME.search(m.group(1))):
+                out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 드라이브 env:)"))
     if SUBST in toks[0] or word.startswith("$") or word in OPAQUE_WORDS:
         return out + [_finding("opaque", seg, reason="실행할 명령을 미리 알 수 없음(변수·치환·eval)")]
-    no_single = re.sub(r"'[^']*'", "''", seg)  # '$TOKEN' in single quotes is literal text, not the secret
     if not trusted and word not in READ_ONLY and re.search(r"\$[\w{('\"@*?#!$-]", no_single):
         out.append(_finding("opaque", seg, reason="명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음"))
-    if ctx.get("stdin_args") and word not in READ_ONLY:
+    if ctx.get("stdin_args") and word not in STDIN_ARGS_SAFE:
         out.append(_finding("opaque", seg, reason="xargs가 넘기는 인수를 미리 알 수 없음 — 읽기 명령만 자동 허용"))
     bad = UNSAFE_OPTION_WORDS.get(word, ())
     if any(a.split("=", 1)[0] in bad or any(len(o) == 2 and a.startswith(o) for o in bad) for a in args):
@@ -1108,8 +1295,6 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if (word == "gh" and [a for a in low if not a.startswith("-")][:2] == ["auth", "token"]) or joined.lower() in SECRET_LISTERS \
             or word in ("printenv",):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
-    if word in ("echo", "write-output", "write-host", "printf") and re.search(r"\$\{?(env:)?\w*(TOKEN|SECRET|PASSWORD|API_?KEY)\w*", no_single, re.I):
-        out.append(_finding("forbidden", seg, reason="인증정보 노출"))
     if word in ("cat", "type", "get-content", "gc", "less", "more", "head", "tail", "bat") and any(
             re.search(r"(auth\.json|\.git-credentials|credentials\.json)$", a, re.I) for a in args):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
@@ -1118,13 +1303,15 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if word in SHELLS:
         if any(a in ("-encodedcommand", "-enc", "-e", "-ec") for a in low) and word in ("pwsh", "powershell"):
             return out + [_finding("opaque", seg, reason="인코딩된 명령")]
+        if word == "cmd":
+            out += _cmd_variables(" ".join(args), seg)
         for i, a in enumerate(low):
             if a in SHELL_CMD_FLAGS and i + 1 < len(args):
                 inner = " ".join(args[i + 1:])
                 if word in ("pwsh", "powershell"):
                     inner = ps_escapes(inner)
-                elif word == "cmd":
-                    inner = cmd_escapes(inner)
+                elif word == "cmd":  # %NAME% / !NAME! → ${NAME}: the $-variable rules below judge it
+                    inner = cmd_escapes(CMD_VAR.sub(lambda m: "${" + re.sub(r"\W", "_", m.group(2) or m.group(4)) + "}", inner))
                 else:  # bash/sh: g\it pu\sh → git push
                     inner = bash_escapes(inner)
                 if depth >= 4:
@@ -1182,6 +1369,11 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"
         elif python:
             ok, reason = script_stdin or _build_allowed(toks, cwd), "추적·변경 여부를 확인하지 못한 Python 스크립트"
+            blockers = None if ok or not args else _sibling_blockers(args[0], cwd)
+            if blockers:
+                reason = (f"스크립트({args[0]})는 원격 main과 같지만, 같은 폴더의 파일이 원격 main과 달라 막음 — "
+                          f"{', '.join(blockers[:5])}{' 외' if len(blockers) > 5 else ''} (python은 스크립트 폴더의 .py를 먼저 "
+                          "import하므로 바뀐 파일이 표준 모듈을 가릴 수 있음). 원격 main에 합쳐지면 자동 허용, 그 전에는 사람 확인")
         elif args in (["-v"], ["--version"], ["-V"]):
             ok = True
         if ok and not module and body is None:
@@ -1264,6 +1456,29 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     return out
 
 
+# cmd expands %NAME% (also %NAME:~0,4% / %NAME:a=b%) and, with delayed expansion, !NAME! before the command runs
+CMD_VAR = re.compile(r"%(([A-Za-z_][\w.()#@{}\[\]~-]*)(?::[^%]*)?)%|!(([A-Za-z_][\w.()#@{}\[\]~-]*)(?::[^!]*)?)!")
+
+
+def _cmd_variables(text, seg):
+    """cmd /c …: a secret variable expanded anywhere → deny; a % that is not a plain %NAME% → ask; `set` without
+    a value lists variables (set API → every API… value) → deny."""
+    out = []
+    names = [m.group(2) or m.group(4) for m in CMD_VAR.finditer(text)]
+    secrets = [n for n in names if SECRET_NAME.search(n)]
+    if secrets:
+        out.append(_finding("forbidden", seg, reason=f"인증정보 노출(cmd 변수 {', '.join(dict.fromkeys(secrets))} 확장)"))
+    if re.search(r"[%!]", CMD_VAR.sub("", text)):
+        out.append(_finding("opaque", seg, reason="cmd의 % 변수 확장을 해석할 수 없음"))
+    for part in split_commands(cmd_escapes(text)):
+        words = [t.lower() for t in tokens(part)]
+        while words and words[0].startswith("/"):  # /v:on /d /c
+            words = words[1:]
+        if words[:1] == ["set"] and not any("=" in w for w in words[1:]):
+            out.append(_finding("forbidden", seg, reason="인증정보 노출(cmd set으로 환경 변수 출력)"))
+    return out
+
+
 def _own_am(cwd):
     """python -m am runs ./am: allowed only when that is this manager's own package (the guard's code)."""
     return _norm(Path(cwd) / "am") == _norm(Path(S.__file__).resolve().parent)
@@ -1297,7 +1512,7 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
             if line is None or depth >= 4:
                 out.append(_finding("opaque", seg, reason="find -exec 명령을 해석할 수 없음"))
             else:
-                if _word(inner[0]) not in READ_ONLY:
+                if _word(inner[0]) not in STDIN_ARGS_SAFE:
                     out.append(_finding("opaque", seg, reason="find -exec가 미리 모르는 파일들로 명령 실행 — 읽기 명령만 자동 허용"))
                 out += analyze(line, cwd, root, depth + 1, trusted=trusted)
             i = j
@@ -1348,6 +1563,91 @@ def _rewrites_refs(sub, sargs, gargs):
     return False
 
 
+def _git_options(sub, sargs, seg, cwd, where, root):
+    """Options of one git subcommand → findings. Reading subcommands accept only listed options (GIT_READ_OPTS);
+    every other subcommand must not use an option that runs a program (GIT_EXEC_LONG, abbreviations included).
+    Output files (--output, -o, --output-directory, config --file, bundle create <file>) are parsed and judged like
+    any other write: state file → deny, .git/ inside → ask, outside the work folder → deny."""
+    pos = [a for a in sargs if not a.startswith("-")]
+    mode = pos[0].lower() if pos else ""
+    spec = GIT_READ_OPTS.get(sub)
+    if sub in GIT_READ_MODES and mode not in GIT_READ_MODES[sub]:
+        spec = None
+    out_long, out_short = ({"output": "file"} if sub in GIT_DIFF_OUTPUT else {}), {}
+    if sub == "format-patch":
+        out_long["output-directory"], out_short = "dir", {"o": "dir"}
+    elif sub == "archive":
+        out_long, out_short = {"output": "file"}, {"o": "file"}
+    elif sub == "config":
+        out_long, out_short = {"file": "file"}, {"f": "file"}
+    bad, targets, i = [], [], 0
+    while i < len(sargs):
+        a, nxt = sargs[i], (sargs[i + 1] if i + 1 < len(sargs) else None)
+        i += 1
+        if a in ("--", "--end-of-options"):
+            break
+        if not a.startswith("-") or a == "-" or re.fullmatch(r"-\d+", a):
+            continue
+        if a.startswith("--"):
+            name, eq, val = a[2:].partition("=")
+            if name in out_long:
+                if not eq:
+                    val, i = nxt, i + 1
+                targets.append((out_long[name], val))
+            elif sub in ("merge", "pull", "rebase", "cherry-pick", "revert") and len(name) >= 3 and "strategy".startswith(name):
+                if not eq:
+                    val, i = nxt, i + 1
+                if (val or "").lower() not in GIT_STRATEGIES:
+                    bad.append(a)  # -s <name> runs git-merge-<name> from PATH
+            elif spec is not None:
+                if not (name in spec[0] or name.startswith("no-") and name[3:] in spec[0]):
+                    bad.append(a)
+            elif any(d == "--" + name or len(name) >= 2 and d.startswith("--" + name) for d in GIT_EXEC_LONG):
+                bad.append(a)
+            continue
+        letters = a[1:]
+        if spec is None:
+            if sub in ("merge", "pull", "rebase") and "s" in letters:
+                val = letters[1:] if letters[0] == "s" else None
+                if letters == "s":
+                    val, i = nxt, i + 1
+                if (val or "").lower() not in GIT_STRATEGIES:
+                    bad.append(a)
+            if any(c in GIT_EXEC_SHORT.get(sub, "") for c in letters):
+                bad.append(a)
+            continue
+        noarg, optarg, reqarg = spec[1:]
+        for j, c in enumerate(letters):
+            if c in out_short:
+                val = letters[j + 1:]
+                if not val:
+                    val, i = nxt, i + 1
+                targets.append((out_short[c], val))
+                break
+            if c in reqarg or c in optarg:
+                break  # the rest of the cluster is its value
+            if c not in noarg and not c.isdigit():
+                bad.append(a)
+                break
+    out = []
+    if bad:
+        out.append(_finding("opaque", seg, reason=f"git {sub}의 옵션({', '.join(bad)})은 자동 허용 목록 밖 — 프로그램을 실행하거나 파일을 쓸 수 있음"))
+    if sub == "config" and (mode in ("get", "list") or any(a in ("-l", "--list") or a.startswith("--get") for a in sargs)):
+        targets = []  # git config --file X --get … only reads X
+    if sub == "bundle" and mode == "create":
+        rest = [a for a in sargs[sargs.index(pos[0]) + 1:] if not a.startswith("-")]
+        targets.append(("file", rest[0] if rest else None))
+    if sub == "format-patch" and not any(k == "dir" for k, _ in targets) and "--stdout" not in sargs:
+        targets.append(("dir", "."))  # 0001-….patch files in the current folder
+    for kind, val in targets:
+        if not val or "$" in val or SUBST in val:
+            out.append(_finding("opaque", seg, reason=f"git {sub}의 출력 파일 위치를 미리 알 수 없음"))
+            continue
+        path = _abs(val, where) / "0001.patch" if kind == "dir" else _abs(val, where)
+        out += classify_file("Write", str(path), cwd, root, via=seg)
+    return out
+
+
 def _analyze_git(args, seg, cwd, root, depth):
     out, where, rest = [], cwd, list(args)
     while rest and rest[0].startswith("-"):
@@ -1375,6 +1675,8 @@ def _analyze_git(args, seg, cwd, root, depth):
                 out.append(_finding("opaque", seg, reason=f"git 설정({key})이 실행 동작을 바꿀 수 있음"))
         if name == "--exec-path" and val:
             out.append(_finding("opaque", seg, reason="git 보조 프로그램 폴더를 바꿈"))
+        elif name not in GIT_GLOBAL_OK:
+            out.append(_finding("opaque", seg, reason=f"git 앞 옵션({opt})은 자동 허용 목록 밖"))
     if not rest:
         return out
     sub, sargs = rest[0].lower(), rest[1:]
@@ -1412,6 +1714,8 @@ def _analyze_git(args, seg, cwd, root, depth):
             return out + classify_command("git " + alias + " " + " ".join(sargs), where, root, depth + 1)
         if not re.fullmatch(r"-.*", sub):  # git-<sub> on PATH: an unknown program
             return out + [_finding("opaque", seg, reason=f"알 수 없는 git 하위 명령({sub}) — 외부 프로그램일 수 있음")]
+    else:
+        out += _git_options(sub, sargs, seg, cwd, where, root)
     # 다른 저장소 변경: 관리 대상이 아니면 금지. 관리 중인 프로젝트면 아래 판정이 그 프로젝트(where)의 승인 기록으로 한다
     if _norm(where) != _norm(cwd) and sub in GIT_MUTATING and not _under(_top(where), _top(cwd)) \
             and not resolve_project(where, root):
@@ -1708,7 +2012,7 @@ def classify_file(tool, path, cwd, root=None, via=None):
             scratch = [tempfile.gettempdir(), Path.home() / ".claude", Path.home() / ".codex"]
             if not _under(p, top) and (in_other_repo or not any(_under(p, a) for a in scratch)):
                 out.append(_finding("forbidden", label, reason=f"지금 작업 폴더({top}) 밖 파일 수정 — 관련 없는 프로젝트·매니저의 직접 코딩 금지"))
-            elif ".git" in [part.lower() for part in p.parts]:
+            elif ".git" in [part.lower() for part in (*p.parts, *Path(os.path.realpath(str(p))).parts)]:
                 out.append(_finding("opaque", label, reason="Git 내부 파일(ref·설정·훅) 직접 수정"))
     if tool in ("Read", "view") and re.search(r"(^|[/\\])\.env(\.(?!example$)[\w.]+)?$", str(p)):
         out.append(_gated("credentials", f"Read {p}"))
