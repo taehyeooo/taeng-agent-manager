@@ -106,12 +106,12 @@
       "title": "가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)",
       "agent": "claude",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3",
-      "pr": null,
+      "pr": "3",
       "dispatch": "ctx_601e626c7241",
-      "note": "Claude 4차(기본 ask 구조, 188 통과, 변형 34/34, 테스트 260→68초, npm 판정 141ms). codex 검증 위임",
+      "note": "PR #3 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 188 테스트 통과",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -729,10 +729,18 @@
     {
       "at": "2026-11-11T12:13:42+09:00",
       "event": "작업 T4 변경: agent=claude, note=가드 영역은 Codex 2회 실패 이력 → Claude 구현, Codex 검증"
+    },
+    {
+      "at": "2026-11-11T12:13:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T12:13:51+09:00",
+      "event": "작업 T3 변경: status=done, pr=3, note=PR #3 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 188 테스트 통과"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T12:13:42+09:00",
+  "updated_at": "2026-11-11T12:13:51+09:00",
   "requests": [
     {
       "gate": "push",
