@@ -143,6 +143,12 @@
       "ref": "PR#29",
       "note": "2026-11-10 사용자: '승인' — dadok-cs PR #29(S18 AI CLI 어댑터, 한계 문서화) squash 병합",
       "at": "2026-11-10T23:47:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#32",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #32(S14 문제 풀이) squash 병합",
+      "at": "2026-11-11T10:02:21+09:00"
     }
   ],
   "tasks": [
@@ -485,12 +491,12 @@
       "title": "객관식·OX·원인 분석 풀이·채점·해설, 중복 제출 방지 (R-11, R-12, R-13)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S14",
       "pr": "32",
       "dispatch": "ctx_17bfeef94df5",
-      "note": "검증 지적 수정 위임(codex): 불투명 보기 id(HMAC)+순서 섞기, 배지 공용화, 전 오답 이유, 초점·4xx, 좁은 화면 탭",
+      "note": "PR #32 병합",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1447,8 +1453,16 @@
     {
       "at": "2026-11-11T09:57:02+09:00",
       "event": "작업 S14 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T10:02:21+09:00",
+      "event": "승인 기록: merge_main (PR#32)"
+    },
+    {
+      "at": "2026-11-11T10:02:27+09:00",
+      "event": "작업 S14 변경: status=done, note=PR #32 병합"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T09:57:02+09:00"
+  "updated_at": "2026-11-11T10:02:27+09:00"
 }
