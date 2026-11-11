@@ -17,6 +17,12 @@ def main():
     source = (ROOT / "am/guard.py").read_text(encoding="utf-8")
     # (label, guard.py text, mutated text, BuildAllowlistTest test that must fail) — one allow condition removed at a time
     mutations = [
+        ("T5 read output", 'and not script_stdin and _write_targets(word, args, seg):',
+         'and False:', 'test_t5_unsafe_combinations'),
+        ("T5 compound find", 'if compound and words and _word(words[0]) == "find" and any(',
+         'if False and any(', 'test_t5_unsafe_combinations'),
+        ("T5 cd containment", 'and _under(target, initial_top) and target.is_dir():',
+         'and target.is_dir():', 'test_t5_unsafe_combinations'),
         ("heredoc body", "out += _check_script(body, head, cwd, root, python=python)",
          "out += []", "test_review_heredoc_interpreter_variants"),
         ("exact terminator", r"(?P=tag)(?:\n|$)", r"(?P=tag)[ \t]*(?:\n|$)", "test_review_heredoc_exact_terminator"),
