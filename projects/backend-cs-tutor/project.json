@@ -185,6 +185,18 @@
       "ref": "PR#38",
       "note": "2026-11-11 사용자: '승인' — dadok-cs PR #38(튜터 실제 AI 표본 실행기) squash 병합",
       "at": "2026-11-11T11:40:14+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#42",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #42(S20 설명 평가) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#41",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #41(S17 홈 대시보드) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
     }
   ],
   "tasks": [
@@ -515,12 +527,23 @@
       "title": "다독 회차(7회차) 전환 (R-10)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "41",
       "dispatch": null,
-      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
+      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "회차 규칙(기한당 1회·최대 7·오답 min)은 S15 PR #36에서 claude 교차 검증 후 수정·통과, 표시는 S17 PR #41에서 검증 통과",
+        "at": "2026-11-11T14:34:56+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/progress"
+      ]
     },
     {
       "id": "S14",
@@ -598,12 +621,24 @@
       "title": "홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
-      "pr": null,
-      "dispatch": "ctx_f06cb964d3b8",
-      "note": "홈·설정 API·회차 표시(S13 표시 부분 포함)"
+      "pr": "41",
+      "dispatch": "ctx_f9427be12c65",
+      "note": "PR #41 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "지적 7건 반영: 홈은 저장 회차·추천 읽기만, 조용한 갱신·포커스 유지, 정수 입력, 쿼리 정리. 프론트 100·백엔드 214·CI 7 통과",
+        "at": "2026-11-11T14:11:59+09:00"
+      },
+      "files": [
+        "frontend/src",
+        "backend/src/main/java"
+      ]
     },
     {
       "id": "S18",
@@ -656,12 +691,24 @@
       "title": "설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
-      "pr": null,
-      "dispatch": "ctx_cfe333014790",
-      "note": "평가·통과 판정은 서버 규칙·진행 재계산 연결"
+      "pr": "42",
+      "dispatch": "ctx_ee543091335f",
+      "note": "PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "사용자 결정 반영(틀린 내용 0 + core 최대 1 누락, 평가 완료 후 빠진 항목 이름+카드), busy finally 해제, 첫 평가 라벨, 되묻기 맥락 포함. 변형 3 검출, 백엔드 236·프론트 98·CI 7 통과",
+        "at": "2026-11-11T14:11:59+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/tutor",
+        "frontend/src"
+      ]
     },
     {
       "id": "S21",
@@ -680,11 +727,11 @@
       "title": "첫 진단 15문제와 추천 시작점 (R-30)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_24b70710a917",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -692,11 +739,11 @@
       "title": "기록 내보내기·가져오기·초기화 (R-29, R-32)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_e56e393e84d1",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -1648,8 +1695,88 @@
     {
       "at": "2026-11-11T11:56:17+09:00",
       "event": "작업 S19 변경: status=done, note=PR #35·#38 병합, 실제 AI 표본 20/20 통과"
+    },
+    {
+      "at": "2026-11-11T12:21:07+09:00",
+      "event": "작업 S20 변경: pr=42, note=구현 완료 PR #42(백엔드 233·프론트 95·CI 7). 통과 규칙: 틀린 내용 0 + core 80%. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:21:08+09:00",
+      "event": "작업 S17 변경: pr=41, note=구현 완료 PR #41(프론트 98·백엔드 211·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S20 검증(claude:reviewflow:ctx_9f90a474e774): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S17 검증(claude:reviewflow:ctx_3f63e05048c6): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S20 변경: note=사용자 결정 2026-11-11: 통과 = 틀린 내용 0 + 핵심 항목 최대 1개 누락 허용, 평가 후 빠진 항목 이름 + 다시 볼 카드 표시(평가 완료 뒤에만)"
+    },
+    {
+      "at": "2026-11-11T12:29:53+09:00",
+      "event": "작업 S20 변경: dispatch=ctx_ee543091335f"
+    },
+    {
+      "at": "2026-11-11T12:29:53+09:00",
+      "event": "작업 S17 변경: dispatch=ctx_f9427be12c65"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S20 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S17 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S20 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S17 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#42)"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#41)"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S20 변경: status=done, note=PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S17 변경: note=PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T14:34:45+09:00",
+      "event": "작업 S17 변경: status=done, note=PR #41 병합"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 변경: status=done, pr=41"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S23 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23, dispatch=ctx_e56e393e84d1"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S22 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22, dispatch=ctx_24b70710a917"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:56:17+09:00"
+  "updated_at": "2026-11-11T14:36:20+09:00"
 }

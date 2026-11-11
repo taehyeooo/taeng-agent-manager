@@ -127,14 +127,14 @@
     {
       "id": "T4",
       "title": "가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내",
-      "agent": "claude",
+      "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T4",
       "pr": null,
-      "dispatch": null,
-      "note": "가드 영역은 Codex 2회 실패 이력 → Claude 구현, Codex 검증"
+      "dispatch": "ctx_d6a8cfe277fb",
+      "note": "사용자 선택 A: Claude가 가드 확인 창에 막혀 Codex가 이어서 마무리(Claude 변경 검토 포함). 검증은 Claude"
     }
   ],
   "history": [
@@ -737,10 +737,30 @@
     {
       "at": "2026-11-11T12:13:51+09:00",
       "event": "작업 T3 변경: status=done, pr=3, note=PR #3 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 188 테스트 통과"
+    },
+    {
+      "at": "2026-11-11T12:18:03+09:00",
+      "event": "작업 T4 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T4, dispatch=ctx_731578152a8a"
+    },
+    {
+      "at": "2026-11-11T12:21:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T14:34:45+09:00",
+      "event": "작업 T4 변경: agent=codex, dispatch=ctx_d6a8cfe277fb, note=사용자 선택 A: Claude가 가드 확인 창에 막혀 Codex가 이어서 마무리(Claude 변경 검토 포함). 검증은 Claude"
+    },
+    {
+      "at": "2026-11-11T14:34:53+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T14:36:17+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T12:13:51+09:00",
+  "updated_at": "2026-11-11T14:36:17+09:00",
   "requests": [
     {
       "gate": "push",
