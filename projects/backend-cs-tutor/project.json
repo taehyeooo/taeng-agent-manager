@@ -221,6 +221,18 @@
       "ref": "PR#50",
       "note": "2026-11-11 사용자: 'TMDDLS'(한글 자판 '승인') — dadok-cs PR #50(S21 학습 기록) squash 병합",
       "at": "2026-11-11T18:22:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#52",
+      "note": "2026-11-11 사용자: '1 승인' — dadok-cs PR #52(S24a E2E·README) squash 병합",
+      "at": "2026-11-11T19:03:57+09:00"
+    },
+    {
+      "gate": "paid_service",
+      "ref": "codex sol eval sample 10",
+      "note": "2026-11-11 사용자: '2 승인' — 실제 Codex(gpt-6.1-sol)로 설명 평가 표본 10개(구독 사용량 10~15회, 추가 요금 없음), 임시 DB",
+      "at": "2026-11-11T19:03:57+09:00"
     }
   ],
   "tasks": [
@@ -720,7 +732,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
       "pr": "42",
       "dispatch": "ctx_ee543091335f",
-      "note": "PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서",
+      "note": "실제 AI 평가 표본 10개 진행 중 ctx_d19deb777767(승인 2026-11-11, 최대 15회)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -811,12 +823,12 @@
       "title": "하루 학습 흐름 E2E와 spec-check (R-1)",
       "agent": "codex",
       "kind": "test",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
       "pr": "52",
       "dispatch": "ctx_09921502b1d3",
-      "note": "사용자 결정 2026-11-11: R-2는 분 단위만(기획서 수정), R-17은 연결 질문 콘텐츠 제작(S25)",
+      "note": "PR #52 병합(E2E·README), spec-check 90.6%",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -858,11 +870,11 @@
       "title": "연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인",
       "agent": "codex",
       "kind": "docs",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_ae33e0456da7",
       "note": "자동 배정: docs → codex (config/agents.json 선호)"
     },
     {
@@ -2050,8 +2062,28 @@
     {
       "at": "2026-11-11T19:02:54+09:00",
       "event": "작업 S24 변경: note=사용자 결정 2026-11-11: R-2는 분 단위만(기획서 수정), R-17은 연결 질문 콘텐츠 제작(S25)"
+    },
+    {
+      "at": "2026-11-11T19:03:57+09:00",
+      "event": "승인 기록: merge_main (PR#52)"
+    },
+    {
+      "at": "2026-11-11T19:03:57+09:00",
+      "event": "승인 기록: paid_service (codex sol eval sample 10)"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S24 변경: status=done, note=PR #52 병합(E2E·README), spec-check 90.6%"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S20 변경: note=실제 AI 평가 표본 10개 진행 중 ctx_d19deb777767(승인 2026-11-11, 최대 15회)"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S25 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25, dispatch=ctx_ae33e0456da7"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T19:02:54+09:00"
+  "updated_at": "2026-11-11T19:05:04+09:00"
 }
