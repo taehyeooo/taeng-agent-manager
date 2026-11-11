@@ -485,7 +485,7 @@
       "title": "객관식·OX·원인 분석 풀이·채점·해설, 중복 제출 방지 (R-11, R-12, R-13)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S14",
       "pr": "32",
@@ -493,16 +493,15 @@
       "note": "검증 지적 수정 위임(codex): 불투명 보기 id(HMAC)+순서 섞기, 배지 공용화, 전 오답 이유, 초점·4xx, 좁은 화면 탭",
       "verification": {
         "tests": "pass",
-        "review": "fail",
-        "security": "fail",
-        "by": "claude:reviewflow:ctx_74df38449c42",
-        "summary": "보안 fail: 보기 id 끝이 -1이면 정답(75문제 중 50) — 목록 API만으로 정답 추측. 해설 배지 미재사용, R-13 오답별 이유 고른 보기만, 제출 시 초점 유실, 4xx 재시도 루프. 중복 제출·서버 시각 통과",
-        "at": "2026-11-11T00:00:48+09:00"
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 서버 메모리 비밀값 HMAC 불투명 보기 id + 매 요청 셔플, 목록 응답은 id·text만(정답·해설 없음), 옛 id 거부. 스크린샷: 배지 공용화·모든 오답 이유·한 줄 탭. 프론트 75·백엔드 154(+2 skip)·CI 7 통과",
+        "at": "2026-11-11T09:57:02+09:00"
       },
       "files": [
-        "backend/src/main/java",
-        "frontend/src",
-        "scripts/new_concept.py"
+        "backend/src/main/java/kr/dadokcs/content/QuestionController.java",
+        "frontend/src"
       ]
     },
     {
@@ -1440,8 +1439,16 @@
     {
       "at": "2026-11-11T00:01:17+09:00",
       "event": "작업 S14 변경: dispatch=ctx_17bfeef94df5, note=검증 지적 수정 위임(codex): 불투명 보기 id(HMAC)+순서 섞기, 배지 공용화, 전 오답 이유, 초점·4xx, 좁은 화면 탭"
+    },
+    {
+      "at": "2026-11-11T09:57:02+09:00",
+      "event": "작업 S14 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T09:57:02+09:00",
+      "event": "작업 S14 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T00:01:17+09:00"
+  "updated_at": "2026-11-11T09:57:02+09:00"
 }
