@@ -17,6 +17,13 @@ def git(cwd, *args):
     subprocess.run(["git", "-C", str(cwd), *args], check=True, capture_output=True)
 
 
+def fetched_baseline(repo):
+    """origin/main as `git fetch origin` leaves it (network origin + fetch reflog entry), without a network."""
+    if subprocess.run(["git", "-C", str(repo), "remote", "get-url", "origin"], capture_output=True).returncode:
+        git(repo, "remote", "add", "origin", "https://github.com/me/app.git")
+    git(repo, "update-ref", "-m", "fetch origin: fast-forward", "refs/remotes/origin/main", "HEAD")
+
+
 class GuardTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -32,7 +39,7 @@ class GuardTest(unittest.TestCase):
         (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}), encoding="utf-8")
         git(self.app, "add", ".")
         git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "baseline")
-        git(self.app, "update-ref", "refs/remotes/origin/main", "HEAD")
+        fetched_baseline(self.app)
         S.new_project("app", "app", "x", self.root)
         cfg = S.load_local(self.root)
         cfg["paths"]["app"] = str(self.app)
@@ -522,7 +529,7 @@ class VerifierRound4Test(GuardTest):
         self.assertIn("다른 저장소", self.bash("git push https://example.invalid/other.git main")[1])
         git(self.app, "remote", "add", "evil", "https://github.com/me/other.git")
         self.assertIn("다른 저장소", self.bash("git push evil feat/x")[1])
-        git(self.app, "remote", "add", "origin", "https://github.com/me/app.git")
+        git(self.app, "remote", "set-url", "origin", "https://github.com/me/app.git")
         self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
 
     def test_redirections_are_not_arguments(self):
@@ -563,7 +570,7 @@ class BuildAllowlistTest(GuardTest):
             "test": "vitest run", "build": "vite build", "lint": "eslint ."}}), encoding="utf-8")
         git(self.app, "add", ".")
         git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
-        git(self.app, "update-ref", "refs/remotes/origin/main", "HEAD")
+        fetched_baseline(self.app)
 
     def test_review_heredoc_interpreter_variants(self):
         for interpreter in ("node", "nodejs", "python3.12 -", "python3 -", "py -3", "pypy3 -"):
@@ -597,15 +604,17 @@ class BuildAllowlistTest(GuardTest):
             self.assertNotEqual(self.bash(command, cwd=self.root)[0], "allow")
 
     def test_review_committed_script_and_index_flags(self):
-        script = self.app / "scripts/check.py"
-        for flag in ("--assume-unchanged", "--skip-worktree"):
-            git(self.app, "update-index", flag, "scripts/check.py")
-            self.assertEqual(self.bash("python scripts/check.py")[0], "ask", flag)
-            git(self.app, "update-index", "--no-" + flag[2:], "scripts/check.py")
-        script.write_text("# changed and committed\n", encoding="utf-8")
+        for launcher, name in (("python", "scripts/check.py"), ("sh", "scripts/check.sh")):
+            for flag in ("--assume-unchanged", "--skip-worktree"):
+                git(self.app, "update-index", flag, name)
+                self.assertEqual(self.bash(f"{launcher} {name}")[0], "ask", flag)
+                git(self.app, "update-index", "--no-" + flag[2:], name)
+        for launcher, name in (("python", "scripts/check.py"), ("sh", "scripts/check.sh")):
+            (self.app / name).write_text("# changed and committed\n", encoding="utf-8")
         git(self.app, "add", ".")
         git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "changed")
         self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+        self.assertEqual(self.bash("sh scripts/check.sh")[0], "ask")
 
     def test_review_changed_build_inputs(self):
         for name, command in (("gradlew", "gradlew test"), ("gradle/wrapper/gradle-wrapper.jar", "gradlew test"),
@@ -653,12 +662,145 @@ class BuildAllowlistTest(GuardTest):
         findings = G.classify_command("npm test", self.app, self.root)
         self.assertTrue(any(f.get("gate") == "push" for f in findings))
 
+    # --- 2차 재검증(t3-reverify) 우회 입력: 지금 allow였던 것 → ask/deny
+    def _not_allowed(self, cmd, cwd=None, expect=None):
+        d = self.bash(cmd, cwd=cwd)[0]
+        self.assertNotEqual(d, "allow", cmd)
+        if expect:
+            self.assertEqual(d, expect, cmd)
+        self.assertEqual(self.bash(cmd, cwd=cwd, agent="codex")[0], "deny", cmd)
+
+    def test_reverify_a_heredoc_head_is_split_like_any_line(self):
+        for sep in (";", "&&", "||", "|", "&"):
+            self._not_allowed(f"python - {sep} git push --force origin main <<'EOF'\nprint(1)\nEOF", expect="deny")
+        self._not_allowed("node - ; git push --force origin main <<'EOF'\nconsole.log(1)\nEOF", expect="deny")
+        (self.app / "evil.py").write_text("print(1)\n", encoding="utf-8")
+        for cmd in ("python evil.py <<'EOF'\nx\nEOF", "python scripts/check.py <<'EOF'\nx\nEOF",
+                    "python -c 'print(1)' <<'EOF'\nx\nEOF", "node evil.js <<'EOF'\nx\nEOF",
+                    "python - <<'EOF' | sh\nprint('git status')\nEOF", "X=1 python - <<'EOF'\nprint(1)\nEOF"):
+            self._not_allowed(cmd)
+        self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "allow")
+
+    def test_reverify_b_baseline_ref_commands_need_a_person(self):
+        for cmd in ("git update-ref refs/remotes/origin/main HEAD",
+                    "git update-ref -m 'fetch origin: fast-forward' refs/remotes/origin/main HEAD",
+                    "git fetch . HEAD:refs/remotes/origin/main", "git fetch origin +HEAD:refs/remotes/origin/main",
+                    "git fetch ../other main", "git pull https://example.invalid/x.git main",
+                    "git replace origin/main HEAD", "git symbolic-ref refs/remotes/origin/main refs/heads/feat/x",
+                    "git remote set-url origin ../other", "git remote add origin2 ../other",
+                    "git config remote.origin.url ../other", "git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/*",
+                    "git config url.../other.insteadOf https://github.com/me/app.git",
+                    "git -c url.../other.insteadOf=https://github.com/me/app.git fetch origin",
+                    "git push . HEAD:refs/remotes/origin/main", "echo 0 > .git/refs/remotes/origin/main"):
+            self._not_allowed(cmd)
+        self.assertNotEqual(self.tool("Write", self.app / ".git/refs/remotes/origin/main")[0], "allow")
+        for cmd in ("git fetch origin", "git fetch origin main", "git pull origin main", "git remote -v",
+                    "git config --get remote.origin.url", "git replace -l", "git config user.name t"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_reverify_b_forged_baseline_is_not_trusted(self):
+        script = self.app / "scripts/check.py"
+        script.write_text("import subprocess  # changed\n", encoding="utf-8")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qam", "changed")
+        base = subprocess.run(["git", "-C", str(self.app), "rev-parse", "refs/remotes/origin/main"],
+                              capture_output=True, text=True, check=True).stdout.strip()
+        git(self.app, "replace", base, "HEAD")  # git show/diff follow replace objects unless told not to
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask", "replace")
+        git(self.app, "replace", "-d", base)
+        git(self.app, "update-ref", "refs/remotes/origin/main", "HEAD")  # no fetch reflog entry
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask", "update-ref")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "merged")
+        fetched_baseline(self.app)  # the remote main really moved on and was fetched
+        self.assertEqual(self.bash("python scripts/check.py")[0], "allow")
+        git(self.app, "remote", "set-url", "origin", str(self.other))
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask", "local origin")
+        git(self.app, "remote", "set-url", "origin", "https://github.com/me/app.git")
+        git(self.app, "config", "url." + str(self.other) + ".insteadOf", "https://github.com/me/app.git")
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask", "insteadOf")
+
+    def test_reverify_b_hand_written_ref_file(self):
+        git(self.app, "pack-refs", "--all")
+        loose = self.app / ".git/refs/remotes/origin/main"
+        loose.parent.mkdir(parents=True, exist_ok=True)
+        (self.app / "scripts/check.py").write_text("# changed\n", encoding="utf-8")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qam", "changed")
+        head = subprocess.run(["git", "-C", str(self.app), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        loose.write_text(head + "\n", encoding="utf-8")  # reflog still says the old fetched commit
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+
+    def test_reverify_c_environment_changed_on_the_same_line(self):
+        for cmd in ('export NODE_OPTIONS="--require ./x.js"; npm test', "export JAVA_TOOL_OPTIONS=-javaagent:x.jar; ./gradlew test",
+                    "declare -x NODE_OPTIONS=x; npm test", "typeset -x NODE_OPTIONS=x; npm test", "set -a; NODE_OPTIONS=x; npm test",
+                    "set -o allexport; npm test", "readonly X=1; npm test", "unset HOME; npm test", ". ./env.sh && npm test",
+                    "source ./env.sh && npm test", "set NODE_OPTIONS=x && npm test", "export PYTHONPATH=x && python -m unittest",
+                    "export GIT_DIR=../other/.git; git status", "export X=1\nnpm test", "if export X=1; then npm test; fi"):
+            self._not_allowed(cmd)
+        for cmd in ("export", "export -p", "declare -x"):
+            self.assertEqual(self.bash(cmd)[0], "deny", cmd)  # prints every exported secret
+        for cmd in ("set -e; npm test", "set -euo pipefail; npm test", "set -x && npm test"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_reverify_d_cd_variants(self):
+        for cd in ("if cd ../other; then echo x > a.txt; fi", "command cd ../other && echo x > a.txt",
+                   "builtin cd ../other; echo x > a.txt", "time cd ../other; echo x > a.txt", "! cd ../other; echo x > a.txt",
+                   "(cd ../other && echo x > a.txt)", "{ cd ../other; echo x > a.txt; }", "pushd ../other; echo x > a.txt",
+                   "chdir ../other && echo x > a.txt", "cd ../other\npython - <<'EOF'\nopen('a.txt','w')\nEOF"):
+            self._not_allowed(cd)
+        self.assertEqual(self.bash("cd scripts && python check.py")[0], "allow")
+
+    def test_reverify_e_package_runners_and_npm_options(self):
+        for cmd in ("pnpx evil", "bunx evil", "pnpm dlx evil", "yarn dlx evil", "bun x evil", "npm x evil",
+                    "pnpm test", "yarn test", "bun run test", "npm --prefix scripts test", "npm -w x test"):
+            self._not_allowed(cmd)
+        for cmd in ("npm --prefix x run deploy", "npm -w x run deploy", "npm rum deploy", "npm urn release",
+                    "npm run --silent deploy", "npm publish"):
+            findings = G.classify_command(cmd, self.app, self.root)
+            self.assertTrue(any(f.get("gate") == "deploy" for f in findings), cmd)
+
+    def test_reverify_f_document_heredocs_and_read_only_npm(self):
+        for cmd in ("cat > notes.md <<'EOF'\n# notes\ngit push --force origin main is how not to do it\nEOF",
+                    "cat <<'EOF' > notes.md\n- a\n- b\nEOF", "tee notes.md <<'EOF'\nx\nEOF",
+                    "git commit -F - <<'EOF'\nfix: x\n\nbody (with parens)\nEOF",
+                    "git commit -m \"$(cat <<'EOF'\nfix: x\n\nbody\nEOF\n)\"",
+                    "npm ls", "npm list -g", "npm view vitest", "npm audit", "npm -v", "npm --version", "npm install",
+                    "npm ci && npm test"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+        for cmd in ("cat > notes.md <<EOF\n$(git status)\nEOF", "bash <<'EOF'\necho hi\nEOF", "sh <<'EOF'\ngit push --force origin main\nEOF",
+                    "npm i lodash", "npm install lodash", "npm audit fix", "npm version patch", "cat <<-EOF\nx\nEOF"):
+            self.assertNotEqual(self.bash(cmd)[0], "allow", cmd)
+        self.assertEqual(self.bash("sh <<'EOF'\ngit push --force origin main\nEOF")[0], "deny")  # shell body is still read
+
+    def test_reverify_f_trusted_npm_script_env_and_ignored_inputs(self):
+        (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "NODE_ENV=test vitest run"}}), encoding="utf-8")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qam", "env in script")
+        fetched_baseline(self.app)
+        self.assertEqual(self.bash("npm test")[0], "allow")  # the prefix is part of the baseline package.json
+        (self.app / ".gitignore").write_text("node_modules/\n.npmrc\n", encoding="utf-8")
+        (self.app / "node_modules/x").mkdir(parents=True)
+        (self.app / "node_modules/x/package.json").write_text("{}", encoding="utf-8")
+        self.assertEqual(self.bash("npm test")[0], "allow")
+        (self.app / ".npmrc").write_text("script-shell=./evil.sh\n", encoding="utf-8")  # ignored but read by npm
+        self.assertEqual(self.bash("npm test")[0], "ask")
+
+    def test_reverify_g_h_unittest_paths_interpreter_names_and_shadowing(self):
+        for cmd in (f'python -m unittest discover -s "{self.other.as_posix()}" -t /', "python -m unittest discover -s ../other",
+                    "python -m unittest discover -t ..", "python -m unittest ../other/test_x.py",
+                    "pythonw -c \"import subprocess; subprocess.run(['git', 'push', '--force', 'origin', 'main'])\"",
+                    "python3-dbg -c \"import subprocess\"", "pythonw evil.py"):
+            self._not_allowed(cmd)
+        for cmd in ("python -m unittest discover -s tests", "python -m unittest discover -s tests -p 'test_*.py' -v",
+                    "python -m unittest tests.test_guard", "python -m unittest"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+        (self.app / "scripts/json.py").write_text("print('shadow')\n", encoding="utf-8")  # imported before the stdlib
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+
     def test_build_invocations(self):
         for cmd in ("gradlew test", "gradlew.bat build --no-daemon", "./gradlew check --rerun",
                     "./gradlew compileJava -p scripts", "npm ci", "npm test", "npm run build",
                     "npm run test", "npm run lint", "npx vitest run", "python scripts/check.py",
                     "sh scripts/check.sh", "python -m unittest discover -s tests",
-                    "sh scripts/check.sh 2>&1 | tail -4", "gradlew test 2>&1 | grep PASS"):
+                    "sh scripts/check.sh 2>&1 | tail -4", "gradlew test 2>&1 | grep PASS",
+                    "gradlew.bat test --rerun --no-daemon", "npm ci && npm test", "python -m unittest discover -s tests"):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
 
     def test_script_trust_boundaries(self):

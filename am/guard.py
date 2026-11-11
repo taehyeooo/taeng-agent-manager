@@ -61,7 +61,11 @@ MAIN = {"main", "master"}
 SAFE_DELETE = {"node_modules", "dist", "build", ".next", "out", "coverage", "__pycache__", ".pytest_cache", ".turbo", ".cache", "target"}
 WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit", "apply_patch"}
 BYPASS_FLAGS = {"--dangerously-skip-permissions", "--dangerously-bypass-approvals-and-sandbox", "--yolo"}
-SECRET_LISTERS = {"printenv", "get-childitem env:", "gci env:", "dir env:", "ls env:", "set"}
+SECRET_LISTERS = {"printenv", "get-childitem env:", "gci env:", "dir env:", "ls env:", "set", "export", "export -p",
+                  "declare", "declare -p", "declare -x", "typeset", "typeset -p", "typeset -x"}
+# commands that change the environment of everything after them on the same command line
+ENV_SETTERS = {"export", "declare", "typeset", "readonly", "local", "unset", "setx", "setenv", "shopt", "alias"}
+CD_WORDS = {"cd", "chdir", "pushd", "popd", "set-location", "sl", "push-location", "pop-location"}
 
 # 쉬운 말 — 사용자에게 그대로 보여 준다
 IMPACT = {
@@ -107,8 +111,17 @@ def _abs(path, cwd):
     return Path(os.path.abspath(Path(path) if os.path.isabs(path) else Path(cwd) / path))
 
 
+_CACHE = {}  # per judgement (cleared by classify_command at depth 0): repo top and trusted baseline lookups
+
+
+def _cached(key, fn):
+    if key not in _CACHE:
+        _CACHE[key] = fn()
+    return _CACHE[key]
+
+
 def _top(cwd):
-    return _git(cwd, "rev-parse", "--show-toplevel") or str(cwd)
+    return _cached(("top", str(cwd)), lambda: _git(cwd, "rev-parse", "--show-toplevel") or str(cwd))
 
 
 def resolve_project(cwd, root=None):
@@ -263,12 +276,36 @@ def unquoted(seg):
 def _word(tok):
     name = re.split(r"[/\\]", tok)[-1].lower()
     name = re.sub(r"\.(exe|cmd|bat|ps1)$", "", name)
-    if re.fullmatch(r"(?:python|pypy)[\d.]*", name):
+    if re.fullmatch(r"(?:python|pypy)[\w.-]*", name):
         return "python"
     return "node" if name == "nodejs" else name
 
 
 # ---------- command analysis ----------
+
+BASELINE_REF = "refs/remotes/origin/main"
+NO_REPLACE = "--no-replace-objects"  # git show/diff would otherwise follow `git replace` objects
+# reflog subjects git itself writes when the remote-tracking ref really came from the remote
+TRUSTED_REFLOG = re.compile(r"^(?:(?:fetch|pull)(?: [^\s:/\\.~][^\s:]*)*: |clone: from (?:https|ssh|git)://|clone: from [\w.-]+@[\w.-]+:|update by push$)")
+
+
+def _baseline(top):
+    """The remote main commit to compare against — only when it can be trusted, else "" (= ask).
+
+    Trusted = origin is a network remote, and the newest reflog entry of refs/remotes/origin/main was
+    written by fetch/pull/clone/push and points at the current value (a hand-written ref file or
+    `git update-ref` leaves no such entry). Replace objects are ignored for every baseline read."""
+    return _cached(("baseline", str(top)), lambda: _trusted_baseline(top))
+
+
+def _trusted_baseline(top):
+    base = _git(top, NO_REPLACE, "rev-parse", "--verify", "-q", BASELINE_REF + "^{commit}")
+    url = _git(top, "ls-remote", "--get-url", "origin")  # after url.*.insteadOf rewriting
+    if not base or not re.match(r"^(?:https|ssh|git)://|^[\w.-]+@[\w.-]+:", url):
+        return ""
+    sha, _, subject = _git(top, NO_REPLACE, "log", "-g", "-n1", "--format=%H%x00%gs", BASELINE_REF).partition("\0")
+    return base if sha == base and TRUSTED_REFLOG.match(subject) else ""
+
 
 def _clean_script(path, cwd, suffix):
     """Compare index, HEAD and actual bytes with the remote main baseline."""
@@ -278,14 +315,14 @@ def _clean_script(path, cwd, suffix):
         return False
     rel = os.path.relpath(_norm(p), _norm(top)).replace("\\", "/")
     try:
-        base = _git(top, "rev-parse", "--verify", "refs/remotes/origin/main^{commit}")
+        base = _baseline(top)
         if not base or _git(top, "ls-files", "-v", "--", rel) != "H " + rel:
             return False
         for args in (("diff", "--quiet", base, "HEAD", "--", rel),
                      ("diff", "--cached", "--quiet", base, "--", rel)):
-            if subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5).returncode:
+            if subprocess.run(["git", "-C", top, NO_REPLACE, *args], capture_output=True, timeout=5).returncode:
                 return False
-        blob = subprocess.run(["git", "-C", top, "show", base + ":" + rel], capture_output=True, timeout=5)
+        blob = subprocess.run(["git", "-C", top, NO_REPLACE, "show", base + ":" + rel], capture_output=True, timeout=5)
         return blob.returncode == 0 and blob.stdout.replace(b"\r\n", b"\n") == p.read_bytes().replace(b"\r\n", b"\n")
     except (OSError, subprocess.TimeoutExpired):
         return False
@@ -293,20 +330,23 @@ def _clean_script(path, cwd, suffix):
 
 def _clean_build_inputs(cwd, family):
     top = _git(cwd, "rev-parse", "--show-toplevel")
-    base = _git(cwd, "rev-parse", "--verify", "refs/remotes/origin/main^{commit}")
+    base = _baseline(top) if top else ""
     if not top or not base:
         return False
     paths = set()
     try:
-        for args in (("ls-files", "--cached", "--others", "-z"), ("ls-tree", "-r", "--name-only", "-z", base)):
-            result = subprocess.run(["git", "-C", top, *args], capture_output=True, timeout=5, check=True)
+        # tracked + untracked, and ignored entries with ignored folders collapsed (no walk through node_modules)
+        for args in (("ls-files", "--cached", "--others", "--exclude-standard", "-z"),
+                     ("ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z"),
+                     ("ls-tree", "-r", "--name-only", "-z", base)):
+            result = subprocess.run(["git", "-C", top, NO_REPLACE, *args], capture_output=True, timeout=5, check=True)
             paths.update(result.stdout.decode("utf-8").split("\0"))
     except (OSError, UnicodeError, subprocess.SubprocessError):
         return False
     pattern = (r"(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|\.npmrc)$" if family == "npm" else
-               r"(^|/)(gradlew(?:\.bat)?|build\.gradle(?:\.kts)?|settings\.gradle(?:\.kts)?|gradle\.properties)$|(^|/)(gradle/wrapper|init\.d|buildSrc|build-logic)/")
+               r"(^|/)(gradlew(?:\.bat)?|build\.gradle(?:\.kts)?|settings\.gradle(?:\.kts)?|gradle\.properties)$|(^|/)(gradle/wrapper|init\.d|buildSrc|build-logic)(/|$)")
     generated = {"node_modules", ".git", ".gradle", ".venv", "venv", "build", "dist", "coverage"}
-    inputs = [p for p in paths if not generated.intersection(p.split("/")[:-1]) and re.search(pattern, p)]
+    inputs = [p for p in paths if p and not generated.intersection(p.rstrip("/").split("/")[:-1]) and re.search(pattern, p)]
     return bool(inputs) and all(_clean_script(p, top, None) for p in inputs)
 
 
@@ -341,7 +381,7 @@ def _build_allowed(toks, cwd):
     if word == "npm":
         if not _clean_build_inputs(cwd, "npm"):
             return False
-        if args == ["ci"]:
+        if args in (["ci"], ["install"], ["i"]):  # lockfile install from unchanged package files
             return True
         name = "test" if args[:1] == ["test"] else args[1] if args[:1] in (["run"], ["run-script"]) and len(args) == 2 else None
         if name not in ("test", "build", "lint"):
@@ -359,10 +399,49 @@ def _build_allowed(toks, cwd):
     if word == "npx":
         return args == ["vitest", "run"] and _clean_build_inputs(cwd, "npm")
     if word in ("python", "python3", "py"):
-        return args[:2] == ["-m", "unittest"] or bool(args and _clean_script(args[0], cwd, ".py"))
+        if args[:2] == ["-m", "unittest"]:
+            return _unittest_args(args[2:], cwd)
+        return bool(args and _clean_script(args[0], cwd, ".py") and _clean_siblings(args[0], cwd))
     if word == "sh":
         return bool(args and _clean_script(args[0], cwd, ".sh"))
     return False
+
+
+def _unittest_args(args, cwd):
+    """python -m unittest [discover] with options and dotted names only; folders must be inside this work tree."""
+    top, i = _top(cwd), 0
+    while i < len(args):
+        a = args[i]
+        if a in ("-s", "-t", "--start-directory", "--top-level-directory"):
+            if i + 1 >= len(args) or not _under(_abs(args[i + 1], cwd), top):
+                return False
+            i += 1
+        elif a in ("-p", "--pattern", "-k"):
+            if i + 1 >= len(args) or SUBST in args[i + 1]:
+                return False
+            i += 1
+        elif a not in ("discover", "-v", "-q", "-b", "-c", "-f", "--verbose", "--quiet", "--buffer", "--catch",
+                       "--failfast", "--locals") and not re.fullmatch(r"[A-Za-z_]\w*(?:\.\w+)*", a):
+            return False
+        i += 1
+    return True
+
+
+def _clean_siblings(path, cwd):
+    """python puts the script's folder first on sys.path: no untracked, ignored or changed .py next to it."""
+    top = _top(cwd)
+    folder = os.path.relpath(_norm(_abs(path, cwd).parent), _norm(top)).replace("\\", "/")
+    spec = (folder + "/*.py") if folder != "." else "*.py"
+    base = _baseline(top)
+    others = _git(top, "ls-files", "--others", "-z", "--", spec)  # ignored files count too
+    flags = _git(top, "ls-files", "-v", "--", spec).splitlines()
+    if not base or others or any(not f.startswith("H ") for f in flags):
+        return False
+    try:
+        return subprocess.run(["git", "-C", top, NO_REPLACE, "diff", "--quiet", base, "--", spec],
+                              capture_output=True, timeout=5).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
 
 
 def _python_write_paths(body):
@@ -652,8 +731,52 @@ def _drop_redirections(toks):
     return out
 
 
-def _strip_prefixes(toks, seg, out, cwd):
-    """env/sudo/&/npx… → the real command. `env` alone prints every secret."""
+NPM_OPTS_WITH_ARG = {"--prefix", "-C", "-w", "--workspace", "--userconfig", "--globalconfig", "--registry", "--cache",
+                     "--loglevel", "--script-shell", "--node-options", "--tag", "--otp", "--before"}
+NPM_ALIASES = {"t": "test", "tst": "test", "run-script": "run", "rum": "run", "urn": "run", "x": "exec", "i": "install",
+               "in": "install", "ins": "install", "inst": "install", "insta": "install", "instal": "install",
+               "isnt": "install", "isnta": "install", "isntal": "install", "isntall": "install", "add": "install",
+               "clean-install": "ci", "ic": "ci", "install-clean": "ci", "isntall-clean": "ci", "it": "install-test",
+               "cit": "install-ci-test", "clean-install-test": "install-ci-test", "sit": "install-ci-test"}
+NPM_READONLY = {"ls", "list", "ll", "la", "view", "info", "show", "v", "outdated", "audit", "search", "find", "s", "se",
+                "help", "root", "prefix", "bin", "explain", "why", "ping", "fund", "-v", "--version", "-h", "--help", "version"}
+NPM_INSTALL_HOOKS = ("preinstall", "install", "postinstall", "prepublish", "preprepare", "prepare", "postprepare")
+
+
+def _npm_command(args):
+    """npm [global options] <sub> … → (canonical sub, script name or sub). Options before the subcommand are skipped."""
+    i = 0
+    while i < len(args) and args[i].startswith("-") and args[i] not in ("-v", "--version", "-h", "--help"):
+        i += 2 if args[i] in NPM_OPTS_WITH_ARG else 1
+    sub = NPM_ALIASES.get(args[i].lower(), args[i].lower()) if i < len(args) else ""
+    if sub in ("run", "install-test", "install-ci-test"):
+        if sub != "run":
+            return sub, "test"
+        name = next((a for a in args[i + 1:] if not a.startswith("-")), "")
+        return sub, name
+    return sub, sub
+
+
+def _npm_readonly(args):
+    """Reading package information only — no package code runs. `version` with arguments bumps and runs scripts."""
+    sub, _ = _npm_command(args)
+    if sub == "version":
+        return len(args) == 1
+    if sub == "config":
+        return args[1:2] in (["get"], ["list"], ["ls"])
+    return bool(args) and sub in NPM_READONLY and "fix" not in [a.lower() for a in args]
+
+
+def _package_runner(toks):
+    """npx, pnpx, bunx, npm exec/x, pnpm/yarn dlx, bun x — they download and run any package."""
+    w, sub = _word(toks[0]), (toks[1].lower() if len(toks) > 1 else "")
+    return w in ("npx", "pnpx", "bunx") or w == "npm" and sub in ("exec", "x") or \
+        w in ("pnpm", "yarn") and sub == "dlx" or w == "bun" and sub == "x"
+
+
+def _strip_prefixes(toks, seg, out, cwd, trusted=False):
+    """env/sudo/&/npx… → the real command. `env` alone prints every secret.
+    trusted: an npm script body from package.json that equals the remote baseline (NODE_ENV=test jest)."""
     def drop_opts(ts, with_value=()):
         """Drop leading options of a wrapper (npx --yes -p pkg …) so the real command word comes next."""
         while ts and ts[0].startswith("-"):
@@ -664,12 +787,12 @@ def _strip_prefixes(toks, seg, out, cwd):
 
     while toks:
         w = _word(toks[0])
-        if (w == "npx" or w == "npm" and toks[1:2] == ["exec"]) and not _build_allowed(toks, cwd):
+        if _package_runner(toks) and not _build_allowed(toks, cwd):
             out.append(_finding("opaque", seg, reason="허용 목록 밖 패키지 실행기"))
         if toks[0] in SHELL_KEYWORDS:
             toks = toks[1:]
         elif re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
-            if re.match(r"^[A-Za-z_]\w*=", toks[0]):
+            if re.match(r"^[A-Za-z_]\w*=", toks[0]) and not trusted:
                 out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음"))
             toks = drop_opts(toks[1:], ("-p", "--package", "-c", "--call")) if w in ("npx", "pnpx", "bunx") else toks[1:]
         elif w == "env":
@@ -684,7 +807,7 @@ def _strip_prefixes(toks, seg, out, cwd):
         elif w == "sudo":
             out.append(_gated("system_permission", seg))
             toks = drop_opts(toks[1:], ("-u", "-g", "-C", "-h", "-p"))
-        elif w in ("pnpm", "yarn") and len(toks) > 1 and toks[1].lower() == "dlx" or w == "npm" and len(toks) > 1 and toks[1].lower() == "exec":
+        elif _package_runner(toks) and w not in ("npx", "pnpx", "bunx"):
             toks = toks[2:]
             if toks and toks[0] == "--":
                 toks = toks[1:]
@@ -693,13 +816,13 @@ def _strip_prefixes(toks, seg, out, cwd):
     return toks
 
 
-def analyze(seg, cwd, root, depth=0, script_stdin=False):
+def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     """One simple command → findings."""
     out = []
     toks = _drop_redirections(tokens(seg))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
         out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
-    toks = _strip_prefixes(toks, seg, out, cwd)
+    toks = _strip_prefixes(toks, seg, out, cwd, trusted)
     if not toks:
         return out
     word, args = _word(toks[0]), toks[1:]
@@ -786,21 +909,24 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False):
                 out.append(_finding("opaque", seg, reason="인라인 Python 실행은 자동 허용 목록 밖"))
         elif not module and word in ("python", "python3", "py") and not script_stdin and not _build_allowed(toks, cwd):
             out.append(_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 Python 스크립트"))
+        elif module == "unittest" and not _build_allowed(toks, cwd):
+            out.append(_finding("opaque", seg, reason="unittest 인수가 허용 목록 밖(작업 폴더 밖 경로 등)"))
 
-    if word == "gradlew" or word == "npm" and args not in (["list", "-g"], ["--version"], ["--help"]):
-        if not _build_allowed(toks, cwd):
-            out.append(_finding("opaque", seg, reason="허용 목록 밖 테스트·빌드 실행"))
+    allowed = word in ("gradlew", "npm") and _build_allowed(toks, cwd)
+    if (word == "gradlew" or word in ("npm", "pnpm", "yarn", "bun") and not _npm_readonly(args)) and not allowed:
+        out.append(_finding("opaque", seg, reason="허용 목록 밖 테스트·빌드 실행"))
     if word == "npm":
-        name = args[1] if args[:1] in (["run"], ["run-script"]) and len(args) > 1 else args[0] if args else ""
+        sub, name = _npm_command(args)
         if re.search(r"deploy|release|publish|push", name, re.I):
             out.append(_gated("deploy", seg))
-        if depth < 4 and name:
+        keys = {"ci": NPM_INSTALL_HOOKS, "install": NPM_INSTALL_HOOKS}.get(sub, ("pre" + name, name, "post" + name) if name else ())
+        if depth < 4 and keys:
             try:
                 scripts = json.loads(_abs("package.json", cwd).read_text(encoding="utf-8")).get("scripts", {})
-                for key in ("pre" + name, name, "post" + name):
+                for key in keys:
                     body = scripts.get(key)
                     if isinstance(body, str):
-                        out.extend(classify_command(body, cwd, root, depth + 1))
+                        out.extend(classify_command(body, cwd, root, depth + 1, trusted=bool(allowed)))
             except (OSError, ValueError, AttributeError):
                 pass
         elif depth >= 4:
@@ -857,6 +983,38 @@ def _is_state_file(path, cwd, root=None):
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
 
 
+def _rewrites_refs(sub, sargs, gargs):
+    """Commands that can move refs/remotes/origin/main or change what "origin" is — the build allowlist's baseline."""
+    low = [a.lower() for a in sargs]
+    pos = [a for a in sargs if not a.startswith("-")]
+    if any(re.match(r"-c(?:remote|url)\.|(?:remote|url)\.", a, re.I) for a in gargs if not a.startswith("--")) or \
+            any(a.lower().startswith(("--config-env=remote.", "--config-env=url.")) for a in gargs):
+        return True  # git -c remote.origin.url=… / -c url.<x>.insteadOf=…
+    if sub == "update-ref":
+        return True
+    if sub == "replace":
+        return bool(sargs) and low[:1] not in (["-l"], ["--list"])
+    if sub == "symbolic-ref":
+        return len(pos) >= 2 or "-d" in low or "--delete" in low
+    if sub == "remote":
+        return bool(pos) and pos[0].lower() in ("add", "set-url", "rename", "remove", "rm", "set-head", "set-branches")
+    if sub == "config":
+        keys = [a.lower() for a in pos]
+        if keys[:1] in (["set"], ["unset"], ["rename-section"], ["remove-section"], ["edit"]):
+            return keys[0] == "edit" or any(k.startswith(("remote.", "url.")) for k in keys[1:])
+        reading = any(a in ("--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l") for a in low)
+        writing = any(a in ("--unset", "--unset-all", "--add", "--replace-all", "--rename-section", "--remove-section") for a in low) \
+            or len(pos) >= 2 and not reading
+        return "-e" in low or "--edit" in low or writing and any(k.startswith(("remote.", "url.")) for k in keys)
+    if sub in ("fetch", "pull"):
+        if any(a in ("--refmap", "--upload-pack", "-u", "--update-head-ok") or a.startswith(("--refmap=", "--upload-pack=")) for a in low):
+            return True
+        return any(":" in a for a in pos) or bool(pos) and re.search(r"^\.$|://|@|^[./\\~]|^[A-Za-z]:", pos[0]) is not None
+    if sub == "push":
+        return pos[:1] == ["."] or any(re.search(r"(^|:)\+?refs/remotes/", a) for a in pos)
+    return False
+
+
 def _analyze_git(args, seg, cwd, root, depth):
     out, where, rest = [], cwd, list(args)
     while rest and rest[0].startswith("-"):
@@ -886,6 +1044,8 @@ def _analyze_git(args, seg, cwd, root, depth):
     out.append(_seen(f"git:{sub}", seg))
     if sub == "update-index" or sub == "config" and any(re.match(r"(?:filter|diff)\.", a, re.I) for a in sargs):
         out.append(_finding("opaque", seg, reason="Git 파일 변경 검사를 바꿀 수 있는 명령"))
+    if _rewrites_refs(sub, sargs, args[:len(args) - len(rest)]):
+        out.append(_finding("opaque", seg, reason="기준 브랜치(원격 추적 ref)·원격 주소를 바꿀 수 있는 명령"))
     if sub in ("commit", "push", "merge", "rebase", "am", "cherry-pick", "revert") and (
             any(a in ("--no-verify", "--no-gpg-sign") for a in sargs) or sub == "commit" and _short_flag(sargs, "n")):
         out.append(_finding("forbidden", seg, reason="검증 단계 우회"))
@@ -963,41 +1123,118 @@ def _analyze_gh(args, seg, cwd):
     return out
 
 
-def classify_command(cmd, cwd, root=None, depth=0):
-    out = []
-    # Remove language bodies before shell lexing (set(...) is not shell `set`).
-    heredoc = re.compile(r"(?m)^(?P<head>[ \t]*(?P<lang>(?:python|pypy)[\d.]*|py|node|nodejs)(?:[ \t]+[^\n<]*)?[ \t]*<<(?P<quote>['\"]?)(?P<tag>\w+)(?P=quote)[ \t]*)\n(?P<body>.*?)(?:\n)(?P=tag)(?:\n|$)", re.S)
-    def script(match):
-        header, body = match.group("head"), match.group("body")
-        out.extend(_check_script(body, header, cwd, root, python=_word(match.group("lang")) != "node"))
-        # Shell expansions in unquoted heredocs still execute before the interpreter.
-        if not match.group("quote"):
+HEREDOC = re.compile(r"(?m)^(?P<head>[^\n]*?)<<(?P<quote>['\"]?)(?P<tag>\w+)(?P=quote)(?P<tail>[^\n]*)\n"
+                     r"(?P<body>(?:[^\n]*\n)*?)(?P=tag)(?:\n|$)")
+HEREDOC_MARK = "\x00HEREDOC"
+
+
+def _stdin_interpreter(toks):
+    """`python -`, `python`, `py -3 -`, `node`, `node -` — the heredoc body is the whole program. Nothing else."""
+    word, args = _word(toks[0]), toks[1:]
+    if word == "py" and args and re.fullmatch(r"-[23](?:\.\d+)?(?:-(?:32|64))?", args[0]):
+        args = args[1:]
+    return word in ("python", "py", "node") and args in ([], ["-"])
+
+
+def _stdin_data(toks):
+    """Commands that only read the heredoc as text: cat, tee, git commit -F -, gh … --body-file -."""
+    word, args = _word(toks[0]), toks[1:]
+    dash_file = any(a in ("-F", "--file", "--body-file") and args[i + 1:i + 2] == ["-"] or a in ("--file=-", "--body-file=-")
+                    for i, a in enumerate(args))
+    if word == "cat":
+        return all(a == "-" for a in args)
+    if word == "tee":
+        return all(a in ("-a", "--append") or not a.startswith("-") for a in args)
+    if word == "git":
+        return args[:1] == ["commit"] and dash_file
+    if word == "gh":
+        return [a for a in args if not a.startswith("-")][:2] in (["pr", "create"], ["pr", "edit"], ["pr", "comment"],
+                                                                   ["issue", "create"], ["issue", "comment"]) and dash_file
+    return False
+
+
+def _lead(words):
+    """Command word after shell keywords and transparent prefixes: if cd, ! cd, command cd, builtin cd, time cd."""
+    i = 0
+    while i < len(words) and (words[i] in SHELL_KEYWORDS or words[i].lower() in ("command", "builtin", "nohup", "exec", "&")):
+        i += 1
+    return words[i:]
+
+
+def _changes_env(words):
+    """Same command line, environment changed for what follows (export X=…; npm test)."""
+    if not words:
+        return False
+    w, args = words[0].lower(), [a.lower() for a in words[1:]]
+    if w in ENV_SETTERS:
+        return True
+    if w == "set":  # set -a / set -o allexport / cmd's set X=1; set -e, set -o pipefail are fine
+        return any("=" in a or re.fullmatch(r"[-+][a-z]*a[a-z]*", a) or a == "allexport" for a in args)
+    if w in (".", "source") and args:
+        return True  # runs another file in this shell
+    if w in ("set-item", "si", "new-item", "ni", "set-variable", "sv") and any(a.startswith("env:") or "env:" in a for a in args):
+        return True
+    return w.startswith(("$env:", "[environment]::", "[system.environment]::"))
+
+
+def _heredocs(cmd, cwd, root, depth, out, stored):
+    """Each heredoc → its head line goes back into the command (split and judged like any other line).
+    Only `<interpreter> [-]` gets its body checked as a program; cat/tee/commit message bodies are data; anything else
+    that reads a heredoc is opaque and its body stays in the command as shell lines."""
+    def one(m):
+        head, tail, body = m.group("head"), m.group("tail"), m.group("body")
+        line = m.group(0).split("\n", 1)[0]
+        if unquoted(line)[len(head):len(head) + 2] != "<<" or head.rstrip().endswith("<"):
+            return m.group(0)  # inside quotes, or <<< — left for the later "unresolved <<" check
+        if not m.group("quote"):  # shell expansions in an unquoted heredoc run before the reader gets the text
             _, substitutions, broken = extract_substitutions(body)
             if broken or substitutions:
-                out.append(_finding("opaque", header, reason="인용하지 않은 heredoc의 셸 치환"))
-        out.extend(analyze(header.split("<<", 1)[0], cwd, root, depth, script_stdin=True))
-        return "\n"
-    cmd = heredoc.sub(script, cmd)
+                out.append(_finding("opaque", line, reason="인용하지 않은 heredoc의 셸 치환"))
+        command = head + " " + tail
+        segs = split_commands(command)
+        toks = _drop_redirections(tokens(segs[0])) if len(segs) == 1 else []
+        if toks and _stdin_interpreter(toks):
+            stored.append((segs[0], body, _word(toks[0]) != "node"))
+            return f"{HEREDOC_MARK}{len(stored) - 1}\n"
+        if toks and _stdin_data(toks):
+            return command + "\n"
+        out.append(_finding("opaque", line, reason="heredoc을 받는 명령이 단일 인터프리터·문서 명령이 아님"))
+        return command + "\n" + body
+    return HEREDOC.sub(one, cmd)
+
+
+def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
+    out, stored = [], []
+    if depth == 0:
+        _CACHE.clear()  # git state may have changed since the last judgement
+    # Language bodies come out before shell lexing (set(...) is not shell `set`); the head line stays in the command.
+    cmd = _heredocs(cmd, cwd, root, depth, out, stored)
     if "<<" in unquoted(cmd):
         out.append(_finding("opaque", cmd[:120], reason="해석하지 못한 heredoc 경계·인터프리터"))
-    if out and re.search(r"(?:^|[;&\n])\s*(?:cd|pushd|set-location)\b", cmd, re.I):
-        out.append(_finding("opaque", cmd[:120], reason="폴더 변경과 heredoc을 함께 실행"))
     if "*** Begin Patch" in cmd:
         return out + _patch_paths(cmd, cwd, root)
     flat, inner, broken = extract_substitutions(cmd)
     if broken:
         return out + [_finding("opaque", cmd[:120], reason="닫히지 않은 명령 치환")]
     for sub in inner:
-        out += classify_command(sub, cwd, root, depth + 1) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
+        out += classify_command(sub, cwd, root, depth + 1, trusted) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     initial_top = _top(cwd)
     for seg in split_commands(flat):
-        words = tokens(seg)
-        if words and _word(words[0]) in ("cd", "pushd", "popd", "set-location"):
+        m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
+        if m:  # `python - <<EOF` judged where it runs (after any cd above it)
+            head, body, python = stored[int(m.group(1))]
+            out += _check_script(body, head, cwd, root, python=python)
+            out += analyze(head, cwd, root, depth, script_stdin=True)
+            continue
+        words = _lead(tokens(seg))
+        if words and _word(words[0]) in CD_WORDS:
             if len(words) == 2 and _word(words[0]) == "cd" and _under(_abs(words[1], cwd), initial_top) and _abs(words[1], cwd).is_dir():
                 cwd = str(_abs(words[1], cwd))
             else:
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
-        out += analyze(seg, cwd, root, depth)
+        if not trusted and _changes_env(words):
+            out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
+        out += analyze(seg, cwd, root, depth, trusted=trusted)
     if depth == 0:
         out += tripwire(cmd, out)
     for f in out:
@@ -1093,6 +1330,8 @@ def classify_file(tool, path, cwd, root=None, via=None):
             scratch = [tempfile.gettempdir(), Path.home() / ".claude", Path.home() / ".codex"]
             if not _under(p, top) and (in_other_repo or not any(_under(p, a) for a in scratch)):
                 out.append(_finding("forbidden", label, reason=f"지금 작업 폴더({top}) 밖 파일 수정 — 관련 없는 프로젝트·매니저의 직접 코딩 금지"))
+            elif ".git" in [part.lower() for part in p.parts]:
+                out.append(_finding("opaque", label, reason="Git 내부 파일(ref·설정·훅) 직접 수정"))
     if tool in ("Read", "view") and re.search(r"(^|[/\\])\.env(\.(?!example$)[\w.]+)?$", str(p)):
         out.append(_gated("credentials", f"Read {p}"))
     return out
@@ -1123,6 +1362,7 @@ def decide(payload, agent="claude", root=None):
     """→ (decision, message). decision: allow | deny | ask"""
     tool, cmd, path, patch, cwd = extract(payload)
     findings = []
+    _CACHE.clear()
     if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
         cmd = re.sub(r"`(.)", r"\1", cmd)
     elif cmd and tool == "Bash":  # Claude Code's Bash tool: g\it pu\sh is git push
