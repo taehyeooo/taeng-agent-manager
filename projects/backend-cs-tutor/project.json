@@ -816,7 +816,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
       "pr": null,
       "dispatch": "ctx_09921502b1d3",
-      "note": "둘로 나눔: S24a E2E(codex ctx_1f5be27bfe06), S24b spec-check(claude ctx_09921502b1d3)"
+      "note": "S24b spec-check 완료: 일치율 90.6%(구현 26·부분 6·미구현 0), 명세 갱신 18줄, 사람 손 8건. 보고서 Temp/.../S24b-spec-check.md. S24a E2E 진행 중"
     },
     {
       "id": "S2b",
@@ -1986,8 +1986,12 @@
     {
       "at": "2026-11-11T18:23:31+09:00",
       "event": "작업 S24 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b, dispatch=ctx_09921502b1d3, note=둘로 나눔: S24a E2E(codex ctx_1f5be27bfe06), S24b spec-check(claude ctx_09921502b1d3)"
+    },
+    {
+      "at": "2026-11-11T18:31:20+09:00",
+      "event": "작업 S24 변경: note=S24b spec-check 완료: 일치율 90.6%(구현 26·부분 6·미구현 0), 명세 갱신 18줄, 사람 손 8건. 보고서 Temp/.../S24b-spec-check.md. S24a E2E 진행 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T18:23:31+09:00"
+  "updated_at": "2026-11-11T18:31:20+09:00"
 }
