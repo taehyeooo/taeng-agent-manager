@@ -741,10 +741,14 @@
     {
       "at": "2026-11-11T12:18:03+09:00",
       "event": "작업 T4 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T4, dispatch=ctx_731578152a8a"
+    },
+    {
+      "at": "2026-11-11T12:21:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T12:18:03+09:00",
+  "updated_at": "2026-11-11T12:21:04+09:00",
   "requests": [
     {
       "gate": "push",
