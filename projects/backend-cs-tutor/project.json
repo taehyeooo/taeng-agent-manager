@@ -539,7 +539,7 @@
       "title": "오답 원인 진단과 약한 개념 우선 이동 (R-14, R-16)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15",
       "pr": "36",
@@ -547,14 +547,15 @@
       "note": "검증 지적 수정 위임(codex): 회차 기한당 1회(R-10), 오답이면 min으로 내려감(명세). 10분/5분은 설정 상수",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_d5d61fb395c1",
-        "summary": "재계산·잠금·진단 제외·매핑 명세대로. 높음: 같은 복습 기한에 매일 읽으면 회차 매일 +1(R-10 위반), 오답 시 회차가 원인 단계로 올라갈 수 있음(명세는 내려감). 숨긴 개념 오늘 목록 테스트·minutes 범위",
-        "at": "2026-11-11T10:59:56+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: 같은 기한당 회차 1회(최대 7), 오답 min 하향, 숨김 개념 제외, minutes 1~600, 시간 추정 상수 분리, 튜터 충돌 두 기능 보존. review·ai·tutor 미변경. 백엔드 202(+3)·프론트 93·CI 7 통과",
+        "at": "2026-11-11T11:27:36+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/progress"
+        "backend/src/main/java/kr/dadokcs/progress",
+        "frontend/src"
       ]
     },
     {
@@ -1580,8 +1581,16 @@
     {
       "at": "2026-11-11T11:13:49+09:00",
       "event": "작업 S19 변경: note=PR #35 병합. 실제 CLI 표본 20개 진행 중 ctx_8048d4dad4d4(사용자 승인 2026-11-11, 최대 30회)"
+    },
+    {
+      "at": "2026-11-11T11:27:36+09:00",
+      "event": "작업 S15 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:27:36+09:00",
+      "event": "작업 S15 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:13:49+09:00"
+  "updated_at": "2026-11-11T11:27:36+09:00"
 }
