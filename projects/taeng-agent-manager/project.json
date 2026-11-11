@@ -170,12 +170,12 @@
       "title": "가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T5",
       "pr": "5",
       "dispatch": "ctx_e959c8bb7562",
-      "note": "범위 추가: 읽기 전용 셸 조합(cd 하위 폴더; cat/ls/grep/head/find without -exec, ||, 파이프)과 gradlew 출력 옵션. 보안 판정 유지",
+      "note": "PR #5 병합, 로컬 가드 갱신",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -897,10 +897,14 @@
     {
       "at": "2026-11-11T17:02:59+09:00",
       "event": "승인 기록: merge_main (PR#5)"
+    },
+    {
+      "at": "2026-11-11T17:10:23+09:00",
+      "event": "작업 T5 변경: status=done, note=PR #5 병합, 로컬 가드 갱신"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T17:02:59+09:00",
+  "updated_at": "2026-11-11T17:10:23+09:00",
   "requests": [
     {
       "gate": "push",
