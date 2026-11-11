@@ -161,6 +161,18 @@
       "ref": "PR#35",
       "note": "2026-11-11 사용자: '승인' — dadok-cs PR #35(S19 AI 튜터) squash 병합",
       "at": "2026-11-11T11:11:04+09:00"
+    },
+    {
+      "gate": "paid_service",
+      "ref": "codex sol tutor sample 20",
+      "note": "2026-11-11 사용자: '1 승인' — 실제 Codex(gpt-6.1-sol)로 튜터 표본 20개(구독 사용량 20~30회, 추가 요금 없음), 임시 DB",
+      "at": "2026-11-11T11:13:17+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "merged-clean-worktrees",
+      "note": "2026-11-11 사용자: '2 승인' — 병합됐고 변경 없고 마지막 저장이 병합 내용과 같은 작업 폴더는 병합 직후 묻지 않고 삭제(하나라도 다르면 묻기)",
+      "at": "2026-11-11T11:13:17+09:00"
     }
   ],
   "tasks": [
@@ -613,7 +625,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
       "pr": "35",
       "dispatch": "ctx_f4059603a49a",
-      "note": "PR #35 병합. 실제 CLI 표본 20개 검사 남음(사용자 승인 필요)",
+      "note": "PR #35 병합. 실제 CLI 표본 20개 진행 중 ctx_8048d4dad4d4(사용자 승인 2026-11-11, 최대 30회)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1556,8 +1568,20 @@
     {
       "at": "2026-11-11T11:11:21+09:00",
       "event": "작업 S19 변경: status=done, note=PR #35 병합. 실제 CLI 표본 20개 검사 남음(사용자 승인 필요)"
+    },
+    {
+      "at": "2026-11-11T11:13:17+09:00",
+      "event": "승인 기록: paid_service (codex sol tutor sample 20)"
+    },
+    {
+      "at": "2026-11-11T11:13:17+09:00",
+      "event": "승인 기록: destructive_delete (merged-clean-worktrees)"
+    },
+    {
+      "at": "2026-11-11T11:13:49+09:00",
+      "event": "작업 S19 변경: note=PR #35 병합. 실제 CLI 표본 20개 진행 중 ctx_8048d4dad4d4(사용자 승인 2026-11-11, 최대 30회)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:11:21+09:00"
+  "updated_at": "2026-11-11T11:13:49+09:00"
 }
