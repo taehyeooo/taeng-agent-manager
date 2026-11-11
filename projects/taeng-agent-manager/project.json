@@ -164,12 +164,23 @@
       "title": "가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T5",
-      "pr": null,
+      "pr": "5",
       "dispatch": "ctx_e959c8bb7562",
-      "note": "범위 추가: 읽기 전용 셸 조합(cd 하위 폴더; cat/ls/grep/head/find without -exec, ||, 파이프)과 gradlew 출력 옵션. 보안 판정 유지"
+      "note": "범위 추가: 읽기 전용 셸 조합(cd 하위 폴더; cat/ls/grep/head/find without -exec, ||, 파이프)과 gradlew 출력 옵션. 보안 판정 유지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "매니저 직접 판정: 검증 워커가 멈췄던 읽기 조합 3종·gradlew --console=plain allow, find -exec rm·cd ..(폴더 밖)·sort -o·리디렉션 쓰기 ask. 위험 명령(강제 push·상태 파일·cmd 비밀값)은 기존 회귀 테스트로 유지. 197 테스트·변형 44/44·CI 4 통과",
+        "at": "2026-11-11T16:56:06+09:00"
+      },
+      "files": [
+        "am/guard.py"
+      ]
     },
     {
       "id": "T5b",
@@ -864,10 +875,22 @@
     {
       "at": "2026-11-11T16:39:15+09:00",
       "event": "작업 T5 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T5, dispatch=ctx_e959c8bb7562"
+    },
+    {
+      "at": "2026-11-11T16:56:03+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T16:56:06+09:00",
+      "event": "작업 T5 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:56:06+09:00",
+      "event": "작업 T5 변경: status=review, pr=5"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T16:39:15+09:00",
+  "updated_at": "2026-11-11T16:56:06+09:00",
   "requests": [
     {
       "gate": "push",
