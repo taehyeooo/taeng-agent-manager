@@ -527,12 +527,23 @@
       "title": "다독 회차(7회차) 전환 (R-10)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "41",
       "dispatch": null,
-      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
+      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "회차 규칙(기한당 1회·최대 7·오답 min)은 S15 PR #36에서 claude 교차 검증 후 수정·통과, 표시는 S17 PR #41에서 검증 통과",
+        "at": "2026-11-11T14:34:56+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/progress"
+      ]
     },
     {
       "id": "S14",
@@ -1748,8 +1759,16 @@
     {
       "at": "2026-11-11T14:34:45+09:00",
       "event": "작업 S17 변경: status=done, note=PR #41 병합"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 변경: status=done, pr=41"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T14:34:45+09:00"
+  "updated_at": "2026-11-11T14:34:56+09:00"
 }
