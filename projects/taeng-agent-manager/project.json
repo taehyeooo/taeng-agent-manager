@@ -53,6 +53,12 @@
       "ref": "winget install postgresql.postgresql.18",
       "note": "2026-11-10 사용자: '승인' — 다독CS 데이터 저장용 PostgreSQL 18 설치",
       "at": "2026-11-10T14:12:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#3",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #3(가드 T3)을 작업 브랜치 plan/backend-cs-tutor에 squash 병합(main 아님)",
+      "at": "2026-11-11T12:11:15+09:00"
     }
   ],
   "tasks": [
@@ -121,14 +127,14 @@
     {
       "id": "T4",
       "title": "가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
       "status": "todo",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "가드 영역은 Codex 2회 실패 이력 → Claude 구현, Codex 검증"
     }
   ],
   "history": [
@@ -715,10 +721,18 @@
     {
       "at": "2026-11-11T12:02:38+09:00",
       "event": "작업 T3 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T12:11:15+09:00",
+      "event": "승인 기록: merge_main (PR#3)"
+    },
+    {
+      "at": "2026-11-11T12:13:42+09:00",
+      "event": "작업 T4 변경: agent=claude, note=가드 영역은 Codex 2회 실패 이력 → Claude 구현, Codex 검증"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T12:02:38+09:00",
+  "updated_at": "2026-11-11T12:13:42+09:00",
   "requests": [
     {
       "gate": "push",
