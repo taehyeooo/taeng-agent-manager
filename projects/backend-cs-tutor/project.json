@@ -981,6 +981,18 @@
       "pr": null,
       "dispatch": "ctx_a113bfca6cf1",
       "note": "사용자 요청 2026-11-11"
+    },
+    {
+      "id": "S29",
+      "title": "중요 문장 형광펜 강조(분홍 아님) + 읽기 집중 글꼴(무료·레포 포함) + 가독성 조정",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S29",
+      "pr": null,
+      "dispatch": "ctx_fb32c927f4bb",
+      "note": "사용자 요청 2026-11-12. 완료 후 claude 디자인 스킬 검토"
     }
   ],
   "history": [
@@ -2311,8 +2323,16 @@
     {
       "at": "2026-11-12T00:04:24+09:00",
       "event": "작업 S26 변경: status=done, note=PR #58 병합(기획서 v2 + 웹 전용)"
+    },
+    {
+      "at": "2026-11-12T00:08:23+09:00",
+      "event": "작업 추가 S29 (codex): 중요 문장 형광펜 강조(분홍 아님) + 읽기 집중 글꼴(무료·레포 포함) + 가독성 조정"
+    },
+    {
+      "at": "2026-11-12T00:08:23+09:00",
+      "event": "작업 S29 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S29, dispatch=ctx_fb32c927f4bb, note=사용자 요청 2026-11-12. 완료 후 claude 디자인 스킬 검토"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T00:04:24+09:00"
+  "updated_at": "2026-11-12T00:08:23+09:00"
 }
