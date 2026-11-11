@@ -751,7 +751,7 @@
       "title": "기록 내보내기·가져오기·초기화 (R-29, R-32)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
       "pr": "46",
@@ -759,14 +759,15 @@
       "note": "검증 지적 수정 위임(codex). 매니저 결정: ai_call은 초기화·가져오기에서 보존, 오래된 진행 중 상태는 막지 않음, 진단 표 순서는 FK 메타데이터로",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_1b434829783a",
-        "summary": "높음 2: stale ai_call IN_PROGRESS·busy 세션이 내보내기·가져오기·초기화를 영구 409로 막음, 초기화·가져오기가 ai_call을 지워 하루 30회 한도가 되살아남. 중간 2: 진단 표 순서 상수 고정, 재계산 뒤 이벤트 없는 progress 행 잔존. 낮음 7",
-        "at": "2026-11-11T16:02:32+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: ai_call 보존(한도 되살아남 방지), 120초 stale 판정, FK 위상 정렬, 학습·완료 진단 기반 진행 재구성, 낮음 7. 프론트 111, 백엔드는 로컬 앱 제어로 실행 불가 → CI Ubuntu·Windows 백엔드 포함 7/7 통과",
+        "at": "2026-11-11T16:27:37+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/backup"
+        "backend/src/main/java/kr/dadokcs/backup",
+        "frontend/src"
       ]
     },
     {
@@ -1854,8 +1855,16 @@
     {
       "at": "2026-11-11T16:22:19+09:00",
       "event": "작업 S22 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T16:27:37+09:00",
+      "event": "작업 S23 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:27:37+09:00",
+      "event": "작업 S23 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T16:22:19+09:00"
+  "updated_at": "2026-11-11T16:27:37+09:00"
 }
