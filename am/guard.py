@@ -693,8 +693,11 @@ def _build_allowed(toks, cwd):
         tasks, i = [], 0
         while i < len(args):
             a = args[i]
-            if a in ("--rerun", "--rerun-tasks", "--no-daemon", "--console=plain", "--stacktrace", "--info"):
+            if a in ("--rerun", "--rerun-tasks", "--no-daemon", "--console=plain", "--console=rich", "--console=auto",
+                     "--stacktrace", "--info", "--quiet", "-q", "--offline") or a.startswith("--warning-mode="):
                 pass
+            elif a == "--tests" and i + 1 < len(args) and args[i + 1] and not args[i + 1].startswith("-"):
+                i += 1
             elif a == "-p" and i + 1 < len(args):
                 i += 1
                 if not _under(_abs(args[i], cwd), _top(cwd)) or excluded.intersection(Path(args[i]).parts):
@@ -1247,6 +1250,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     low = [a.lower() for a in args]
     joined = " ".join(toks)
     # Keep redirect and policy findings even when a launcher returns early.
+    if word in {"cat", "ls", "grep", "egrep", "fgrep", "head", "tail", "wc", "sort", "uniq"} and not script_stdin and _write_targets(word, args, seg):
+        out.append(_finding("opaque", seg, reason="읽기 명령에 파일 출력이 포함됨"))
     for target in _write_targets(word, args, seg):
         if "$" in target or SUBST in target:
             out.append(_finding("opaque", seg, reason="쓰기 대상 경로를 미리 알 수 없음(변수·치환)"))
@@ -1878,7 +1883,8 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
             stored.append((segs[0], body, _word(toks[0]) != "node"))
             return f"{HEREDOC_MARK}{len(stored) - 1}\n"
         if toks and _stdin_data(toks):
-            return command + "\n"
+            stored.append((segs[0], body, None))  # document data, not executable source
+            return f"{HEREDOC_MARK}{len(stored) - 1}\n"
         out.append(_finding("opaque", line, reason="heredoc을 받는 명령이 단일 인터프리터·문서 명령이 아님"))
         return command + "\n" + body
     return HEREDOC.sub(one, cmd)
@@ -1900,17 +1906,23 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
     for sub in inner:
         out += classify_command(sub, cwd, root, depth + 1, trusted) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     initial_top = _top(cwd)
+    compound = len(split_commands(flat)) > 1
     for seg in split_commands(flat):
         m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
         if m:  # `python - <<EOF` judged where it runs (after any cd above it)
             head, body, python = stored[int(m.group(1))]
-            out += _check_script(body, head, cwd, root, python=python)
+            if python is not None:
+                out += _check_script(body, head, cwd, root, python=python)
             out += analyze(head, cwd, root, depth, script_stdin=True)
             continue
         words = _lead(tokens(seg))
+        if compound and words and _word(words[0]) == "find" and any(
+                a in ("-exec", "-execdir", "-ok", "-okdir", "-delete", "-fprint", "-fprint0", "-fprintf", "-fls") for a in words[1:]):
+            out.append(_finding("opaque", seg, reason="셸 조합의 find가 명령 실행·파일 쓰기를 포함함"))
         if words and _word(words[0]) in CD_WORDS:
-            if len(words) == 2 and _word(words[0]) == "cd" and _under(_abs(words[1], cwd), initial_top) and _abs(words[1], cwd).is_dir():
-                cwd = str(_abs(words[1], cwd))
+            target = _cd_target(words[1], cwd) if len(words) == 2 else None
+            if target is not None and _word(words[0]) == "cd" and _under(target, initial_top) and target.is_dir():
+                cwd = str(target)
             else:
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
         if not trusted and _changes_env(words):
@@ -1921,6 +1933,18 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
     for f in out:
         f["seg"] = restore(f["seg"].replace(SUBST, "$(…)"))
     return out
+
+
+def _cd_target(path, cwd):
+    """Git Bash drive spelling on Windows; retain native paths elsewhere."""
+    if os.name == "nt" and re.match(r"^/[a-zA-Z]/", path):
+        native = _abs(path, cwd)
+        target = _abs(path[1] + ":" + path[2:], cwd)
+        # An existing native /c directory makes the shell interpretation ambiguous.
+        if native.exists() and _norm(native) != _norm(target):
+            return None
+        return target
+    return _abs(path, cwd)
 
 
 # ---------- second net: risky words the interpreter did not account for ----------

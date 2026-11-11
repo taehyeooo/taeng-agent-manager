@@ -576,6 +576,55 @@ class VerifierRound4Test(GuardTest):
 
 
 class BuildAllowlistTest(GuardTest):
+    def test_t5_readonly_combinations(self):
+        folder = self.app / 'backend/src/main/resources/db/migration'
+        folder.mkdir(parents=True)
+        results = self.app / 'backend/build/test-results/test'
+        results.mkdir(parents=True)
+        absolute = results.as_posix()
+        if sys.platform == 'win32':
+            absolute = '/' + absolute[0].lower() + absolute[2:]
+        for cmd in (
+            f'cd {absolute} && grep -l "<skipped" *.xml',
+            'ls backend/src/main/resources/db/migration/ 2>/dev/null || find backend/src/main/resources -name "*.sql"; grep -rhoiE "create table .*" backend/src/main/resources | sort | uniq',
+            'cd backend/src/main/resources/db/migration; cat V1__init.sql V3__x.sql; grep -n "" V2__y.sql | head -60',
+            'git status; git diff | head -60',
+        ):
+            for agent in ('claude', 'codex'):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], 'allow')
+
+    def test_t5_unsafe_combinations(self):
+        for cmd in ('cat README.md > x; head x', 'cat > x',
+                    'ls; sort -o x README.md', 'ls; uniq README.md x',
+                    'ls; find . -exec cat {} +', 'ls; find . -fprint x',
+                    'cd ..; cat README.md', 'ls; find . -delete',
+                    'cat README.md; git push origin main'):
+            with self.subTest(cmd=cmd):
+                self.assertNotEqual(self.bash(cmd)[0], 'allow')
+
+    def test_t5_build_output_options(self):
+        backend = self.app / 'backend'
+        backend.mkdir()
+        for name in ('gradlew', 'gradlew.bat', 'package.json'):
+            shutil.copyfile(self.app / name, backend / name)
+        git(self.app, 'add', '.')
+        git(self.app, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm', 'backend fixture')
+        fetched_baseline(self.app)
+        for option in ('--console=plain', '--console=rich', '--console=auto', '--info', '--quiet', '-q',
+                       '--stacktrace', '--warning-mode=all', '--tests "example.*"', '--rerun', '--no-daemon', '--offline'):
+            cmd = 'cd backend; ./gradlew.bat test ' + option
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], 'allow')
+        self.assertEqual(G.decide({'tool_name': 'powershell', 'cwd': str(self.app),
+                                  'tool_input': {'command': r'cd backend; .\gradlew.bat test --console=plain'}},
+                                 'codex', self.root)[0], 'allow')
+        self.assertEqual(self.bash('cd backend; npm test -- src/unit.test.ts -t "some test"')[0], 'allow')
+        for option in ('--console=evil', '--init-script x', '--tests', '--tests --init-script x'):
+            self.assertNotEqual(self.bash('cd backend; ./gradlew test ' + option)[0], 'allow')
+        (backend / 'gradlew').write_text('# changed\n', encoding='utf-8')
+        self.assertNotEqual(self.bash('cd backend; ./gradlew test --quiet')[0], 'allow')
+
     @classmethod
     def build(cls, base):
         GuardTest.build(base)
