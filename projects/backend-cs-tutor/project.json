@@ -945,7 +945,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
       "pr": "59",
       "dispatch": "ctx_025df773f986",
-      "note": "사용자 결정 2026-11-11: 휴대폰 불필요, 컴퓨터 웹(최소 1024px)만 지원. 포커스 테두리 은은하게. 후속 위임"
+      "note": "사용자 결정 2026-11-11: Codex 구현 후 Claude가 ui-ux-pro-max·web-design-guidelines·emil-design-eng 스킬로 디자인 검토 → Codex 반영. 웹 전용 수정 진행 중"
     }
   ],
   "history": [
@@ -2224,8 +2224,12 @@
     {
       "at": "2026-11-11T22:48:00+09:00",
       "event": "작업 S27 변경: dispatch=ctx_025df773f986, note=사용자 결정 2026-11-11: 휴대폰 불필요, 컴퓨터 웹(최소 1024px)만 지원. 포커스 테두리 은은하게. 후속 위임"
+    },
+    {
+      "at": "2026-11-11T22:50:50+09:00",
+      "event": "작업 S27 변경: note=사용자 결정 2026-11-11: Codex 구현 후 Claude가 ui-ux-pro-max·web-design-guidelines·emil-design-eng 스킬로 디자인 검토 → Codex 반영. 웹 전용 수정 진행 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:48:00+09:00"
+  "updated_at": "2026-11-11T22:50:50+09:00"
 }
