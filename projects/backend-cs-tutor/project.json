@@ -733,11 +733,11 @@
       "title": "학습 기록: 개념별 그래프·오답 유형 분포 (R-22, R-23)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_63ff840f76f0",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -1924,8 +1924,12 @@
     {
       "at": "2026-11-11T16:36:37+09:00",
       "event": "작업 S23 변경: note=PR #46 병합 승인 — PR #45 병합 뒤 main 맞추기 예정"
+    },
+    {
+      "at": "2026-11-11T16:39:15+09:00",
+      "event": "작업 S21 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21, dispatch=ctx_63ff840f76f0"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T16:36:37+09:00"
+  "updated_at": "2026-11-11T16:39:15+09:00"
 }
