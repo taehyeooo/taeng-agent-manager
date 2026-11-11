@@ -524,9 +524,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15",
-      "pr": null,
+      "pr": "36",
       "dispatch": "ctx_37c33dce6239",
-      "note": "S16 2부(진행 재계산·오늘 복습 API) 포함"
+      "note": "구현 완료 PR #36(프론트 83·백엔드 176·CI 7). 가정 4개. claude 검증 위임"
     },
     {
       "id": "S16",
@@ -1510,8 +1510,12 @@
     {
       "at": "2026-11-11T10:50:55+09:00",
       "event": "작업 S19 변경: dispatch=ctx_f4059603a49a, note=검증 지적 수정 위임(codex). 매니저 결정: 형식 오류 2회도 failed 아님(active·재시도), 학습자 글의 구분자 모양 치환"
+    },
+    {
+      "at": "2026-11-11T10:57:30+09:00",
+      "event": "작업 S15 변경: pr=36, note=구현 완료 PR #36(프론트 83·백엔드 176·CI 7). 가정 4개. claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T10:50:55+09:00"
+  "updated_at": "2026-11-11T10:57:30+09:00"
 }
