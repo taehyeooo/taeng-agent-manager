@@ -809,14 +809,26 @@
     {
       "id": "S24",
       "title": "하루 학습 흐름 E2E와 spec-check (R-1)",
-      "agent": "claude",
+      "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
-      "pr": null,
+      "pr": "52",
       "dispatch": "ctx_09921502b1d3",
-      "note": "S24b spec-check 완료: 일치율 90.6%(구현 26·부분 6·미구현 0), 명세 갱신 18줄, 사람 손 8건. 보고서 Temp/.../S24b-spec-check.md. S24a E2E 진행 중"
+      "note": "PR #52(E2E)는 codex 구현, spec-check는 claude",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "S24a PR #52: 하루 흐름 HTTP E2E(진단→홈→카드·용어→문제→튜터·평가→익숙함·회차·새벽4시 복습→통계→백업·초기화·복원)·화면 흐름 테스트·README 실행 안내, 테스트 코드와 문서만 변경, 3시 경계 변형 검출, CI 7 통과. S24b spec-check 90.6%",
+        "at": "2026-11-11T19:01:24+09:00"
+      },
+      "files": [
+        "backend/src/test/java/kr/dadokcs/e2e/DailyFlowE2ETest.java",
+        "README.md"
+      ]
     },
     {
       "id": "S2b",
@@ -1990,8 +2002,20 @@
     {
       "at": "2026-11-11T18:31:20+09:00",
       "event": "작업 S24 변경: note=S24b spec-check 완료: 일치율 90.6%(구현 26·부분 6·미구현 0), 명세 갱신 18줄, 사람 손 8건. 보고서 Temp/.../S24b-spec-check.md. S24a E2E 진행 중"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 변경: agent=codex, note=PR #52(E2E)는 codex 구현, spec-check는 claude"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 변경: status=review, pr=52"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T18:31:20+09:00"
+  "updated_at": "2026-11-11T19:01:24+09:00"
 }
