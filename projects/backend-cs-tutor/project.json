@@ -610,12 +610,12 @@
       "title": "홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
       "pr": "41",
       "dispatch": "ctx_f9427be12c65",
-      "note": "PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중",
+      "note": "PR #41 병합",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1744,8 +1744,12 @@
     {
       "at": "2026-11-11T14:19:25+09:00",
       "event": "작업 S17 변경: note=PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T14:34:45+09:00",
+      "event": "작업 S17 변경: status=done, note=PR #41 병합"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T14:19:25+09:00"
+  "updated_at": "2026-11-11T14:34:45+09:00"
 }
