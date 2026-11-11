@@ -616,9 +616,10 @@ class BuildAllowlistTest(GuardTest):
             cmd = 'cd backend; ./gradlew.bat test ' + option
             with self.subTest(cmd=cmd):
                 self.assertEqual(self.bash(cmd)[0], 'allow')
-        self.assertEqual(G.decide({'tool_name': 'powershell', 'cwd': str(self.app),
-                                  'tool_input': {'command': r'cd backend; .\gradlew.bat test --console=plain'}},
-                                 'codex', self.root)[0], 'allow')
+        if sys.platform == 'win32':
+            self.assertEqual(G.decide({'tool_name': 'powershell', 'cwd': str(self.app),
+                                      'tool_input': {'command': r'cd backend; .\gradlew.bat test --console=plain'}},
+                                     'codex', self.root)[0], 'allow')
         self.assertEqual(self.bash('cd backend; npm test -- src/unit.test.ts -t "some test"')[0], 'allow')
         for option in ('--console=evil', '--init-script x', '--tests', '--tests --init-script x'):
             self.assertNotEqual(self.bash('cd backend; ./gradlew test ' + option)[0], 'allow')
