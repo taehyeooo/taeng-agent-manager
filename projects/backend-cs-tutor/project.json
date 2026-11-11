@@ -737,8 +737,20 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21",
       "pr": "50",
-      "dispatch": "ctx_63ff840f76f0",
-      "note": "구현 완료 PR #50(프론트 122·백엔드 279·CI 7). claude 검증 위임"
+      "dispatch": "ctx_87fd3a974427",
+      "note": "검증 지적 수정 위임(codex): 공개 카드 수 분모, 질문별 점수 추이, now.md R-20 문구",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_e6e3ad1463b3",
+        "summary": "집계 규칙 맞음. 머지 전: 분모 6 고정(공개 카드 6장 미만 개념 완료 불가), 기본 그래프가 다른 질문 점수를 한 선으로 이어 지표 흐림·라벨 '질문 N'. 하위 다수",
+        "at": "2026-11-11T17:41:28+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/stats",
+        "frontend/src"
+      ]
     },
     {
       "id": "S22",
@@ -1940,8 +1952,16 @@
     {
       "at": "2026-11-11T17:38:26+09:00",
       "event": "작업 S21 변경: pr=50, note=구현 완료 PR #50(프론트 122·백엔드 279·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T17:41:28+09:00",
+      "event": "작업 S21 검증(claude:reviewflow:ctx_e6e3ad1463b3): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T17:41:37+09:00",
+      "event": "작업 S21 변경: dispatch=ctx_87fd3a974427, note=검증 지적 수정 위임(codex): 공개 카드 수 분모, 질문별 점수 추이, now.md R-20 문구"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T17:38:26+09:00"
+  "updated_at": "2026-11-11T17:41:37+09:00"
 }
