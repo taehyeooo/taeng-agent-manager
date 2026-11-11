@@ -872,9 +872,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25",
-      "pr": null,
+      "pr": "56",
       "dispatch": "ctx_ae33e0456da7",
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "note": "구현 완료 PR #56(10쌍, CI 8). claude 내용 검증 위임"
     },
     {
       "id": "S26",
@@ -2089,8 +2089,12 @@
     {
       "at": "2026-11-11T19:27:23+09:00",
       "event": "작업 S20 변경: note=PR #42 병합. 실제 AI 평가 표본 10/10 일치, 실행기 PR #55"
+    },
+    {
+      "at": "2026-11-11T20:02:55+09:00",
+      "event": "작업 S25 변경: pr=56, note=구현 완료 PR #56(10쌍, CI 8). claude 내용 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T19:27:23+09:00"
+  "updated_at": "2026-11-11T20:02:55+09:00"
 }
