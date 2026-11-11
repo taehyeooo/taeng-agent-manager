@@ -944,8 +944,19 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
       "pr": "59",
-      "dispatch": "ctx_025df773f986",
-      "note": "웹 전용 조정 완료(14295fa). Claude 디자인 스킬 검토 위임"
+      "dispatch": "ctx_8c2140d2c464",
+      "note": "Claude 디자인 검토(중간 7·낮음 13) 반영 위임(codex astra)",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:design-review:ctx_3f48ed8db122",
+        "summary": "디자인 스킬 3종 검토: 높음 0·중간 7·낮음 13, 대비 5.4:1 이상. 중간: 튜터 대기 진행 막대 멈춰 보임 가능, 카드 왼쪽 선·용어 줄 간격, 분홍 의미 과적재(약함과 겹침), 제목 focus 밑줄이 링크 같음, 방향키마다 keyframe, 튜터 2열 오른쪽 공백",
+        "at": "2026-11-11T23:38:37+09:00"
+      },
+      "files": [
+        "frontend/src"
+      ]
     }
   ],
   "history": [
@@ -2232,8 +2243,16 @@
     {
       "at": "2026-11-11T22:53:30+09:00",
       "event": "작업 S27 변경: note=웹 전용 조정 완료(14295fa). Claude 디자인 스킬 검토 위임"
+    },
+    {
+      "at": "2026-11-11T23:38:37+09:00",
+      "event": "작업 S27 검증(claude:design-review:ctx_3f48ed8db122): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T23:38:47+09:00",
+      "event": "작업 S27 변경: dispatch=ctx_8c2140d2c464, note=Claude 디자인 검토(중간 7·낮음 13) 반영 위임(codex astra)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:53:30+09:00"
+  "updated_at": "2026-11-11T23:38:47+09:00"
 }
