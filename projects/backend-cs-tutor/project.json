@@ -727,7 +727,7 @@
       "title": "첫 진단 15문제와 추천 시작점 (R-30)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22",
       "pr": "45",
@@ -735,14 +735,14 @@
       "note": "사용자 결정 2026-11-11: 재진단은 안 본 문제로. 검증 지적 수정 위임(codex)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_2ba3de933937",
-        "summary": "누출·진단 제외·동시성·규칙 pass. 고칠 것: 진단만 한 reading 개념이 홈 문제·튜터 대상에 섞임, 순환 뒤 개념 홈 누락, 숨긴 deep 카드 건너뛰기. 사용자 결정: 재진단은 안 본 문제로",
-        "at": "2026-11-11T15:57:04+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: 재진단 안 본 문제 우선(사용자 결정), 진단만 한 개념 홈 연습 제외, 순환 추천 보존, 숨긴 카드 건너뛰기. 프론트 115, 백엔드는 이 PC 앱 제어로 로컬 실행 불가 → CI Ubuntu·Windows 백엔드 포함 7/7 통과로 확인",
+        "at": "2026-11-11T16:22:19+09:00"
       },
       "files": [
-        "backend/src/main/java",
+        "backend/src/main/java/kr/dadokcs/diagnosis",
         "frontend/src"
       ]
     },
@@ -1846,8 +1846,16 @@
     {
       "at": "2026-11-11T16:02:47+09:00",
       "event": "작업 S2b 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-pgbin, dispatch=ctx_e73cecae9871"
+    },
+    {
+      "at": "2026-11-11T16:22:19+09:00",
+      "event": "작업 S22 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:22:19+09:00",
+      "event": "작업 S22 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T16:02:47+09:00"
+  "updated_at": "2026-11-11T16:22:19+09:00"
 }
