@@ -633,12 +633,12 @@
       "title": "AI 튜터: 설명하기·3번 되묻기·힌트 (R-18, R-19)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
       "pr": "35",
       "dispatch": "ctx_f4059603a49a",
-      "note": "PR #35 병합. PR #38은 병합 승인 받음 — log.md 충돌로 main 맞추기 중",
+      "note": "PR #35·#38 병합, 실제 AI 표본 20/20 통과",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1644,8 +1644,12 @@
     {
       "at": "2026-11-11T11:45:57+09:00",
       "event": "작업 S13 변경: note=회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
+    },
+    {
+      "at": "2026-11-11T11:56:17+09:00",
+      "event": "작업 S19 변경: status=done, note=PR #35·#38 병합, 실제 AI 표본 20/20 통과"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:45:57+09:00"
+  "updated_at": "2026-11-11T11:56:17+09:00"
 }
