@@ -595,8 +595,19 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
       "pr": "35",
-      "dispatch": "ctx_f605ffbbf212",
-      "note": "구현 완료 PR #35(백엔드 169·프론트 80·CI 7), 스크린샷 확인. claude 검증 위임. 실제 CLI 표본 20개는 사용자 승인 대기"
+      "dispatch": "ctx_f4059603a49a",
+      "note": "검증 지적 수정 위임(codex). 매니저 결정: 형식 오류 2회도 failed 아님(active·재시도), 학습자 글의 구분자 모양 치환",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_75b104a5de6a",
+        "summary": "흐름·동시성·취소·rubric 비공개 탄탄. 중간 3: 8자 미만 체크리스트 항목 미검사, 학습자 말 되짚기 거짓 양성 폐기, 형식 2회 실패 failed 처리 해석. 구분자 주입은 모델 판단 의존",
+        "at": "2026-11-11T10:50:30+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/tutor/TutorPrompt.java"
+      ]
     },
     {
       "id": "S20",
@@ -1491,8 +1502,16 @@
     {
       "at": "2026-11-11T10:47:45+09:00",
       "event": "작업 S19 변경: pr=35, note=구현 완료 PR #35(백엔드 169·프론트 80·CI 7), 스크린샷 확인. claude 검증 위임. 실제 CLI 표본 20개는 사용자 승인 대기"
+    },
+    {
+      "at": "2026-11-11T10:50:30+09:00",
+      "event": "작업 S19 검증(claude:reviewflow:ctx_75b104a5de6a): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T10:50:55+09:00",
+      "event": "작업 S19 변경: dispatch=ctx_f4059603a49a, note=검증 지적 수정 위임(codex). 매니저 결정: 형식 오류 2회도 failed 아님(active·재시도), 학습자 글의 구분자 모양 치환"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T10:47:45+09:00"
+  "updated_at": "2026-11-11T10:50:55+09:00"
 }
