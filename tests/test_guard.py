@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,22 +25,36 @@ def fetched_baseline(repo):
     git(repo, "update-ref", "-m", "fetch origin: fast-forward", "refs/remotes/origin/main", "HEAD")
 
 
+_FIXTURES = {}  # repos built once per test run, copied for each test — starting git is the slow part on Windows
+
+
 class GuardTest(unittest.TestCase):
+    @classmethod
+    def build(cls, base):
+        """app (feat/x with a fetched origin/main) and other, the way every test starts."""
+        app, other = base / "app", base / "other"
+        for repo in (app, other):
+            repo.mkdir(parents=True)
+            git(repo, "init", "-q", "-b", "main")
+            git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "init")
+        git(app, "checkout", "-q", "-b", "feat/x")
+        (app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}), encoding="utf-8")
+        git(app, "add", ".")
+        git(app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "baseline")
+        fetched_baseline(app)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         base = Path(self.tmp.name)
         self.root = str(base / "mgr")
         self.app = base / "app"
         self.other = base / "other"
-        for repo in (self.app, self.other):
-            repo.mkdir(parents=True)
-            git(repo, "init", "-q", "-b", "main")
-            git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "init")
-        git(self.app, "checkout", "-q", "-b", "feat/x")
-        (self.app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}), encoding="utf-8")
-        git(self.app, "add", ".")
-        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "baseline")
-        fetched_baseline(self.app)
+        key = type(self).build.__qualname__
+        if key not in _FIXTURES:
+            _FIXTURES[key] = tempfile.TemporaryDirectory()
+            type(self).build(Path(_FIXTURES[key].name))
+        for name in ("app", "other"):
+            shutil.copytree(Path(_FIXTURES[key].name) / name, base / name, symlinks=True)
         S.new_project("app", "app", "x", self.root)
         cfg = S.load_local(self.root)
         cfg["paths"]["app"] = str(self.app)
@@ -544,9 +559,11 @@ class VerifierRound4Test(GuardTest):
     def test_normal_dev_commands_not_blocked(self):
         """The verifier's sample of 11 normal commands the second net used to block."""
         for cmd in ("git log --grep push", "git log --grep merge", "git commit -m push", "git grep push", "rg push src",
-                    "pytest -k push", "python -m pytest -k merge", "npm test -- --grep merge", "echo push",
-                    "node -e \"console.log('push')\""):
+                    "npm test -- --grep merge", "echo push"):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+        # 4차(기본 ask): 허용 목록 밖 실행기는 위험 단어가 없어도 사람이 본다 — 테스트 코드도 쓰기 도구로 바뀔 수 있다
+        for cmd in ("pytest -k push", "python -m pytest -k merge", "node -e \"console.log('push')\""):
+            self.assertEqual(self.bash(cmd)[0], "ask", cmd)
         # 매니저가 실제로 막혔던 오탐: 다른 폴더의 설정을 읽기만 하는 스크립트 (json.dumps는 쓰기가 아님)
         reader = ("python -c \"import json; d=json.load(open(r'C:/x/orca-data.json', encoding='utf-8')); "
                   "print(json.dumps(d)[:10])\"")
@@ -559,18 +576,20 @@ class VerifierRound4Test(GuardTest):
 
 
 class BuildAllowlistTest(GuardTest):
-    def setUp(self):
-        super().setUp()
-        (self.app / "scripts").mkdir()
+    @classmethod
+    def build(cls, base):
+        GuardTest.build(base)
+        app = base / "app"
+        (app / "scripts").mkdir()
         for name in ("check.py", "check.sh"):
-            (self.app / "scripts" / name).write_text("# test\n", encoding="utf-8")
-        (self.app / "gradlew").write_text("# baseline wrapper\n", encoding="utf-8")
-        (self.app / "gradlew.bat").write_text("@rem baseline wrapper\n", encoding="utf-8")
-        (self.app / "package.json").write_text(json.dumps({"scripts": {
+            (app / "scripts" / name).write_text("# test\n", encoding="utf-8")
+        (app / "gradlew").write_text("# baseline wrapper\n", encoding="utf-8")
+        (app / "gradlew.bat").write_text("@rem baseline wrapper\n", encoding="utf-8")
+        (app / "package.json").write_text(json.dumps({"scripts": {
             "test": "vitest run", "build": "vite build", "lint": "eslint ."}}), encoding="utf-8")
-        git(self.app, "add", ".")
-        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
-        fetched_baseline(self.app)
+        git(app, "add", ".")
+        git(app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
+        fetched_baseline(app)
 
     def test_review_heredoc_interpreter_variants(self):
         for interpreter in ("node", "nodejs", "python3.12 -", "python3 -", "py -3", "pypy3 -"):
@@ -602,6 +621,9 @@ class BuildAllowlistTest(GuardTest):
         for ending in ("EOF ", "EOF\t"):
             command = "python - <<'EOF'\nprint('ok')\n" + ending + "\nopen('projects/app/project.json','w')\nEOF"
             self.assertNotEqual(self.bash(command, cwd=self.root)[0], "allow")
+            # 뒤 줄이 모두 아는 명령이어도: 진짜 본문은 Python으로 해석되지 않는 줄까지 포함한다
+            command = "python - <<'EOF'\nprint('ok')\n" + ending + "\necho x\ncat <<'EOF'\nEOF"
+            self.assertNotEqual(self.bash(command)[0], "allow")
 
     def test_review_committed_script_and_index_flags(self):
         for launcher, name in (("python", "scripts/check.py"), ("sh", "scripts/check.sh")):
@@ -750,6 +772,7 @@ class BuildAllowlistTest(GuardTest):
 
     def test_reverify_e_package_runners_and_npm_options(self):
         for cmd in ("pnpx evil", "bunx evil", "pnpm dlx evil", "yarn dlx evil", "bun x evil", "npm x evil",
+                    "npx cat package.json", "pnpm dlx echo hi", "npm exec -- ls",  # 패키지 이름이 아는 명령과 같아도
                     "pnpm test", "yarn test", "bun run test", "npm --prefix scripts test", "npm -w x test"):
             self._not_allowed(cmd)
         for cmd in ("npm --prefix x run deploy", "npm -w x run deploy", "npm rum deploy", "npm urn release",
@@ -865,6 +888,125 @@ class BuildAllowlistTest(GuardTest):
             self.assertEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF", cwd=self.root)[0], "deny", body)
         self.assertEqual(self.bash("python - <<'EOF'\nprint('ok')\nEOF\ngit push origin main")[0], "deny")
         self.assertEqual(self.bash("python - <<'EOF'\nimport subprocess\nsubprocess.run(['git', 'push'])\nEOF")[0], "ask")
+
+    # --- 4차 교차 검증: 남은 allow 경로 → 기본 ask
+    def test_r4_unlisted_programs_modules_and_scripts_ask(self):
+        """1·6: Write로 만든 파일을 실행하는 2단계 경로, 허용 목록 밖 실행기."""
+        (self.app / "x.sh").write_text("git push --force origin main\n", encoding="utf-8")
+        (self.app / "x.js").write_text("require('child_process').execSync('git push --force origin main')\n", encoding="utf-8")
+        (self.app / "pkg").mkdir()
+        (self.app / "pkg/__main__.py").write_text("import subprocess\n", encoding="utf-8")
+        for cmd in ("./x.sh", "x.sh", "bash x.sh", "python -m pkg", "python3 -m pkg", "node x.js", "deno run x.js",
+                    "ruby x.rb", "pytest", "make test", "cargo test", "go test ./...", "uv run python -c \"import os; print(os.environ)\"",
+                    "uv run pkg", "pipx run pkg", "poetry run pytest", "pdm run pkg", "hatch run pkg", "conda run python x.py",
+                    "cat x.sh | sh", "cat x.sh | bash", "git lfs pull", "gh extension exec x", "gh alias set x y",
+                    "python -m pip install x", "python -m am status"):
+            self._not_allowed(cmd)
+        for cmd in ("npm test", "npm run build", "gradlew test", "python scripts/check.py", "sh scripts/check.sh",
+                    "python -m unittest discover -s tests", "ls -la", "cat package.json | grep test", "git status",
+                    "gh pr view 3", "orca orchestration check", "mkdir -p out && echo x > out/a.txt"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_r4_wrappers_are_analysed_not_trusted(self):
+        """2: 래퍼 안의 명령을 재귀 분석. 일반 cmd 태그만으로 두 번째 그물을 건너뛰지 않는다."""
+        self.approve("push")
+        for cmd in ("timeout 60 git push --force origin main", "timeout -s KILL 60 git push --force origin main",
+                    "nice git push --force origin main", "nice -n 5 git push --force origin main",
+                    "nohup git push --force origin main", "stdbuf -oL git push --force origin main",
+                    "setsid git push --force origin main", "command git push --force origin main",
+                    "exec git push --force origin main", "watch -n 1 git push --force origin main",
+                    "find . -exec git push --force origin main ;", "timeout 60 gh auth token", "nice printenv",
+                    "timeout 60 env"):
+            self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+            self.assertIn("금지", self.bash(cmd)[1], cmd)
+        self.assertIn("deploy", self.bash("timeout 60 vercel --prod")[1])
+        self.assertIn("destructive_delete", self.bash("find . -name '*.log' -delete")[1])
+        for cmd in ("echo main | xargs git push origin", "git ls-files | xargs rm", "find . -name x -exec rm {} +",
+                    "find . -exec sh -c 'echo {}' ;", "timeout 60 ./x.sh", "nice node x.js", "chronic make",
+                    "ionice -c 3 python -m pkg", "git status | xargs -I{} sh -c 'echo {}'"):
+            self._not_allowed(cmd)
+        for cmd in ("timeout 60 npm test", "find . -name '*.py'", "find . -name '*.py' -exec grep -l push {} +",
+                    "git ls-files | xargs grep -n merge", "command -v git", "nice -n 5 git status"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_r4_escaped_quote_does_not_hide_a_command(self):
+        """3: \\\" 를 미리 풀면 따옴표가 시작돼 뒤 명령이 숨는다 — 인용·escape 상태를 같이 본다(코드값 92·34·59)."""
+        bs, dq, semi, bt, caret = chr(92), chr(34), chr(59), chr(96), chr(94)
+        cmd = "echo " + bs + dq + semi + " git push --force origin main"
+        self.assertEqual([ord(c) for c in cmd[5:8]], [92, 34, 59])
+        self.assertIn("금지", self.bash(cmd)[1])
+        self.assertIn("금지", self.bash("echo " + bs + "'" + semi + " git push --force origin main")[1])
+        self.assertIn("금지", self.bash("bash -c " + dq + "echo " + bs + bs + bs + dq + semi + " git push --force origin main" + dq)[1])
+        ps = G.decide({"tool_name": "PowerShell", "tool_input": {"command": "echo " + bt + dq + semi + " git push --force origin main"},
+                       "cwd": str(self.app)}, "claude", self.root)
+        self.assertEqual(ps[0], "deny")
+        self.assertIn("금지", self.bash("cmd /c 'echo " + caret + dq + "& git push --force origin main'")[1])
+        self.assertIn("금지", self.bash("cmd /c \"echo 'a & git push --force origin main & echo b'\"")[1])  # cmd에는 작은따옴표가 없다
+        codex = G.decide({"tool_name": "shell", "tool_input": {"command": ["bash", "-lc", "echo " + bs + dq + semi + " git push --force origin main"]},
+                          "cwd": str(self.app)}, "codex", self.root)
+        self.assertEqual(codex[0], "deny")
+        # 데이터로 남는 escape는 그대로 허용
+        self.assertEqual(self.bash("echo " + bs + semi + " git push --force origin main")[0], "allow")
+        self.assertEqual(self.bash('git commit -m "say ' + bs + dq + 'hi' + bs + dq + '"')[0], "allow")
+
+    def test_r4_unittest_shadowing(self):
+        """4: cwd의 unittest.py / unittest/ 가 표준 모듈을 가릴 수 있다 → -I 격리 실행만 허용."""
+        (self.app / "tests").mkdir()
+        self.assertEqual(self.bash("python -m unittest discover -s tests")[0], "allow")
+        for shadow in ("unittest.py", "unittest"):
+            path = self.app / shadow
+            path.mkdir() if shadow == "unittest" else path.write_text("import os\n", encoding="utf-8")
+            self._not_allowed("python -m unittest discover -s tests")
+            self._not_allowed("python -m unittest")
+            self.assertEqual(self.bash("python -I -m unittest discover -s tests")[0], "allow")
+            shutil.rmtree(path) if shadow == "unittest" else path.unlink()
+
+    def test_r4_read_only_npm_runs_no_git_and_npm_test_few(self):
+        """5: 읽기 명령은 build input 검사 전에 분리, 한 판정 안 git 조회는 캐시·묶음."""
+        calls = []
+        real = subprocess.run
+
+        def counting(*args, **kwargs):
+            if args and args[0] and args[0][0] == "git":
+                calls.append(args[0])
+            return real(*args, **kwargs)
+        G.subprocess.run = counting
+        try:
+            for cmd, most in (("npm -v", 0), ("npm --version", 0), ("npm ls", 0), ("npm test", 3), ("npm ci && npm test", 3)):
+                calls.clear()
+                self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+                self.assertLessEqual(len(calls), most, (cmd, calls))
+        finally:
+            G.subprocess.run = real
+
+    def test_r4_git_default_ask(self):
+        self.approve("push")
+        for cmd in ("git -c core.askPass=./x.sh fetch origin", "git -c protocol.ext.allow=always fetch origin",
+                    "git --exec-path=. fetch origin", "git submodule foreach git push --force origin main",
+                    "git rebase -x ./x.sh main", "git bisect run ./x.sh", "git clone --template=t https://github.com/me/x.git",
+                    "git config core.hooksPath hooks", "git config core.sshCommand ./x.sh", "git difftool",
+                    "git push $'--force' origin main", "git push origin $BRANCH", "rm $TARGET", "echo x > $HOME/a.txt"):
+            self._not_allowed(cmd)
+        self.assertIn("금지", self.bash("echo x > ~/a.txt")[1])  # ~ 는 셸이 홈 폴더로 바꾼다
+        for cmd in ("git config user.name t", "git config --get core.hooksPath", "git -c user.name=t -c user.email=t@t commit -m x",
+                    "git -c color.ui=never log --oneline"):
+            self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+
+    def test_r4_in_tree_hooks_must_match_baseline(self):
+        hooks = self.app / ".githooks"
+        hooks.mkdir()
+        (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        git(self.app, "add", ".")
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "hooks")
+        fetched_baseline(self.app)
+        git(self.app, "config", "core.hooksPath", ".githooks")
+        self.assertEqual(self.bash("git commit -m x")[0], "allow")
+        (hooks / "pre-commit").write_text("#!/bin/sh\ngit push --force origin main\n", encoding="utf-8")
+        self._not_allowed("git commit -m x")
+        self._not_allowed("git push origin feat/x")
+        (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        (hooks / "pre-push").write_text("#!/bin/sh\n", encoding="utf-8")  # 새 훅
+        self._not_allowed("git commit -m x")
 
 
 class TrustLayerStateTest(unittest.TestCase):
