@@ -916,12 +916,24 @@
       "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
       "agent": "codex",
       "kind": "docs",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "note": "기획서 v2 위임(codex)"
+    },
+    {
+      "id": "S27",
+      "title": "디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
+      "pr": null,
+      "dispatch": "ctx_723bd8f48e2c",
+      "note": "사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
     }
   ],
   "history": [
@@ -2168,8 +2180,20 @@
     {
       "at": "2026-11-11T22:24:11+09:00",
       "event": "작업 S25 변경: status=done, note=PR #56 병합, 실행 중 앱에 V6 적용(5→6)·연결 질문 적재"
+    },
+    {
+      "at": "2026-11-11T22:25:47+09:00",
+      "event": "작업 추가 S27 (codex): 디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지"
+    },
+    {
+      "at": "2026-11-11T22:25:48+09:00",
+      "event": "작업 S27 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27, dispatch=ctx_723bd8f48e2c, note=사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
+    },
+    {
+      "at": "2026-11-11T22:26:20+09:00",
+      "event": "작업 S26 변경: status=dispatched, note=기획서 v2 위임(codex)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:24:11+09:00"
+  "updated_at": "2026-11-11T22:26:20+09:00"
 }
