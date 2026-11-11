@@ -811,12 +811,12 @@
       "title": "하루 학습 흐름 E2E와 spec-check (R-1)",
       "agent": "claude",
       "kind": "test",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
       "pr": null,
-      "dispatch": null,
-      "note": "계획 8단계: 마무리 점검은 구현 모델(codex)과 다른 쪽"
+      "dispatch": "ctx_09921502b1d3",
+      "note": "둘로 나눔: S24a E2E(codex ctx_1f5be27bfe06), S24b spec-check(claude ctx_09921502b1d3)"
     },
     {
       "id": "S2b",
@@ -1982,8 +1982,12 @@
     {
       "at": "2026-11-11T18:22:24+09:00",
       "event": "작업 S21 변경: status=done, note=PR #50 병합"
+    },
+    {
+      "at": "2026-11-11T18:23:31+09:00",
+      "event": "작업 S24 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b, dispatch=ctx_09921502b1d3, note=둘로 나눔: S24a E2E(codex ctx_1f5be27bfe06), S24b spec-check(claude ctx_09921502b1d3)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T18:22:24+09:00"
+  "updated_at": "2026-11-11T18:23:31+09:00"
 }
