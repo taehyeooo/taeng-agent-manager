@@ -932,8 +932,8 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
       "pr": "58",
-      "dispatch": "ctx_df2b9c7fa9ff",
-      "note": "기획서 v2 위임(codex)",
+      "dispatch": "ctx_e19c1505c48b",
+      "note": "PR #58 병합 승인 — #59와 충돌로 main 맞추기 + 웹 전용 결정 추가 중",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -952,12 +952,12 @@
       "title": "디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지",
       "agent": "codex",
       "kind": "design",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
       "pr": "59",
       "dispatch": "ctx_8c2140d2c464",
-      "note": "Claude 디자인 검토(중간 7·낮음 13) 반영 위임(codex astra)",
+      "note": "PR #59 병합, 실행 중 앱에 반영(git pull, 화면 서버 자동 갱신)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -969,6 +969,18 @@
       "files": [
         "frontend"
       ]
+    },
+    {
+      "id": "S28",
+      "title": "첫 진단 '잘 모르겠어요' 선택지(찍기 방지): 모름은 추천 대상, 오답 통계 제외, 진단 표 결과 값 추가",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S28",
+      "pr": null,
+      "dispatch": "ctx_a113bfca6cf1",
+      "note": "사용자 요청 2026-11-11"
     }
   ],
   "history": [
@@ -2279,8 +2291,24 @@
     {
       "at": "2026-11-11T23:57:11+09:00",
       "event": "승인 기록: merge_main (PR#58)"
+    },
+    {
+      "at": "2026-11-11T23:58:09+09:00",
+      "event": "작업 S27 변경: status=done, note=PR #59 병합, 실행 중 앱에 반영(git pull, 화면 서버 자동 갱신)"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 추가 S28 (codex): 첫 진단 '잘 모르겠어요' 선택지(찍기 방지): 모름은 추천 대상, 오답 통계 제외, 진단 표 결과 값 추가"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 S28 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S28, dispatch=ctx_a113bfca6cf1, note=사용자 요청 2026-11-11"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 S26 변경: dispatch=ctx_e19c1505c48b, note=PR #58 병합 승인 — #59와 충돌로 main 맞추기 + 웹 전용 결정 추가 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T23:57:11+09:00"
+  "updated_at": "2026-11-11T23:58:56+09:00"
 }
