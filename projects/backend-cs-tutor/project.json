@@ -598,7 +598,7 @@
       "title": "홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
       "pr": "41",
@@ -606,15 +606,15 @@
       "note": "구현 완료 PR #41(프론트 98·백엔드 211·CI 7). claude 검증 위임",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_3f63e05048c6",
-        "summary": "설정 검증·단일 행·review/today 일관성 통과. 고칠 것: HomeController가 약한 개념 시작 단계를 재계산해 저장된 회차와 어긋남(R-16 중복 구현), focus마다 로딩으로 돌아가 포커스 유실. 하 5건",
-        "at": "2026-11-11T12:28:33+09:00"
+        "by": "claude:manager",
+        "summary": "지적 7건 반영: 홈은 저장 회차·추천 읽기만, 조용한 갱신·포커스 유지, 정수 입력, 쿼리 정리. 프론트 100·백엔드 214·CI 7 통과",
+        "at": "2026-11-11T14:11:59+09:00"
       },
       "files": [
-        "backend/src/main/java",
-        "frontend/src"
+        "frontend/src",
+        "backend/src/main/java"
       ]
     },
     {
@@ -668,7 +668,7 @@
       "title": "설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
       "pr": "42",
@@ -676,11 +676,11 @@
       "note": "사용자 결정 2026-11-11: 통과 = 틀린 내용 0 + 핵심 항목 최대 1개 누락 허용, 평가 후 빠진 항목 이름 + 다시 볼 카드 표시(평가 완료 뒤에만)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_9f90a474e774",
-        "summary": "통과 규칙 서버 판정·누출 방지 명세대로. 고칠 것: 롤백 시 busy 210초 고착, 첫 평가에 '다시 평가하기'·안내 중복, 되묻기 맥락이 평가 입력에서 빠짐. 사용자 결정 반영 필요",
-        "at": "2026-11-11T12:28:33+09:00"
+        "by": "claude:manager",
+        "summary": "사용자 결정 반영(틀린 내용 0 + core 최대 1 누락, 평가 완료 후 빠진 항목 이름+카드), busy finally 해제, 첫 평가 라벨, 되묻기 맥락 포함. 변형 3 검출, 백엔드 236·프론트 98·CI 7 통과",
+        "at": "2026-11-11T14:11:59+09:00"
       },
       "files": [
         "backend/src/main/java/kr/dadokcs/tutor",
@@ -1700,8 +1700,24 @@
     {
       "at": "2026-11-11T12:29:53+09:00",
       "event": "작업 S17 변경: dispatch=ctx_f9427be12c65"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S20 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S17 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S20 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S17 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T12:29:53+09:00"
+  "updated_at": "2026-11-11T14:12:00+09:00"
 }
