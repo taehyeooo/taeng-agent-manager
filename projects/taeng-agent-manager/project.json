@@ -158,6 +158,18 @@
       "files": [
         "am/guard.py"
       ]
+    },
+    {
+      "id": "T5",
+      "title": "가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "구현 codex, 검증 claude(직접 판정)"
     }
   ],
   "history": [
@@ -804,10 +816,22 @@
     {
       "at": "2026-11-11T15:04:58+09:00",
       "event": "승인 기록: destructive_delete (merged-clean-worktrees)"
+    },
+    {
+      "at": "2026-11-11T15:21:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T15:21:07+09:00",
+      "event": "작업 추가 T5 (codex, 자동): 가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가"
+    },
+    {
+      "at": "2026-11-11T15:21:08+09:00",
+      "event": "작업 T5 변경: agent=codex, note=구현 codex, 검증 claude(직접 판정)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T15:04:58+09:00",
+  "updated_at": "2026-11-11T15:21:08+09:00",
   "requests": [
     {
       "gate": "push",
