@@ -727,11 +727,11 @@
       "title": "첫 진단 15문제와 추천 시작점 (R-30)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_24b70710a917",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -739,11 +739,11 @@
       "title": "기록 내보내기·가져오기·초기화 (R-29, R-32)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_e56e393e84d1",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -1767,8 +1767,16 @@
     {
       "at": "2026-11-11T14:34:56+09:00",
       "event": "작업 S13 변경: status=done, pr=41"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S23 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23, dispatch=ctx_e56e393e84d1"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S22 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22, dispatch=ctx_24b70710a917"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T14:34:56+09:00"
+  "updated_at": "2026-11-11T14:36:20+09:00"
 }
