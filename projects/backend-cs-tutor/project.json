@@ -928,12 +928,12 @@
       "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
       "agent": "codex",
       "kind": "docs",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
       "pr": "58",
       "dispatch": "ctx_e19c1505c48b",
-      "note": "PR #58 병합 승인 — #59와 충돌로 main 맞추기 + 웹 전용 결정 추가 중",
+      "note": "PR #58 병합(기획서 v2 + 웹 전용)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2307,8 +2307,12 @@
     {
       "at": "2026-11-11T23:58:56+09:00",
       "event": "작업 S26 변경: dispatch=ctx_e19c1505c48b, note=PR #58 병합 승인 — #59와 충돌로 main 맞추기 + 웹 전용 결정 추가 중"
+    },
+    {
+      "at": "2026-11-12T00:04:24+09:00",
+      "event": "작업 S26 변경: status=done, note=PR #58 병합(기획서 v2 + 웹 전용)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T23:58:56+09:00"
+  "updated_at": "2026-11-12T00:04:24+09:00"
 }
