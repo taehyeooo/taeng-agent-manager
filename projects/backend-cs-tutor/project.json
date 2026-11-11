@@ -521,12 +521,12 @@
       "title": "오답 원인 진단과 약한 개념 우선 이동 (R-14, R-16)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_37c33dce6239",
+      "note": "S16 2부(진행 재계산·오늘 복습 API) 포함"
     },
     {
       "id": "S16",
@@ -538,7 +538,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16",
       "pr": "25",
       "dispatch": "ctx_fa4bd48feb71",
-      "note": "1부(계산) PR #25 병합. 2부(DB 저장·API·화면 연결)는 S17 홈 대시보드와 함께",
+      "note": "2부는 S15에 포함해 위임",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -591,12 +591,12 @@
       "title": "AI 튜터: 설명하기·3번 되묻기·힌트 (R-18, R-19)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
       "pr": null,
-      "dispatch": null,
-      "note": "사용자 결정 2026-11-10: 튜터 Codex 모델 = gpt-6.1-sol(dadok.ai.codex-model). Claude 모델은 12/1 전에 다시 확인"
+      "dispatch": "ctx_f605ffbbf212",
+      "note": "튜터 세션·되묻기 3번·힌트. 실제 CLI 표본 검사는 사용자 승인 후"
     },
     {
       "id": "S20",
@@ -1475,8 +1475,20 @@
     {
       "at": "2026-11-11T10:13:13+09:00",
       "event": "작업 P0 변경: note=2026-11-11 정리: 병합된 작업 폴더 17개·로컬 브랜치 삭제 완료(승인). 남은 폴더는 main 본 폴더뿐"
+    },
+    {
+      "at": "2026-11-11T10:16:12+09:00",
+      "event": "작업 S15 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15, dispatch=ctx_37c33dce6239, note=S16 2부(진행 재계산·오늘 복습 API) 포함"
+    },
+    {
+      "at": "2026-11-11T10:16:13+09:00",
+      "event": "작업 S16 변경: note=2부는 S15에 포함해 위임"
+    },
+    {
+      "at": "2026-11-11T10:16:13+09:00",
+      "event": "작업 S19 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19, dispatch=ctx_f605ffbbf212, note=튜터 세션·되묻기 3번·힌트. 실제 CLI 표본 검사는 사용자 승인 후"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T10:13:13+09:00"
+  "updated_at": "2026-11-11T10:16:13+09:00"
 }
