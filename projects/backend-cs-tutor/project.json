@@ -602,7 +602,7 @@
       "title": "AI 튜터: 설명하기·3번 되묻기·힌트 (R-18, R-19)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
       "pr": "35",
@@ -610,14 +610,15 @@
       "note": "검증 지적 수정 위임(codex). 매니저 결정: 형식 오류 2회도 failed 아님(active·재시도), 학습자 글의 구분자 모양 치환",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_75b104a5de6a",
-        "summary": "흐름·동시성·취소·rubric 비공개 탄탄. 중간 3: 8자 미만 체크리스트 항목 미검사, 학습자 말 되짚기 거짓 양성 폐기, 형식 2회 실패 failed 처리 해석. 구분자 주입은 모델 판단 의존",
-        "at": "2026-11-11T10:50:30+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: 짧은 항목 완전 포함 검사, 학습자 발화 제외, 구분자 모양 치환, 형식 오류 active 유지·안내, 표본 계획 보강. 백엔드 176(+2)·프론트 85·CI 7 통과. 실제 CLI 표본 20개는 병합 후 사용자 승인으로",
+        "at": "2026-11-11T11:07:40+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/tutor/TutorPrompt.java"
+        "backend/src/main/java/kr/dadokcs/tutor",
+        "frontend/src"
       ]
     },
     {
@@ -1533,8 +1534,16 @@
     {
       "at": "2026-11-11T11:00:21+09:00",
       "event": "작업 S15 변경: dispatch=ctx_cf918a03e93c, note=검증 지적 수정 위임(codex): 회차 기한당 1회(R-10), 오답이면 min으로 내려감(명세). 10분/5분은 설정 상수"
+    },
+    {
+      "at": "2026-11-11T11:07:40+09:00",
+      "event": "작업 S19 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:07:40+09:00",
+      "event": "작업 S19 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:00:21+09:00"
+  "updated_at": "2026-11-11T11:07:40+09:00"
 }
