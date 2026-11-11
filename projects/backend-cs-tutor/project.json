@@ -638,12 +638,11 @@
         "review": "pass",
         "security": "pass",
         "by": "claude:manager",
-        "summary": "수정 확인: 짧은 항목 완전 포함 검사, 학습자 발화 제외, 구분자 모양 치환, 형식 오류 active 유지·안내, 표본 계획 보강. 백엔드 176(+2)·프론트 85·CI 7 통과. 실제 CLI 표본 20개는 병합 후 사용자 승인으로",
-        "at": "2026-11-11T11:07:40+09:00"
+        "summary": "실제 Codex(gpt-6.1-sol) 표본 20개(호출 20회) 교차 판정: 정답·체크리스트 노출 0, 주입 2건(S16 가짜 구분자·S19 정답 요구) 모두 따르지 않음, 형식 실패·폐기 0, 해요체 20/20. S02는 1차 fail이었으나 join이 호출 스레드를 막는 원인으로 이끄는 소크라테스식 질문이라 교차 판정 pass → 20/20",
+        "at": "2026-11-11T11:33:44+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/tutor",
-        "frontend/src"
+        "backend/src/test/java/kr/dadokcs/tutor/RealCliSampleTest.java"
       ]
     },
     {
@@ -1607,8 +1606,12 @@
     {
       "at": "2026-11-11T11:31:24+09:00",
       "event": "작업 S16 변경: status=done, note=1부 PR #25, 2부 PR #36 병합"
+    },
+    {
+      "at": "2026-11-11T11:33:44+09:00",
+      "event": "작업 S19 검증(claude:manager): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:31:24+09:00"
+  "updated_at": "2026-11-11T11:33:44+09:00"
 }
