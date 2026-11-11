@@ -149,6 +149,12 @@
       "ref": "PR#32",
       "note": "2026-11-11 사용자: '승인' — dadok-cs PR #32(S14 문제 풀이) squash 병합",
       "at": "2026-11-11T10:02:21+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "dadok-cs merged worktrees 2026-11-11",
+      "note": "2026-11-11 사용자: '승인' — 병합된 작업 폴더 17개와 로컬 작업 브랜치 삭제(미병합 변경 있으면 건너뜀)",
+      "at": "2026-11-11T10:03:12+09:00"
     }
   ],
   "tasks": [
@@ -162,7 +168,7 @@
       "worktree": "C:/Users/user/orca/dadok-cs",
       "pr": null,
       "dispatch": "ctx_dd2fd907b0c8",
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "2026-11-11 정리: 병합된 작업 폴더 17개·로컬 브랜치 삭제 완료(승인). 남은 폴더는 main 본 폴더뿐",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1461,8 +1467,16 @@
     {
       "at": "2026-11-11T10:02:27+09:00",
       "event": "작업 S14 변경: status=done, note=PR #32 병합"
+    },
+    {
+      "at": "2026-11-11T10:03:12+09:00",
+      "event": "승인 기록: destructive_delete (dadok-cs merged worktrees 2026-11-11)"
+    },
+    {
+      "at": "2026-11-11T10:13:13+09:00",
+      "event": "작업 P0 변경: note=2026-11-11 정리: 병합된 작업 폴더 17개·로컬 브랜치 삭제 완료(승인). 남은 폴더는 main 본 폴더뿐"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T10:02:27+09:00"
+  "updated_at": "2026-11-11T10:13:13+09:00"
 }
