@@ -918,9 +918,9 @@
       "kind": "docs",
       "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_df2b9c7fa9ff",
       "note": "기획서 v2 위임(codex)"
     },
     {
@@ -2192,8 +2192,12 @@
     {
       "at": "2026-11-11T22:26:20+09:00",
       "event": "작업 S26 변경: status=dispatched, note=기획서 v2 위임(codex)"
+    },
+    {
+      "at": "2026-11-11T22:26:29+09:00",
+      "event": "작업 S26 변경: worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26, dispatch=ctx_df2b9c7fa9ff"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:26:20+09:00"
+  "updated_at": "2026-11-11T22:26:29+09:00"
 }
