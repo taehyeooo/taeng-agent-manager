@@ -185,6 +185,18 @@
       "ref": "PR#38",
       "note": "2026-11-11 사용자: '승인' — dadok-cs PR #38(튜터 실제 AI 표본 실행기) squash 병합",
       "at": "2026-11-11T11:40:14+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#42",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #42(S20 설명 평가) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#41",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #41(S17 홈 대시보드) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
     }
   ],
   "tasks": [
@@ -603,7 +615,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
       "pr": "41",
       "dispatch": "ctx_f9427be12c65",
-      "note": "구현 완료 PR #41(프론트 98·백엔드 211·CI 7). claude 검증 위임",
+      "note": "PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -668,12 +680,12 @@
       "title": "설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
       "pr": "42",
       "dispatch": "ctx_ee543091335f",
-      "note": "사용자 결정 2026-11-11: 통과 = 틀린 내용 0 + 핵심 항목 최대 1개 누락 허용, 평가 후 빠진 항목 이름 + 다시 볼 카드 표시(평가 완료 뒤에만)",
+      "note": "PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1716,8 +1728,24 @@
     {
       "at": "2026-11-11T14:12:00+09:00",
       "event": "작업 S17 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#42)"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#41)"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S20 변경: status=done, note=PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S17 변경: note=PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T14:12:00+09:00"
+  "updated_at": "2026-11-11T14:19:25+09:00"
 }
