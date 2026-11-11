@@ -916,12 +916,24 @@
       "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
-      "pr": null,
+      "pr": "58",
       "dispatch": "ctx_df2b9c7fa9ff",
-      "note": "기획서 v2 위임(codex)"
+      "note": "기획서 v2 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "기획서 v2 변경 이력 표 확인: 사용자 결정(밝은 화면·구조 C·분 단위·오답 1일·학습일당 1회·회차 min·연결 질문 core 3+·통과 기준·ai_call 보존·재진단) 모두 반영, 문서만 변경, 요구사항 연결 32/32·CI 통과",
+        "at": "2026-11-11T22:46:17+09:00"
+      },
+      "files": [
+        "docs/specs/2026-11-10-dadok-cs.md",
+        "docs/plans/2026-11-10-dadok-cs.md"
+      ]
     },
     {
       "id": "S27",
@@ -931,9 +943,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
-      "pr": null,
+      "pr": "59",
       "dispatch": "ctx_723bd8f48e2c",
-      "note": "사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
+      "note": "구현 완료 PR #59(정체성: 다시 읽기·쌓이는 이해·내 말로 설명·차분한 집중; 워드마크·책등 회차·토큰·움직임). 사용자 의견 대기. 관찰: 개념 제목에 굵은 파란 포커스 테두리"
     }
   ],
   "history": [
@@ -2196,8 +2208,20 @@
     {
       "at": "2026-11-11T22:26:29+09:00",
       "event": "작업 S26 변경: worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26, dispatch=ctx_df2b9c7fa9ff"
+    },
+    {
+      "at": "2026-11-11T22:46:17+09:00",
+      "event": "작업 S26 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T22:46:17+09:00",
+      "event": "작업 S26 변경: status=review, pr=58"
+    },
+    {
+      "at": "2026-11-11T22:47:06+09:00",
+      "event": "작업 S27 변경: pr=59, note=구현 완료 PR #59(정체성: 다시 읽기·쌓이는 이해·내 말로 설명·차분한 집중; 워드마크·책등 회차·토큰·움직임). 사용자 의견 대기. 관찰: 개념 제목에 굵은 파란 포커스 테두리"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:26:29+09:00"
+  "updated_at": "2026-11-11T22:47:06+09:00"
 }
