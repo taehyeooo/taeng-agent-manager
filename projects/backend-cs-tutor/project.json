@@ -736,9 +736,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21",
-      "pr": null,
+      "pr": "50",
       "dispatch": "ctx_63ff840f76f0",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "구현 완료 PR #50(프론트 122·백엔드 279·CI 7). claude 검증 위임"
     },
     {
       "id": "S22",
@@ -769,12 +769,12 @@
       "title": "기록 내보내기·가져오기·초기화 (R-29, R-32)",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
       "pr": "46",
       "dispatch": "ctx_c18310aa7fa8",
-      "note": "PR #46 병합 승인 — PR #45 병합 뒤 main 맞추기 예정",
+      "note": "PR #46 병합(실제 진단 표 왕복 포함, DB 포함 279 통과)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1932,8 +1932,16 @@
     {
       "at": "2026-11-11T16:53:34+09:00",
       "event": "작업 S22 변경: status=done, note=PR #45 병합(이 PC DB 포함 테스트 262 통과)"
+    },
+    {
+      "at": "2026-11-11T17:38:26+09:00",
+      "event": "작업 S23 변경: status=done, note=PR #46 병합(실제 진단 표 왕복 포함, DB 포함 279 통과)"
+    },
+    {
+      "at": "2026-11-11T17:38:26+09:00",
+      "event": "작업 S21 변경: pr=50, note=구현 완료 PR #50(프론트 122·백엔드 279·CI 7). claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T16:53:34+09:00"
+  "updated_at": "2026-11-11T17:38:26+09:00"
 }
