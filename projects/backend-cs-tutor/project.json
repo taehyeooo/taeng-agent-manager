@@ -742,9 +742,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
-      "pr": null,
+      "pr": "46",
       "dispatch": "ctx_e56e393e84d1",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "구현 완료 PR #46(프론트 110·백엔드 259·CI 7). claude 검증 위임"
     },
     {
       "id": "S24",
@@ -1779,8 +1779,12 @@
     {
       "at": "2026-11-11T15:18:08+09:00",
       "event": "작업 S22 변경: pr=45, note=구현 완료 PR #45(프론트 108·백엔드 254·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T15:39:20+09:00",
+      "event": "작업 S23 변경: pr=46, note=구현 완료 PR #46(프론트 110·백엔드 259·CI 7). claude 검증 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T15:18:08+09:00"
+  "updated_at": "2026-11-11T15:39:20+09:00"
 }
