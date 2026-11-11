@@ -77,6 +77,12 @@
       "ref": "PR#5",
       "note": "2026-11-11 사용자: '승인' — 매니저 PR #5(가드 T5 오탐 완화)를 작업 브랜치 plan/backend-cs-tutor에 squash 병합(main 아님)",
       "at": "2026-11-11T17:02:59+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#2",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #2(plan/backend-cs-tutor → main, 다독CS 기획·진행 기록·가드 T3~T5) merge 커밋으로 병합",
+      "at": "2026-11-11T22:27:29+09:00"
     }
   ],
   "tasks": [
@@ -949,10 +955,14 @@
     {
       "at": "2026-11-11T22:26:27+09:00",
       "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T22:27:29+09:00",
+      "event": "승인 기록: merge_main (PR#2)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T22:26:27+09:00",
+  "updated_at": "2026-11-11T22:27:29+09:00",
   "requests": [
     {
       "gate": "push",
