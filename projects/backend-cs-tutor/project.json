@@ -525,8 +525,19 @@
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15",
       "pr": "36",
-      "dispatch": "ctx_37c33dce6239",
-      "note": "구현 완료 PR #36(프론트 83·백엔드 176·CI 7). 가정 4개. claude 검증 위임"
+      "dispatch": "ctx_cf918a03e93c",
+      "note": "검증 지적 수정 위임(codex): 회차 기한당 1회(R-10), 오답이면 min으로 내려감(명세). 10분/5분은 설정 상수",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow:ctx_d5d61fb395c1",
+        "summary": "재계산·잠금·진단 제외·매핑 명세대로. 높음: 같은 복습 기한에 매일 읽으면 회차 매일 +1(R-10 위반), 오답 시 회차가 원인 단계로 올라갈 수 있음(명세는 내려감). 숨긴 개념 오늘 목록 테스트·minutes 범위",
+        "at": "2026-11-11T10:59:56+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/progress"
+      ]
     },
     {
       "id": "S16",
@@ -1514,8 +1525,16 @@
     {
       "at": "2026-11-11T10:57:30+09:00",
       "event": "작업 S15 변경: pr=36, note=구현 완료 PR #36(프론트 83·백엔드 176·CI 7). 가정 4개. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T10:59:56+09:00",
+      "event": "작업 S15 검증(claude:reviewflow:ctx_d5d61fb395c1): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:00:21+09:00",
+      "event": "작업 S15 변경: dispatch=ctx_cf918a03e93c, note=검증 지적 수정 위임(codex): 회차 기한당 1회(R-10), 오답이면 min으로 내려감(명세). 10분/5분은 설정 상수"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T10:57:30+09:00"
+  "updated_at": "2026-11-11T11:00:21+09:00"
 }
