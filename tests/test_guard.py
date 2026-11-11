@@ -591,6 +591,77 @@ class BuildAllowlistTest(GuardTest):
         git(app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixtures")
         fetched_baseline(app)
 
+    def test_t4_git_execution_options(self):
+        for cmd in (
+            'git ls-remote --upload-pack="sh -c true" .',
+            'git ls-remote --upload-pack "sh -c true" .',
+            'git ls-remote --exec=evil .', 'git ls-remote --upload=evil .',
+            'git diff --ext-diff', 'git show --textconv HEAD',
+            'git -c diff.external=evil diff', 'git --config-env=core.pager=X log',
+            'git --unknown status', 'git log --unknown',
+            'git grep -Oevil pattern', 'git archive --exec=evil HEAD',
+        ):
+            with self.subTest(cmd=cmd):
+                self.assertNotEqual(self.bash(cmd)[0], "allow")
+
+    def test_t4_output_paths(self):
+        target = 'projects/app/project.json'
+        for cmd in (
+            f'uniq payload.json {target}', f'uniq -- payload.json "{target}"',
+            f'sort -no{target} payload.json', f'sort -n -o "{target}" payload.json',
+            f'sort --output={target} payload.json', f'sort --output {target} payload.json',
+            f'git diff --no-index --output={target} README.md AGENTS.md',
+            f'git log --output={target}', f'git show --output "{target}"',
+            f'git format-patch --stdout --output={target} HEAD',
+            f'git archive HEAD --output={target}', f'git archive -o{target} HEAD',
+            f'git config --file={target} user.name forged',
+            f'git config -f{target} user.name forged', f'tree -o {target}',
+            'sort -noPROJECTS/app/PROJECT.JSON payload.json',
+        ):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny")
+
+    def test_t4_hooks_and_unknown_outputs(self):
+        for cmd in ('uniq hook.txt .git/hooks/pre-commit && git commit -m test',
+                    'git show HEAD:package.json --output=.git/hooks/pre-commit && git commit -m test',
+                    'sort -no.git/hooks/pre-commit hook.txt',
+                    'git format-patch -o.git/hooks HEAD', 'tree -o.git/hooks/pre-commit',
+                    'sort --compress-program=evil input', 'sort --output',
+                    'git log --output', 'echo x | xargs sort', 'find . -exec uniq {} \\;'):
+            with self.subTest(cmd=cmd):
+                self.assertNotEqual(self.bash(cmd)[0], "allow")
+        self.assertEqual(self.tool('Write', self.app / '.git/hooks/pre-commit')[0], 'ask')
+
+    def test_t4_secret_expansions(self):
+        for cmd in ('cmd /c echo %API_KEY%', 'CMD /C echo "%api_key%"',
+                    "cmd /c echo '%API_KEY%'", 'cmd /v:on /c echo !API_KEY!',
+                    'cmd /c echo %API_KEY:~0,4%', 'cmd /c set API',
+                    'echo $env:API_KEY', 'Write-Output "$env:api_key"',
+                    'Get-ChildItem env:', 'gci -Path Env:API_KEY',
+                    'Get-Content Env:api_key', 'Get-ChildItem -Path Env:*'):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], 'deny')
+        for cmd in ('cmd /c echo %1', 'cmd /v:on /c echo !123!', 'cmd /c %PROGRAM%'):
+            self.assertNotEqual(self.bash(cmd)[0], 'allow', cmd)
+
+    def test_t4_sibling_message(self):
+        (self.app / 'scripts/json.py').write_text('# changed\n', encoding='utf-8')
+        decision, message = self.bash('python scripts/check.py')
+        self.assertEqual(decision, 'ask')
+        self.assertIn('scripts/json.py', message)
+        self.assertIn('같은 폴더', message)
+
+    def test_t4_normal_commands(self):
+        for cmd in ('git status --short --branch', 'git log -3 --oneline',
+                    'git diff --stat plan/backend-cs-tutor...HEAD',
+                    'git ls-remote --heads origin', 'git show --no-ext-diff --no-textconv HEAD',
+                    'sort -n input', 'uniq -c input', 'tree -L 2',
+                    'cmd /c echo hello', "echo '$API_KEY'", 'Get-ChildItem env:PATH',
+                    'python -m unittest discover -s tests', 'python scripts/check.py',
+                    'npm test', 'gradlew test'):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], 'allow')
+
     def test_review_heredoc_interpreter_variants(self):
         for interpreter in ("node", "nodejs", "python3.12 -", "python3 -", "py -3", "pypy3 -"):
             body = "require('child_process').execSync('git push --force origin main')" if interpreter.startswith("node") else "import subprocess\nsubprocess.run(['git', 'push', '--force', 'origin', 'main'])"
