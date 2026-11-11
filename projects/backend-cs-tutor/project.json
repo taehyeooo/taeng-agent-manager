@@ -520,7 +520,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
     },
     {
       "id": "S14",
@@ -598,12 +598,12 @@
       "title": "홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_f06cb964d3b8",
+      "note": "홈·설정 API·회차 표시(S13 표시 부분 포함)"
     },
     {
       "id": "S18",
@@ -656,12 +656,12 @@
       "title": "설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_cfe333014790",
+      "note": "평가·통과 판정은 서버 규칙·진행 재계산 연결"
     },
     {
       "id": "S21",
@@ -1632,8 +1632,20 @@
     {
       "at": "2026-11-11T11:40:48+09:00",
       "event": "작업 S19 변경: status=review, note=PR #35 병합. PR #38은 병합 승인 받음 — log.md 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S20 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20, dispatch=ctx_cfe333014790, note=평가·통과 판정은 서버 규칙·진행 재계산 연결"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S17 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17, dispatch=ctx_f06cb964d3b8, note=홈·설정 API·회차 표시(S13 표시 부분 포함)"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S13 변경: note=회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T11:40:48+09:00"
+  "updated_at": "2026-11-11T11:45:57+09:00"
 }
