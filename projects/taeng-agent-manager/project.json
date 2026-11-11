@@ -100,7 +100,7 @@
       "title": "가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)",
       "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3",
       "pr": null,
@@ -108,15 +108,27 @@
       "note": "Claude 4차(기본 ask 구조, 188 통과, 변형 34/34, 테스트 260→68초, npm 판정 141ms). codex 검증 위임",
       "verification": {
         "tests": "pass",
-        "review": "fail",
-        "security": "fail",
-        "by": "codex:ctx_acde3204fc66",
-        "summary": "이전 우회 대부분 해결(181 통과, 변형 22/22). 남은 높음 4: ./x.sh·python -m pkg·node x.js allow(2단계 우회), timeout/nice/find -exec 래퍼로 강제 push allow, bash_unescape 선적용으로 escaped quote 뒤 명령 숨김, unittest shadowing. 중간: npm 판정 0.4~0.5초",
-        "at": "2026-11-11T11:04:38+09:00"
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:ctx_4e99165cef2b",
+        "summary": "4차: 이전 우회 전부 차단(188 통과, 변형 34/34). Codex가 찾은 새 높음 3(git ls-remote --upload-pack, uniq/sort -o/git --output 쓰기, cmd %VAR%)은 매니저가 현재 base 가드로 재현해 보니 base에서도 allow — T3의 회귀가 아니라 기존 구멍. T3는 base 대비 순개선이라 병합하고 남은 3건은 T4로 분리",
+        "at": "2026-11-11T12:02:38+09:00"
       },
       "files": [
         "am/guard.py"
       ]
+    },
+    {
+      "id": "T4",
+      "title": "가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -687,10 +699,26 @@
     {
       "at": "2026-11-11T11:52:27+09:00",
       "event": "작업 T3 변경: note=Claude 4차(기본 ask 구조, 188 통과, 변형 34/34, 테스트 260→68초, npm 판정 141ms). codex 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:02:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 T3 검증(codex:ctx_4e99165cef2b): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 추가 T4 (codex, 자동): 가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 T3 변경: status=review"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-11T11:52:27+09:00",
+  "updated_at": "2026-11-11T12:02:38+09:00",
   "requests": [
     {
       "gate": "push",
