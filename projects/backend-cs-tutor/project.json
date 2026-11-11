@@ -245,6 +245,18 @@
       "ref": "local dadokcs first run",
       "note": "2026-11-11 사용자: '2 승인' — 다독CS 첫 실행: dadokcs DB에 Flyway 스키마 적용·콘텐츠 적재(빈 DB)",
       "at": "2026-11-11T20:14:15+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#56",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #56(S25 연결 질문) squash 병합",
+      "at": "2026-11-11T22:19:41+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs migrate V6",
+      "note": "2026-11-11 사용자: '승인' — 서버 재시작으로 dadokcs DB에 V6(연결 질문 표) 적용·10쌍 적재, 학습 기록 유지",
+      "at": "2026-11-11T22:19:41+09:00"
     }
   ],
   "tasks": [
@@ -881,12 +893,12 @@
       "title": "연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인",
       "agent": "codex",
       "kind": "docs",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25",
       "pr": "56",
       "dispatch": "ctx_9a256b9283c3",
-      "note": "검증 지적 수정 위임(codex): 4쌍 문구, core 3~4개(평가 규칙상 2개면 너무 쉬움), 수정 후 검증 기록 추가",
+      "note": "PR #56 병합, 실행 중 앱에 V6 적용(5→6)·연결 질문 적재",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2144,8 +2156,20 @@
     {
       "at": "2026-11-11T22:15:46+09:00",
       "event": "작업 S25 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T22:19:41+09:00",
+      "event": "승인 기록: merge_main (PR#56)"
+    },
+    {
+      "at": "2026-11-11T22:19:41+09:00",
+      "event": "승인 기록: db_change (local dadokcs migrate V6)"
+    },
+    {
+      "at": "2026-11-11T22:24:11+09:00",
+      "event": "작업 S25 변경: status=done, note=PR #56 병합, 실행 중 앱에 V6 적용(5→6)·연결 질문 적재"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:15:46+09:00"
+  "updated_at": "2026-11-11T22:24:11+09:00"
 }
