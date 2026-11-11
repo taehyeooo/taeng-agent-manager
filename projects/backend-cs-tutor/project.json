@@ -1,0 +1,2203 @@
+{
+  "slug": "backend-cs-tutor",
+  "name": "백엔드 CS 학습 서비스 (다독 중심 AI 튜터)",
+  "idea": "비전공자가 다독·문제 풀이·AI 튜터 설명 연습으로 백엔드 CS를 자기 말로 설명할 수 있게 되는 학습 서비스. 본인 프로젝트(Plan B·Trova·MOIT) 경험을 사례로 연결.",
+  "phase": "developing",
+  "repo": "taehyeooo/dadok-cs",
+  "test_cmd": null,
+  "approvals": [
+    {
+      "gate": "spec",
+      "ref": null,
+      "note": "2026-11-10 사용자: '확정' — docs/specs/2026-11-10-dadok-cs.md v1 (가정 4개 포함)",
+      "at": "2026-11-10T12:04:45+09:00"
+    },
+    {
+      "gate": "repo_create",
+      "ref": "taehyeooo/dadok-cs",
+      "note": "2026-11-10 사용자: '승인' — taehyeooo/dadok-cs 비공개 생성, C:/Users/user/orca/dadok-cs에 clone",
+      "at": "2026-11-10T12:12:31+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "main",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs 첫 커밋 3개를 main에 push (비공개)",
+      "at": "2026-11-10T12:23:56+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "PUT repos/taehyeooo/dadok-cs/branches/main/protection",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs main 보호(PR만, 검사 4개, 강제 push·삭제 금지). 무료 요금제에서 안 되면 업그레이드 없이 보고",
+      "at": "2026-11-10T12:30:01+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "work-branches",
+      "note": "2026-11-10 사용자: '승인' — 다독CS 저장소에 한해 main이 아닌 작업 브랜치 push·PR 만들기는 묻지 않음. main 병합은 PR마다 승인",
+      "at": "2026-11-10T14:52:31+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#1",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #1(main 직접 push 차단 훅) squash 병합",
+      "at": "2026-11-10T15:10:56+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#2",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #2(S2 뼈대) squash 병합",
+      "at": "2026-11-10T15:22:38+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#5",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #5(S3 DB 스키마) squash 병합",
+      "at": "2026-11-10T15:58:35+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs create",
+      "note": "2026-11-10 사용자: '승인' — 이 PC PostgreSQL에 dadokcs DB·dadokcs_app 계정 생성(빈 DB)",
+      "at": "2026-11-10T16:02:06+09:00"
+    },
+    {
+      "gate": "credentials",
+      "ref": "~/.dadok-cs/db.env",
+      "note": "2026-11-10 사용자: '승인' — 관리자 비밀번호는 사용자가 별도 창에 입력, 앱 비밀번호는 무작위 생성해 사용자 전용 파일에 저장, 서버 실행 때 매니저가 읽음",
+      "at": "2026-11-10T16:02:06+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#6",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #6(S4 콘텐츠 형식·검사) squash 병합",
+      "at": "2026-11-10T16:18:36+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#10",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #10(S5 첫 개념 3개) squash 병합",
+      "at": "2026-11-10T16:53:02+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#12",
+      "note": "2026-11-10 사용자: '1 승인' — dadok-cs PR #12(S8 1차 개념 4개) squash 병합",
+      "at": "2026-11-10T17:32:05+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#9",
+      "note": "2026-11-10 사용자: '2 승인' — dadok-cs PR #9(S9 디자인 적용) squash 병합",
+      "at": "2026-11-10T17:32:05+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#15",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #15(S8 2차 개념 4개) squash 병합",
+      "at": "2026-11-10T18:08:31+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#16",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #16(S6 적재·노출 규칙·읽기 API) squash 병합",
+      "at": "2026-11-10T18:18:52+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#19",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #19(S8 3차, 콘텐츠 15개 완성) squash 병합",
+      "at": "2026-11-10T18:52:43+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#20",
+      "note": "2026-11-10 사용자: '고쳐서 합쳐' — 묶음 7개로 합치기·휴대폰에서 선택 설명을 개념 바로 아래에 펼치기 수정 후 dadok-cs PR #20 squash 병합",
+      "at": "2026-11-10T21:32:55+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#22",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #22(S7 사례 그림 13장) squash 병합",
+      "at": "2026-11-10T21:38:52+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#25",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #25(S16 복습 일정 계산) squash 병합",
+      "at": "2026-11-10T22:34:55+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#26",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #26(S11 개념 학습 화면) squash 병합",
+      "at": "2026-11-10T22:48:23+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#30",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #30(S12 용어 풀이) squash 병합",
+      "at": "2026-11-10T23:30:18+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#29",
+      "note": "2026-11-10 사용자: '승인' — dadok-cs PR #29(S18 AI CLI 어댑터, 한계 문서화) squash 병합",
+      "at": "2026-11-10T23:47:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#32",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #32(S14 문제 풀이) squash 병합",
+      "at": "2026-11-11T10:02:21+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "dadok-cs merged worktrees 2026-11-11",
+      "note": "2026-11-11 사용자: '승인' — 병합된 작업 폴더 17개와 로컬 작업 브랜치 삭제(미병합 변경 있으면 건너뜀)",
+      "at": "2026-11-11T10:03:12+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#35",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #35(S19 AI 튜터) squash 병합",
+      "at": "2026-11-11T11:11:04+09:00"
+    },
+    {
+      "gate": "paid_service",
+      "ref": "codex sol tutor sample 20",
+      "note": "2026-11-11 사용자: '1 승인' — 실제 Codex(gpt-6.1-sol)로 튜터 표본 20개(구독 사용량 20~30회, 추가 요금 없음), 임시 DB",
+      "at": "2026-11-11T11:13:17+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "merged-clean-worktrees",
+      "note": "2026-11-11 사용자: '2 승인' — 병합됐고 변경 없고 마지막 저장이 병합 내용과 같은 작업 폴더는 병합 직후 묻지 않고 삭제(하나라도 다르면 묻기)",
+      "at": "2026-11-11T11:13:17+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#36",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #36(S15·S16 2부 복습 연결·오답 진단) squash 병합",
+      "at": "2026-11-11T11:31:05+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#38",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #38(튜터 실제 AI 표본 실행기) squash 병합",
+      "at": "2026-11-11T11:40:14+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#42",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #42(S20 설명 평가) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#41",
+      "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #41(S17 홈 대시보드) squash 병합",
+      "at": "2026-11-11T14:18:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#48",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #48 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#45",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #45 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#46",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #46 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#50",
+      "note": "2026-11-11 사용자: 'TMDDLS'(한글 자판 '승인') — dadok-cs PR #50(S21 학습 기록) squash 병합",
+      "at": "2026-11-11T18:22:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#52",
+      "note": "2026-11-11 사용자: '1 승인' — dadok-cs PR #52(S24a E2E·README) squash 병합",
+      "at": "2026-11-11T19:03:57+09:00"
+    },
+    {
+      "gate": "paid_service",
+      "ref": "codex sol eval sample 10",
+      "note": "2026-11-11 사용자: '2 승인' — 실제 Codex(gpt-6.1-sol)로 설명 평가 표본 10개(구독 사용량 10~15회, 추가 요금 없음), 임시 DB",
+      "at": "2026-11-11T19:03:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#55",
+      "note": "2026-11-11 사용자: '1 승인' — dadok-cs PR #55(평가 실제 AI 표본 실행기) squash 병합",
+      "at": "2026-11-11T20:14:15+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs first run",
+      "note": "2026-11-11 사용자: '2 승인' — 다독CS 첫 실행: dadokcs DB에 Flyway 스키마 적용·콘텐츠 적재(빈 DB)",
+      "at": "2026-11-11T20:14:15+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#56",
+      "note": "2026-11-11 사용자: '승인' — dadok-cs PR #56(S25 연결 질문) squash 병합",
+      "at": "2026-11-11T22:19:41+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "local dadokcs migrate V6",
+      "note": "2026-11-11 사용자: '승인' — 서버 재시작으로 dadokcs DB에 V6(연결 질문 표) 적용·10쌍 적재, 학습 기록 유지",
+      "at": "2026-11-11T22:19:41+09:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "P0",
+      "title": "0단계: 레포 시작 — 지식베이스·기획 문서·가드 훅·첫 커밋(로컬)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": "main",
+      "worktree": "C:/Users/user/orca/dadok-cs",
+      "pr": null,
+      "dispatch": "ctx_dd2fd907b0c8",
+      "note": "2026-11-11 정리: 병합된 작업 폴더 17개·로컬 브랜치 삭제 완료(승인). 남은 폴더는 main 본 폴더뿐",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "커밋 3개(noreply·서명 없음), 문서·컨텍스트 검사 통과, spec 원본 일치, 가드 훅 설치, 비밀값 없음",
+        "at": "2026-11-10T12:19:02+09:00"
+      },
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "knowledge-base",
+        "docs",
+        "scripts",
+        ".claude/settings.json",
+        ".githooks",
+        ".github"
+      ]
+    },
+    {
+      "id": "P0b",
+      "title": "main 보호 대체: dadok-cs에 pre-push 훅(main 직접 push 거부) — 서버 보호가 무료 요금제 비공개 저장소에서 불가",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "taehyeooo/backend-cs-tutor-P0b",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b",
+      "pr": "1",
+      "dispatch": "ctx_73c23c215f42",
+      "note": "PR #1 (dadok-cs)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: log.md 새 항목(append-only), AGENTS.md 훅 켜는 명령, master 삭제·bare 저장소 통합 테스트 추가(10/10), commit-msg 100755. check_log 통과",
+        "at": "2026-11-10T15:06:00+09:00"
+      },
+      "files": [
+        "AGENTS.md",
+        "knowledge-base/log.md",
+        "scripts/test-check-pre-push.sh",
+        ".githooks/commit-msg"
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "레포 뼈대: Spring Boot 4.1 + React(Vite), Gradle wrapper, 127.0.0.1 바인딩, CI (R-28)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "taehyeooo/backend-cs-tutor-S2",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S2",
+      "pr": "2",
+      "dispatch": "ctx_46e8da51709c",
+      "note": "P0b 병합 후 main 맞추기(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: wrapper 체크섬(공식 값 일치), CI 경로별 분리·15분 제한·contents:read, Vite 차단 우회 troubleshooting 문서, 관리 포트 미설정 단언. 백엔드 2/2(--rerun)·프론트 2/2·check_log 통과",
+        "at": "2026-11-10T15:09:49+09:00"
+      },
+      "files": [
+        "backend/gradle/wrapper/gradle-wrapper.properties",
+        ".github/workflows/ci.yml",
+        ".github/workflows/ci-frontend.yml",
+        "knowledge-base/troubleshooting/2026-11-10-vite-native-module-blocked.md"
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "DB 스키마(Flyway): 표 16개와 제약 (내장형 PostgreSQL 테스트)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "feat/#3-db-schema",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3",
+      "pr": "5",
+      "dispatch": "ctx_0beb1b10acc7",
+      "note": "검증 지적 수정 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: card_figure(다대다·순서), tutor_session 개념 일치 복합 FK·started_at/ended_at, REVOKE CONNECT, 경계 테스트. 백엔드 60/60(--rerun), CI 5개 통과",
+        "at": "2026-11-10T15:57:20+09:00"
+      },
+      "files": [
+        "backend/src/main/resources/db/migration/V1__init.sql",
+        "README.md",
+        "backend/src/test/java/kr/dadokcs/SchemaTests.java"
+      ]
+    },
+    {
+      "id": "S4",
+      "title": "콘텐츠 형식(Markdown+YAML)·불러오기·검사 스크립트, 예시 개념 1개 (R-27)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "feat/#4-content-format",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4",
+      "pr": "6",
+      "dispatch": "ctx_24d235a61a2d",
+      "note": "2차 수정 위임(codex): 정답 1개 테스트·CI 경로·로더 검증·main 맞추기",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "2차 수정 확인: 정답 개수 단독 실패 예제·기대 오류 단언(==1→>=1 변형 검출), 콘텐츠 변경 시 백엔드 CI, Java 로더 핵심 규칙·Python 상수 대조, 중복·카드 링크 검사, main 맞춤. Python 19(1 skip)·백엔드 77·CI 7 통과",
+        "at": "2026-11-10T16:12:26+09:00"
+      },
+      "files": [
+        "scripts/test_check_content.py",
+        "scripts/check_content.py",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "S5",
+      "title": "콘텐츠 생성·검증 파이프라인 + 그림 관리 + 첫 3개 개념 (R-24)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S5",
+      "pr": "10",
+      "dispatch": "ctx_ce2cf759e3c9",
+      "note": "내용 검증 지적 수정 위임(codex)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 중간 6건 모두 반영, 낮음 5건 반영·1건(범위 확장) 보류 사유 타당. 콘텐츠 검사 3개 개념·CI 6 통과, 병합 가능. 사례 숫자 사용자 원본 대조는 별도",
+        "at": "2026-11-10T16:52:32+09:00"
+      },
+      "files": [
+        "content"
+      ]
+    },
+    {
+      "id": "S6",
+      "title": "교차 검증 기록·노출 규칙 + 사례 카드 사실 확인 절차 (R-25)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6",
+      "pr": "16",
+      "dispatch": "ctx_405435021fcc",
+      "note": "PR #16 병합. 사례 카드는 사용자 fact_checked 전까지 숨김",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: created_by 필수·변경 거부, records append-only CI(변형 검사로 삭제·순서·작성자 변경 거부), 사례 전용 그림 숨김 테스트, 깨진 YAML 시작 실패, 미래 날짜 거부. main 맞춤 후 백엔드 90·Python 152(+1 skip)·CI 6 통과, 콘텐츠 본문 변경 없음, 병합 가능",
+        "at": "2026-11-10T18:18:25+09:00"
+      },
+      "files": [
+        "scripts",
+        "backend",
+        "content/README.md"
+      ]
+    },
+    {
+      "id": "S7",
+      "title": "그림: 코드 그림과 Trova 기록 캡처 + 측정 조건 캡션 (R-26)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7",
+      "pr": "22",
+      "dispatch": "ctx_2e90f804174e",
+      "note": "PR #22 병합(캡처 13장, 사용자 확인 전 숨김)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: Kafka 그림 카드 사건과 일치하게 교체, 바뀐 PNG 3장 육안 확인(내부 정보 없음, /api/places는 카드 본문에 이미 공개), alt·캡션 보완. 콘텐츠 15·백엔드 90·CI 6 통과",
+        "at": "2026-11-10T21:07:09+09:00"
+      },
+      "files": [
+        "content"
+      ]
+    },
+    {
+      "id": "S8",
+      "title": "나머지 12개 개념 콘텐츠",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8c",
+      "pr": "19",
+      "dispatch": "ctx_8535357ca9d2",
+      "note": "3차 PR #19 병합 — 15개 개념 콘텐츠 완성, 모두 claude 교차 검증 기록. 사례 카드 사용자 확인 남음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "3차(PR #19) 수정 확인: 파티션·호스트 풀이, 미대조 문장 삭제, 보강 문장(acks·멱등·oom_score·Xmx 힙 밖 메모리) 사실 확인, 4개 검증 기록 도구로 추가, CI 6 통과",
+        "at": "2026-11-10T18:46:05+09:00"
+      },
+      "files": [
+        "content"
+      ]
+    },
+    {
+      "id": "S9",
+      "title": "디자인: 구조 시안 3개 → 세부 시안 → 토큰 적용 (사용자 선택)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "feat/#7-design-variants",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9",
+      "pr": "9",
+      "dispatch": "ctx_500b234e4d14",
+      "note": "PR #9 병합(밝은 화면, 구조 C)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: Modal StrictMode 포커스 복귀(재현 후 수정), 입력 가드 테스트 4종(제거 변형 4 실패), CSS 정리. 테스트 16/16·CI 5 통과, 병합 가능",
+        "at": "2026-11-10T17:27:23+09:00"
+      },
+      "files": [
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "학습 지도: 개념 지도·상태 색 (R-3, R-4)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10",
+      "pr": "20",
+      "dispatch": "ctx_59e51339af33",
+      "note": "PR #20 병합(선 없는 7묶음 지도, 사용자 '고쳐서 합쳐')",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "최종 확인: 묶음 7개(명세 표), 좁은 화면 선택 설명이 개념 바로 아래 펼침, 스크린샷 1280·390 확인, 테스트 34·CI 6 통과",
+        "at": "2026-11-10T21:57:47+09:00"
+      },
+      "files": [
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S11",
+      "title": "개념 학습: 카드 6장·출처 라벨·그림 확대 (R-6, R-8, R-9)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S11",
+      "pr": "26",
+      "dispatch": "ctx_9cb0407df84e",
+      "note": "PR #26 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 팝업 중 읽기 시간 보존, 서버 시각 기준 60초 중복·±5분·초 범위, card_id 형식, pagehide beacon, 4xx 재시도 제거, 링크 오변환 방지. 변형 4건 검출, 프론트 51·백엔드 112·CI 6 통과, review 패키지 미변경",
+        "at": "2026-11-10T22:46:47+09:00"
+      },
+      "files": [
+        "frontend/src",
+        "backend/src/main/java"
+      ]
+    },
+    {
+      "id": "S12",
+      "title": "용어 풀이 팝업과 갔다 돌아오기 (R-5, R-7)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S12",
+      "pr": "30",
+      "dispatch": "ctx_44d1bc1925f8",
+      "note": "PR #30 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: content 변경은 term concept_id 26줄뿐, 자기 연결 버튼 숨김, 초점·aria-live·조사, Python·Java 대상 검증 일치. 프론트 63·백엔드 114·Python 19·실제 API E2E·CI 7 통과",
+        "at": "2026-11-10T23:28:59+09:00"
+      },
+      "files": [
+        "frontend/src",
+        "content",
+        "scripts/check_content.py",
+        "backend/src/main/java/kr/dadokcs/content/ContentLoader.java"
+      ]
+    },
+    {
+      "id": "S13",
+      "title": "다독 회차(7회차) 전환 (R-10)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "41",
+      "dispatch": null,
+      "note": "회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "회차 규칙(기한당 1회·최대 7·오답 min)은 S15 PR #36에서 claude 교차 검증 후 수정·통과, 표시는 S17 PR #41에서 검증 통과",
+        "at": "2026-11-11T14:34:56+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/progress"
+      ]
+    },
+    {
+      "id": "S14",
+      "title": "객관식·OX·원인 분석 풀이·채점·해설, 중복 제출 방지 (R-11, R-12, R-13)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S14",
+      "pr": "32",
+      "dispatch": "ctx_17bfeef94df5",
+      "note": "PR #32 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 서버 메모리 비밀값 HMAC 불투명 보기 id + 매 요청 셔플, 목록 응답은 id·text만(정답·해설 없음), 옛 id 거부. 스크린샷: 배지 공용화·모든 오답 이유·한 줄 탭. 프론트 75·백엔드 154(+2 skip)·CI 7 통과",
+        "at": "2026-11-11T09:57:02+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/content/QuestionController.java",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S15",
+      "title": "오답 원인 진단과 약한 개념 우선 이동 (R-14, R-16)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15",
+      "pr": "36",
+      "dispatch": "ctx_cf918a03e93c",
+      "note": "PR #36 병합, 작업 폴더 정리(상시 승인)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 같은 기한당 회차 1회(최대 7), 오답 min 하향, 숨김 개념 제외, minutes 1~600, 시간 추정 상수 분리, 튜터 충돌 두 기능 보존. review·ai·tutor 미변경. 백엔드 202(+3)·프론트 93·CI 7 통과",
+        "at": "2026-11-11T11:27:36+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/progress",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S16",
+      "title": "복습 일정과 묶음 복습 (R-15, R-17)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16",
+      "pr": "25",
+      "dispatch": "ctx_fa4bd48feb71",
+      "note": "1부 PR #25, 2부 PR #36 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "사용자 결정 4개 반영 확인(학습일 첫 결과만 간격, 틀리면 1일, 첫 항목 예산 초과 허용, 진단·미독 제외), 상수 ReviewPolicy 한 곳, 테스트 108(--rerun)·CI 5 통과",
+        "at": "2026-11-10T22:28:09+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/review"
+      ]
+    },
+    {
+      "id": "S17",
+      "title": "홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17",
+      "pr": "41",
+      "dispatch": "ctx_f9427be12c65",
+      "note": "PR #41 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "지적 7건 반영: 홈은 저장 회차·추천 읽기만, 조용한 갱신·포커스 유지, 정수 입력, 쿼리 정리. 프론트 100·백엔드 214·CI 7 통과",
+        "at": "2026-11-11T14:11:59+09:00"
+      },
+      "files": [
+        "frontend/src",
+        "backend/src/main/java"
+      ]
+    },
+    {
+      "id": "S18",
+      "title": "CLI 모델 어댑터·하루 30회·90초·AI 상태·12/1 전환 (R-21, R-31)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S18",
+      "pr": "29",
+      "dispatch": "ctx_746da91d1af8",
+      "note": "PR #29 병합. 실제 CLI 연결 시험·튜터 모델 선택은 S19 때 사용자에게",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "3차 수정 확인: 따옴표 인자 제거(임시 설정 파일·TOML 작은따옴표·지시문 stdin), Windows argv 왕복 테스트 수정 전 실패/후 통과, Windows CI 추가, 응답 이벤트 허용 목록 밖이면 폐기(TOOL_USE_REJECTED), 문서 9개 확인 표. 남는 한계(상태 명령 config 격리 미보장, Codex 파일 읽기 도구)는 README·PR에 명시. 145(+1 skip)·CI 7 통과",
+        "at": "2026-11-10T23:44:10+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/ai"
+      ]
+    },
+    {
+      "id": "S19",
+      "title": "AI 튜터: 설명하기·3번 되묻기·힌트 (R-18, R-19)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19",
+      "pr": "35",
+      "dispatch": "ctx_f4059603a49a",
+      "note": "PR #35·#38 병합, 실제 AI 표본 20/20 통과",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "실제 Codex(gpt-6.1-sol) 표본 20개(호출 20회) 교차 판정: 정답·체크리스트 노출 0, 주입 2건(S16 가짜 구분자·S19 정답 요구) 모두 따르지 않음, 형식 실패·폐기 0, 해요체 20/20. S02는 1차 fail이었으나 join이 호출 스레드를 막는 원인으로 이끄는 소크라테스식 질문이라 교차 판정 pass → 20/20",
+        "at": "2026-11-11T11:33:44+09:00"
+      },
+      "files": [
+        "backend/src/test/java/kr/dadokcs/tutor/RealCliSampleTest.java"
+      ]
+    },
+    {
+      "id": "S20",
+      "title": "설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20",
+      "pr": "42",
+      "dispatch": "ctx_ee543091335f",
+      "note": "PR #42 병합. 실제 AI 평가 표본 10/10 일치, 실행기 PR #55",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "실제 Codex(gpt-6.1-sol) 평가 표본 10건(호출 10회) 교차 판정: 서버 최종 판정 10/10 기대 일치(통과 5·불통과 5 — 그럴듯한 원리 오류 3건도 불통과), 피드백 정답·체크리스트 원문 노출 0, 해요체 10/10. 관대함 1건(네트워크 원리 2점)은 판정 결과에 영향 없음",
+        "at": "2026-11-11T19:27:23+09:00"
+      },
+      "files": [
+        "backend/src/test/java/kr/dadokcs/tutor"
+      ]
+    },
+    {
+      "id": "S21",
+      "title": "학습 기록: 개념별 그래프·오답 유형 분포 (R-22, R-23)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21",
+      "pr": "50",
+      "dispatch": "ctx_87fd3a974427",
+      "note": "PR #50 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인(스크린샷): 공개 카드 수 분모(5/5, 사례 확인 중), 같은 질문 선택 비교·질문 글 라벨·+5점 변화, 표 대체, 보관 질문 제외. 프론트 130·백엔드 294(+7)·CI 7 통과",
+        "at": "2026-11-11T18:15:05+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/stats",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S22",
+      "title": "첫 진단 15문제와 추천 시작점 (R-30)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22",
+      "pr": "45",
+      "dispatch": "ctx_17ea84b1faf6",
+      "note": "PR #45 병합(이 PC DB 포함 테스트 262 통과)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 재진단 안 본 문제 우선(사용자 결정), 진단만 한 개념 홈 연습 제외, 순환 추천 보존, 숨긴 카드 건너뛰기. 프론트 115, 백엔드는 이 PC 앱 제어로 로컬 실행 불가 → CI Ubuntu·Windows 백엔드 포함 7/7 통과로 확인",
+        "at": "2026-11-11T16:22:19+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/diagnosis",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S23",
+      "title": "기록 내보내기·가져오기·초기화 (R-29, R-32)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
+      "pr": "46",
+      "dispatch": "ctx_c18310aa7fa8",
+      "note": "PR #46 병합(실제 진단 표 왕복 포함, DB 포함 279 통과)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: ai_call 보존(한도 되살아남 방지), 120초 stale 판정, FK 위상 정렬, 학습·완료 진단 기반 진행 재구성, 낮음 7. 프론트 111, 백엔드는 로컬 앱 제어로 실행 불가 → CI Ubuntu·Windows 백엔드 포함 7/7 통과",
+        "at": "2026-11-11T16:27:37+09:00"
+      },
+      "files": [
+        "backend/src/main/java/kr/dadokcs/backup",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S24",
+      "title": "하루 학습 흐름 E2E와 spec-check (R-1)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b",
+      "pr": "52",
+      "dispatch": "ctx_09921502b1d3",
+      "note": "2026-11-11 첫 실행 성공: dadokcs DB 스키마·콘텐츠 15개 적재, 백엔드 127.0.0.1:8080, 프론트 127.0.0.1:5173, AI 상태 codex·로그인됨·남은 30회. 실행 스크립트는 scratchpad/start-dadok.ps1, 로그 ~/.dadok-cs/logs",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "S24a PR #52: 하루 흐름 HTTP E2E(진단→홈→카드·용어→문제→튜터·평가→익숙함·회차·새벽4시 복습→통계→백업·초기화·복원)·화면 흐름 테스트·README 실행 안내, 테스트 코드와 문서만 변경, 3시 경계 변형 검출, CI 7 통과. S24b spec-check 90.6%",
+        "at": "2026-11-11T19:01:24+09:00"
+      },
+      "files": [
+        "backend/src/test/java/kr/dadokcs/e2e/DailyFlowE2ETest.java",
+        "README.md"
+      ]
+    },
+    {
+      "id": "S2b",
+      "title": "테스트 환경: Windows 앱 제어가 내장 PostgreSQL(TEMP의 서명 없는 postgres.exe)을 막음 → DADOK_PG_BIN으로 설치된 PostgreSQL 18 바이너리 사용",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-pgbin",
+      "pr": "48",
+      "dispatch": "ctx_e73cecae9871",
+      "note": "PR #48 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "DADOK_PG_BIN 있을 때만 설치 PostgreSQL 18 initdb/pg_ctl로 임시 DB(임시 폴더·127.0.0.1 임시 포트·정리), 없으면 zonky 그대로. 세션 한정 전체 256 중 251 통과(5 조건부 제외)·실패 0, CI 통과, 서비스·dadokcs DB·영구 환경변수·정책 미변경",
+        "at": "2026-11-11T16:32:50+09:00"
+      },
+      "files": [
+        "backend/src/test"
+      ]
+    },
+    {
+      "id": "S25",
+      "title": "연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25",
+      "pr": "56",
+      "dispatch": "ctx_9a256b9283c3",
+      "note": "PR #56 병합, 실행 중 앱에 V6 적용(5→6)·연결 질문 적재",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "매니저가 10쌍 질문·core 직접 확인: 사실 정확, 4쌍 수정 반영(JDBC배치–N+1 구분, committed 힙, 캐시–락 재확인·만료 겹침, 실행계획–인덱스 비용 비교·통계), core 3~4개. 백엔드 298·CI 8 통과",
+        "at": "2026-11-11T22:15:46+09:00"
+      },
+      "files": [
+        "content/links"
+      ]
+    },
+    {
+      "id": "S26",
+      "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
+      "pr": null,
+      "dispatch": "ctx_df2b9c7fa9ff",
+      "note": "기획서 v2 위임(codex)"
+    },
+    {
+      "id": "S27",
+      "title": "디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
+      "pr": null,
+      "dispatch": "ctx_723bd8f48e2c",
+      "note": "사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-10T10:43:41+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-10T12:04:45+09:00",
+      "event": "승인 기록: spec"
+    },
+    {
+      "at": "2026-11-10T12:04:46+09:00",
+      "event": "단계 planning → spec_ready"
+    },
+    {
+      "at": "2026-11-10T12:12:31+09:00",
+      "event": "repo=taehyeooo/dadok-cs"
+    },
+    {
+      "at": "2026-11-10T12:12:31+09:00",
+      "event": "승인 기록: repo_create (taehyeooo/dadok-cs)"
+    },
+    {
+      "at": "2026-11-10T12:12:32+09:00",
+      "event": "승인된 작업 실행: repo_create(taehyeooo/dadok-cs)"
+    },
+    {
+      "at": "2026-11-10T12:14:01+09:00",
+      "event": "작업 추가 P0 (codex, 자동): 0단계: 레포 시작 — 지식베이스·기획 문서·가드 훅·첫 커밋(로컬)"
+    },
+    {
+      "at": "2026-11-10T12:14:01+09:00",
+      "event": "작업 P0 변경: status=dispatched, branch=main, worktree=C:/Users/user/orca/dadok-cs, dispatch=ctx_dd2fd907b0c8"
+    },
+    {
+      "at": "2026-11-10T12:19:02+09:00",
+      "event": "작업 P0 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T12:20:07+09:00",
+      "event": "단계 spec_ready → repo_ready"
+    },
+    {
+      "at": "2026-11-10T12:23:56+09:00",
+      "event": "승인 기록: push (main)"
+    },
+    {
+      "at": "2026-11-10T12:23:57+09:00",
+      "event": "승인된 작업 실행: push(main)"
+    },
+    {
+      "at": "2026-11-10T12:30:01+09:00",
+      "event": "승인 기록: push (PUT repos/taehyeooo/dadok-cs/branches/main/protection)"
+    },
+    {
+      "at": "2026-11-10T12:30:02+09:00",
+      "event": "승인된 작업 실행: push(PUT repos/taehyeooo/dadok-cs/branches/main/protection)"
+    },
+    {
+      "at": "2026-11-10T12:30:14+09:00",
+      "event": "작업 추가 P0b (codex, 자동): main 보호 대체: dadok-cs에 pre-push 훅(main 직접 push 거부) — 서버 보호가 무료 요금제 비공개 저장소에서 불가"
+    },
+    {
+      "at": "2026-11-10T12:30:14+09:00",
+      "event": "작업 P0b 변경: note=GitHub 403: 비공개 저장소 브랜치 보호는 Pro 필요. 업그레이드 안 함(비용 0원). 대신 로컬 pre-push 훅 + 가드(--no-verify 금지) + 매니저 병합 승인·CI 통과 확인"
+    },
+    {
+      "at": "2026-11-10T14:30:26+09:00",
+      "event": "작업 추가 S2 (codex, 자동): 레포 뼈대: Spring Boot 4.1 + React(Vite), Gradle wrapper, 127.0.0.1 바인딩, CI (R-28)"
+    },
+    {
+      "at": "2026-11-10T14:30:26+09:00",
+      "event": "작업 추가 S3 (codex, 자동): DB 스키마(Flyway): 표 16개와 제약 (내장형 PostgreSQL 테스트)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S4 (codex, 자동): 콘텐츠 형식(Markdown+YAML)·불러오기·검사 스크립트, 예시 개념 1개 (R-27)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S5 (codex, 자동): 콘텐츠 생성·검증 파이프라인 + 그림 관리 + 첫 3개 개념 (R-24)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S6 (codex, 자동): 교차 검증 기록·노출 규칙 + 사례 카드 사실 확인 절차 (R-25)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S7 (codex, 자동): 그림: 코드 그림과 Trova 기록 캡처 + 측정 조건 캡션 (R-26)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S8 (codex, 자동): 나머지 12개 개념 콘텐츠"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S9 (codex, 자동): 디자인: 구조 시안 3개 → 세부 시안 → 토큰 적용 (사용자 선택)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S10 (codex, 자동): 학습 지도: 개념 지도·상태 색 (R-3, R-4)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S11 (codex, 자동): 개념 학습: 카드 6장·출처 라벨·그림 확대 (R-6, R-8, R-9)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S12 (codex, 자동): 용어 풀이 팝업과 갔다 돌아오기 (R-5, R-7)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S13 (codex, 자동): 다독 회차(7회차) 전환 (R-10)"
+    },
+    {
+      "at": "2026-11-10T14:30:27+09:00",
+      "event": "작업 추가 S14 (codex, 자동): 객관식·OX·원인 분석 풀이·채점·해설, 중복 제출 방지 (R-11, R-12, R-13)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S15 (codex, 자동): 오답 원인 진단과 약한 개념 우선 이동 (R-14, R-16)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S16 (codex, 자동): 복습 일정과 묶음 복습 (R-15, R-17)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S17 (codex, 자동): 홈 대시보드: 오늘 할 일·하루 학습량 (R-1, R-2)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S18 (codex, 자동): CLI 모델 어댑터·하루 30회·90초·AI 상태·12/1 전환 (R-21, R-31)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S19 (codex, 자동): AI 튜터: 설명하기·3번 되묻기·힌트 (R-18, R-19)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S20 (codex, 자동): 설명 평가: 체크리스트 비교·점수·통과 판정 (R-20)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S21 (codex, 자동): 학습 기록: 개념별 그래프·오답 유형 분포 (R-22, R-23)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S22 (codex, 자동): 첫 진단 15문제와 추천 시작점 (R-30)"
+    },
+    {
+      "at": "2026-11-10T14:30:28+09:00",
+      "event": "작업 추가 S23 (codex, 자동): 기록 내보내기·가져오기·초기화 (R-29, R-32)"
+    },
+    {
+      "at": "2026-11-10T14:30:34+09:00",
+      "event": "작업 추가 S24 (claude): 하루 학습 흐름 E2E와 spec-check (R-1)"
+    },
+    {
+      "at": "2026-11-10T14:30:34+09:00",
+      "event": "작업 S24 변경: note=계획 8단계: 마무리 점검은 구현 모델(codex)과 다른 쪽"
+    },
+    {
+      "at": "2026-11-10T14:30:34+09:00",
+      "event": "단계 repo_ready → developing"
+    },
+    {
+      "at": "2026-11-10T14:32:05+09:00",
+      "event": "작업 S2 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S2, dispatch=ctx_fdb96d101308"
+    },
+    {
+      "at": "2026-11-10T14:32:05+09:00",
+      "event": "작업 P0b 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-P0b, dispatch=ctx_7681a5fc8c21"
+    },
+    {
+      "at": "2026-11-10T14:43:11+09:00",
+      "event": "작업 S2 변경: branch=taehyeooo/backend-cs-tutor-S2, note=구현 완료 79785e4, 검증 ctx_a0daedfe5d50(claude)"
+    },
+    {
+      "at": "2026-11-10T14:43:11+09:00",
+      "event": "작업 P0b 변경: branch=taehyeooo/backend-cs-tutor-P0b, note=구현 완료 3186a80, 검증 ctx_9e637d69d0af(claude)"
+    },
+    {
+      "at": "2026-11-10T14:52:31+09:00",
+      "event": "승인 기록: push (work-branches)"
+    },
+    {
+      "at": "2026-11-10T14:52:31+09:00",
+      "event": "작업 P0b 검증(claude:reviewflow:ctx_210b428248ee): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T14:52:59+09:00",
+      "event": "작업 P0b 변경: dispatch=ctx_73c23c215f42, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T14:53:16+09:00",
+      "event": "작업 S2 검증(claude:reviewflow:ctx_80558bc19c33): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T14:53:44+09:00",
+      "event": "작업 S2 변경: dispatch=ctx_0ea64803bfb5, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T15:06:00+09:00",
+      "event": "작업 P0b 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:06:42+09:00",
+      "event": "작업 P0b 변경: status=review, pr=1"
+    },
+    {
+      "at": "2026-11-10T15:06:42+09:00",
+      "event": "작업 P0b 변경: note=PR #1 (dadok-cs)"
+    },
+    {
+      "at": "2026-11-10T15:09:49+09:00",
+      "event": "작업 S2 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:10:08+09:00",
+      "event": "작업 S2 변경: status=review, pr=2"
+    },
+    {
+      "at": "2026-11-10T15:10:56+09:00",
+      "event": "승인 기록: merge_main (PR#1)"
+    },
+    {
+      "at": "2026-11-10T15:11:07+09:00",
+      "event": "작업 P0b 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T15:11:34+09:00",
+      "event": "작업 S2 변경: dispatch=ctx_46e8da51709c, note=P0b 병합 후 main 맞추기(codex)"
+    },
+    {
+      "at": "2026-11-10T15:22:38+09:00",
+      "event": "승인 기록: merge_main (PR#2)"
+    },
+    {
+      "at": "2026-11-10T15:22:43+09:00",
+      "event": "작업 S2 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T15:32:10+09:00",
+      "event": "작업 S3 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-S3, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S3, dispatch=ctx_39c879d66f88"
+    },
+    {
+      "at": "2026-11-10T15:32:10+09:00",
+      "event": "작업 S4 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-S4, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S4, dispatch=ctx_b0eb49e278ab"
+    },
+    {
+      "at": "2026-11-10T15:45:48+09:00",
+      "event": "작업 S3 변경: branch=feat/#3-db-schema, pr=5, note=구현 완료 PR #5, 매니저 테스트 41/41, 검증 claude 위임"
+    },
+    {
+      "at": "2026-11-10T15:48:55+09:00",
+      "event": "작업 S3 검증(claude:reviewflow:ctx_3dc3dc0f0fb0): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:48:55+09:00",
+      "event": "작업 S3 변경: dispatch=ctx_0beb1b10acc7, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T15:48:56+09:00",
+      "event": "작업 S4 변경: branch=feat/#4-content-format, pr=6, dispatch=ctx_e7f11b9b6dd6, note=구현 완료 PR #6, 매니저 테스트 Python 11·백엔드 12 통과. S3와 맞추기 수정 위임(codex), 그 뒤 claude 검증"
+    },
+    {
+      "at": "2026-11-10T15:57:20+09:00",
+      "event": "작업 S3 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:57:21+09:00",
+      "event": "작업 S3 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T15:58:35+09:00",
+      "event": "승인 기록: merge_main (PR#5)"
+    },
+    {
+      "at": "2026-11-10T15:58:40+09:00",
+      "event": "작업 S3 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T15:58:54+09:00",
+      "event": "작업 S4 검증(claude:reviewflow:ctx_85bfe9094581): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T15:59:21+09:00",
+      "event": "작업 S4 변경: dispatch=ctx_24d235a61a2d, note=2차 수정 위임(codex): 정답 1개 테스트·CI 경로·로더 검증·main 맞추기"
+    },
+    {
+      "at": "2026-11-10T16:02:06+09:00",
+      "event": "승인 기록: db_change (local dadokcs create)"
+    },
+    {
+      "at": "2026-11-10T16:02:06+09:00",
+      "event": "승인 기록: credentials (~/.dadok-cs/db.env)"
+    },
+    {
+      "at": "2026-11-10T16:12:26+09:00",
+      "event": "작업 S4 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T16:12:26+09:00",
+      "event": "작업 S4 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T16:18:36+09:00",
+      "event": "승인 기록: merge_main (PR#6)"
+    },
+    {
+      "at": "2026-11-10T16:18:40+09:00",
+      "event": "작업 S4 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T16:22:05+09:00",
+      "event": "작업 S5 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S5, dispatch=ctx_39997ce7671e"
+    },
+    {
+      "at": "2026-11-10T16:22:06+09:00",
+      "event": "작업 S9 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S9, dispatch=ctx_a880ca9d6702, note=1단계 구조 시안 3개만. 사용자 선택 후 2단계"
+    },
+    {
+      "at": "2026-11-10T16:31:55+09:00",
+      "event": "작업 S9 변경: branch=feat/#7-design-variants, pr=9, note=1단계 시안 A/B/C 완료(초안 PR #9). 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-10T16:43:33+09:00",
+      "event": "작업 S5 변경: pr=10, note=구현 완료 PR #10, 개인정보 없음 확인, claude 내용 검증 위임"
+    },
+    {
+      "at": "2026-11-10T16:46:04+09:00",
+      "event": "작업 S5 검증(claude:reviewflow:ctx_8e47ef936028): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T16:46:14+09:00",
+      "event": "작업 S5 변경: dispatch=ctx_ce2cf759e3c9, note=내용 검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T16:51:44+09:00",
+      "event": "작업 S9 변경: dispatch=ctx_7b3387939267, note=사용자 선택 2026-11-10: 구조 C(연결 지도). 2단계 세부 시안 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T16:52:32+09:00",
+      "event": "작업 S5 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T16:52:32+09:00",
+      "event": "작업 S5 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T16:53:02+09:00",
+      "event": "승인 기록: merge_main (PR#10)"
+    },
+    {
+      "at": "2026-11-10T16:53:08+09:00",
+      "event": "작업 S5 변경: status=done"
+    },
+    {
+      "at": "2026-11-10T16:53:53+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8a, dispatch=ctx_f7f2955beeb1, note=4개씩 3차로 나눔. 1차: N+1·JDBC 배치·p95/부하 테스트·프로세스와 메모리"
+    },
+    {
+      "at": "2026-11-10T17:01:07+09:00",
+      "event": "작업 S9 변경: note=2단계 세부 시안 paper/clear/night 완료(b61d011). 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-10T17:02:11+09:00",
+      "event": "작업 S9 변경: note=사용자 선택 2026-11-10: 구조 C + 세부 '밤'. 3단계 적용 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T17:07:29+09:00",
+      "event": "작업 S9 변경: note=사용자 변경 2026-11-10: 밤 대신 밝은 화면(흰 바탕·파랑 주색·분홍 강조). 3단계 진행 중 워커에 전달"
+    },
+    {
+      "at": "2026-11-10T17:13:50+09:00",
+      "event": "작업 S8 변경: pr=12, note=1차 PR #12(개념 4개) 구현 완료, claude 내용 검증 위임"
+    },
+    {
+      "at": "2026-11-10T17:17:28+09:00",
+      "event": "작업 S8 검증(claude:reviewflow:ctx_1f973c0721d5): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:17:46+09:00",
+      "event": "작업 S8 변경: dispatch=ctx_fb67a045517f, note=1차 검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T17:17:46+09:00",
+      "event": "작업 S9 변경: note=3단계 완료(밝은 화면, PR #9 일반 PR). 매니저 테스트 11·빌드 통과, claude 디자인 검증 ctx_0043893604d0"
+    },
+    {
+      "at": "2026-11-10T17:20:10+09:00",
+      "event": "작업 S9 검증(claude:reviewflow:ctx_0043893604d0): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:20:21+09:00",
+      "event": "작업 S9 변경: dispatch=ctx_500b234e4d14, note=디자인 검증 지적 수정 위임(codex): Modal 포커스, 입력 가드 테스트"
+    },
+    {
+      "at": "2026-11-10T17:25:20+09:00",
+      "event": "작업 S8 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:27:23+09:00",
+      "event": "작업 S9 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:27:23+09:00",
+      "event": "작업 S9 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T17:32:05+09:00",
+      "event": "승인 기록: merge_main (PR#12)"
+    },
+    {
+      "at": "2026-11-10T17:32:05+09:00",
+      "event": "승인 기록: merge_main (PR#9)"
+    },
+    {
+      "at": "2026-11-10T17:32:46+09:00",
+      "event": "작업 S8 변경: note=1차 PR #12 병합(4개, 누적 7개). 2차·3차 남음"
+    },
+    {
+      "at": "2026-11-10T17:32:47+09:00",
+      "event": "작업 S9 변경: note=PR #9 병합 승인됨 — log.md 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-10T17:33:38+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8b, dispatch=ctx_2552e0ac2152, note=2차 위임: 네트워크 왕복 지연·캐시·분산 락·비동기 처리"
+    },
+    {
+      "at": "2026-11-10T17:36:47+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#9)"
+    },
+    {
+      "at": "2026-11-10T17:36:55+09:00",
+      "event": "작업 S9 변경: status=done, note=PR #9 병합(밝은 화면, 구조 C)"
+    },
+    {
+      "at": "2026-11-10T17:37:51+09:00",
+      "event": "작업 S6 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S6, dispatch=ctx_64c46e15e9be, note=범위 확대: 콘텐츠 DB 적재(UPSERT)·검증 기록 도구·노출 규칙·읽기 API. 검증 마친 7개 개념 기록 추가"
+    },
+    {
+      "at": "2026-11-10T17:56:12+09:00",
+      "event": "작업 S8 변경: pr=15, note=2차 PR #15(개념 4개) 구현 완료, claude 내용 검증 위임"
+    },
+    {
+      "at": "2026-11-10T17:59:22+09:00",
+      "event": "작업 S6 변경: pr=16, note=구현 완료 PR #16, 매니저 테스트 87/87, claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T17:59:38+09:00",
+      "event": "작업 S8 검증(claude:reviewflow:ctx_2c1ef9529371): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T17:59:49+09:00",
+      "event": "작업 S8 변경: dispatch=ctx_830bc56e8591, note=2차 검증 지적 수정 위임(codex). S6 병합 후 검증 기록 형식 맞추기 필요"
+    },
+    {
+      "at": "2026-11-10T18:02:01+09:00",
+      "event": "작업 S6 검증(claude:reviewflow:ctx_c6cc52f0269d): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:02:11+09:00",
+      "event": "작업 S6 변경: dispatch=ctx_405435021fcc, note=검증 지적 수정 위임(codex): created_by 필수, records append-only CI"
+    },
+    {
+      "at": "2026-11-10T18:04:22+09:00",
+      "event": "작업 S8 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:08:31+09:00",
+      "event": "승인 기록: merge_main (PR#15)"
+    },
+    {
+      "at": "2026-11-10T18:08:36+09:00",
+      "event": "작업 S8 변경: note=2차 PR #15 병합(누적 11개). 3차(JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2) 남음. 2차 4개는 S6 병합 후 검증 기록 추가 필요"
+    },
+    {
+      "at": "2026-11-10T18:09:38+09:00",
+      "event": "작업 S8 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S8c, dispatch=ctx_25ba17048955, note=3차(마지막) 위임: JVM 힙·GC, 스왑·OOM·CPU steal, Kafka, Spring AI 2"
+    },
+    {
+      "at": "2026-11-10T18:10:29+09:00",
+      "event": "작업 S6 변경: note=지적 7건 수정 완료(d3c0cbb, 테스트 90/90). PR #15 병합으로 충돌 — main 맞추기+2차 4개 검증 기록 위임"
+    },
+    {
+      "at": "2026-11-10T18:18:25+09:00",
+      "event": "작업 S6 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:18:25+09:00",
+      "event": "작업 S6 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T18:18:52+09:00",
+      "event": "승인 기록: merge_main (PR#16)"
+    },
+    {
+      "at": "2026-11-10T18:18:57+09:00",
+      "event": "작업 S6 변경: status=done, note=PR #16 병합. 사례 카드는 사용자 fact_checked 전까지 숨김"
+    },
+    {
+      "at": "2026-11-10T18:19:40+09:00",
+      "event": "작업 S10 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S10, dispatch=ctx_c714d91bf066"
+    },
+    {
+      "at": "2026-11-10T18:36:32+09:00",
+      "event": "작업 S8 변경: pr=19, note=3차 PR #19(마지막 4개, 콘텐츠 15개 완성) 구현 완료, claude 내용 검증 위임"
+    },
+    {
+      "at": "2026-11-10T18:39:03+09:00",
+      "event": "작업 S8 검증(claude:reviewflow:ctx_273aff5aff67): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:39:13+09:00",
+      "event": "작업 S8 변경: dispatch=ctx_8535357ca9d2, note=3차 검증 지적 수정 + 검증 기록 추가 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T18:43:19+09:00",
+      "event": "작업 S10 변경: pr=20, note=구현 완료 PR #20, 매니저 테스트 프론트 28·백엔드 93. 지도 화살표 엉킴 관찰. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T18:46:05+09:00",
+      "event": "작업 S8 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:46:05+09:00",
+      "event": "작업 S8 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T18:46:30+09:00",
+      "event": "작업 S10 검증(claude:reviewflow:ctx_2b9c640e2da3): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T18:46:40+09:00",
+      "event": "작업 S10 변경: dispatch=ctx_77025aef7682, note=검증 지적 수정 위임(codex): 지도 경로 정리, 화살표 선행→후행(매니저 결정), 약함=분홍 강조 토큰(매니저 결정)"
+    },
+    {
+      "at": "2026-11-10T18:52:43+09:00",
+      "event": "승인 기록: merge_main (PR#19)"
+    },
+    {
+      "at": "2026-11-10T18:52:48+09:00",
+      "event": "작업 S8 변경: status=done, note=3차 PR #19 병합 — 15개 개념 콘텐츠 완성, 모두 claude 교차 검증 기록. 사례 카드 사용자 확인 남음"
+    },
+    {
+      "at": "2026-11-10T18:53:32+09:00",
+      "event": "작업 S7 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S7, dispatch=ctx_5e39daae8e79"
+    },
+    {
+      "at": "2026-11-10T19:04:30+09:00",
+      "event": "작업 S7 변경: pr=22, note=캡처 13개 PR #22, 매니저가 3장 육안 확인(개인정보 없음), claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T20:59:51+09:00",
+      "event": "작업 S7 검증(claude:reviewflow:ctx_247b45598d67): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S7 변경: dispatch=ctx_2e90f804174e, note=그림 검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S10 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:00:03+09:00",
+      "event": "작업 S10 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T21:00:50+09:00",
+      "event": "작업 S10 변경: status=dispatched, dispatch=ctx_887075a8af62, note=사용자 피드백 2026-11-10: 지도가 어지럽다 → 선 없는 묶음·순서 번호·선택 시 글 패널로 단순화 위임. 병합 보류"
+    },
+    {
+      "at": "2026-11-10T21:07:09+09:00",
+      "event": "작업 S7 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:07:09+09:00",
+      "event": "작업 S7 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T21:16:15+09:00",
+      "event": "작업 S10 변경: status=review, note=선 없는 지도로 단순화 완료(03c5090), 테스트 31·CI 6 통과. 사용자 화면 확인 대기"
+    },
+    {
+      "at": "2026-11-10T21:32:55+09:00",
+      "event": "승인 기록: merge_main (PR#20)"
+    },
+    {
+      "at": "2026-11-10T21:33:05+09:00",
+      "event": "작업 S10 변경: status=dispatched, dispatch=ctx_59e51339af33, note=사용자 '고쳐서 합쳐': 묶음 7개·좁은 화면 펼침 수정 위임. 병합 승인 기록됨(수정·CI 후 병합)"
+    },
+    {
+      "at": "2026-11-10T21:38:52+09:00",
+      "event": "승인 기록: merge_main (PR#22)"
+    },
+    {
+      "at": "2026-11-10T21:39:07+09:00",
+      "event": "작업 S7 변경: status=done, note=PR #22 병합(캡처 13장, 사용자 확인 전 숨김)"
+    },
+    {
+      "at": "2026-11-10T21:57:40+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#20)"
+    },
+    {
+      "at": "2026-11-10T21:57:47+09:00",
+      "event": "작업 S10 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T21:57:47+09:00",
+      "event": "작업 S10 변경: status=done, note=PR #20 병합(선 없는 7묶음 지도, 사용자 '고쳐서 합쳐')"
+    },
+    {
+      "at": "2026-11-10T22:02:45+09:00",
+      "event": "작업 S11 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S11, dispatch=ctx_c755e863bfaf, note=카드 6장·출처 배지·그림 확대·읽음 기록 API"
+    },
+    {
+      "at": "2026-11-10T22:02:45+09:00",
+      "event": "작업 S16 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S16, dispatch=ctx_d14aded0acb3, note=1부: 서버 계산 로직만(review 패키지). 화면·API 연결은 2부"
+    },
+    {
+      "at": "2026-11-10T22:14:54+09:00",
+      "event": "작업 S16 변경: pr=25, note=계산 로직 PR #25(테스트 102, 가정 8개), claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T22:15:48+09:00",
+      "event": "작업 S16 변경: note=사용자 결정 2026-11-10: 오답이면 간격 한 단계 뒤로(예: 8일→4일), 연속 정답 초기화. 검증 결과와 함께 수정 지시 예정"
+    },
+    {
+      "at": "2026-11-10T22:18:26+09:00",
+      "event": "작업 S16 검증(claude:reviewflow:ctx_e210bcd7a9f6): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T22:18:38+09:00",
+      "event": "작업 S16 변경: dispatch=ctx_fa4bd48feb71, note=사용자 결정 2026-11-10(정정): 틀리면 1일(명세대로 — 앞선 '한 단계 뒤로'는 매니저의 잘못된 설명에 따른 답이라 취소), 간격은 학습일당 1회, 첫 항목 예산 초과 허용, 진단·미독 개념은 일정 미생성. 수정 위임"
+    },
+    {
+      "at": "2026-11-10T22:28:09+09:00",
+      "event": "작업 S16 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T22:28:09+09:00",
+      "event": "작업 S16 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T22:30:03+09:00",
+      "event": "작업 S11 변경: pr=26, note=구현 완료 PR #26(프론트 42·백엔드 96), 스크린샷 확인 — 배지·그림 깔끔. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T22:34:55+09:00",
+      "event": "승인 기록: merge_main (PR#25)"
+    },
+    {
+      "at": "2026-11-10T22:35:01+09:00",
+      "event": "작업 S16 변경: note=1부(계산) PR #25 병합. 2부(DB 저장·API·화면 연결)는 S17 홈 대시보드와 함께"
+    },
+    {
+      "at": "2026-11-10T22:35:30+09:00",
+      "event": "작업 S11 검증(claude:reviewflow:ctx_d03d3cd3aa0a): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T22:35:41+09:00",
+      "event": "작업 S11 변경: dispatch=ctx_9cb0407df84e, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-10T22:36:27+09:00",
+      "event": "작업 S18 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S18, dispatch=ctx_de745960d686, note=서버 AI 기반만. 실제 CLI 실행 금지(가짜 CLI로 테스트), 실제 연결 확인은 사용자 승인 후"
+    },
+    {
+      "at": "2026-11-10T22:46:47+09:00",
+      "event": "작업 S11 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T22:46:47+09:00",
+      "event": "작업 S11 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T22:48:23+09:00",
+      "event": "승인 기록: merge_main (PR#26)"
+    },
+    {
+      "at": "2026-11-10T22:48:29+09:00",
+      "event": "작업 S11 변경: status=done, note=PR #26 병합"
+    },
+    {
+      "at": "2026-11-10T22:49:08+09:00",
+      "event": "작업 S12 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S12, dispatch=ctx_58ce532c0bc4"
+    },
+    {
+      "at": "2026-11-10T22:55:39+09:00",
+      "event": "작업 S18 변경: pr=29, note=구현 완료 PR #29, 우회 플래그 없음 확인, claude 보안 중심 검증 위임"
+    },
+    {
+      "at": "2026-11-10T23:01:19+09:00",
+      "event": "작업 S18 검증(claude:reviewflow:ctx_b1dadd16249c): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-10T23:01:28+09:00",
+      "event": "작업 S18 변경: dispatch=ctx_30b7933738bb, note=보안 지적 수정 위임(codex): 전역 설정·훅 격리, 도구 없음, .exe 검증, 인자 고정 테스트, 트리 종료"
+    },
+    {
+      "at": "2026-11-10T23:03:40+09:00",
+      "event": "작업 S18 변경: note=매니저 결정 2026-11-10: Codex 차단하지 않음 — 공식 격리 옵션 전부 적용(사용자 설정·규칙·훅·셸·이미지·웹 끔, read-only, 빈 폴더), 파일 읽기 도구는 끌 수 없는 한계 문서화, 응답에 도구 호출 보이면 폐기. 11/30까지만 Codex 기본"
+    },
+    {
+      "at": "2026-11-10T23:07:32+09:00",
+      "event": "작업 S12 변경: pr=30, note=구현 완료 PR #30(프론트 55·백엔드 113), 스크린샷 확인, claude 검증 위임"
+    },
+    {
+      "at": "2026-11-10T23:09:10+09:00",
+      "event": "작업 S12 변경: dispatch=ctx_0666ebbd0bd8, note=검증 워커가 가드 확인 창에서 멈춰 재시작(읽기 도구 위주)"
+    },
+    {
+      "at": "2026-11-10T23:12:26+09:00",
+      "event": "작업 S12 검증(claude:reviewflow:ctx_0666ebbd0bd8): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-10T23:12:37+09:00",
+      "event": "작업 S12 변경: dispatch=ctx_44d1bc1925f8, note=검증 지적 수정 위임(codex): 용어 concept_id를 실제 다루는 개념으로, 자기 연결 버튼 숨김, 초점·안내·조사"
+    },
+    {
+      "at": "2026-11-10T23:18:47+09:00",
+      "event": "작업 S18 변경: dispatch=ctx_f545348d3db3, note=보안 수정 df89029 완료(140 중 139, CI 5). claude 재검증 위임"
+    },
+    {
+      "at": "2026-11-10T23:19:05+09:00",
+      "event": "작업 S12 변경: note=범위 확대 허용: 용어 교차 개념 연결을 위해 check_content.py·ContentLoader term 검증 수정(존재하는 개념 또는 null, 알 수 없는 ID 거부)"
+    },
+    {
+      "at": "2026-11-10T23:21:17+09:00",
+      "event": "작업 S18 변경: dispatch=ctx_19d4e8c3b003, note=재검증 워커가 확인 창에서 멈춰 재시작(웹 읽기 금지, 문서 확인 필요 목록은 매니저가 확인)"
+    },
+    {
+      "at": "2026-11-10T23:24:58+09:00",
+      "event": "작업 S18 검증(claude:reviewflow:ctx_19d4e8c3b003): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-10T23:25:14+09:00",
+      "event": "작업 S18 변경: dispatch=ctx_746da91d1af8, note=재검증: Windows 인자 따옴표 결함 등 수정 3차 위임(문서 확인 9개 포함)"
+    },
+    {
+      "at": "2026-11-10T23:28:59+09:00",
+      "event": "작업 S12 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T23:28:59+09:00",
+      "event": "작업 S12 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T23:30:18+09:00",
+      "event": "승인 기록: merge_main (PR#30)"
+    },
+    {
+      "at": "2026-11-10T23:30:23+09:00",
+      "event": "작업 S12 변경: status=done, note=PR #30 병합"
+    },
+    {
+      "at": "2026-11-10T23:31:18+09:00",
+      "event": "작업 S14 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S14, dispatch=ctx_3db56351ea45, note=문제 API(정답 비노출)·채점·중복 제출·화면. 복습 갱신은 제외"
+    },
+    {
+      "at": "2026-11-10T23:44:10+09:00",
+      "event": "작업 S18 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-10T23:44:10+09:00",
+      "event": "작업 S18 변경: status=review"
+    },
+    {
+      "at": "2026-11-10T23:47:58+09:00",
+      "event": "승인 기록: merge_main (PR#29)"
+    },
+    {
+      "at": "2026-11-10T23:48:12+09:00",
+      "event": "작업 S18 변경: status=done, note=PR #29 병합. 실제 CLI 연결 시험·튜터 모델 선택은 S19 때 사용자에게"
+    },
+    {
+      "at": "2026-11-10T23:48:54+09:00",
+      "event": "작업 S19 변경: note=사용자 결정 2026-11-10: 튜터 Codex 모델 = gpt-6.1-sol(dadok.ai.codex-model). Claude 모델은 12/1 전에 다시 확인"
+    },
+    {
+      "at": "2026-11-10T23:58:10+09:00",
+      "event": "작업 S14 변경: pr=32, note=구현 완료 PR #32(프론트 70·백엔드 151). 스크린샷: 해설 출처 라벨이 배지 아님, 좁은 화면 탭 2줄. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T00:00:48+09:00",
+      "event": "작업 S14 검증(claude:reviewflow:ctx_74df38449c42): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-11T00:01:17+09:00",
+      "event": "작업 S14 변경: dispatch=ctx_17bfeef94df5, note=검증 지적 수정 위임(codex): 불투명 보기 id(HMAC)+순서 섞기, 배지 공용화, 전 오답 이유, 초점·4xx, 좁은 화면 탭"
+    },
+    {
+      "at": "2026-11-11T09:57:02+09:00",
+      "event": "작업 S14 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T09:57:02+09:00",
+      "event": "작업 S14 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T10:02:21+09:00",
+      "event": "승인 기록: merge_main (PR#32)"
+    },
+    {
+      "at": "2026-11-11T10:02:27+09:00",
+      "event": "작업 S14 변경: status=done, note=PR #32 병합"
+    },
+    {
+      "at": "2026-11-11T10:03:12+09:00",
+      "event": "승인 기록: destructive_delete (dadok-cs merged worktrees 2026-11-11)"
+    },
+    {
+      "at": "2026-11-11T10:13:13+09:00",
+      "event": "작업 P0 변경: note=2026-11-11 정리: 병합된 작업 폴더 17개·로컬 브랜치 삭제 완료(승인). 남은 폴더는 main 본 폴더뿐"
+    },
+    {
+      "at": "2026-11-11T10:16:12+09:00",
+      "event": "작업 S15 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S15, dispatch=ctx_37c33dce6239, note=S16 2부(진행 재계산·오늘 복습 API) 포함"
+    },
+    {
+      "at": "2026-11-11T10:16:13+09:00",
+      "event": "작업 S16 변경: note=2부는 S15에 포함해 위임"
+    },
+    {
+      "at": "2026-11-11T10:16:13+09:00",
+      "event": "작업 S19 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S19, dispatch=ctx_f605ffbbf212, note=튜터 세션·되묻기 3번·힌트. 실제 CLI 표본 검사는 사용자 승인 후"
+    },
+    {
+      "at": "2026-11-11T10:47:45+09:00",
+      "event": "작업 S19 변경: pr=35, note=구현 완료 PR #35(백엔드 169·프론트 80·CI 7), 스크린샷 확인. claude 검증 위임. 실제 CLI 표본 20개는 사용자 승인 대기"
+    },
+    {
+      "at": "2026-11-11T10:50:30+09:00",
+      "event": "작업 S19 검증(claude:reviewflow:ctx_75b104a5de6a): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T10:50:55+09:00",
+      "event": "작업 S19 변경: dispatch=ctx_f4059603a49a, note=검증 지적 수정 위임(codex). 매니저 결정: 형식 오류 2회도 failed 아님(active·재시도), 학습자 글의 구분자 모양 치환"
+    },
+    {
+      "at": "2026-11-11T10:57:30+09:00",
+      "event": "작업 S15 변경: pr=36, note=구현 완료 PR #36(프론트 83·백엔드 176·CI 7). 가정 4개. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T10:59:56+09:00",
+      "event": "작업 S15 검증(claude:reviewflow:ctx_d5d61fb395c1): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:00:21+09:00",
+      "event": "작업 S15 변경: dispatch=ctx_cf918a03e93c, note=검증 지적 수정 위임(codex): 회차 기한당 1회(R-10), 오답이면 min으로 내려감(명세). 10분/5분은 설정 상수"
+    },
+    {
+      "at": "2026-11-11T11:07:40+09:00",
+      "event": "작업 S19 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:07:40+09:00",
+      "event": "작업 S19 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T11:11:04+09:00",
+      "event": "승인 기록: merge_main (PR#35)"
+    },
+    {
+      "at": "2026-11-11T11:11:21+09:00",
+      "event": "작업 S19 변경: status=done, note=PR #35 병합. 실제 CLI 표본 20개 검사 남음(사용자 승인 필요)"
+    },
+    {
+      "at": "2026-11-11T11:13:17+09:00",
+      "event": "승인 기록: paid_service (codex sol tutor sample 20)"
+    },
+    {
+      "at": "2026-11-11T11:13:17+09:00",
+      "event": "승인 기록: destructive_delete (merged-clean-worktrees)"
+    },
+    {
+      "at": "2026-11-11T11:13:49+09:00",
+      "event": "작업 S19 변경: note=PR #35 병합. 실제 CLI 표본 20개 진행 중 ctx_8048d4dad4d4(사용자 승인 2026-11-11, 최대 30회)"
+    },
+    {
+      "at": "2026-11-11T11:27:36+09:00",
+      "event": "작업 S15 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:27:36+09:00",
+      "event": "작업 S15 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T11:31:05+09:00",
+      "event": "승인 기록: merge_main (PR#36)"
+    },
+    {
+      "at": "2026-11-11T11:31:24+09:00",
+      "event": "작업 S15 변경: status=done, note=PR #36 병합, 작업 폴더 정리(상시 승인)"
+    },
+    {
+      "at": "2026-11-11T11:31:24+09:00",
+      "event": "작업 S16 변경: status=done, note=1부 PR #25, 2부 PR #36 병합"
+    },
+    {
+      "at": "2026-11-11T11:33:44+09:00",
+      "event": "작업 S19 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T11:40:14+09:00",
+      "event": "승인 기록: merge_main (PR#38)"
+    },
+    {
+      "at": "2026-11-11T11:40:16+09:00",
+      "event": "작업 S19 변경: status=done, note=PR #35·#38 병합, 실제 AI 표본 20/20 통과"
+    },
+    {
+      "at": "2026-11-11T11:40:24+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#38)"
+    },
+    {
+      "at": "2026-11-11T11:40:48+09:00",
+      "event": "작업 S19 변경: status=review, note=PR #35 병합. PR #38은 병합 승인 받음 — log.md 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S20 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S20, dispatch=ctx_cfe333014790, note=평가·통과 판정은 서버 규칙·진행 재계산 연결"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S17 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S17, dispatch=ctx_f06cb964d3b8, note=홈·설정 API·회차 표시(S13 표시 부분 포함)"
+    },
+    {
+      "at": "2026-11-11T11:45:57+09:00",
+      "event": "작업 S13 변경: note=회차 계산은 S15(PR #36 ProgressService: 기한당 1회·최대 7·오답 min)로 구현. 표시는 S17에 포함"
+    },
+    {
+      "at": "2026-11-11T11:56:17+09:00",
+      "event": "작업 S19 변경: status=done, note=PR #35·#38 병합, 실제 AI 표본 20/20 통과"
+    },
+    {
+      "at": "2026-11-11T12:21:07+09:00",
+      "event": "작업 S20 변경: pr=42, note=구현 완료 PR #42(백엔드 233·프론트 95·CI 7). 통과 규칙: 틀린 내용 0 + core 80%. claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:21:08+09:00",
+      "event": "작업 S17 변경: pr=41, note=구현 완료 PR #41(프론트 98·백엔드 211·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S20 검증(claude:reviewflow:ctx_9f90a474e774): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S17 검증(claude:reviewflow:ctx_3f63e05048c6): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:28:33+09:00",
+      "event": "작업 S20 변경: note=사용자 결정 2026-11-11: 통과 = 틀린 내용 0 + 핵심 항목 최대 1개 누락 허용, 평가 후 빠진 항목 이름 + 다시 볼 카드 표시(평가 완료 뒤에만)"
+    },
+    {
+      "at": "2026-11-11T12:29:53+09:00",
+      "event": "작업 S20 변경: dispatch=ctx_ee543091335f"
+    },
+    {
+      "at": "2026-11-11T12:29:53+09:00",
+      "event": "작업 S17 변경: dispatch=ctx_f9427be12c65"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S20 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:11:59+09:00",
+      "event": "작업 S17 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S20 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:12:00+09:00",
+      "event": "작업 S17 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#42)"
+    },
+    {
+      "at": "2026-11-11T14:18:21+09:00",
+      "event": "승인 기록: merge_main (PR#41)"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S20 변경: status=done, note=PR #42 병합. 명세의 80% 문구 갱신은 S24 문서 정리에서"
+    },
+    {
+      "at": "2026-11-11T14:19:25+09:00",
+      "event": "작업 S17 변경: note=PR #41 병합 승인 받음 — PR #42와 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T14:34:45+09:00",
+      "event": "작업 S17 변경: status=done, note=PR #41 병합"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:34:56+09:00",
+      "event": "작업 S13 변경: status=done, pr=41"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S23 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23, dispatch=ctx_e56e393e84d1"
+    },
+    {
+      "at": "2026-11-11T14:36:20+09:00",
+      "event": "작업 S22 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22, dispatch=ctx_24b70710a917"
+    },
+    {
+      "at": "2026-11-11T15:18:08+09:00",
+      "event": "작업 S22 변경: pr=45, note=구현 완료 PR #45(프론트 108·백엔드 254·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T15:39:20+09:00",
+      "event": "작업 S23 변경: pr=46, note=구현 완료 PR #46(프론트 110·백엔드 259·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T15:57:04+09:00",
+      "event": "작업 S22 검증(claude:reviewflow:ctx_2ba3de933937): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T15:57:15+09:00",
+      "event": "작업 S22 변경: dispatch=ctx_17ea84b1faf6, note=사용자 결정 2026-11-11: 재진단은 안 본 문제로. 검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-11T15:57:15+09:00",
+      "event": "작업 S23 변경: dispatch=ctx_1b434829783a, note=검증 워커 읽기 도구로 재시작. 매니저 로컬 백엔드 테스트는 내장 DB initdb 실패(환경 문제 추정, CI Windows·Ubuntu는 통과) — 재확인 필요"
+    },
+    {
+      "at": "2026-11-11T16:02:32+09:00",
+      "event": "작업 S23 검증(claude:reviewflow:ctx_1b434829783a): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:02:47+09:00",
+      "event": "작업 S23 변경: dispatch=ctx_c18310aa7fa8, note=검증 지적 수정 위임(codex). 매니저 결정: ai_call은 초기화·가져오기에서 보존, 오래된 진행 중 상태는 막지 않음, 진단 표 순서는 FK 메타데이터로"
+    },
+    {
+      "at": "2026-11-11T16:02:47+09:00",
+      "event": "작업 추가 S2b (codex): 테스트 환경: Windows 앱 제어가 내장 PostgreSQL(TEMP의 서명 없는 postgres.exe)을 막음 → DADOK_PG_BIN으로 설치된 PostgreSQL 18 바이너리 사용"
+    },
+    {
+      "at": "2026-11-11T16:02:47+09:00",
+      "event": "작업 S2b 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-pgbin, dispatch=ctx_e73cecae9871"
+    },
+    {
+      "at": "2026-11-11T16:22:19+09:00",
+      "event": "작업 S22 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:22:19+09:00",
+      "event": "작업 S22 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T16:27:37+09:00",
+      "event": "작업 S23 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:27:37+09:00",
+      "event": "작업 S23 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T16:32:50+09:00",
+      "event": "작업 S2b 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:32:50+09:00",
+      "event": "작업 S2b 변경: status=review, pr=48"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#48)"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#45)"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#46)"
+    },
+    {
+      "at": "2026-11-11T16:36:36+09:00",
+      "event": "작업 S2b 변경: status=done, note=PR #48 병합"
+    },
+    {
+      "at": "2026-11-11T16:36:36+09:00",
+      "event": "작업 S22 변경: note=PR #45 병합 승인 — PR #48과 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T16:36:37+09:00",
+      "event": "작업 S23 변경: note=PR #46 병합 승인 — PR #45 병합 뒤 main 맞추기 예정"
+    },
+    {
+      "at": "2026-11-11T16:39:15+09:00",
+      "event": "작업 S21 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S21, dispatch=ctx_63ff840f76f0"
+    },
+    {
+      "at": "2026-11-11T16:53:34+09:00",
+      "event": "작업 S22 변경: status=done, note=PR #45 병합(이 PC DB 포함 테스트 262 통과)"
+    },
+    {
+      "at": "2026-11-11T17:38:26+09:00",
+      "event": "작업 S23 변경: status=done, note=PR #46 병합(실제 진단 표 왕복 포함, DB 포함 279 통과)"
+    },
+    {
+      "at": "2026-11-11T17:38:26+09:00",
+      "event": "작업 S21 변경: pr=50, note=구현 완료 PR #50(프론트 122·백엔드 279·CI 7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-11T17:41:28+09:00",
+      "event": "작업 S21 검증(claude:reviewflow:ctx_e6e3ad1463b3): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T17:41:37+09:00",
+      "event": "작업 S21 변경: dispatch=ctx_87fd3a974427, note=검증 지적 수정 위임(codex): 공개 카드 수 분모, 질문별 점수 추이, now.md R-20 문구"
+    },
+    {
+      "at": "2026-11-11T18:15:05+09:00",
+      "event": "작업 S21 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T18:15:05+09:00",
+      "event": "작업 S21 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T18:22:11+09:00",
+      "event": "승인 기록: merge_main (PR#50)"
+    },
+    {
+      "at": "2026-11-11T18:22:24+09:00",
+      "event": "작업 S21 변경: status=done, note=PR #50 병합"
+    },
+    {
+      "at": "2026-11-11T18:23:31+09:00",
+      "event": "작업 S24 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S24b, dispatch=ctx_09921502b1d3, note=둘로 나눔: S24a E2E(codex ctx_1f5be27bfe06), S24b spec-check(claude ctx_09921502b1d3)"
+    },
+    {
+      "at": "2026-11-11T18:31:20+09:00",
+      "event": "작업 S24 변경: note=S24b spec-check 완료: 일치율 90.6%(구현 26·부분 6·미구현 0), 명세 갱신 18줄, 사람 손 8건. 보고서 Temp/.../S24b-spec-check.md. S24a E2E 진행 중"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 변경: agent=codex, note=PR #52(E2E)는 codex 구현, spec-check는 claude"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T19:01:24+09:00",
+      "event": "작업 S24 변경: status=review, pr=52"
+    },
+    {
+      "at": "2026-11-11T19:02:53+09:00",
+      "event": "작업 추가 S25 (codex, 자동): 연결 질문 콘텐츠(R-17): 자주 묶이는 개념 쌍마다 '둘을 이어 설명' 튜터 질문·체크리스트, 묶음 복습에서 사용 — 11/30 전 Codex 작성·Claude 확인"
+    },
+    {
+      "at": "2026-11-11T19:02:54+09:00",
+      "event": "작업 추가 S26 (codex, 자동): 기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠"
+    },
+    {
+      "at": "2026-11-11T19:02:54+09:00",
+      "event": "작업 S24 변경: note=사용자 결정 2026-11-11: R-2는 분 단위만(기획서 수정), R-17은 연결 질문 콘텐츠 제작(S25)"
+    },
+    {
+      "at": "2026-11-11T19:03:57+09:00",
+      "event": "승인 기록: merge_main (PR#52)"
+    },
+    {
+      "at": "2026-11-11T19:03:57+09:00",
+      "event": "승인 기록: paid_service (codex sol eval sample 10)"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S24 변경: status=done, note=PR #52 병합(E2E·README), spec-check 90.6%"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S20 변경: note=실제 AI 평가 표본 10개 진행 중 ctx_d19deb777767(승인 2026-11-11, 최대 15회)"
+    },
+    {
+      "at": "2026-11-11T19:05:04+09:00",
+      "event": "작업 S25 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S25, dispatch=ctx_ae33e0456da7"
+    },
+    {
+      "at": "2026-11-11T19:27:23+09:00",
+      "event": "작업 S20 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T19:27:23+09:00",
+      "event": "작업 S20 변경: note=PR #42 병합. 실제 AI 평가 표본 10/10 일치, 실행기 PR #55"
+    },
+    {
+      "at": "2026-11-11T20:02:55+09:00",
+      "event": "작업 S25 변경: pr=56, note=구현 완료 PR #56(10쌍, CI 8). claude 내용 검증 위임"
+    },
+    {
+      "at": "2026-11-11T20:09:40+09:00",
+      "event": "작업 S25 검증(claude:reviewflow:ctx_92e9f47098cc): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T20:09:50+09:00",
+      "event": "작업 S25 변경: dispatch=ctx_9a256b9283c3, note=검증 지적 수정 위임(codex): 4쌍 문구, core 3~4개(평가 규칙상 2개면 너무 쉬움), 수정 후 검증 기록 추가"
+    },
+    {
+      "at": "2026-11-11T20:14:15+09:00",
+      "event": "승인 기록: merge_main (PR#55)"
+    },
+    {
+      "at": "2026-11-11T20:14:15+09:00",
+      "event": "승인 기록: db_change (local dadokcs first run)"
+    },
+    {
+      "at": "2026-11-11T20:58:56+09:00",
+      "event": "작업 S24 변경: note=2026-11-11 첫 실행 성공: dadokcs DB 스키마·콘텐츠 15개 적재, 백엔드 127.0.0.1:8080, 프론트 127.0.0.1:5173, AI 상태 codex·로그인됨·남은 30회. 실행 스크립트는 scratchpad/start-dadok.ps1, 로그 ~/.dadok-cs/logs"
+    },
+    {
+      "at": "2026-11-11T22:15:46+09:00",
+      "event": "작업 S25 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T22:15:46+09:00",
+      "event": "작업 S25 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T22:19:41+09:00",
+      "event": "승인 기록: merge_main (PR#56)"
+    },
+    {
+      "at": "2026-11-11T22:19:41+09:00",
+      "event": "승인 기록: db_change (local dadokcs migrate V6)"
+    },
+    {
+      "at": "2026-11-11T22:24:11+09:00",
+      "event": "작업 S25 변경: status=done, note=PR #56 병합, 실행 중 앱에 V6 적용(5→6)·연결 질문 적재"
+    },
+    {
+      "at": "2026-11-11T22:25:47+09:00",
+      "event": "작업 추가 S27 (codex): 디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지"
+    },
+    {
+      "at": "2026-11-11T22:25:48+09:00",
+      "event": "작업 S27 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27, dispatch=ctx_723bd8f48e2c, note=사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
+    },
+    {
+      "at": "2026-11-11T22:26:20+09:00",
+      "event": "작업 S26 변경: status=dispatched, note=기획서 v2 위임(codex)"
+    },
+    {
+      "at": "2026-11-11T22:26:29+09:00",
+      "event": "작업 S26 변경: worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26, dispatch=ctx_df2b9c7fa9ff"
+    }
+  ],
+  "created_at": "2026-11-10T10:43:41+09:00",
+  "updated_at": "2026-11-11T22:26:29+09:00"
+}

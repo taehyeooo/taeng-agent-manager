@@ -35,6 +35,54 @@
       "ref": "work-branches",
       "note": "2026-11-10 사용자: '승인' — 이 레포에 한해 main이 아닌 작업 브랜치 push·PR 생성은 묻지 않음. main 병합은 매번 승인",
       "at": "2026-11-10T10:33:04+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#1",
+      "note": "2026-11-10 사용자: '승인' — PR #1 squash 병합",
+      "at": "2026-11-10T10:35:34+09:00"
+    },
+    {
+      "gate": "system_permission",
+      "ref": "winget install eclipseadoptium.temurin.21.jdk",
+      "note": "2026-11-10 사용자: '승인' — 다독CS 개발용 JDK 21 (Spring Boot 4.1·Spring AI 2.0 공식 문서 확인)",
+      "at": "2026-11-10T12:40:03+09:00"
+    },
+    {
+      "gate": "system_permission",
+      "ref": "winget install postgresql.postgresql.18",
+      "note": "2026-11-10 사용자: '승인' — 다독CS 데이터 저장용 PostgreSQL 18 설치",
+      "at": "2026-11-10T14:12:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#3",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #3(가드 T3)을 작업 브랜치 plan/backend-cs-tutor에 squash 병합(main 아님)",
+      "at": "2026-11-11T12:11:15+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#4",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #4(가드 T4)를 작업 브랜치 plan/backend-cs-tutor에 squash 병합(main 아님)",
+      "at": "2026-11-11T14:57:44+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "merged-clean-worktrees",
+      "note": "2026-11-11 사용자: '승인' — 매니저 저장소도 병합됐고 변경 없고 마지막 저장이 병합 내용과 같은 작업 폴더는 병합 직후 묻지 않고 삭제(T3·T4 사후 승인 포함)",
+      "at": "2026-11-11T15:04:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#5",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #5(가드 T5 오탐 완화)를 작업 브랜치 plan/backend-cs-tutor에 squash 병합(main 아님)",
+      "at": "2026-11-11T17:02:59+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#2",
+      "note": "2026-11-11 사용자: '승인' — 매니저 PR #2(plan/backend-cs-tutor → main, 다독CS 기획·진행 기록·가드 T3~T5) merge 커밋으로 병합",
+      "at": "2026-11-11T22:27:29+09:00"
     }
   ],
   "tasks": [
@@ -64,6 +112,99 @@
         ".github/workflows/test.yml",
         "AGENTS.md"
       ]
+    },
+    {
+      "id": "T2",
+      "title": "가드 오탐 수정: 인라인 스크립트의 'project' 단어만으로 상태 위조 판정, 작업 폴더 안 상대 경로를 밖으로 판정 (heredoc 재현 있음)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "추가 사례(2026-11-10): scratchpad에서 python heredoc으로 지시문 텍스트를 치환하는 스크립트가 '상태 파일 직접 수정'으로 금지 판정됨(대상은 scratchpad의 .md)"
+    },
+    {
+      "id": "T3",
+      "title": "가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3",
+      "pr": "3",
+      "dispatch": "ctx_601e626c7241",
+      "note": "PR #3 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 188 테스트 통과",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:ctx_4e99165cef2b",
+        "summary": "4차: 이전 우회 전부 차단(188 통과, 변형 34/34). Codex가 찾은 새 높음 3(git ls-remote --upload-pack, uniq/sort -o/git --output 쓰기, cmd %VAR%)은 매니저가 현재 base 가드로 재현해 보니 base에서도 allow — T3의 회귀가 아니라 기존 구멍. T3는 base 대비 순개선이라 병합하고 남은 3건은 T4로 분리",
+        "at": "2026-11-11T12:02:38+09:00"
+      },
+      "files": [
+        "am/guard.py"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T4",
+      "pr": "4",
+      "dispatch": "ctx_d6a8cfe277fb",
+      "note": "PR #4 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 194 테스트 통과",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "매니저가 T4 가드에 재현 입력 직접 판정: ls-remote --upload-pack ask, uniq/sort -no/git log --output/git config --file로 상태 파일 쓰기 deny, cmd %API_KEY% deny, .git/hooks 쓰기 ask, 정상 git status·unittest allow. 194 테스트 통과(75초), 변형 41/41",
+        "at": "2026-11-11T14:56:34+09:00"
+      },
+      "files": [
+        "am/guard.py"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T5",
+      "pr": "5",
+      "dispatch": "ctx_e959c8bb7562",
+      "note": "PR #5 병합, 로컬 가드 갱신",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "매니저 직접 판정: 검증 워커가 멈췄던 읽기 조합 3종·gradlew --console=plain allow, find -exec rm·cd ..(폴더 밖)·sort -o·리디렉션 쓰기 ask. 위험 명령(강제 push·상태 파일·cmd 비밀값)은 기존 회귀 테스트로 유지. 197 테스트·변형 44/44·CI 4 통과",
+        "at": "2026-11-11T16:56:06+09:00"
+      },
+      "files": [
+        "am/guard.py"
+      ]
+    },
+    {
+      "id": "T5b",
+      "title": "가드 오탐(T5에 합침): 읽기 전용 셸 조합(cd 작업 폴더 안 하위 폴더; cat/ls/grep/head/find(-exec 없음), ||·파이프)이 ask됨 — 검증 워커가 자주 멈춤",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -182,10 +323,646 @@
     {
       "at": "2026-11-10T10:33:05+09:00",
       "event": "승인된 작업 실행: push(fix/gh-api-exact-ref)"
+    },
+    {
+      "at": "2026-11-10T10:35:34+09:00",
+      "event": "승인 기록: merge_main (PR#1)"
+    },
+    {
+      "at": "2026-11-10T10:35:35+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#1)"
+    },
+    {
+      "at": "2026-11-10T11:14:10+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:16:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:35:14+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:35:25+09:00",
+      "event": "작업 추가 T2 (codex, 자동): 가드 오탐 수정: 인라인 스크립트의 'project' 단어만으로 상태 위조 판정, 작업 폴더 안 상대 경로를 밖으로 판정 (heredoc 재현 있음)"
+    },
+    {
+      "at": "2026-11-10T11:41:28+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:44:16+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:54:11+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T11:57:14+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:05:41+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:05:41+09:00",
+      "event": "작업 T2 변경: note=재현 3건: ① heredoc에 'projects/…' 경로+write_text → 상태 위조 오탐 ② 작업 폴더 안 상대 경로를 밖으로 판정 ③ heredoc 본문(Python set(...))을 셸 명령 'set'으로 분석 → 인증정보 노출 오탐. heredoc 본문은 셸로 분석하지 말 것"
+    },
+    {
+      "at": "2026-11-10T12:05:50+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:14:00+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:19:01+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:19:16+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:30:13+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T12:40:03+09:00",
+      "event": "승인 기록: system_permission (winget install eclipseadoptium.temurin.21.jdk)"
+    },
+    {
+      "at": "2026-11-10T12:40:04+09:00",
+      "event": "승인된 작업 실행: system_permission(winget install eclipseadoptium.temurin.21.jdk)"
+    },
+    {
+      "at": "2026-11-10T13:59:21+09:00",
+      "event": "승인된 작업 실행: system_permission(winget install eclipseadoptium.temurin.21.jdk)"
+    },
+    {
+      "at": "2026-11-10T13:59:55+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T14:12:16+09:00",
+      "event": "승인 기록: system_permission (winget install postgresql.postgresql.18)"
+    },
+    {
+      "at": "2026-11-10T14:12:18+09:00",
+      "event": "승인된 작업 실행: system_permission(winget install postgresql.postgresql.18)"
+    },
+    {
+      "at": "2026-11-10T14:16:25+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T14:32:02+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T14:51:40+09:00",
+      "event": "작업 추가 T3 (codex, 자동): 가드: 작업 폴더 안의 테스트·빌드 실행(gradlew test, npm ci/test/run build, 저장소에 기록된 테스트 스크립트)을 자동 진행으로 — 검증 워커가 확인 창에서 멈춤(2026-11-10)"
+    },
+    {
+      "at": "2026-11-10T14:53:41+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T15:06:03+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/backend-cs-tutor-P0b)"
+    },
+    {
+      "at": "2026-11-10T15:09:48+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/backend-cs-tutor-S2)"
+    },
+    {
+      "at": "2026-11-10T15:10:05+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T15:11:30+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T15:32:07+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T15:48:51+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T15:59:18+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T16:09:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T16:22:02+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T16:46:11+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T16:51:42+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T16:53:51+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:02:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:17:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:20:18+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:32:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:33:35+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:36:47+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:37:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T17:59:46+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:02:08+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:09:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:09:38+09:00",
+      "event": "작업 T2 변경: note=추가 사례(2026-11-10): scratchpad에서 python heredoc으로 지시문 텍스트를 치환하는 스크립트가 '상태 파일 직접 수정'으로 금지 판정됨(대상은 scratchpad의 .md)"
+    },
+    {
+      "at": "2026-11-10T18:10:20+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:19:37+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:39:10+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:43:10+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:46:37+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T18:53:29+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T19:04:23+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T21:00:01+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T21:00:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T21:33:02+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T21:39:03+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T21:57:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:02:42+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:15:45+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:18:35+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:29:56+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:35:39+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:36:25+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:49:06+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T22:55:33+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:01:26+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:03:38+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:07:26+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:09:06+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:09:10+09:00",
+      "event": "작업 T3 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T3, dispatch=ctx_3490e7772c06, note=T2 오탐 포함. 테스트·빌드 허용 목록(추적·미수정 스크립트만)"
+    },
+    {
+      "at": "2026-11-10T23:12:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:19:01+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:25:11+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:31:13+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:37:36+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:37:42+09:00",
+      "event": "작업 T3 변경: note=구현 완료 PR #3(162 통과, 변형 8/8, CI 통과). claude 우회 검증 위임 ctx_4a61293fb8fb"
+    },
+    {
+      "at": "2026-11-10T23:45:36+09:00",
+      "event": "작업 T3 검증(claude:reviewflow:ctx_4a61293fb8fb): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-10T23:46:02+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:46:05+09:00",
+      "event": "작업 T3 변경: dispatch=ctx_b95d7c57ef97, note=우회 지적 수정 위임(codex): 회귀 4 + 기존 높음 3 + npm 배포 이름 + 문서"
+    },
+    {
+      "at": "2026-11-10T23:48:09+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:48:50+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-10T23:58:02+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T00:01:14+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T00:08:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T00:08:37+09:00",
+      "event": "작업 T3 변경: dispatch=ctx_1ee247464623, note=수정 6f6b640(171 통과, 변형 8/8, CI 4/4). claude 재검증 위임"
+    },
+    {
+      "at": "2026-11-11T00:13:48+09:00",
+      "event": "작업 T3 검증(claude:reviewflow:ctx_1ee247464623): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-11T00:13:55+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T00:13:57+09:00",
+      "event": "작업 T3 변경: agent=claude, dispatch=ctx_37db59473dfc, note=Codex 2회 실패 → 구현자 Claude로 교체(규칙). 검증은 codex가 맡는다"
+    },
+    {
+      "at": "2026-11-11T10:13:08+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T10:16:07+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T10:47:35+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T10:50:46+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T3)"
+    },
+    {
+      "at": "2026-11-11T10:50:52+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T10:56:54+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T10:56:58+09:00",
+      "event": "작업 T3 변경: dispatch=ctx_acde3204fc66, note=Claude 3차 구현 154c5c1(181 통과, 변형 22/22, CI 4/4). codex 검증 위임"
+    },
+    {
+      "at": "2026-11-11T10:57:21+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:00:17+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:04:38+09:00",
+      "event": "작업 T3 검증(codex:ctx_acde3204fc66): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-11T11:05:03+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:05:06+09:00",
+      "event": "작업 T3 변경: dispatch=ctx_601e626c7241, note=Codex 검증: 남은 높음 4(미허용 실행기 allow, 래퍼 재귀 없음, escape 선적용, unittest shadowing). Claude 4차 위임 — 원칙: 모르는 것은 ask"
+    },
+    {
+      "at": "2026-11-11T11:11:16+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:13:41+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:31:21+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:33:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:40:40+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:45:51+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:52:15+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T11:52:27+09:00",
+      "event": "작업 T3 변경: note=Claude 4차(기본 ask 구조, 188 통과, 변형 34/34, 테스트 260→68초, npm 판정 141ms). codex 검증 위임"
+    },
+    {
+      "at": "2026-11-11T12:02:34+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 T3 검증(codex:ctx_4e99165cef2b): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 추가 T4 (codex, 자동): 가드: 기존 구멍 3건 — git 읽기 명령의 실행 옵션(ls-remote --upload-pack 등), 출력 파일 옵션(uniq 위치 인수·sort -o 결합·git --output·git config --file, .git/hooks 덮어쓰기), cmd %VAR%/!VAR! 비밀값 출력. + 수정된 형제 파일 때문에 정상 추적 스크립트가 ask되는 오탐 안내"
+    },
+    {
+      "at": "2026-11-11T12:02:38+09:00",
+      "event": "작업 T3 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T12:11:15+09:00",
+      "event": "승인 기록: merge_main (PR#3)"
+    },
+    {
+      "at": "2026-11-11T12:13:42+09:00",
+      "event": "작업 T4 변경: agent=claude, note=가드 영역은 Codex 2회 실패 이력 → Claude 구현, Codex 검증"
+    },
+    {
+      "at": "2026-11-11T12:13:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T12:13:51+09:00",
+      "event": "작업 T3 변경: status=done, pr=3, note=PR #3 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 188 테스트 통과"
+    },
+    {
+      "at": "2026-11-11T12:18:03+09:00",
+      "event": "작업 T4 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T4, dispatch=ctx_731578152a8a"
+    },
+    {
+      "at": "2026-11-11T12:21:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T14:34:45+09:00",
+      "event": "작업 T4 변경: agent=codex, dispatch=ctx_d6a8cfe277fb, note=사용자 선택 A: Claude가 가드 확인 창에 막혀 Codex가 이어서 마무리(Claude 변경 검토 포함). 검증은 Claude"
+    },
+    {
+      "at": "2026-11-11T14:34:53+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T14:36:17+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T14:56:34+09:00",
+      "event": "작업 T4 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T14:56:35+09:00",
+      "event": "작업 T4 변경: status=review, pr=4"
+    },
+    {
+      "at": "2026-11-11T14:57:44+09:00",
+      "event": "승인 기록: merge_main (PR#4)"
+    },
+    {
+      "at": "2026-11-11T14:57:56+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#4)"
+    },
+    {
+      "at": "2026-11-11T15:00:59+09:00",
+      "event": "작업 T4 변경: status=done, note=PR #4 plan/backend-cs-tutor에 병합, 로컬 가드 갱신, 194 테스트 통과"
+    },
+    {
+      "at": "2026-11-11T15:04:58+09:00",
+      "event": "승인 기록: destructive_delete (merged-clean-worktrees)"
+    },
+    {
+      "at": "2026-11-11T15:21:04+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T15:21:07+09:00",
+      "event": "작업 추가 T5 (codex, 자동): 가드 오탐: 허용 목록이 너무 엄격 — gradlew 출력 옵션(--console=plain, --info, -q, --stacktrace), 'cd <작업 폴더 안 하위 폴더>; <허용 명령>' 형태, 테스트 결과 파일 읽기(cat build/test-results)가 ask됨. 보안 판정은 유지하고 읽기·출력 옵션만 허용 목록에 추가"
+    },
+    {
+      "at": "2026-11-11T15:21:08+09:00",
+      "event": "작업 T5 변경: agent=codex, note=구현 codex, 검증 claude(직접 판정)"
+    },
+    {
+      "at": "2026-11-11T15:56:20+09:00",
+      "event": "작업 추가 T5b (codex, 자동): 가드 오탐(T5에 합침): 읽기 전용 셸 조합(cd 작업 폴더 안 하위 폴더; cat/ls/grep/head/find(-exec 없음), ||·파이프)이 ask됨 — 검증 워커가 자주 멈춤"
+    },
+    {
+      "at": "2026-11-11T15:56:20+09:00",
+      "event": "작업 T5 변경: note=범위 추가: 읽기 전용 셸 조합(cd 하위 폴더; cat/ls/grep/head/find without -exec, ||, 파이프)과 gradlew 출력 옵션. 보안 판정 유지"
+    },
+    {
+      "at": "2026-11-11T15:57:13+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T16:02:43+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T16:39:12+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T16:39:15+09:00",
+      "event": "작업 T5 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T5, dispatch=ctx_e959c8bb7562"
+    },
+    {
+      "at": "2026-11-11T16:56:03+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T16:56:06+09:00",
+      "event": "작업 T5 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T16:56:06+09:00",
+      "event": "작업 T5 변경: status=review, pr=5"
+    },
+    {
+      "at": "2026-11-11T17:02:59+09:00",
+      "event": "승인 기록: merge_main (PR#5)"
+    },
+    {
+      "at": "2026-11-11T17:10:23+09:00",
+      "event": "작업 T5 변경: status=done, note=PR #5 병합, 로컬 가드 갱신"
+    },
+    {
+      "at": "2026-11-11T17:41:35+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T18:15:03+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T18:23:28+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T19:01:10+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T19:01:21+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T19:02:51+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T19:05:01+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T19:27:21+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T20:09:48+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T20:58:52+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T22:24:09+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T22:26:27+09:00",
+      "event": "승인된 작업 실행: push(plan/backend-cs-tutor)"
+    },
+    {
+      "at": "2026-11-11T22:27:29+09:00",
+      "event": "승인 기록: merge_main (PR#2)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-10T10:33:05+09:00",
+  "updated_at": "2026-11-11T22:27:29+09:00",
   "requests": [
     {
       "gate": "push",

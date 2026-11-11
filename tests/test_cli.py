@@ -54,6 +54,16 @@ class CliTest(unittest.TestCase):
         self.am("set", "app1", "--repo", "owner/app1")
         self.assertEqual(self.am("phase", "app1", "repo_ready")[0], 0)
 
+    def test_repo_ready_accepts_approval_for_that_repo_only(self):
+        self.am("new", "app1", "--idea", "x")
+        self.am("approve", "app1", "spec")
+        self.am("phase", "app1", "spec_ready")
+        self.am("set", "app1", "--repo", "Owner/App1")
+        self.am("approve", "app1", "repo_create", "--ref", "owner/other")
+        self.assertEqual(self.am("phase", "app1", "repo_ready")[0], 2)  # 다른 저장소 승인
+        self.am("approve", "app1", "repo_create", "--ref", "owner/app1")
+        self.assertEqual(self.am("phase", "app1", "repo_ready")[0], 0)
+
     def test_require_with_ref(self):
         self.am("new", "app1", "--idea", "x")
         self.assertEqual(self.am("require", "app1", "merge_main", "--ref", "PR#1")[0], 1)
