@@ -197,6 +197,24 @@
       "ref": "PR#41",
       "note": "2026-11-11 사용자: '둘 다 승인' — dadok-cs PR #41(S17 홈 대시보드) squash 병합",
       "at": "2026-11-11T14:18:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#48",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #48 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#45",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #45 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#46",
+      "note": "2026-11-11 사용자: '모두 승인' — dadok-cs PR #46 squash 병합",
+      "at": "2026-11-11T16:35:50+09:00"
     }
   ],
   "tasks": [
@@ -732,7 +750,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S22",
       "pr": "45",
       "dispatch": "ctx_17ea84b1faf6",
-      "note": "사용자 결정 2026-11-11: 재진단은 안 본 문제로. 검증 지적 수정 위임(codex)",
+      "note": "PR #45 병합 승인 — PR #48과 충돌로 main 맞추기 중",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -756,7 +774,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S23",
       "pr": "46",
       "dispatch": "ctx_c18310aa7fa8",
-      "note": "검증 지적 수정 위임(codex). 매니저 결정: ai_call은 초기화·가져오기에서 보존, 오래된 진행 중 상태는 막지 않음, 진단 표 순서는 FK 메타데이터로",
+      "note": "PR #46 병합 승인 — PR #45 병합 뒤 main 맞추기 예정",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -787,12 +805,12 @@
       "title": "테스트 환경: Windows 앱 제어가 내장 PostgreSQL(TEMP의 서명 없는 postgres.exe)을 막음 → DADOK_PG_BIN으로 설치된 PostgreSQL 18 바이너리 사용",
       "agent": "codex",
       "kind": "test",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-pgbin",
       "pr": "48",
       "dispatch": "ctx_e73cecae9871",
-      "note": "",
+      "note": "PR #48 병합",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1882,8 +1900,32 @@
     {
       "at": "2026-11-11T16:32:50+09:00",
       "event": "작업 S2b 변경: status=review, pr=48"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#48)"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#45)"
+    },
+    {
+      "at": "2026-11-11T16:35:50+09:00",
+      "event": "승인 기록: merge_main (PR#46)"
+    },
+    {
+      "at": "2026-11-11T16:36:36+09:00",
+      "event": "작업 S2b 변경: status=done, note=PR #48 병합"
+    },
+    {
+      "at": "2026-11-11T16:36:36+09:00",
+      "event": "작업 S22 변경: note=PR #45 병합 승인 — PR #48과 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-11T16:36:37+09:00",
+      "event": "작업 S23 변경: note=PR #46 병합 승인 — PR #45 병합 뒤 main 맞추기 예정"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T16:32:50+09:00"
+  "updated_at": "2026-11-11T16:36:37+09:00"
 }
