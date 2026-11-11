@@ -269,6 +269,18 @@
       "ref": "PR#58",
       "note": "2026-11-11 사용자: '모두승인' — dadok-cs PR #58(S26 기획서 v2) squash 병합",
       "at": "2026-11-11T23:57:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "overnight 2026-11-12 S28,S29",
+      "note": "2026-11-12 00:2x 사용자: '승인' — 밤사이 S28·S29 PR은 claude 교차 검증 통과·CI 전부 통과·지적 반영 시 묻지 않고 squash 병합. 다른 작업·실제 AI·매니저 main·삭제는 제외",
+      "at": "2026-11-12T00:22:54+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "overnight 2026-11-12 S28 migration",
+      "note": "2026-11-12 사용자: '승인' — S28 병합 시 실행 중 앱 재시작으로 진단 표 마이그레이션 적용(학습 기록 유지)",
+      "at": "2026-11-12T00:22:54+09:00"
     }
   ],
   "tasks": [
@@ -2331,8 +2343,16 @@
     {
       "at": "2026-11-12T00:08:23+09:00",
       "event": "작업 S29 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S29, dispatch=ctx_fb32c927f4bb, note=사용자 요청 2026-11-12. 완료 후 claude 디자인 스킬 검토"
+    },
+    {
+      "at": "2026-11-12T00:22:54+09:00",
+      "event": "승인 기록: merge_main (overnight 2026-11-12 S28,S29)"
+    },
+    {
+      "at": "2026-11-12T00:22:54+09:00",
+      "event": "승인 기록: db_change (overnight 2026-11-12 S28 migration)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T00:08:23+09:00"
+  "updated_at": "2026-11-12T00:22:54+09:00"
 }
