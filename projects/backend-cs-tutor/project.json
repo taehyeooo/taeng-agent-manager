@@ -1119,8 +1119,8 @@
       "status": "dispatched",
       "branch": "feat/#68-rediagnosis",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35",
-      "pr": null,
-      "dispatch": "ctx_d879b1961daa",
+      "pr": "69",
+      "dispatch": "ctx_7dfe422eb2ca",
       "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
@@ -2608,10 +2608,14 @@
     {
       "at": "2026-11-12T22:20:13+09:00",
       "event": "작업 T35 변경: status=dispatched, branch=feat/#68-rediagnosis, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35, dispatch=ctx_d879b1961daa"
+    },
+    {
+      "at": "2026-11-12T22:35:41+09:00",
+      "event": "작업 T35 변경: pr=69, dispatch=ctx_7dfe422eb2ca"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T22:20:13+09:00",
+  "updated_at": "2026-11-12T22:35:41+09:00",
   "requests": [
     {
       "gate": "merge_main",
