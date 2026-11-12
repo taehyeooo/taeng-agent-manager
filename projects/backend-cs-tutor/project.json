@@ -299,6 +299,12 @@
       "ref": "PR#65",
       "note": "2026-11-12 사용자: 'S30 승인' — dadok-cs PR #65(S30 색 더하기·지금 회차 표시) squash 병합",
       "at": "2026-11-12T10:54:09+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#67",
+      "note": "사용자 승인 2026-11-12: UI/UX QA 21개 수정 병합",
+      "at": "2026-11-12T22:18:46+09:00"
     }
   ],
   "tasks": [
@@ -1087,7 +1093,7 @@
       "title": "UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md",
       "agent": "codex",
       "kind": "design",
-      "status": "review",
+      "status": "done",
       "branch": "fix/#66-uiux-qa",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34",
       "pr": "67",
@@ -1110,11 +1116,11 @@
       "title": "진단 다시 하기를 찾기 쉽게: 홈(진단 끝난 뒤)·진단 결과 위쪽에 버튼, 화면 이름 '진단'으로 — T34 병합 뒤",
       "agent": "codex",
       "kind": "design",
-      "status": "todo",
-      "branch": null,
-      "worktree": null,
+      "status": "dispatched",
+      "branch": "feat/#68-rediagnosis",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_d879b1961daa",
       "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
@@ -2590,10 +2596,22 @@
     {
       "at": "2026-11-12T22:16:40+09:00",
       "event": "작업 T34 변경: status=review"
+    },
+    {
+      "at": "2026-11-12T22:18:46+09:00",
+      "event": "승인 기록: merge_main (PR#67)"
+    },
+    {
+      "at": "2026-11-12T22:19:17+09:00",
+      "event": "작업 T34 변경: status=done"
+    },
+    {
+      "at": "2026-11-12T22:20:13+09:00",
+      "event": "작업 T35 변경: status=dispatched, branch=feat/#68-rediagnosis, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35, dispatch=ctx_d879b1961daa"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T22:16:40+09:00",
+  "updated_at": "2026-11-12T22:20:13+09:00",
   "requests": [
     {
       "gate": "merge_main",
