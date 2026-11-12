@@ -1040,12 +1040,23 @@
       "title": "디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "review",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30",
-      "pr": null,
+      "pr": "65",
       "dispatch": "ctx_eefb71ad7c9a",
-      "note": "사용자 요청 2026-11-12. 밤사이 승인 범위(S28·S29) 밖 — 병합은 아침에 승인 요청"
+      "note": "병합은 아침에 사용자 승인(밤사이 승인 범위 밖)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager-design-review",
+        "summary": "매니저 디자인 검토(1280 캡처): 보조 색 청록·보라·갈색 토큰, 화면 머리 옅은 베이지 색조, 활성 탭 파랑 채움, 홈 카드 종류 색 띠, 현재 회차는 책갈피 모양+'지금' 글자(테두리 제거), 읽는 카드 안은 흰 바탕 유지, 분홍·노랑 역할 침범 없음. 대비 글자 5.37:1·경계 3.13:1, 150 테스트·CI 통과",
+        "at": "2026-11-12T10:31:30+09:00"
+      },
+      "files": [
+        "frontend"
+      ]
     }
   ],
   "history": [
@@ -2432,10 +2443,22 @@
     {
       "at": "2026-11-12T09:56:54+09:00",
       "event": "작업 S30 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30, dispatch=ctx_eefb71ad7c9a, note=사용자 요청 2026-11-12. 밤사이 승인 범위(S28·S29) 밖 — 병합은 아침에 승인 요청"
+    },
+    {
+      "at": "2026-11-12T09:59:23+09:00",
+      "event": "작업 S30 변경: note=추가: 회차 책등 '지금 회차' 칸 굵은 테두리 → 은은한 표시(사용자 2026-11-12)"
+    },
+    {
+      "at": "2026-11-12T10:31:30+09:00",
+      "event": "작업 S30 검증(claude:manager-design-review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T10:31:30+09:00",
+      "event": "작업 S30 변경: status=review, pr=65, note=병합은 아침에 사용자 승인(밤사이 승인 범위 밖)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T09:56:54+09:00",
+  "updated_at": "2026-11-12T10:31:30+09:00",
   "requests": [
     {
       "gate": "merge_main",
