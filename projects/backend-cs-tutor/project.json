@@ -1052,12 +1052,12 @@
       "title": "디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕",
       "agent": "codex",
       "kind": "design",
-      "status": "review",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30",
       "pr": "65",
       "dispatch": "ctx_eefb71ad7c9a",
-      "note": "PR #65 병합 승인(2026-11-12) — #62와 충돌로 main 맞추기 중",
+      "note": "PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2491,10 +2491,14 @@
     {
       "at": "2026-11-12T10:54:32+09:00",
       "event": "작업 S30 변경: note=PR #65 병합 승인(2026-11-12) — #62와 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-12T11:09:54+09:00",
+      "event": "작업 S30 변경: status=done, note=PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T10:54:32+09:00",
+  "updated_at": "2026-11-12T11:09:54+09:00",
   "requests": [
     {
       "gate": "merge_main",
