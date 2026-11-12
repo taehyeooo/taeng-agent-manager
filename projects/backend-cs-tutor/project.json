@@ -1088,10 +1088,22 @@
       "agent": "codex",
       "kind": "design",
       "status": "dispatched",
-      "branch": "taehyeooo/backend-cs-tutor-T34",
+      "branch": "fix/#66-uiux-qa",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34",
-      "pr": null,
+      "pr": "67",
       "dispatch": "ctx_af79e80e2e6f",
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T35",
+      "title": "진단 다시 하기를 찾기 쉽게: 홈(진단 끝난 뒤)·진단 결과 위쪽에 버튼, 화면 이름 '진단'으로 — T34 병합 뒤",
+      "agent": "codex",
+      "kind": "design",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
       "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
@@ -2543,10 +2555,18 @@
     {
       "at": "2026-11-12T12:26:21+09:00",
       "event": "작업 T34 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-T34, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34, dispatch=ctx_af79e80e2e6f"
+    },
+    {
+      "at": "2026-11-12T21:57:17+09:00",
+      "event": "작업 T34 변경: branch=fix/#66-uiux-qa, pr=67"
+    },
+    {
+      "at": "2026-11-12T21:57:46+09:00",
+      "event": "작업 추가 T35 (codex, 자동): 진단 다시 하기를 찾기 쉽게: 홈(진단 끝난 뒤)·진단 결과 위쪽에 버튼, 화면 이름 '진단'으로 — T34 병합 뒤"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T12:26:21+09:00",
+  "updated_at": "2026-11-12T21:57:46+09:00",
   "requests": [
     {
       "gate": "merge_main",
