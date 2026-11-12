@@ -1034,6 +1034,18 @@
       "files": [
         "frontend/src/styles"
       ]
+    },
+    {
+      "id": "S30",
+      "title": "디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30",
+      "pr": null,
+      "dispatch": "ctx_eefb71ad7c9a",
+      "note": "사용자 요청 2026-11-12. 밤사이 승인 범위(S28·S29) 밖 — 병합은 아침에 승인 요청"
     }
   ],
   "history": [
@@ -2412,10 +2424,18 @@
     {
       "at": "2026-11-12T09:56:12+09:00",
       "event": "작업 S29 변경: status=done, note=PR #63 밤사이 조건부 승인으로 병합, 실행 중 앱 반영(git pull)"
+    },
+    {
+      "at": "2026-11-12T09:56:46+09:00",
+      "event": "작업 추가 S30 (codex): 디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕"
+    },
+    {
+      "at": "2026-11-12T09:56:54+09:00",
+      "event": "작업 S30 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30, dispatch=ctx_eefb71ad7c9a, note=사용자 요청 2026-11-12. 밤사이 승인 범위(S28·S29) 밖 — 병합은 아침에 승인 요청"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T09:56:12+09:00",
+  "updated_at": "2026-11-12T09:56:54+09:00",
   "requests": [
     {
       "gate": "merge_main",
