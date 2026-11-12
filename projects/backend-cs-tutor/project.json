@@ -1081,6 +1081,18 @@
       "pr": null,
       "dispatch": "ctx_097dc3ff289d",
       "note": "UI/UX 평가 워커가 확인 창에서 반복 정지 → 전체 설정(스킬 허용) 적용 뒤 재시작 ctx_84eb7706d065"
+    },
+    {
+      "id": "T34",
+      "title": "UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": "taehyeooo/backend-cs-tutor-T34",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34",
+      "pr": null,
+      "dispatch": "ctx_af79e80e2e6f",
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2523,10 +2535,18 @@
     {
       "at": "2026-11-12T12:15:50+09:00",
       "event": "작업 QA1 변경: note=UI/UX 평가 워커가 확인 창에서 반복 정지 → 전체 설정(스킬 허용) 적용 뒤 재시작 ctx_84eb7706d065"
+    },
+    {
+      "at": "2026-11-12T12:25:27+09:00",
+      "event": "작업 추가 T34 (codex, 자동): UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md"
+    },
+    {
+      "at": "2026-11-12T12:26:21+09:00",
+      "event": "작업 T34 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-T34, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34, dispatch=ctx_af79e80e2e6f"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T12:15:50+09:00",
+  "updated_at": "2026-11-12T12:26:21+09:00",
   "requests": [
     {
       "gate": "merge_main",
