@@ -257,6 +257,48 @@
       "ref": "local dadokcs migrate V6",
       "note": "2026-11-11 사용자: '승인' — 서버 재시작으로 dadokcs DB에 V6(연결 질문 표) 적용·10쌍 적재, 학습 기록 유지",
       "at": "2026-11-11T22:19:41+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#59",
+      "note": "2026-11-11 사용자: '모두승인' — dadok-cs PR #59(S27 디자인 고도화) squash 병합",
+      "at": "2026-11-11T23:57:10+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#58",
+      "note": "2026-11-11 사용자: '모두승인' — dadok-cs PR #58(S26 기획서 v2) squash 병합",
+      "at": "2026-11-11T23:57:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "overnight 2026-11-12 S28,S29",
+      "note": "2026-11-12 00:2x 사용자: '승인' — 밤사이 S28·S29 PR은 claude 교차 검증 통과·CI 전부 통과·지적 반영 시 묻지 않고 squash 병합. 다른 작업·실제 AI·매니저 main·삭제는 제외",
+      "at": "2026-11-12T00:22:54+09:00"
+    },
+    {
+      "gate": "db_change",
+      "ref": "overnight 2026-11-12 S28 migration",
+      "note": "2026-11-12 사용자: '승인' — S28 병합 시 실행 중 앱 재시작으로 진단 표 마이그레이션 적용(학습 기록 유지)",
+      "at": "2026-11-12T00:22:54+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#63",
+      "note": "2026-11-12 밤사이 조건부 승인(ref: overnight 2026-11-12 S28,S29)에 따름 — S29 claude 검토 통과·CI 전부 통과",
+      "at": "2026-11-12T09:55:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#62",
+      "note": "2026-11-12 밤사이 조건부 승인(ref: overnight 2026-11-12 S28,S29)에 따름 — S28 claude 검증 지적 반영·CI 전부 통과",
+      "at": "2026-11-12T10:49:30+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#65",
+      "note": "2026-11-12 사용자: 'S30 승인' — dadok-cs PR #65(S30 색 더하기·지금 회차 표시) squash 병합",
+      "at": "2026-11-12T10:54:09+09:00"
     }
   ],
   "tasks": [
@@ -916,24 +958,117 @@
       "title": "기획서 v2: 사용자 결정 반영 18줄+R-2 시간만+R-17 연결 질문 콘텐츠",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26",
-      "pr": null,
-      "dispatch": "ctx_df2b9c7fa9ff",
-      "note": "기획서 v2 위임(codex)"
+      "pr": "58",
+      "dispatch": "ctx_e19c1505c48b",
+      "note": "PR #58 병합(기획서 v2 + 웹 전용)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "기획서 v2 변경 이력 표 확인: 사용자 결정(밝은 화면·구조 C·분 단위·오답 1일·학습일당 1회·회차 min·연결 질문 core 3+·통과 기준·ai_call 보존·재진단) 모두 반영, 문서만 변경, 요구사항 연결 32/32·CI 통과",
+        "at": "2026-11-11T22:46:17+09:00"
+      },
+      "files": [
+        "docs/specs/2026-11-10-dadok-cs.md",
+        "docs/plans/2026-11-10-dadok-cs.md"
+      ]
     },
     {
       "id": "S27",
       "title": "디자인 고도화: 앱 정체성(다독·7관점·설명하기)에 맞춘 Codex(Astra) 자율 디자인 — 워드마크·색 다듬기·전체 화면 일관성, 흰·파랑·분홍 유지",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S27",
-      "pr": null,
-      "dispatch": "ctx_723bd8f48e2c",
-      "note": "사용자 요청 2026-11-11: 아스트라가 알아서 정체성에 맞게(시안 고르기 없이 하나로)"
+      "pr": "59",
+      "dispatch": "ctx_8c2140d2c464",
+      "note": "PR #59 병합, 실행 중 앱에 반영(git pull, 화면 서버 자동 갱신)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "디자인 검토 반영 확인(1280 캡처): 분홍은 약함·오답 주의 전용, 진행 막대 파랑, 튜터 한 열 정리, 제목 표시 정리. 136 테스트·1024/1280 28화면·CI 통과",
+        "at": "2026-11-11T23:52:41+09:00"
+      },
+      "files": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "S28",
+      "title": "첫 진단 '잘 모르겠어요' 선택지(찍기 방지): 모름은 추천 대상, 오답 통계 제외, 진단 표 결과 값 추가",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S28",
+      "pr": "62",
+      "dispatch": "ctx_b4193c5bebd1",
+      "note": "PR #62 밤사이 승인으로 병합, 실행 중 앱 V7 적용(6→7)·재시작",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager",
+        "summary": "수정 확인: 이전 형식 백업(outcome 없음) 변환 수용, 완료 후 모름 정답·해설 표시, 진단 조인 context 필터, 결과 분기 순서, 버튼 실선 구분, R-30 명세 줄. 백엔드 305(+9)·프론트 143·CI 7 통과",
+        "at": "2026-11-12T10:49:30+09:00"
+      },
+      "files": [
+        "backend/src/main/java",
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "S29",
+      "title": "중요 문장 형광펜 강조(분홍 아님) + 읽기 집중 글꼴(무료·레포 포함) + 가독성 조정",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S29",
+      "pr": "63",
+      "dispatch": "ctx_fb32c927f4bb",
+      "note": "PR #63 밤사이 조건부 승인으로 병합, 실행 중 앱 반영(git pull)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager-design-review",
+        "summary": "매니저 디자인 검토(web-design-guidelines 기준, 1280 캡처): Pretendard Variable 1.3.9 OFL 자체 호스팅·unicode-range 분할·font-display swap(첫 화면 글꼴 요청 약 250KB), 형광 노랑 #fff0b3은 mark 의미 유지·box-decoration clone·본문 대비 12.16:1, 18px/줄높이 33.3px/한 줄 약 38자, 분홍 규칙 침범 없음. 141 테스트·CI 통과. 사소: 회차 책등 현재 칸 굵은 테두리(이전 PR부터)는 아침 보고",
+        "at": "2026-11-12T09:54:43+09:00"
+      },
+      "files": [
+        "frontend/src/styles"
+      ]
+    },
+    {
+      "id": "S30",
+      "title": "디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30",
+      "pr": "65",
+      "dispatch": "ctx_eefb71ad7c9a",
+      "note": "PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:manager-design-review",
+        "summary": "매니저 디자인 검토(1280 캡처): 보조 색 청록·보라·갈색 토큰, 화면 머리 옅은 베이지 색조, 활성 탭 파랑 채움, 홈 카드 종류 색 띠, 현재 회차는 책갈피 모양+'지금' 글자(테두리 제거), 읽는 카드 안은 흰 바탕 유지, 분홍·노랑 역할 침범 없음. 대비 글자 5.37:1·경계 3.13:1, 150 테스트·CI 통과",
+        "at": "2026-11-12T10:31:30+09:00"
+      },
+      "files": [
+        "frontend"
+      ]
     }
   ],
   "history": [
@@ -2196,8 +2331,182 @@
     {
       "at": "2026-11-11T22:26:29+09:00",
       "event": "작업 S26 변경: worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S26, dispatch=ctx_df2b9c7fa9ff"
+    },
+    {
+      "at": "2026-11-11T22:46:17+09:00",
+      "event": "작업 S26 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T22:46:17+09:00",
+      "event": "작업 S26 변경: status=review, pr=58"
+    },
+    {
+      "at": "2026-11-11T22:47:06+09:00",
+      "event": "작업 S27 변경: pr=59, note=구현 완료 PR #59(정체성: 다시 읽기·쌓이는 이해·내 말로 설명·차분한 집중; 워드마크·책등 회차·토큰·움직임). 사용자 의견 대기. 관찰: 개념 제목에 굵은 파란 포커스 테두리"
+    },
+    {
+      "at": "2026-11-11T22:48:00+09:00",
+      "event": "작업 S27 변경: dispatch=ctx_025df773f986, note=사용자 결정 2026-11-11: 휴대폰 불필요, 컴퓨터 웹(최소 1024px)만 지원. 포커스 테두리 은은하게. 후속 위임"
+    },
+    {
+      "at": "2026-11-11T22:50:50+09:00",
+      "event": "작업 S27 변경: note=사용자 결정 2026-11-11: Codex 구현 후 Claude가 ui-ux-pro-max·web-design-guidelines·emil-design-eng 스킬로 디자인 검토 → Codex 반영. 웹 전용 수정 진행 중"
+    },
+    {
+      "at": "2026-11-11T22:53:30+09:00",
+      "event": "작업 S27 변경: note=웹 전용 조정 완료(14295fa). Claude 디자인 스킬 검토 위임"
+    },
+    {
+      "at": "2026-11-11T23:38:37+09:00",
+      "event": "작업 S27 검증(claude:design-review:ctx_3f48ed8db122): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-11T23:38:47+09:00",
+      "event": "작업 S27 변경: dispatch=ctx_8c2140d2c464, note=Claude 디자인 검토(중간 7·낮음 13) 반영 위임(codex astra)"
+    },
+    {
+      "at": "2026-11-11T23:52:41+09:00",
+      "event": "작업 S27 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-11T23:52:42+09:00",
+      "event": "작업 S27 변경: status=review"
+    },
+    {
+      "at": "2026-11-11T23:57:10+09:00",
+      "event": "승인 기록: merge_main (PR#59)"
+    },
+    {
+      "at": "2026-11-11T23:57:11+09:00",
+      "event": "승인 기록: merge_main (PR#58)"
+    },
+    {
+      "at": "2026-11-11T23:58:09+09:00",
+      "event": "작업 S27 변경: status=done, note=PR #59 병합, 실행 중 앱에 반영(git pull, 화면 서버 자동 갱신)"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 추가 S28 (codex): 첫 진단 '잘 모르겠어요' 선택지(찍기 방지): 모름은 추천 대상, 오답 통계 제외, 진단 표 결과 값 추가"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 S28 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S28, dispatch=ctx_a113bfca6cf1, note=사용자 요청 2026-11-11"
+    },
+    {
+      "at": "2026-11-11T23:58:56+09:00",
+      "event": "작업 S26 변경: dispatch=ctx_e19c1505c48b, note=PR #58 병합 승인 — #59와 충돌로 main 맞추기 + 웹 전용 결정 추가 중"
+    },
+    {
+      "at": "2026-11-12T00:04:24+09:00",
+      "event": "작업 S26 변경: status=done, note=PR #58 병합(기획서 v2 + 웹 전용)"
+    },
+    {
+      "at": "2026-11-12T00:08:23+09:00",
+      "event": "작업 추가 S29 (codex): 중요 문장 형광펜 강조(분홍 아님) + 읽기 집중 글꼴(무료·레포 포함) + 가독성 조정"
+    },
+    {
+      "at": "2026-11-12T00:08:23+09:00",
+      "event": "작업 S29 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S29, dispatch=ctx_fb32c927f4bb, note=사용자 요청 2026-11-12. 완료 후 claude 디자인 스킬 검토"
+    },
+    {
+      "at": "2026-11-12T00:22:54+09:00",
+      "event": "승인 기록: merge_main (overnight 2026-11-12 S28,S29)"
+    },
+    {
+      "at": "2026-11-12T00:22:54+09:00",
+      "event": "승인 기록: db_change (overnight 2026-11-12 S28 migration)"
+    },
+    {
+      "at": "2026-11-12T00:35:33+09:00",
+      "event": "작업 S28 변경: pr=62, note=구현 완료 PR #62(V7). claude 검증 위임"
+    },
+    {
+      "at": "2026-11-12T00:35:33+09:00",
+      "event": "작업 S29 변경: pr=63, note=구현 완료 PR #63(Pretendard Variable 1.3.9 OFL 자체 호스팅, 형광 노랑 #fff0b3). 매니저(claude) 디자인 검토"
+    },
+    {
+      "at": "2026-11-12T09:54:21+09:00",
+      "event": "작업 S28 검증(claude:reviewflow:ctx_53263ec3ba5d): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-12T09:54:43+09:00",
+      "event": "작업 S28 변경: dispatch=ctx_b4193c5bebd1, note=검증 지적 수정 위임(codex)"
+    },
+    {
+      "at": "2026-11-12T09:54:43+09:00",
+      "event": "작업 S29 검증(claude:manager-design-review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T09:54:53+09:00",
+      "event": "승인 요청: merge_main (PR#63)"
+    },
+    {
+      "at": "2026-11-12T09:55:57+09:00",
+      "event": "승인 기록: merge_main (PR#63)"
+    },
+    {
+      "at": "2026-11-12T09:56:12+09:00",
+      "event": "작업 S29 변경: status=done, note=PR #63 밤사이 조건부 승인으로 병합, 실행 중 앱 반영(git pull)"
+    },
+    {
+      "at": "2026-11-12T09:56:46+09:00",
+      "event": "작업 추가 S30 (codex): 디자인에 색 조금 더하기(Astra): 보조 색 2~3개·묶음 구분·홈 카드 종류·옅은 머리 색조, 읽는 영역은 흰 바탕"
+    },
+    {
+      "at": "2026-11-12T09:56:54+09:00",
+      "event": "작업 S30 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30, dispatch=ctx_eefb71ad7c9a, note=사용자 요청 2026-11-12. 밤사이 승인 범위(S28·S29) 밖 — 병합은 아침에 승인 요청"
+    },
+    {
+      "at": "2026-11-12T09:59:23+09:00",
+      "event": "작업 S30 변경: note=추가: 회차 책등 '지금 회차' 칸 굵은 테두리 → 은은한 표시(사용자 2026-11-12)"
+    },
+    {
+      "at": "2026-11-12T10:31:30+09:00",
+      "event": "작업 S30 검증(claude:manager-design-review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T10:31:30+09:00",
+      "event": "작업 S30 변경: status=review, pr=65, note=병합은 아침에 사용자 승인(밤사이 승인 범위 밖)"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "작업 S28 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "작업 S28 변경: status=review"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "승인 기록: merge_main (PR#62)"
+    },
+    {
+      "at": "2026-11-12T10:50:35+09:00",
+      "event": "작업 S28 변경: status=done, note=PR #62 밤사이 승인으로 병합, 실행 중 앱 V7 적용(6→7)·재시작"
+    },
+    {
+      "at": "2026-11-12T10:54:09+09:00",
+      "event": "승인 기록: merge_main (PR#65)"
+    },
+    {
+      "at": "2026-11-12T10:54:32+09:00",
+      "event": "작업 S30 변경: note=PR #65 병합 승인(2026-11-12) — #62와 충돌로 main 맞추기 중"
+    },
+    {
+      "at": "2026-11-12T11:09:54+09:00",
+      "event": "작업 S30 변경: status=done, note=PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-11T22:26:29+09:00"
+  "updated_at": "2026-11-12T11:09:54+09:00",
+  "requests": [
+    {
+      "gate": "merge_main",
+      "ref": "PR#63",
+      "cmd": "gh pr merge 63 --repo taehyeooo/dadok-cs --squash --delete-branch 2>&1",
+      "impact": "작업한 코드가 완성본(main)에 들어간다",
+      "risk": "문제가 있으면 완성본이 깨진다 (되돌리기는 가능하지만 번거롭다)",
+      "at": "2026-11-12T09:54:53+09:00"
+    }
+  ]
 }
