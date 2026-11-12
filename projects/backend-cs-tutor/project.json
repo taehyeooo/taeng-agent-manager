@@ -1069,6 +1069,18 @@
       "files": [
         "frontend"
       ]
+    },
+    {
+      "id": "QA1",
+      "title": "UI/UX QA: 분리된 시험 환경에서 사용자 흐름 캡처(codex) → Claude 디자인 스킬 평가",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA",
+      "pr": null,
+      "dispatch": "ctx_097dc3ff289d",
+      "note": "사용자 요청 2026-11-12"
     }
   ],
   "history": [
@@ -2495,10 +2507,18 @@
     {
       "at": "2026-11-12T11:09:54+09:00",
       "event": "작업 S30 변경: status=done, note=PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)"
+    },
+    {
+      "at": "2026-11-12T11:24:25+09:00",
+      "event": "작업 추가 QA1 (codex): UI/UX QA: 분리된 시험 환경에서 사용자 흐름 캡처(codex) → Claude 디자인 스킬 평가"
+    },
+    {
+      "at": "2026-11-12T11:24:25+09:00",
+      "event": "작업 QA1 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA, dispatch=ctx_097dc3ff289d, note=사용자 요청 2026-11-12"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T11:09:54+09:00",
+  "updated_at": "2026-11-12T11:24:25+09:00",
   "requests": [
     {
       "gate": "merge_main",
