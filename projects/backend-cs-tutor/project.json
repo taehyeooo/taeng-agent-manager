@@ -293,6 +293,12 @@
       "ref": "PR#62",
       "note": "2026-11-12 밤사이 조건부 승인(ref: overnight 2026-11-12 S28,S29)에 따름 — S28 claude 검증 지적 반영·CI 전부 통과",
       "at": "2026-11-12T10:49:30+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#65",
+      "note": "2026-11-12 사용자: 'S30 승인' — dadok-cs PR #65(S30 색 더하기·지금 회차 표시) squash 병합",
+      "at": "2026-11-12T10:54:09+09:00"
     }
   ],
   "tasks": [
@@ -1051,7 +1057,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S30",
       "pr": "65",
       "dispatch": "ctx_eefb71ad7c9a",
-      "note": "병합은 아침에 사용자 승인(밤사이 승인 범위 밖)",
+      "note": "PR #65 병합 승인(2026-11-12) — #62와 충돌로 main 맞추기 중",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2477,10 +2483,18 @@
     {
       "at": "2026-11-12T10:50:35+09:00",
       "event": "작업 S28 변경: status=done, note=PR #62 밤사이 승인으로 병합, 실행 중 앱 V7 적용(6→7)·재시작"
+    },
+    {
+      "at": "2026-11-12T10:54:09+09:00",
+      "event": "승인 기록: merge_main (PR#65)"
+    },
+    {
+      "at": "2026-11-12T10:54:32+09:00",
+      "event": "작업 S30 변경: note=PR #65 병합 승인(2026-11-12) — #62와 충돌로 main 맞추기 중"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T10:50:35+09:00",
+  "updated_at": "2026-11-12T10:54:32+09:00",
   "requests": [
     {
       "gate": "merge_main",
