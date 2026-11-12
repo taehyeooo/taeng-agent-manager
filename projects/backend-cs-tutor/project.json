@@ -1087,7 +1087,7 @@
       "title": "UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "review",
       "branch": "fix/#66-uiux-qa",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34",
       "pr": "67",
@@ -1095,15 +1095,14 @@
       "note": "자동 배정: design → codex (config/agents.json 선호)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude:reviewflow",
-        "summary": "19 고침·2 일부, 테스트 약화 없음, XSS 없음. 중간 2건(M1 로그인 unknown 시 튜터 잘못 막힘, M2 a href 새로고침으로 개념 잃음) → 같은 워커에 수정 지시",
-        "at": "2026-11-12T22:04:50+09:00"
+        "summary": "후속 711472b 재검증: M1·M2·L1~L8 고침, 새 테스트 8개 약화 없음, 172 통과·CI 5 통과. 낮은 메모 2(쓰이지 않는 not_logged_in 분기, 선택 prop 버튼)",
+        "at": "2026-11-12T22:16:40+09:00"
       },
       "files": [
-        "frontend/src/TutorFlow.tsx",
-        "frontend/src/QuestionFlow.tsx"
+        "frontend/src"
       ]
     },
     {
@@ -2583,10 +2582,18 @@
     {
       "at": "2026-11-12T22:04:50+09:00",
       "event": "작업 T34 변경: dispatch=ctx_6e440322dfa8"
+    },
+    {
+      "at": "2026-11-12T22:16:40+09:00",
+      "event": "작업 T34 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T22:16:40+09:00",
+      "event": "작업 T34 변경: status=review"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T22:04:50+09:00",
+  "updated_at": "2026-11-12T22:16:40+09:00",
   "requests": [
     {
       "gate": "merge_main",
