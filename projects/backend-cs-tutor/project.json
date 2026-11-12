@@ -1080,7 +1080,7 @@
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA",
       "pr": null,
       "dispatch": "ctx_097dc3ff289d",
-      "note": "사용자 요청 2026-11-12"
+      "note": "1단계 캡처 128장 완료(격리 환경 정리 확인). Claude UI/UX 평가 위임"
     }
   ],
   "history": [
@@ -2515,10 +2515,14 @@
     {
       "at": "2026-11-12T11:24:25+09:00",
       "event": "작업 QA1 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA, dispatch=ctx_097dc3ff289d, note=사용자 요청 2026-11-12"
+    },
+    {
+      "at": "2026-11-12T11:47:04+09:00",
+      "event": "작업 QA1 변경: note=1단계 캡처 128장 완료(격리 환경 정리 확인). Claude UI/UX 평가 위임"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T11:24:25+09:00",
+  "updated_at": "2026-11-12T11:47:04+09:00",
   "requests": [
     {
       "gate": "merge_main",
