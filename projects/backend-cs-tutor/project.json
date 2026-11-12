@@ -287,6 +287,12 @@
       "ref": "PR#63",
       "note": "2026-11-12 밤사이 조건부 승인(ref: overnight 2026-11-12 S28,S29)에 따름 — S29 claude 검토 통과·CI 전부 통과",
       "at": "2026-11-12T09:55:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#62",
+      "note": "2026-11-12 밤사이 조건부 승인(ref: overnight 2026-11-12 S28,S29)에 따름 — S28 claude 검증 지적 반영·CI 전부 통과",
+      "at": "2026-11-12T10:49:30+09:00"
     }
   ],
   "tasks": [
@@ -993,23 +999,23 @@
       "title": "첫 진단 '잘 모르겠어요' 선택지(찍기 방지): 모름은 추천 대상, 오답 통계 제외, 진단 표 결과 값 추가",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-S28",
       "pr": "62",
       "dispatch": "ctx_b4193c5bebd1",
-      "note": "검증 지적 수정 위임(codex)",
+      "note": "PR #62 밤사이 승인으로 병합, 실행 중 앱 V7 적용(6→7)·재시작",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow:ctx_53263ec3ba5d",
-        "summary": "진단 계약·입력검증·정답 미누출 pass. 중 2: V7 이전 백업(outcome 칸 없음) 400 거절, 모름 항목 결과에 정답·해설 비어 안내와 모순. 하: attempt 조인 context 미필터, 모름/비활성 버튼 점선 유사, R-30 명세 미반영",
-        "at": "2026-11-12T09:54:21+09:00"
+        "by": "claude:manager",
+        "summary": "수정 확인: 이전 형식 백업(outcome 없음) 변환 수용, 완료 후 모름 정답·해설 표시, 진단 조인 context 필터, 결과 분기 순서, 버튼 실선 구분, R-30 명세 줄. 백엔드 305(+9)·프론트 143·CI 7 통과",
+        "at": "2026-11-12T10:49:30+09:00"
       },
       "files": [
-        "backend/src/main/java/kr/dadokcs/backup/BackupService.java",
-        "backend/src/main/java/kr/dadokcs/diagnosis/DiagnosisController.java"
+        "backend/src/main/java",
+        "frontend/src"
       ]
     },
     {
@@ -2455,10 +2461,26 @@
     {
       "at": "2026-11-12T10:31:30+09:00",
       "event": "작업 S30 변경: status=review, pr=65, note=병합은 아침에 사용자 승인(밤사이 승인 범위 밖)"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "작업 S28 검증(claude:manager): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "작업 S28 변경: status=review"
+    },
+    {
+      "at": "2026-11-12T10:49:30+09:00",
+      "event": "승인 기록: merge_main (PR#62)"
+    },
+    {
+      "at": "2026-11-12T10:50:35+09:00",
+      "event": "작업 S28 변경: status=done, note=PR #62 밤사이 승인으로 병합, 실행 중 앱 V7 적용(6→7)·재시작"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T10:31:30+09:00",
+  "updated_at": "2026-11-12T10:50:35+09:00",
   "requests": [
     {
       "gate": "merge_main",
