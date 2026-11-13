@@ -1140,6 +1140,18 @@
         "frontend/src",
         "backend/src/test/resources/diagnosis-browser.mjs"
       ]
+    },
+    {
+      "id": "T36",
+      "title": "이슈 #70: 재진단 화면 이름을 완료 이력 기준으로, 진행 중 진단을 재시작이 덮지 않게(서버 잠금 안 검사)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": "fix/#70-rediagnosis-followup",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36",
+      "pr": null,
+      "dispatch": "ctx_96d9cf86c6f7",
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2654,10 +2666,18 @@
     {
       "at": "2026-11-13T00:41:35+09:00",
       "event": "작업 T35 변경: status=done"
+    },
+    {
+      "at": "2026-11-13T10:20:42+09:00",
+      "event": "작업 추가 T36 (codex, 자동): 이슈 #70: 재진단 화면 이름을 완료 이력 기준으로, 진행 중 진단을 재시작이 덮지 않게(서버 잠금 안 검사)"
+    },
+    {
+      "at": "2026-11-13T10:20:57+09:00",
+      "event": "작업 T36 변경: status=dispatched, branch=fix/#70-rediagnosis-followup, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36, dispatch=ctx_96d9cf86c6f7"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-13T00:41:35+09:00",
+  "updated_at": "2026-11-13T10:20:57+09:00",
   "requests": [
     {
       "gate": "merge_main",
