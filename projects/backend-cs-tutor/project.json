@@ -1149,9 +1149,9 @@
       "status": "dispatched",
       "branch": "fix/#70-rediagnosis-followup",
       "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36",
-      "pr": null,
+      "pr": "71",
       "dispatch": "ctx_96d9cf86c6f7",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "Windows 백엔드 CI 20분 시간 초과 → 재실행 중, 교차 검증 ctx_d3955e2b3417"
     }
   ],
   "history": [
@@ -2674,10 +2674,14 @@
     {
       "at": "2026-11-13T10:20:57+09:00",
       "event": "작업 T36 변경: status=dispatched, branch=fix/#70-rediagnosis-followup, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36, dispatch=ctx_96d9cf86c6f7"
+    },
+    {
+      "at": "2026-11-13T11:21:47+09:00",
+      "event": "작업 T36 변경: pr=71, note=Windows 백엔드 CI 20분 시간 초과 → 재실행 중, 교차 검증 ctx_d3955e2b3417"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-13T10:20:57+09:00",
+  "updated_at": "2026-11-13T11:21:47+09:00",
   "requests": [
     {
       "gate": "merge_main",
