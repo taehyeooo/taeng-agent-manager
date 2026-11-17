@@ -224,16 +224,15 @@
       "dispatch": "ctx_27edf61328c3",
       "note": "3차 수정(Claude) c6269c5: -c 위치 회귀·deploy.sh ref 이름공간 등. 테스트 218·CI 통과, 새 회귀 사례 직접 확인. Codex 교차 검증 dispatch=ctx_77a13e84060a",
       "verification": {
-        "tests": "pass",
+        "tests": "fail",
         "review": "fail",
         "security": "fail",
-        "by": "claude:reviewflow",
-        "summary": "2차: 1차 9건 중 8건 해결·1건 부분. 새 회귀(높음) bash scripts/deploy.sh -c true 가 자동 허용 — 스크립트 뒤 -c도 셸 플래그로 봄(bash evil.sh -c true도). 낮음: deploy.sh ref가 경로 무관·서버 별칭과 겹침, 한 글자 서버를 드라이브로 봄, 따옴표·묶음 옵션",
-        "at": "2026-11-18T01:32:41+09:00"
+        "by": "codex:review",
+        "summary": "3차(c6269c5): 1·2차 지적 해결 확인, 새 P1 3건 — ssh -E/rsync --log-file로 상태 파일 쓰기 우회, ssh -I 로컬 라이브러리 실행, bash --rcfile/--init-file 초기화 파일 실행 누락",
+        "at": "2026-11-18T01:45:07+09:00"
       },
       "files": [
-        "am/guard.py",
-        "tests/test_guard.py"
+        "am/guard.py"
       ]
     },
     {
@@ -1097,10 +1096,14 @@
     {
       "at": "2026-11-18T01:41:07+09:00",
       "event": "작업 T6 변경: note=3차 수정(Claude) c6269c5: -c 위치 회귀·deploy.sh ref 이름공간 등. 테스트 218·CI 통과, 새 회귀 사례 직접 확인. Codex 교차 검증 dispatch=ctx_77a13e84060a"
+    },
+    {
+      "at": "2026-11-18T01:45:07+09:00",
+      "event": "작업 T6 검증(codex:review): tests=fail, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:41:07+09:00",
+  "updated_at": "2026-11-18T01:45:07+09:00",
   "requests": [
     {
       "gate": "push",
