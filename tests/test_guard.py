@@ -1362,9 +1362,9 @@ class T6Round3Test(unittest.TestCase):
             (repo / "scripts").mkdir(parents=True)
             git(repo, "init", "-q")
             (repo / "deploy.sh").write_text("echo deploy\n", encoding="utf-8")
-            cases = [('./deploy.sh', 'script:deploy.sh'), ('bash deploy.sh', 'script:deploy.sh'),
-                     ('bash scripts/deploy.sh --skip-build', 'script:scripts/deploy.sh'),
-                     ('sh -e ./scripts/deploy.sh', 'script:scripts/deploy.sh')]
+            cases = [('./deploy.sh', 'repo-script:deploy.sh'), ('bash deploy.sh', 'repo-script:deploy.sh'),
+                     ('bash scripts/deploy.sh --skip-build', 'repo-script:scripts/deploy.sh'),
+                     ('sh -e ./scripts/deploy.sh', 'repo-script:scripts/deploy.sh')]
             for cmd, ref in cases:
                 with self.subTest(cmd=cmd):
                     self.assertEqual(self.deploy_refs(cmd, repo), [ref])
@@ -1379,7 +1379,7 @@ class T6Round3Test(unittest.TestCase):
             self.assertEqual(self.deploy_refs('ssh deploy.sh sudo true', repo), ['deploy.sh'])
             p = {"approvals": []}
             S.approve(p, "deploy", "deploy.sh")
-            self.assertFalse(S.has_approval(p, "deploy", "script:deploy.sh"))
+            self.assertFalse(S.has_approval(p, "deploy", "repo-script:deploy.sh"))
 
     def test_single_letter_host_depends_on_platform(self):
         from unittest.mock import patch
@@ -1409,7 +1409,7 @@ class T6Round4Test(GuardTest):
     def test_local_execution_probes_need_a_person(self):
         (self.app / 'deploy.sh').write_text('echo deploy\n', encoding='utf-8')
         self.approve('deploy', 'host')
-        self.approve('deploy', 'script:deploy.sh')
+        self.approve('deploy', 'repo-script:deploy.sh')
         for cmd in ('ssh -I ./provider.dylib host sudo true',
                     'rsync -e "ssh -I ./provider.dylib" app host:/app',
                     'bash --rcfile ./evil.rc -i ./deploy.sh',
@@ -1444,13 +1444,13 @@ class T6Round4Test(GuardTest):
                  'ssh -i k -o BatchMode=yes host "sudo cp -p a b; sudo install -o u -g u -m 644 t a; '
                  'sudo systemctl restart svc" ; '
                  f'bash {plugin}/deploy.sh --skip-build')
-        cases = [(trova, ['host', 'host', 'script:plugin:taeng-marketplace/devflow/scripts/deploy.sh']),
+        cases = [(trova, ['host', 'host', 'plugin-script:taeng-marketplace/devflow/scripts/deploy.sh']),
                  ('ssh -q -t -T -C -4 -p 22 -l me -o StrictHostKeyChecking=yes -o ConnectTimeout=5 '
                   '-o UserKnownHostsFile=/dev/null host sudo true', ['host']),
                  ('scp -q -r -p -C -P 22 -i k app host:/app', ['host']),
                  ('rsync -avz --delete --progress --exclude=.git -e "ssh -i k -p 22" app host:/app', ['host']),
-                 ('bash -euo pipefail ./deploy.sh --skip-build', ['script:deploy.sh']),
-                 ('bash --norc --noprofile -xc "./deploy.sh"', ['script:deploy.sh'])]
+                 ('bash -euo pipefail ./deploy.sh --skip-build', ['repo-script:deploy.sh']),
+                 ('bash --norc --noprofile -xc "./deploy.sh"', ['repo-script:deploy.sh'])]
         (self.app / 'deploy.sh').write_text('echo deploy\n', encoding='utf-8')
         home = {'HOME': str(Path(self.tmp.name) / 'home'), 'USERPROFILE': str(Path(self.tmp.name) / 'home')}
         from unittest.mock import patch
@@ -1460,6 +1460,61 @@ class T6Round4Test(GuardTest):
                     fs = [f for f in self.kinds(cmd) if f['kind'] != 'seen']
                     self.assertEqual([f.get('ref') for f in fs if f.get('gate') == 'deploy'], refs, fs)
                     self.assertEqual([f for f in fs if f.get('gate') != 'deploy'], [], fs)
+
+
+class T6Round5Test(GuardTest):
+    """5차 수정: rsync -e 안 ssh 피연산자, 스크립트 승인 대상 이름공간, POSIX의 nul."""
+    def kinds(self, cmd):
+        return G.classify_command(cmd, self.app, self.root)
+
+    def test_rsync_shell_with_operands_needs_a_person(self):
+        self.approve('deploy', 'approved.example')
+        for cmd in ('rsync -e "ssh other.example ./deploy.sh" app approved.example:/app',
+                    'rsync --rsh="ssh -i k other.example" app approved.example:/app',
+                    'rsync -e "ssh -p 22 -- other" app approved.example:/app'):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(any(f['kind'] == 'opaque' for f in self.kinds(cmd)), self.kinds(cmd))
+                self.assertNotEqual(self.bash(cmd, agent='codex')[0], 'allow')
+        fs = [f for f in self.kinds('rsync -e "ssh -i k -p 22" app approved.example:/app') if f['kind'] != 'seen']
+        self.assertEqual([f.get('ref') for f in fs], ['approved.example'], fs)
+
+    def test_repo_and_plugin_script_refs_cannot_collide(self):
+        home = Path(self.tmp.name) / 'home'
+        plugin = home / '.claude/plugins/cache/market/devflow/1/scripts/deploy.sh'
+        plugin.parent.mkdir(parents=True)
+        plugin.write_text('echo approved\n', encoding='utf-8')
+        if os.name != 'nt':  # a folder name with ':' only exists outside Windows
+            impostor = self.app / 'plugin-script:market/devflow/scripts/deploy.sh'
+            impostor.parent.mkdir(parents=True)
+            impostor.write_text('echo unrelated\n', encoding='utf-8')
+            colon = self.app / 'plugin:market/devflow/scripts/deploy.sh'
+            colon.parent.mkdir(parents=True)
+            colon.write_text('echo unrelated\n', encoding='utf-8')
+        from unittest.mock import patch
+        with patch.dict(os.environ, {'HOME': str(home), 'USERPROFILE': str(home)}):
+            refs = [f.get('ref') for f in self.kinds(f'bash {plugin}') if f.get('gate') == 'deploy']
+            self.assertEqual(refs, ['plugin-script:market/devflow/scripts/deploy.sh'])
+            if os.name != 'nt':
+                for script in ('./plugin-script:market/devflow/scripts/deploy.sh',
+                               './plugin:market/devflow/scripts/deploy.sh'):
+                    with self.subTest(script=script):
+                        fs = self.kinds(f'bash {script}')
+                        self.assertEqual([f.get('ref') for f in fs if f.get('gate') == 'deploy'], [None], fs)
+                        self.assertTrue(any(f['kind'] == 'opaque' for f in fs), fs)
+
+    def test_nul_known_hosts_only_on_windows(self):
+        from unittest.mock import patch
+        for cmd in ('ssh -oUserKnownHostsFile=nul host sudo true',
+                    'scp -oUserKnownHostsFile=NUL app host:/app',
+                    'rsync -e "ssh -oUserKnownHostsFile=nul" app host:/app'):
+            with self.subTest(cmd=cmd):
+                with patch.object(G, 'WINDOWS', False):
+                    self.assertTrue(any(f['kind'] == 'opaque' for f in self.kinds(cmd)), self.kinds(cmd))
+                with patch.object(G, 'WINDOWS', True):
+                    self.assertFalse(any(f['kind'] == 'opaque' for f in self.kinds(cmd)), self.kinds(cmd))
+        with patch.object(G, 'WINDOWS', False):
+            self.assertFalse(any(f['kind'] == 'opaque' for f in
+                                 self.kinds('ssh -oUserKnownHostsFile=/dev/null host sudo true')))
 
 
 if __name__ == "__main__":

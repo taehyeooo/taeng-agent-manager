@@ -1339,7 +1339,9 @@ def _transport_check(word, options):
         elif option == '-o' and word != 'rsync':
             parts = re.split(r'\s*=\s*|\s+', value.strip(), maxsplit=1)
             name, setting = parts[0].lower(), (parts[1] if len(parts) > 1 else '')
-            if name not in SSH_SAFE_CONFIG or name == 'userknownhostsfile' and setting.lower() not in ('/dev/null', 'nul'):
+            # Only the null device: NUL is that device on Windows only; elsewhere ./nul is an ordinary file.
+            null = {'/dev/null', 'nul'} if WINDOWS else {'/dev/null'}
+            if name not in SSH_SAFE_CONFIG or name == 'userknownhostsfile' and setting.lower() not in null:
                 unsafe = True
         elif word == 'rsync' and option in ('-e', '--rsh'):
             launch = tokens(value)
@@ -1347,9 +1349,11 @@ def _transport_check(word, options):
                 unsafe = True
             else:
                 nested = []
-                _remote_operands('ssh', launch[1:], nested)
+                # `ssh <allowed options>` only: rsync appends the server and command after these words, so a
+                # server or command written here would replace the one the approval names.
+                operands = _remote_operands('ssh', launch[1:], nested)
                 inner_unsafe, inner_writes = _transport_check('ssh', nested)
-                unsafe, writes = unsafe or inner_unsafe, writes + inner_writes
+                unsafe, writes = unsafe or inner_unsafe or bool(operands) or '--' in launch[1:], writes + inner_writes
     return unsafe, writes
 
 
@@ -1516,18 +1520,22 @@ def _deployment_script(script, args, seg, cwd, shell=False):
         return []
     if args in (['--dry-run'], ['--checks-only']):
         return [_finding('opaque', seg, reason='배포 스크립트의 확인 전용 옵션은 사람이 확인해야 함')]
-    # The approval names one script in this repository: script:<repo-relative path>. The same file name
-    # elsewhere (another folder, a program found on PATH) needs a blanket approval and a person's look.
+    # The approval names one script: repo-script:<repo-relative path> or plugin-script:<market>/<plugin>/<path>.
+    # Separate top-level names, and no ':' inside the path, so one can never spell the other. The same file
+    # name elsewhere (another folder, a program found on PATH) needs a blanket approval and a person's look.
     top = _repo_top(cwd)
     path = _abs(script, cwd)
     # `deploy.sh` alone: a direct run searches PATH; `bash deploy.sh` reads ./deploy.sh when it exists.
-    local = re.search(r'[/\\]', script) or shell and path.is_file()
-    if local and top and _under(path, top) and '$' not in script and SUBST not in script:
-        return [_gated('deploy', seg, ref='script:' + _rel(path, top))]
-    plugin = _plugin_script(path) if local and '$' not in script and SUBST not in script else None
-    if plugin:
-        return [_gated('deploy', seg, ref='script:plugin:' + plugin)]
-    return [_finding('opaque', seg, reason='작업 레포 밖(또는 PATH)의 배포 스크립트 — 무엇이 실행될지 확인해야 함'),
+    local = (re.search(r'[/\\]', script) or shell and path.is_file()) and '$' not in script and SUBST not in script
+    if local and top and _under(path, top):
+        rel = _rel(path, top)
+        if ':' not in rel:
+            return [_gated('deploy', seg, ref='repo-script:' + rel)]
+    elif local:
+        plugin = _plugin_script(path)
+        if plugin and ':' not in plugin:
+            return [_gated('deploy', seg, ref='plugin-script:' + plugin)]
+    return [_finding('opaque', seg, reason='승인 대상으로 정할 수 없는 배포 스크립트(레포 밖·PATH·경로에 콜론) — 무엇이 실행될지 확인해야 함'),
             _gated('deploy', seg)]
 
 
