@@ -222,7 +222,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
       "pr": "7",
       "dispatch": "ctx_27edf61328c3",
-      "note": "3차 수정(Claude) c6269c5: -c 위치 회귀·deploy.sh ref 이름공간 등. 테스트 218·CI 통과, 새 회귀 사례 직접 확인. Codex 교차 검증 dispatch=ctx_77a13e84060a",
+      "note": "4차 수정(Claude) 77cf3a8: 허용 목록 방식, 테스트 234·변형 44/44·CI 통과. 판단 필요: 플러그인 캐시 deploy.sh 승인 범위(script:plugin:...). Codex 재검증 중",
       "verification": {
         "tests": "fail",
         "review": "fail",
@@ -1100,10 +1100,18 @@
     {
       "at": "2026-11-18T01:45:07+09:00",
       "event": "작업 T6 검증(codex:review): tests=fail, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-18T01:49:25+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T6)"
+    },
+    {
+      "at": "2026-11-18T01:52:26+09:00",
+      "event": "작업 T6 변경: note=4차 수정(Claude) 77cf3a8: 허용 목록 방식, 테스트 234·변형 44/44·CI 통과. 판단 필요: 플러그인 캐시 deploy.sh 승인 범위(script:plugin:...). Codex 재검증 중"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:45:07+09:00",
+  "updated_at": "2026-11-18T01:52:26+09:00",
   "requests": [
     {
       "gate": "push",
