@@ -228,8 +228,8 @@
         "review": "fail",
         "security": "fail",
         "by": "codex:review",
-        "summary": "3차(c6269c5): 1·2차 지적 해결 확인, 새 P1 3건 — ssh -E/rsync --log-file로 상태 파일 쓰기 우회, ssh -I 로컬 라이브러리 실행, bash --rcfile/--init-file 초기화 파일 실행 누락",
-        "at": "2026-11-18T01:45:07+09:00"
+        "summary": "4차(77cf3a8): 이전 6개 우회 해결. 새 P1 2: rsync -e 'ssh other ./deploy.sh'로 승인 안 된 서버 실행, plugin 승인 ref가 레포 경로 plugin:...와 충돌. P2: POSIX에서 UserKnownHostsFile=nul 예외",
+        "at": "2026-11-18T01:57:56+09:00"
       },
       "files": [
         "am/guard.py"
@@ -1108,10 +1108,14 @@
     {
       "at": "2026-11-18T01:52:26+09:00",
       "event": "작업 T6 변경: note=4차 수정(Claude) 77cf3a8: 허용 목록 방식, 테스트 234·변형 44/44·CI 통과. 판단 필요: 플러그인 캐시 deploy.sh 승인 범위(script:plugin:...). Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T01:57:56+09:00",
+      "event": "작업 T6 검증(codex:review): tests=fail, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:52:26+09:00",
+  "updated_at": "2026-11-18T01:57:56+09:00",
   "requests": [
     {
       "gate": "push",
