@@ -1250,9 +1250,10 @@ RSYNC_LONG_ARGS = {'--rsh', '--exclude', '--include', '--filter', '--files-from'
                    '--partial-dir', '--usermap', '--groupmap', '--chown', '--chmod'}
 
 
-def _remote_operands(word, args):
+def _remote_operands(word, args, options=None):
     """Parse transport options without treating key paths / option values as hosts."""
     operands, i = [], 0
+    options = [] if options is None else options
     while i < len(args):
         arg = args[i]
         if arg == '--':
@@ -1264,14 +1265,22 @@ def _remote_operands(word, args):
                 tail = args[i + 1:]
                 return operands + (tail[1:] if tail[:1] == ['--'] else tail)
         elif arg.startswith('--'):
-            if '=' not in arg and arg in RSYNC_LONG_ARGS:
+            option, sep, value = arg.partition('=')
+            if not sep and option in RSYNC_LONG_ARGS:
                 i += 1
+                value = args[i] if i < len(args) else ''
+            options.append((option, value))
         else:
             for n, option in enumerate(arg[1:], 1):
+                value = ''
                 if option in REMOTE_OPTION_ARGS[word]:
-                    if n == len(arg) - 1:
+                    value = arg[n + 1:]
+                    if not value:
                         i += 1
+                        value = args[i] if i < len(args) else ''
+                    options.append(('-' + option, value))
                     break
+                options.append(('-' + option, value))
         i += 1
     return operands
 
@@ -1288,10 +1297,35 @@ def _remote_host(target):
     return None
 
 
+def _transport_opaque(word, options, seg):
+    """A server deployment approval never approves programs run on this PC."""
+    unsafe = False
+    for option, value in options:
+        if option == '-F' and word in ('ssh', 'sftp') or option == '-D':
+            unsafe = True
+        if option == '-S' and word in ('scp', 'sftp'):
+            unsafe = True
+        if option == '-o' and word in ('ssh', 'scp', 'sftp'):
+            name = re.split(r'[=\s]', value.strip(), maxsplit=1)[0].lower()
+            if name in {'proxycommand', 'localcommand', 'permitlocalcommand', 'match', 'hostname'}:
+                unsafe = True
+        if word == 'rsync' and option in ('-e', '--rsh'):
+            launch = tokens(value)
+            if not launch or _word(launch[0]) != 'ssh':
+                unsafe = True
+            else:
+                nested = []
+                _remote_operands('ssh', launch[1:], nested)
+                unsafe = unsafe or bool(_transport_opaque('ssh', nested, seg))
+    return [_finding('opaque', seg, reason='접속 옵션이 이 PC의 프로그램·설정을 실행하거나 접속 서버를 바꿀 수 있음')] if unsafe else []
+
+
 def _remote_deploy(word, args, seg):
     if word not in REMOTE_OPTION_ARGS:
         return []
-    operands = _remote_operands(word, args)
+    options = []
+    operands = _remote_operands(word, args, options)
+    out = _transport_opaque(word, options, seg)
     if word != 'ssh':
         # scp/rsync destination is the last operand; downloads stay default ask.
         # sftp's single server operand also opens a session that can upload files.
@@ -1300,8 +1334,8 @@ def _remote_deploy(word, args, seg):
         if word == 'sftp' and len(operands) == 1 and not host and ':' not in target:
             host = target.rsplit('@', 1)[-1]
         if host:
-            return [_gated('deploy', seg, ref=host if '$' not in host and SUBST not in host else None)]
-        return []
+            return out + [_gated('deploy', seg, ref=host if '$' not in host and SUBST not in host else None)]
+        return out
     host = operands[0].rsplit('@', 1)[-1] if operands else None
     ref = host if host and '$' not in host and SUBST not in host else None
     remote = ' '.join(operands[1:])
@@ -1330,8 +1364,8 @@ def _remote_deploy(word, args, seg):
                 safe = False
         readonly = readonly and safe
     if readonly:
-        return []
-    return [_gated('deploy', seg, ref=ref)]
+        return out
+    return out + [_gated('deploy', seg, ref=ref)]
 
 
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
@@ -1403,8 +1437,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
 
     remote = _remote_deploy(word, args, seg)
-    if remote:
-        return out + remote
+    out.extend(remote)
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
         if any(a in ("-encodedcommand", "-enc", "-e", "-ec") for a in low) and word in ("pwsh", "powershell"):

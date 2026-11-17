@@ -1248,6 +1248,23 @@ class T6SecurityReviewTest(unittest.TestCase):
     def findings(self, cmd):
         return G.classify_command(cmd, tempfile.gettempdir())
 
+    def test_transport_local_execution_stays_opaque(self):
+        commands = [
+            'ssh -o ProxyCommand="sh proxy.sh" host sudo true',
+            'ssh -oLocalCommand="sh local.sh" -oPermitLocalCommand=yes host sudo true',
+            'ssh -F config host sudo true', 'ssh -o "Match exec anything" host sudo true',
+            'scp -S local-program app.jar host:/app', 'scp -D local-server app host:/app',
+            'rsync -e "sh transport.sh" app host:/app',
+            'rsync app host:/app --rsh="sh transport.sh"',
+            'rsync -e "ssh -oProxyCommand=helper" app host:/app',
+            'rsync -D app host:/app',
+        ]
+        for cmd in commands:
+            with self.subTest(cmd=cmd):
+                fs = self.findings(cmd)
+                self.assertTrue(any(f.get('gate') == 'deploy' for f in fs), fs)
+                self.assertTrue(any(f['kind'] == 'opaque' for f in fs), fs)
+
     def test_shell_command_keeps_all_findings(self):
         for shell in ('bash -c', 'sh -ec', 'zsh -lc'):
             for inner, kind in (('git push --force origin main', 'forbidden'),
