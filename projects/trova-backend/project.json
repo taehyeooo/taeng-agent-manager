@@ -12,26 +12,27 @@
       "title": "운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": "fix/#428-memory-pressure-stall-alert",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
       "pr": null,
       "dispatch": "ctx_cdc995d9eadf",
-      "note": "1차 지적 반영 5f13c87(로컬): Cloud 저장본 원복, 후보 candidates/로 분리, 검사 판별력 확보. Claude 재검증 dispatch=ctx_076f99dd8233",
+      "note": "검증 통과(5f13c87, 로컬). 남은 것: GitHub 올리기·PR·main 합치기·Grafana 반영 승인(사용자)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude:reviewflow",
-        "summary": "타임라인 일치·PromQL 정상. 중간2: Cloud 기준 저장본을 미승인안으로 덮어씀, 검사 시나리오가 원래 식에서도 통과(판별력 없음). 낮음7",
-        "at": "2026-11-18T01:09:40+09:00"
+        "summary": "5f13c87 재검증: 1차 지적 9건 중 8건 해결, 1건(devflow·CLAUDE.md 사일런스 단계)은 Cloud 반영 뒤 후속. 새 낮음: 후보 JSON이 운영 규칙과 같은 uid라 폴더 통째 import 시 덮어쓸 위험",
+        "at": "2026-11-18T01:16:06+09:00"
       },
       "files": [
-        "monitoring/grafana-cloud/alerting/rules-trova-host.json",
+        "monitoring/grafana-cloud/alerting/candidates/high-memory-pressure-gap.json",
         "monitoring/grafana-cloud/validate_host_alert.py",
         "monitoring/grafana-cloud/README.md",
         "docs/runbooks/memory-pressure.md",
-        "docs/adr/0046-memory-pressure-alert-gap-continuity.md"
+        "docs/adr/0046-memory-pressure-alert-gap-continuity.md",
+        "docs/monitoring/2026-11-18-memory-pressure-alert-review.md"
       ]
     },
     {
@@ -239,10 +240,18 @@
     {
       "at": "2026-11-18T01:14:51+09:00",
       "event": "작업 O1 변경: note=1차 지적 반영 5f13c87(로컬): Cloud 저장본 원복, 후보 candidates/로 분리, 검사 판별력 확보. Claude 재검증 dispatch=ctx_076f99dd8233"
+    },
+    {
+      "at": "2026-11-18T01:16:06+09:00",
+      "event": "작업 O1 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T01:16:06+09:00",
+      "event": "작업 O1 변경: status=review, note=검증 통과(5f13c87, 로컬). 남은 것: GitHub 올리기·PR·main 합치기·Grafana 반영 승인(사용자)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T01:14:51+09:00",
+  "updated_at": "2026-11-18T01:16:06+09:00",
   "requests": [
     {
       "gate": "push",
