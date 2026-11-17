@@ -12,11 +12,11 @@
       "title": "운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
-      "branch": null,
-      "worktree": null,
+      "status": "dispatched",
+      "branch": "fix/#428-memory-pressure-stall-alert",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_cdc995d9eadf",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     },
     {
@@ -172,10 +172,14 @@
     {
       "at": "2026-11-18T00:45:27+09:00",
       "event": "작업 추가 B06 (codex, 자동): codex-tasks 06 같은 영상 여행·관리자 상세 조회 줄이기(B03 뒤, PR #133과 겹침)"
+    },
+    {
+      "at": "2026-11-18T00:53:51+09:00",
+      "event": "작업 O1 변경: status=dispatched, branch=fix/#428-memory-pressure-stall-alert, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1, dispatch=ctx_cdc995d9eadf"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T00:45:27+09:00",
+  "updated_at": "2026-11-18T00:53:51+09:00",
   "requests": [
     {
       "gate": "push",
