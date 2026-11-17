@@ -228,14 +228,12 @@
         "review": "fail",
         "security": "fail",
         "by": "claude:reviewflow",
-        "summary": "높음2: bash -c 문자열 끝이 deploy.sh면 내부 금지 명령을 건너뜀, 원격 deploy 즉시 반환으로 ProxyCommand/LocalCommand/-F 로컬 실행 허용. 중간4: 승인 ref와 실제 서버 불일치, 훅 python3 확인이 표준입력 소비(fail-open), deploy.sh ref 없음, 테스트 누락",
-        "at": "2026-11-18T01:22:18+09:00"
+        "summary": "2차: 1차 9건 중 8건 해결·1건 부분. 새 회귀(높음) bash scripts/deploy.sh -c true 가 자동 허용 — 스크립트 뒤 -c도 셸 플래그로 봄(bash evil.sh -c true도). 낮음: deploy.sh ref가 경로 무관·서버 별칭과 겹침, 한 글자 서버를 드라이브로 봄, 따옴표·묶음 옵션",
+        "at": "2026-11-18T01:32:41+09:00"
       },
       "files": [
         "am/guard.py",
-        "am/cli.py",
-        "tests/test_guard.py",
-        "tests/test_cli.py"
+        "tests/test_guard.py"
       ]
     }
   ],
@@ -1067,10 +1065,14 @@
     {
       "at": "2026-11-18T01:30:02+09:00",
       "event": "작업 T6 변경: note=1차 지적 반영(커밋 6개, 테스트 213·CI 통과), Claude 재검증 중"
+    },
+    {
+      "at": "2026-11-18T01:32:41+09:00",
+      "event": "작업 T6 검증(claude:reviewflow): tests=pass, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:30:02+09:00",
+  "updated_at": "2026-11-18T01:32:41+09:00",
   "requests": [
     {
       "gate": "push",
