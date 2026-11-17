@@ -1238,16 +1238,16 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
 
 # Options with a separate argument; attached forms (-p22, -oKey=value) need no skip.
 REMOTE_OPTION_ARGS = {
-    'ssh': set('BbcDEeFIiJLlmOopQRSWw'),
+    'ssh': set('BbcDEeFIiJLlmOopPQRSWw'),
     'scp': set('cDFiJloPSX'),
-    'sftp': set('BbcDFiJloPRSX'),
+    'sftp': set('BbcDFiJloPRsSX'),
     'rsync': set('efBTM'),
 }
 RSYNC_LONG_ARGS = {'--rsh', '--exclude', '--include', '--filter', '--files-from',
                    '--exclude-from', '--include-from', '--password-file', '--port',
                    '--rsync-path', '--log-file', '--out-format', '--backup-dir',
                    '--suffix', '--timeout', '--contimeout', '--bwlimit', '--temp-dir',
-                   '--partial-dir', '--usermap', '--groupmap', '--chown', '--chmod'}
+                   '--partial-dir', '--link-dest', '--compare-dest', '--copy-dest', '--usermap', '--groupmap', '--chown', '--chmod'}
 
 
 def _remote_operands(word, args, options=None):
@@ -1289,8 +1289,8 @@ def _remote_host(target):
     if re.match(r'^[A-Za-z]:[/\\]', target):
         return None  # Windows drive, not a server
     pattern = r'^(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+):'
-    if target.startswith('rsync://'):
-        pattern = r'^rsync://(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+)(?::\d+)?/'
+    if re.match(r'^(?:rsync|scp|sftp)://', target):
+        pattern = r'^(?:rsync|scp|sftp)://(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+)(?::\d+)?/'
     match = re.match(pattern, target)
     if match:
         return match.group(1)
@@ -1337,6 +1337,9 @@ def _remote_deploy(word, args, seg):
             return out + [_gated('deploy', seg, ref=host if '$' not in host and SUBST not in host else None)]
         return out
     host = operands[0].rsplit('@', 1)[-1] if operands else None
+    for option, value in options:
+        if option == '-o' and re.match(r'(?i)^hostname(?:=|\s)', value):
+            host = re.split(r'[=\s]+', value, maxsplit=1)[1]
     ref = host if host and '$' not in host and SUBST not in host else None
     remote = ' '.join(operands[1:])
     # Unknown programs and shell expansions may change the server. Only an explicit

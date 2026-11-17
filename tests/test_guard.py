@@ -1248,6 +1248,24 @@ class T6SecurityReviewTest(unittest.TestCase):
     def findings(self, cmd):
         return G.classify_command(cmd, tempfile.gettempdir())
 
+    def test_exact_server_refs_and_transport_values(self):
+        cases = [
+            ('ssh -P production host sudo true', 'host'),
+            ('ssh -o HostName=actual.example alias sudo true', 'actual.example'),
+            ('scp app scp://user@host:22/app', 'host'),
+            ('sftp sftp://user@host:22/app', 'host'),
+            ('rsync app host:/app --link-dest /previous', 'host'),
+            ('rsync --compare-dest /previous app host:/app', 'host'),
+            ('rsync app host:/app --copy-dest=/previous', 'host'),
+            ('sftp -s /usr/lib/sftp-server user@host', 'host'),
+        ]
+        for cmd, expected in cases:
+            with self.subTest(cmd=cmd):
+                fs = self.findings(cmd)
+                self.assertEqual([f['ref'] for f in fs if f.get('gate') == 'deploy'], [expected])
+                if 'HostName=' in cmd:
+                    self.assertTrue(any(f['kind'] == 'opaque' for f in fs))
+
     def test_transport_local_execution_stays_opaque(self):
         commands = [
             'ssh -o ProxyCommand="sh proxy.sh" host sudo true',
