@@ -235,6 +235,18 @@
         "am/guard.py",
         "tests/test_guard.py"
       ]
+    },
+    {
+      "id": "T7",
+      "title": "가드 오탐: heredoc 커밋 메시지(git commit -F - <<EOF) 본문 줄을 명령으로 읽음, 레포에 커밋된 검사 스크립트(scripts/*.py)·설치된 reviewflow 스크립트 실행이 매번 확인 창 — 밤사이 워커가 반복해서 멈춤(2026-11-18)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1073,10 +1085,14 @@
     {
       "at": "2026-11-18T01:33:20+09:00",
       "event": "작업 T6 변경: agent=claude, dispatch=ctx_27edf61328c3, note=Codex 교차 검증 2회 미통과 → AGENTS.md 규칙대로 Claude로 재배정(3차 수정: -c 플래그 회귀 등). 검증은 이제 codex:review"
+    },
+    {
+      "at": "2026-11-18T01:38:11+09:00",
+      "event": "작업 추가 T7 (codex, 자동): 가드 오탐: heredoc 커밋 메시지(git commit -F - <<EOF) 본문 줄을 명령으로 읽음, 레포에 커밋된 검사 스크립트(scripts/*.py)·설치된 reviewflow 스크립트 실행이 매번 확인 창 — 밤사이 워커가 반복해서 멈춤(2026-11-18)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:33:20+09:00",
+  "updated_at": "2026-11-18T01:38:11+09:00",
   "requests": [
     {
       "gate": "push",
