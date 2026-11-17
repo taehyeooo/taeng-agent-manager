@@ -1236,9 +1236,9 @@ class RemoteDeployTest(unittest.TestCase):
 class DeployScriptTest(unittest.TestCase):
     def test_shell_deploy_script(self):
         for cmd in ('bash scripts/deploy.sh', 'sh -eu /app/scripts/deploy.sh --skip-build',
-                    'zsh scripts/deploy.sh --checks-only', './deploy.sh',
+                    'zsh scripts/deploy.sh --skip-build', './deploy.sh',
                     'bash -c "bash scripts/deploy.sh"', 'bash -o pipefail scripts/deploy.sh',
-                    'bash -- scripts/deploy.sh --dry-run'):
+                    'bash -- scripts/deploy.sh --skip-build'):
             with self.subTest(cmd=cmd):
                 self.assertTrue(any(f.get('gate') == 'deploy' for f in
                                     G.classify_command(cmd, tempfile.gettempdir())))
@@ -1247,6 +1247,16 @@ class DeployScriptTest(unittest.TestCase):
 class T6SecurityReviewTest(unittest.TestCase):
     def findings(self, cmd):
         return G.classify_command(cmd, tempfile.gettempdir())
+
+    def test_script_approval_is_scoped_and_dry_run_asks(self):
+        for cmd in ('./deploy.sh', 'bash scripts/deploy.sh --skip-build'):
+            self.assertEqual([f['ref'] for f in self.findings(cmd) if f.get('gate') == 'deploy'], ['deploy.sh'])
+        for cmd in ('./deploy.sh --dry-run', 'bash scripts/deploy.sh --checks-only',
+                    'zsh -eu scripts/deploy.sh --dry-run'):
+            with self.subTest(cmd=cmd):
+                fs = self.findings(cmd)
+                self.assertFalse(any(f.get('gate') == 'deploy' for f in fs), fs)
+                self.assertTrue(any(f['kind'] == 'opaque' for f in fs), fs)
 
     def test_hook_rejects_empty_or_malformed_payload(self):
         from unittest.mock import patch

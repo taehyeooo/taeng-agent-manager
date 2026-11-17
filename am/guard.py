@@ -1371,6 +1371,14 @@ def _remote_deploy(word, args, seg):
     return out + [_gated('deploy', seg, ref=ref)]
 
 
+def _deployment_script(script, args, seg):
+    if not re.search(r'(^|[/\\])deploy\.sh$', script):
+        return []
+    if args in (['--dry-run'], ['--checks-only']):
+        return [_finding('opaque', seg, reason='배포 스크립트의 확인 전용 옵션은 사람이 확인해야 함')]
+    return [_gated('deploy', seg, ref='deploy.sh')]
+
+
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
     out, ctx = [], {}
@@ -1474,8 +1482,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
                     script = arg
                     break
                 i += 1
-            if re.search(r'(^|[/\\])deploy\.sh$', script):
-                return out + [_gated('deploy', seg)]
+            script_args = args[i + 2:] if i < len(args) and args[i] == '--' else args[i + 1:]
+            script_findings = _deployment_script(script, script_args, seg)
+            if script_findings:
+                return out + script_findings
     
         if args and _build_allowed(toks, cwd):
             return out + [_seen("build", seg)]
@@ -1584,9 +1594,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if word == "gh":
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
+    out.extend(_deployment_script(toks[0], args, seg))
+
     # deploy / db / system / credentials
-    if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I) \
-            or re.search(r"(^|[/\\])deploy\.sh$", toks[0]):
+    if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I):
         out.append(_gated("deploy", seg))
     if re.match(r"^(supabase db (push|reset)|prisma migrate (deploy|reset)|prisma db push)\b", joined, re.I) \
             or word in ("psql", "mysql", "sqlite3", "sqlcmd") and re.search(r"\b(drop\s+(table|database|schema)|truncate\s+table|delete\s+from|alter\s+table)\b", seg, re.I):
