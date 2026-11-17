@@ -17,7 +17,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
       "pr": null,
       "dispatch": "ctx_cdc995d9eadf",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "구현 완료 2f84902(로컬, PR 없음): PSI 공백 보완 규칙·ADR 0046 초안. 검사 통과. Claude 교차 검증 dispatch=ctx_8ee67fb3be08"
     },
     {
       "id": "O2",
@@ -176,10 +176,14 @@
     {
       "at": "2026-11-18T00:53:51+09:00",
       "event": "작업 O1 변경: status=dispatched, branch=fix/#428-memory-pressure-stall-alert, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1, dispatch=ctx_cdc995d9eadf"
+    },
+    {
+      "at": "2026-11-18T01:00:39+09:00",
+      "event": "작업 O1 변경: note=구현 완료 2f84902(로컬, PR 없음): PSI 공백 보완 규칙·ADR 0046 초안. 검사 통과. Claude 교차 검증 dispatch=ctx_8ee67fb3be08"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T00:53:51+09:00",
+  "updated_at": "2026-11-18T01:00:39+09:00",
   "requests": [
     {
       "gate": "push",
