@@ -6,7 +6,116 @@
   "repo": "Trovapp/trova-backend",
   "test_cmd": "./gradlew test",
   "approvals": [],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "O1",
+      "title": "운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "O2",
+      "title": "운영: 밤사이 중단 경보 전달 경로 점검(11-13 9시간 장애 후속)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "O3",
+      "title": "운영: 11-13 14:35 출처 모르는 배포 조사(읽기만)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B01",
+      "title": "codex-tasks 01 ADR↔CLAUDE.md 모순 점검",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B02",
+      "title": "codex-tasks 02 인스타 429 재시도 설계 검토(#365)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B03",
+      "title": "codex-tasks 03 여행 일차별 장소 조회를 한 번으로(PR #131과 겹침)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B04",
+      "title": "codex-tasks 04 외부 API 클라이언트 테스트",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B05",
+      "title": "codex-tasks 05 일정 생성·소셜 로그인 흐름 테스트",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B06",
+      "title": "codex-tasks 06 같은 영상 여행·관리자 상세 조회 줄이기(B03 뒤, PR #133과 겹침)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    }
+  ],
   "history": [
     {
       "at": "2026-11-18T00:32:26+09:00",
@@ -27,10 +136,46 @@
     {
       "at": "2026-11-18T00:42:45+09:00",
       "event": "승인 요청: push (main)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O1 (codex, 자동): 운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O2 (codex, 자동): 운영: 밤사이 중단 경보 전달 경로 점검(11-13 9시간 장애 후속)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O3 (codex, 자동): 운영: 11-13 14:35 출처 모르는 배포 조사(읽기만)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B01 (codex, 자동): codex-tasks 01 ADR↔CLAUDE.md 모순 점검"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B02 (codex, 자동): codex-tasks 02 인스타 429 재시도 설계 검토(#365)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B03 (codex, 자동): codex-tasks 03 여행 일차별 장소 조회를 한 번으로(PR #131과 겹침)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B04 (codex, 자동): codex-tasks 04 외부 API 클라이언트 테스트"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B05 (codex, 자동): codex-tasks 05 일정 생성·소셜 로그인 흐름 테스트"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B06 (codex, 자동): codex-tasks 06 같은 영상 여행·관리자 상세 조회 줄이기(B03 뒤, PR #133과 겹침)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T00:42:45+09:00",
+  "updated_at": "2026-11-18T00:45:27+09:00",
   "requests": [
     {
       "gate": "push",
