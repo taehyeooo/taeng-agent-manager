@@ -1248,6 +1248,13 @@ class T6SecurityReviewTest(unittest.TestCase):
     def findings(self, cmd):
         return G.classify_command(cmd, tempfile.gettempdir())
 
+    def test_hook_rejects_empty_or_malformed_payload(self):
+        from unittest.mock import patch
+        for raw in ('', ' ', '{broken', '{}', '[]', 'null'):
+            with self.subTest(raw=raw), patch.object(sys, 'stdin', io.StringIO(raw)), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(G.main(['claude']), 2)
+
     def test_exact_server_refs_and_transport_values(self):
         cases = [
             ('ssh -P production host sudo true', 'host'),

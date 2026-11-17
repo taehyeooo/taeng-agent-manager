@@ -119,6 +119,39 @@ class HookCommandTest(unittest.TestCase):
             self.assertEqual(cli.install_guard(tmp)[1], 'current')
             self.assertEqual(path.read_bytes(), before)
 
+    def test_probe_preserves_stdin_and_rejects_old_python(self):
+        import os
+        import shutil
+        import subprocess
+        shell = shutil.which('sh')
+        if os.name == 'nt' or not shell:
+            self.skipTest('POSIX shell executable/symlink fixture; Windows execution not covered here')
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            pointer = home / '.config/agent-manager/home'
+            pointer.parent.mkdir(parents=True)
+            pointer.write_text(tmp, encoding='utf-8')
+            (home / 'am').mkdir()
+            payload = '{"tool_name":"Bash","tool_input":{"command":"git push origin main"}}'
+            (home / 'am/guard.py').write_text(
+                'import sys; sys.exit(2 if sys.stdin.read() else 0)', encoding='utf-8')
+            (home / 'cat').symlink_to(shutil.which('cat'))
+            shim = home / 'python3'
+            # This shim reads all probe input before forwarding to real Python.
+            shim.write_text('#!/bin/sh\nif [ "$1" = -c ]; then while IFS= read -r x; do :; done; fi\n'
+                            + 'exec "' + sys.executable + '" "$@"\n', encoding='utf-8')
+            shim.chmod(0o755)
+            def run():
+                return subprocess.run([shell, '-c', cli.HOOK_CMD.format(agent='claude')],
+                                      env=dict(os.environ, HOME=tmp, PATH=tmp),
+                                      input=payload + '\n', capture_output=True, text=True)
+            self.assertEqual(run().returncode, 2)
+            shim.write_text('#!/bin/sh\nif [ "$1" = -c ]; then case "$2" in *version_info*) exit 1;; *) exit 0;; esac; fi\nexit 0\n', encoding='utf-8')
+            self.assertEqual(run().returncode, 2)
+            (home / 'python').symlink_to(sys.executable)
+            self.assertEqual(run().returncode, 2)
+            self.assertEqual(run().stderr, '')
+
     def test_hook_python_selection(self):
         import os
         import shutil

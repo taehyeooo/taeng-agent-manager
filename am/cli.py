@@ -174,8 +174,8 @@ def cmd_guard(a):
 
 POINTER = Path.home() / ".config" / "agent-manager" / "home"
 # Probe execution, not presence: Windows Store aliases may exist but fail to run.
-PYTHON_SELECT = ('if python3 -c "" >/dev/null 2>&1; then p=python3; '
-                 'elif python -c "" >/dev/null 2>&1; then p=python; '
+PYTHON_SELECT = ('if python3 -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python3; '
+                 'elif python -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python; '
                  'else echo "agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다" >&2; exit 2; fi')
 HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then '
             + PYTHON_SELECT + '; "$p" "$(cat "$f")/am/guard.py" {agent}; fi')

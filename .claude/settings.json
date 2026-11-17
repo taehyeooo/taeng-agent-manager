@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=\"$HOME/.config/agent-manager/home\"; if [ -f \"$f\" ]; then if python3 -c \"\" >/dev/null 2>&1; then p=python3; elif python -c \"\" >/dev/null 2>&1; then p=python; else echo \"agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다\" >&2; exit 2; fi; \"$p\" \"$(cat \"$f\")/am/guard.py\" claude; fi",
+            "command": "f=\"$HOME/.config/agent-manager/home\"; if [ -f \"$f\" ]; then if python3 -c \"import sys; sys.exit(sys.version_info < (3, 10))\" </dev/null >/dev/null 2>&1; then p=python3; elif python -c \"import sys; sys.exit(sys.version_info < (3, 10))\" </dev/null >/dev/null 2>&1; then p=python; else echo \"agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다\" >&2; exit 2; fi; \"$p\" \"$(cat \"$f\")/am/guard.py\" claude; fi",
             "timeout": 15
           }
         ]

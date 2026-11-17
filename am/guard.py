@@ -2331,12 +2331,15 @@ def main(argv=None):
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
-    raw = sys.stdin.read()
     try:
-        decision, msg = decide(json.loads(raw or "{}"), agent)
-    except Exception as e:  # fail closed for anything that looks risky
-        risky = re.search(r"push|gh\s|rm\s|Remove-Item|deploy|\.env|approve|project\.json|patch|merge", raw, re.I)
-        decision, msg = ("deny" if risky else "allow"), f"[am guard] 가드 오류로 막았습니다: {e!r}"
+        payload = json.loads(sys.stdin.read())
+        if not isinstance(payload, dict) or not isinstance(payload.get('tool_name') or payload.get('tool'), str):
+            raise ValueError('missing tool')
+        decision, msg = decide(payload, agent)
+    except Exception as e:
+        # Missing/malformed input may mean the hook launcher lost its stdin.
+        # Never turn parser or runtime failures into an automatic permission.
+        decision, msg = 'deny', f"[am guard] 입력을 검사할 수 없어 막았습니다 ({type(e).__name__})"
     if decision == "deny":
         print(msg, file=sys.stderr)
         return 2
