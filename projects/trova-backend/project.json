@@ -136,23 +136,23 @@
       "title": "QA1: 앱 모니터링 QA — API 요청·응답 시간·서버 CPU/메모리 기록, 캡처 포함 PDF (Windows 노트북)",
       "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
+      "status": "blocked",
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-monitoring",
       "pr": null,
       "dispatch": "ctx_948a52cf51d8",
-      "note": "trova-app 작업 폴더에서 실행, 결과는 Windows 바탕화면 trova-qa-2026-11-18/monitoring (공개 레포라 커밋 안 함)"
+      "note": "부분 수행: PDF 7쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). Grafana 로그인 안 돼 있어 서버 자원 측정 불가, 앱 네트워크 계측 미확보, 조회 화면 4개만. 필요: 사용자가 Windows 브라우저에서 Grafana 로그인 + 앱 요청 계측 방법(qa 빌드/프록시) 결정"
     },
     {
       "id": "Q2",
       "title": "QA2: 앱 UI/UX QA — 화면·흐름 점검, 캡처 포함 PDF (Windows 노트북, Q1 뒤 — 에뮬레이터 하나)",
       "agent": "codex",
       "kind": "test",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-uiux",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_bb1931c8e008",
       "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
@@ -248,10 +248,18 @@
     {
       "at": "2026-11-18T01:16:06+09:00",
       "event": "작업 O1 변경: status=review, note=검증 통과(5f13c87, 로컬). 남은 것: GitHub 올리기·PR·main 합치기·Grafana 반영 승인(사용자)"
+    },
+    {
+      "at": "2026-11-18T01:21:25+09:00",
+      "event": "작업 Q1 변경: status=blocked, note=부분 수행: PDF 7쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). Grafana 로그인 안 돼 있어 서버 자원 측정 불가, 앱 네트워크 계측 미확보, 조회 화면 4개만. 필요: 사용자가 Windows 브라우저에서 Grafana 로그인 + 앱 요청 계측 방법(qa 빌드/프록시) 결정"
+    },
+    {
+      "at": "2026-11-18T01:21:37+09:00",
+      "event": "작업 Q2 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-uiux, dispatch=ctx_bb1931c8e008"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T01:16:06+09:00",
+  "updated_at": "2026-11-18T01:21:37+09:00",
   "requests": [
     {
       "gate": "push",
