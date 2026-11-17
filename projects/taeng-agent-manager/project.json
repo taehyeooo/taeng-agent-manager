@@ -215,14 +215,14 @@
     {
       "id": "T6",
       "title": "가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
       "status": "dispatched",
       "branch": "taehyeooo/taeng-agent-manager-T6",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
       "pr": "7",
-      "dispatch": "ctx_8d22c0e8a066",
-      "note": "1차 지적 반영(커밋 6개, 테스트 213·CI 통과), Claude 재검증 중",
+      "dispatch": "ctx_27edf61328c3",
+      "note": "Codex 교차 검증 2회 미통과 → AGENTS.md 규칙대로 Claude로 재배정(3차 수정: -c 플래그 회귀 등). 검증은 이제 codex:review",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -1069,10 +1069,14 @@
     {
       "at": "2026-11-18T01:32:41+09:00",
       "event": "작업 T6 검증(claude:reviewflow): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-18T01:33:20+09:00",
+      "event": "작업 T6 변경: agent=claude, dispatch=ctx_27edf61328c3, note=Codex 교차 검증 2회 미통과 → AGENTS.md 규칙대로 Claude로 재배정(3차 수정: -c 플래그 회귀 등). 검증은 이제 codex:review"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T01:32:41+09:00",
+  "updated_at": "2026-11-18T01:33:20+09:00",
   "requests": [
     {
       "gate": "push",
