@@ -23,8 +23,22 @@
     {
       "at": "2026-11-18T00:37:13+09:00",
       "event": "단계 planning → developing"
+    },
+    {
+      "at": "2026-11-18T00:42:45+09:00",
+      "event": "승인 요청: push (main)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T00:37:13+09:00"
+  "updated_at": "2026-11-18T00:42:45+09:00",
+  "requests": [
+    {
+      "gate": "push",
+      "ref": "main",
+      "cmd": "git push origin main",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-18T00:42:45+09:00"
+    }
+  ]
 }

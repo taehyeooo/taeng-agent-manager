@@ -211,6 +211,18 @@
       "pr": null,
       "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T6",
+      "title": "가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": "taehyeooo/taeng-agent-manager-T6",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
+      "pr": null,
+      "dispatch": "ctx_8d22c0e8a066",
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1013,10 +1025,18 @@
     {
       "at": "2026-11-12T11:12:28+09:00",
       "event": "승인 기록: merge_main (PR#6)"
+    },
+    {
+      "at": "2026-11-18T00:43:04+09:00",
+      "event": "작업 추가 T6 (codex, 자동): 가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로"
+    },
+    {
+      "at": "2026-11-18T00:44:04+09:00",
+      "event": "작업 T6 변경: status=dispatched, branch=taehyeooo/taeng-agent-manager-T6, worktree=/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6, dispatch=ctx_8d22c0e8a066"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-12T11:12:28+09:00",
+  "updated_at": "2026-11-18T00:44:04+09:00",
   "requests": [
     {
       "gate": "push",
