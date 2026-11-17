@@ -100,5 +100,61 @@ class CliTest(unittest.TestCase):
         self.assertIn("--apply", out)
 
 
+class HookCommandTest(unittest.TestCase):
+    def test_install_updates_in_place(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / '.claude/settings.json'
+            path.parent.mkdir()
+            cfg = {'permissions': {'allow': ['Read']}, **cli.guard_settings(), 'other': True}
+            hooks = cfg['hooks']['PreToolUse'][0]['hooks']
+            hooks[0]['command'] = 'python /old/am/guard.py claude'
+            hooks.append({'type': 'command', 'command': 'echo other'})
+            path.write_text(json.dumps(cfg), encoding='utf-8')
+            self.assertEqual(cli.install_guard(tmp)[1], 'updated')
+            updated = json.loads(path.read_text(encoding='utf-8'))
+            hooks[0]['command'] = cli.HOOK_CMD.format(agent='claude')
+            self.assertEqual(updated, cfg)
+            self.assertEqual(list(updated), list(cfg))
+            before = path.read_bytes()
+            self.assertEqual(cli.install_guard(tmp)[1], 'current')
+            self.assertEqual(path.read_bytes(), before)
+
+    def test_hook_python_selection(self):
+        import os
+        import shutil
+        import subprocess
+        shell = shutil.which('sh')
+        if os.name == 'nt' or not shell:
+            self.skipTest('POSIX executable fixture; Windows selection checked by doctor tests')
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            pointer = home / '.config/agent-manager/home'
+            pointer.parent.mkdir(parents=True)
+            pointer.write_text(tmp, encoding='utf-8')
+            (home / 'am').mkdir()
+            (home / 'am/guard.py').write_text('import sys; sys.exit(2)', encoding='utf-8')
+            (home / 'cat').symlink_to(shutil.which('cat'))
+            env = dict(os.environ, HOME=tmp, PATH=tmp)
+            def run():
+                return subprocess.run([shell, '-c', cli.HOOK_CMD.format(agent='claude')],
+                                      env=env, capture_output=True, text=True)
+            self.assertEqual(run().returncode, 2)
+            self.assertIn('Python', run().stderr)
+            py3 = home / 'python3'
+            py3.symlink_to(sys.executable)
+            self.assertEqual(run().returncode, 2)
+            self.assertEqual(run().stderr, '')
+            py3.unlink()
+            py3.write_text('#!/bin/sh\nexit 127\n', encoding='utf-8')
+            py3.chmod(0o755)
+            (home / 'python').symlink_to(sys.executable)
+            self.assertEqual(run().returncode, 2)
+            self.assertEqual(run().stderr, '')
+            (home / 'python').unlink()
+            self.assertEqual(run().returncode, 2)
+            pointer.unlink()
+            self.assertEqual(run().returncode, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

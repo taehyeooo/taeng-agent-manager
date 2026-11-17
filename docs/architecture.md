@@ -85,6 +85,8 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 ```
 - 명령은 `&& ; | 줄바꿈` 단위로 나눠 하나씩 본다. `rm -rf node_modules` 같은 빌드 산출물·임시 폴더 삭제는 자동 진행.
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
+- 훅은 `python3` 실행 성공을 확인하고 실패하면 `python`을 쓴다. 위치 파일은 있지만 둘 다 실행되지 않으면 종료 코드 2로 차단한다. `am setup --install`은 오래된 훅을 제자리에서 갱신하며, `am doctor`는 격리된 위치 파일과 무해한 가드로 훅 실행을 점검한다.
+- 원격 업로드(scp·rsync·sftp), SSH의 서버 변경·대화형 접속·불명확한 실행, 셸을 통한 `deploy.sh` 실행은 서버별 배포 승인 대상이다. SSH 읽기 명령과 다운로드는 기본 사람 확인을 유지한다.
 - 가드 자체가 오류 나면 위험해 보이는 명령만 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
 - CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only, `scripts/check_approvals.py`).
 - **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음):

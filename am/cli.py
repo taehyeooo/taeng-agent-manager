@@ -173,7 +173,12 @@ def cmd_guard(a):
 
 
 POINTER = Path.home() / ".config" / "agent-manager" / "home"
-HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then python "$(cat "$f")/am/guard.py" {agent}; fi')
+# Probe execution, not presence: Windows Store aliases may exist but fail to run.
+PYTHON_SELECT = ('if python3 -c "" >/dev/null 2>&1; then p=python3; '
+                 'elif python -c "" >/dev/null 2>&1; then p=python; '
+                 'else echo "agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다" >&2; exit 2; fi')
+HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then '
+            + PYTHON_SELECT + '; "$p" "$(cat "$f")/am/guard.py" {agent}; fi')
 HOOK_MATCHER = "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit"
 
 
@@ -183,16 +188,26 @@ def guard_settings(agent="claude"):
 
 
 def install_guard(repo_path):
-    """Add the guard hook to <repo>/.claude/settings.json (checked in → every worktree gets it). Idempotent."""
+    """Install or refresh the hook in place; return (path, added|updated|current)."""
     f = Path(repo_path) / ".claude" / "settings.json"
     cfg = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
     pre = cfg.setdefault("hooks", {}).setdefault("PreToolUse", [])
-    if any("am/guard.py" in h.get("command", "") for e in pre for h in e.get("hooks", [])):
-        return f, False
-    pre.append(guard_settings()["hooks"]["PreToolUse"][0])
-    f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
-    return f, True
+    status = "current"
+    found = False
+    for entry in pre:
+        for hook in entry.get("hooks", []):
+            if "am/guard.py" in hook.get("command", ""):
+                found = True
+                if hook["command"] != HOOK_CMD.format(agent="claude"):
+                    hook["command"] = HOOK_CMD.format(agent="claude")
+                    status = "updated"
+    if not found:
+        pre.append(guard_settings()["hooks"]["PreToolUse"][0])
+        status = "added"
+    if status != "current":
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return f, status
 
 
 def cmd_setup(a):
@@ -201,8 +216,8 @@ def cmd_setup(a):
     POINTER.write_text(str(S.ROOT).replace("\\", "/"), encoding="utf-8")
     print(f"가드 위치 기록: {POINTER} → {S.ROOT}")
     if a.install:
-        f, added = install_guard(a.install)
-        print(f"{'추가' if added else '이미 있음'}: {f} — 프로젝트 레포에 커밋해야 워크트리에도 적용됩니다")
+        f, status = install_guard(a.install)
+        print(f"{dict(added='추가', updated='갱신', current='이미 최신')[status]}: {f} — 프로젝트 레포에 커밋해야 워크트리에도 적용됩니다")
 
 
 def build_parser():

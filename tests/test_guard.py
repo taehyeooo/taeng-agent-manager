@@ -1174,11 +1174,74 @@ class TrustLayerStateTest(unittest.TestCase):
     def test_install_guard_idempotent(self):
         repo = Path(self.root) / "r"
         f, added = cli.install_guard(repo)
-        self.assertTrue(added)
-        self.assertFalse(cli.install_guard(repo)[1])
+        self.assertEqual(added, "added")
+        self.assertEqual(cli.install_guard(repo)[1], "current")
         cfg = json.loads(f.read_text(encoding="utf-8"))
         self.assertEqual(len(cfg["hooks"]["PreToolUse"]), 1)
         self.assertIn("am/guard.py\" claude", cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"])
+
+
+class RemoteDeployTest(unittest.TestCase):
+    def findings(self, cmd):
+        return G.classify_command(cmd, tempfile.gettempdir())
+
+    def test_remote_mutations(self):
+        commands = [
+            'scp build/libs/app.jar user@host:/opt/app/',
+            'scp -i key -o BatchMode=yes app.jar host:/tmp/x.jar',
+            'ssh -i key -o BatchMode=yes host "sudo cp -p a b; sudo install -o u -g u -m 644 t a; sudo systemctl restart svc"',
+            "ssh host 'sudo cp -p bak a && sudo systemctl restart svc'",
+            'scp -i key -P 22 -r build host:/opt/app',
+            'scp host:/old/app.jar other:/opt/app',
+            'rsync -av -e "ssh -i key" build/ user@host:/opt/app',
+            'rsync build/ rsync://host/app',
+            'sftp -P 22 user@host:/opt/app',
+            'ssh host', 'ssh -t host "sudo systemctl restart x"',
+            'ssh -o StrictHostKeyChecking=yes -i key host -- systemctl restart app',
+            "ssh host 'systemctl status app && systemctl restart app'",
+            'ssh host "uptime; service app stop"',
+            'ssh host "echo ok > /opt/file"', 'ssh host "echo ok | tee /opt/file"',
+            'ssh host "$COMMAND"', 'ssh host bash -s < script',
+            "ssh host <<'EOF'\nuptime\nEOF",
+            "ssh host cat <<'EOF'\nuptime\nEOF",
+        ]
+        for remote in ('sudo cat /etc/hosts', 'mv a b', 'cp a b', 'rm a', 'ln -s a b',
+                       'chmod 755 a', 'chown app a', 'java -jar app.jar', 'kill 123',
+                       'pkill java', 'docker compose up -d', 'docker down', 'docker restart app',
+                       'docker run app', 'docker rm app', 'docker pull app', './deploy.sh',
+                       'bash deploy.sh', 'systemctl enable app', 'systemctl disable app',
+                       'systemctl reload app', 'systemctl start app'):
+            commands.append(f'ssh host "{remote}"')
+        for cmd in commands:
+            with self.subTest(cmd=cmd):
+                gated = [f for f in self.findings(cmd) if f.get('gate') == 'deploy']
+                self.assertTrue(gated, cmd)
+                self.assertIn(gated[0]['ref'], ('host', 'other'))
+
+    def test_readonly_and_download_still_ask(self):
+        commands = ['scp -P 22 host:/opt/app ./app',
+                    'rsync -e ssh user@host:/logs/ ./logs/',
+                    'scp C:/build/app.jar ./app.jar', 'scp app ./build/foo:bar', 'systemctl restart app']
+        for remote in ('systemctl status app', 'journalctl -u app', 'free -h', 'df -h',
+                       'uptime', 'cat /var/log/app', 'tail /var/log/app',
+                       'grep error /var/log/app', 'curl http://localhost/health'):
+            commands.append(f'ssh host "{remote}"')
+        for cmd in commands:
+            with self.subTest(cmd=cmd):
+                fs = self.findings(cmd)
+                self.assertFalse(any(f.get('gate') == 'deploy' for f in fs))
+                self.assertTrue(any(f['kind'] == 'opaque' for f in fs))
+
+
+class DeployScriptTest(unittest.TestCase):
+    def test_shell_deploy_script(self):
+        for cmd in ('bash scripts/deploy.sh', 'sh -eu /app/scripts/deploy.sh --skip-build',
+                    'zsh scripts/deploy.sh --checks-only', './deploy.sh',
+                    'bash -c "bash scripts/deploy.sh"', 'bash -o pipefail scripts/deploy.sh',
+                    'bash -- scripts/deploy.sh --dry-run'):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(any(f.get('gate') == 'deploy' for f in
+                                    G.classify_command(cmd, tempfile.gettempdir())))
 
 
 if __name__ == "__main__":

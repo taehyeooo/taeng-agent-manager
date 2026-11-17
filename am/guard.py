@@ -1236,6 +1236,104 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
     return toks
 
 
+# Options with a separate argument; attached forms (-p22, -oKey=value) need no skip.
+REMOTE_OPTION_ARGS = {
+    'ssh': set('BbcDEeFIiJLlmOopQRSWw'),
+    'scp': set('cDFiJloPSX'),
+    'sftp': set('BbcDFiJloPRSX'),
+    'rsync': set('efBTM'),
+}
+RSYNC_LONG_ARGS = {'--rsh', '--exclude', '--include', '--filter', '--files-from',
+                   '--exclude-from', '--include-from', '--password-file', '--port',
+                   '--rsync-path', '--log-file', '--out-format', '--backup-dir',
+                   '--suffix', '--timeout', '--contimeout', '--bwlimit', '--temp-dir',
+                   '--partial-dir', '--usermap', '--groupmap', '--chown', '--chmod'}
+
+
+def _remote_operands(word, args):
+    """Parse transport options without treating key paths / option values as hosts."""
+    operands, i = [], 0
+    while i < len(args):
+        arg = args[i]
+        if arg == '--':
+            return operands + args[i + 1:]
+        if not arg.startswith('-') or arg == '-':
+            operands.append(arg)
+            if word == 'ssh':
+                # Everything after the host belongs to the remote shell.
+                tail = args[i + 1:]
+                return operands + (tail[1:] if tail[:1] == ['--'] else tail)
+        elif arg.startswith('--'):
+            if '=' not in arg and arg in RSYNC_LONG_ARGS:
+                i += 1
+        else:
+            for n, option in enumerate(arg[1:], 1):
+                if option in REMOTE_OPTION_ARGS[word]:
+                    if n == len(arg) - 1:
+                        i += 1
+                    break
+        i += 1
+    return operands
+
+
+def _remote_host(target):
+    if re.match(r'^[A-Za-z]:[/\\]', target):
+        return None  # Windows drive, not a server
+    pattern = r'^(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+):'
+    if target.startswith('rsync://'):
+        pattern = r'^rsync://(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+)(?::\d+)?/'
+    match = re.match(pattern, target)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _remote_deploy(word, args, seg):
+    if word not in REMOTE_OPTION_ARGS:
+        return []
+    operands = _remote_operands(word, args)
+    if word != 'ssh':
+        # scp/rsync destination is the last operand; downloads stay default ask.
+        # sftp's single server operand also opens a session that can upload files.
+        target = operands[-1] if operands else ''
+        host = _remote_host(target)
+        if word == 'sftp' and len(operands) == 1 and not host and ':' not in target:
+            host = target.rsplit('@', 1)[-1]
+        if host:
+            return [_gated('deploy', seg, ref=host if '$' not in host and SUBST not in host else None)]
+        return []
+    host = operands[0].rsplit('@', 1)[-1] if operands else None
+    ref = host if host and '$' not in host and SUBST not in host else None
+    remote = ' '.join(operands[1:])
+    # Unknown programs and shell expansions may change the server. Only an explicit
+    # read-only subset stays opaque (ask), never automatically allowed.
+    readonly = bool(remote) and not re.search(r'[$`<>]|' + re.escape(SUBST), remote)
+    for part in split_commands(remote):
+        ts = tokens(part)
+        if not ts:
+            readonly = False
+            continue
+        command, rest = _word(ts[0]), ts[1:]
+        if command == 'systemctl':
+            pos = [a for a in rest if not a.startswith('-')]
+            safe = pos[:1] == ['status']
+        elif command == 'curl':
+            safe = not any(a in ('-X', '--request', '-d', '--data', '--data-raw',
+                                  '--data-binary', '-F', '--form', '-T', '--upload-file',
+                                  '-o', '--output', '-O', '--remote-name', '--config', '-K')
+                           or a.startswith(('--request=', '--data', '--form=', '--upload-file=',
+                                            '--output=', '--config='))
+                           or a.startswith(('-X', '-d', '-F', '-T', '-o', '-K')) for a in rest)
+        else:
+            safe = command in {'journalctl', 'free', 'df', 'uptime', 'cat', 'tail', 'head', 'grep'}
+            if command == 'journalctl' and any(a.startswith(('--vacuum', '--rotate', '--flush', '--sync')) for a in rest):
+                safe = False
+        readonly = readonly and safe
+    if readonly:
+        return []
+    return [_gated('deploy', seg, ref=ref)]
+
+
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
     out, ctx = [], {}
@@ -1303,6 +1401,27 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if word in ("cat", "type", "get-content", "gc", "less", "more", "head", "tail", "bat") and any(
             re.search(r"(auth\.json|\.git-credentials|credentials\.json)$", a, re.I) for a in args):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
+
+    remote = _remote_deploy(word, args, seg)
+    if remote:
+        return out + remote
+    # A deployment script requires approval even when run through a shell.
+    if word in ('sh', 'bash', 'zsh'):
+        script, i = '', 0
+        while i < len(args):
+            arg = args[i]
+            if arg == '--':
+                script = args[i + 1] if i + 1 < len(args) else ''
+                break
+            if arg in ('-o', '+o', '-O', '+O', '--rcfile', '--init-file'):
+                i += 2
+                continue
+            if not arg.startswith(('-', '+')):
+                script = arg
+                break
+            i += 1
+        if re.search(r'(^|[/\\])deploy\.sh$', script):
+            return out + [_gated('deploy', seg)]
 
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
@@ -1879,6 +1998,10 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
         command = head + " " + tail
         segs = split_commands(command)
         toks = _drop_redirections(tokens(segs[0])) if len(segs) == 1 else []
+        if toks and _word(toks[0]) == 'ssh':
+            # The remote shell can execute standard input; don't lose this fact
+            # when removing the heredoc boundary before normal shell parsing.
+            out.extend(_remote_deploy('ssh', toks[1:] + [SUBST], line))
         if toks and _stdin_interpreter(toks):
             stored.append((segs[0], body, _word(toks[0]) != "node"))
             return f"{HEREDOC_MARK}{len(stored) - 1}\n"
