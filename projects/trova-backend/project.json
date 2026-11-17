@@ -2,7 +2,7 @@
   "slug": "trova-backend",
   "name": "Trova 백엔드",
   "idea": "운영 중인 Trova 서비스의 백엔드(Java/Spring, Gradle). 기존 레포를 매니저 관리로 편입 — 성능·운영·기능 작업을 위임·검증 흐름으로 진행.",
-  "phase": "planning",
+  "phase": "developing",
   "repo": "Trovapp/trova-backend",
   "test_cmd": "./gradlew test",
   "approvals": [],
@@ -19,8 +19,12 @@
     {
       "at": "2026-11-18T00:32:26+09:00",
       "event": "test_cmd=./gradlew test"
+    },
+    {
+      "at": "2026-11-18T00:37:13+09:00",
+      "event": "단계 planning → developing"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T00:32:26+09:00"
+  "updated_at": "2026-11-18T00:37:13+09:00"
 }
