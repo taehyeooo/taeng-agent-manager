@@ -1244,5 +1244,19 @@ class DeployScriptTest(unittest.TestCase):
                                     G.classify_command(cmd, tempfile.gettempdir())))
 
 
+class T6SecurityReviewTest(unittest.TestCase):
+    def findings(self, cmd):
+        return G.classify_command(cmd, tempfile.gettempdir())
+
+    def test_shell_command_keeps_all_findings(self):
+        for shell in ('bash -c', 'sh -ec', 'zsh -lc'):
+            for inner, kind in (('git push --force origin main', 'forbidden'),
+                                ('python -m am approve x merge_main', 'approve')):
+                with self.subTest(shell=shell, inner=inner):
+                    fs = self.findings(f'{shell} "{inner}; ./deploy.sh"')
+                    self.assertTrue(any(f['kind'] == kind for f in fs), fs)
+                    self.assertTrue(any(f.get('gate') == 'deploy' for f in fs), fs)
+
+
 if __name__ == "__main__":
     unittest.main()

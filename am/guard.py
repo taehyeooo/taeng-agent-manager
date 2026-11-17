@@ -1405,24 +1405,6 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     remote = _remote_deploy(word, args, seg)
     if remote:
         return out + remote
-    # A deployment script requires approval even when run through a shell.
-    if word in ('sh', 'bash', 'zsh'):
-        script, i = '', 0
-        while i < len(args):
-            arg = args[i]
-            if arg == '--':
-                script = args[i + 1] if i + 1 < len(args) else ''
-                break
-            if arg in ('-o', '+o', '-O', '+O', '--rcfile', '--init-file'):
-                i += 2
-                continue
-            if not arg.startswith(('-', '+')):
-                script = arg
-                break
-            i += 1
-        if re.search(r'(^|[/\\])deploy\.sh$', script):
-            return out + [_gated('deploy', seg)]
-
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
         if any(a in ("-encodedcommand", "-enc", "-e", "-ec") for a in low) and word in ("pwsh", "powershell"):
@@ -1430,7 +1412,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
         if word == "cmd":
             out += _cmd_variables(" ".join(args), seg)
         for i, a in enumerate(low):
-            if a in SHELL_CMD_FLAGS and i + 1 < len(args):
+            if (a in SHELL_CMD_FLAGS or word in ('sh', 'bash', 'zsh') and re.fullmatch(r'-[a-z]*c[a-z]*', a)) and i + 1 < len(args):
                 inner = " ".join(args[i + 1:])
                 if word in ("pwsh", "powershell"):
                     inner = ps_escapes(inner)
@@ -1441,6 +1423,24 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
                 if depth >= 4:
                     return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
                 return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
+        # A deployment script requires approval even when run through a shell.
+        if word in ('sh', 'bash', 'zsh'):
+            script, i = '', 0
+            while i < len(args):
+                arg = args[i]
+                if arg == '--':
+                    script = args[i + 1] if i + 1 < len(args) else ''
+                    break
+                if arg in ('-o', '+o', '-O', '+O', '--rcfile', '--init-file'):
+                    i += 2
+                    continue
+                if not arg.startswith(('-', '+')):
+                    script = arg
+                    break
+                i += 1
+            if re.search(r'(^|[/\\])deploy\.sh$', script):
+                return out + [_gated('deploy', seg)]
+    
         if args and _build_allowed(toks, cwd):
             return out + [_seen("build", seg)]
         return out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
