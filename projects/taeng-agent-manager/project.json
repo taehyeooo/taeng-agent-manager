@@ -222,7 +222,21 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
       "pr": "7",
       "dispatch": "ctx_8d22c0e8a066",
-      "note": "구현 완료(CI 2개·테스트 203 통과), Claude 교차 검증 dispatch=ctx_bb11fbeb29af"
+      "note": "구현 완료(CI 2개·테스트 203 통과), Claude 교차 검증 dispatch=ctx_bb11fbeb29af",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "fail",
+        "by": "claude:reviewflow",
+        "summary": "높음2: bash -c 문자열 끝이 deploy.sh면 내부 금지 명령을 건너뜀, 원격 deploy 즉시 반환으로 ProxyCommand/LocalCommand/-F 로컬 실행 허용. 중간4: 승인 ref와 실제 서버 불일치, 훅 python3 확인이 표준입력 소비(fail-open), deploy.sh ref 없음, 테스트 누락",
+        "at": "2026-11-18T01:22:18+09:00"
+      },
+      "files": [
+        "am/guard.py",
+        "am/cli.py",
+        "tests/test_guard.py",
+        "tests/test_cli.py"
+      ]
     }
   ],
   "history": [
@@ -1045,10 +1059,14 @@
     {
       "at": "2026-11-18T00:54:57+09:00",
       "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-18T01:22:18+09:00",
+      "event": "작업 T6 검증(claude:reviewflow): tests=pass, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T00:54:57+09:00",
+  "updated_at": "2026-11-18T01:22:18+09:00",
   "requests": [
     {
       "gate": "push",
