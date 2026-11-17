@@ -217,22 +217,29 @@
       "title": "가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로",
       "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": "taehyeooo/taeng-agent-manager-T6",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
       "pr": "7",
       "dispatch": "ctx_27edf61328c3",
-      "note": "5차 수정(Claude) 88313e0: rsync -e 피연산자, ref 이름공간 repo-script:/plugin-script:, nul. 테스트 250·변형 44/44·CI 통과. Codex 재검증 중",
+      "note": "교차 검증 통과(88313e0, PR #7). 남은 것: main 합치기 승인(사용자)",
       "verification": {
-        "tests": "fail",
-        "review": "fail",
-        "security": "fail",
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
         "by": "codex:review",
-        "summary": "4차(77cf3a8): 이전 6개 우회 해결. 새 P1 2: rsync -e 'ssh other ./deploy.sh'로 승인 안 된 서버 실행, plugin 승인 ref가 레포 경로 plugin:...와 충돌. P2: POSIX에서 UserKnownHostsFile=nul 예외",
-        "at": "2026-11-18T01:57:56+09:00"
+        "summary": "5차(88313e0): 1~4차 지적 모두 해결, 우회 행렬·재현 통과, 테스트 250·변형 44/44·CI 통과. 악용 가능한 높음/중간 없음. 보수적 opaque 판정만 후속",
+        "at": "2026-11-18T02:06:46+09:00"
       },
       "files": [
-        "am/guard.py"
+        "am/guard.py",
+        "am/cli.py",
+        "am/doctor.py",
+        "tests/test_guard.py",
+        "tests/test_cli.py",
+        "tests/test_doctor.py",
+        "docs/architecture.md",
+        ".claude/settings.json"
       ]
     },
     {
@@ -1120,10 +1127,18 @@
     {
       "at": "2026-11-18T02:02:50+09:00",
       "event": "작업 T6 변경: note=5차 수정(Claude) 88313e0: rsync -e 피연산자, ref 이름공간 repo-script:/plugin-script:, nul. 테스트 250·변형 44/44·CI 통과. Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T02:06:46+09:00",
+      "event": "작업 T6 검증(codex:review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T02:06:46+09:00",
+      "event": "작업 T6 변경: status=review, note=교차 검증 통과(88313e0, PR #7). 남은 것: main 합치기 승인(사용자)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T02:02:50+09:00",
+  "updated_at": "2026-11-18T02:06:46+09:00",
   "requests": [
     {
       "gate": "push",
