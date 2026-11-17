@@ -1401,5 +1401,66 @@ class T6Round3Test(unittest.TestCase):
                 self.assertFalse(any(f.get('gate') == 'deploy' for f in fs), fs)
 
 
+class T6Round4Test(GuardTest):
+    """4차 수정: 접속 프로그램·셸 옵션은 알려진 안전 옵션만 통과(허용 목록), 로컬 출력 파일은 쓰기 검사."""
+    def kinds(self, cmd):
+        return G.classify_command(cmd, self.app, self.root)
+
+    def test_local_execution_probes_need_a_person(self):
+        (self.app / 'deploy.sh').write_text('echo deploy\n', encoding='utf-8')
+        self.approve('deploy', 'host')
+        self.approve('deploy', 'script:deploy.sh')
+        for cmd in ('ssh -I ./provider.dylib host sudo true',
+                    'rsync -e "ssh -I ./provider.dylib" app host:/app',
+                    'bash --rcfile ./evil.rc -i ./deploy.sh',
+                    'bash --init-file ./evil.rc -ic "./deploy.sh"',
+                    'zsh -i ./deploy.sh', 'bash -li ./deploy.sh',
+                    'bash -O extglob ./deploy.sh', 'sh -s ./deploy.sh',
+                    'ENV=./evil.rc sh -i ./deploy.sh', 'BASH_ENV=./evil.rc bash ./deploy.sh',
+                    'ZDOTDIR=. zsh ./deploy.sh', 'env BASH_ENV=./evil.rc bash ./deploy.sh',
+                    f'ssh -E {self.root}/projects/app/project.json host sudo true',
+                    f'rsync --log-file={self.root}/projects/app/project.json app host:/app',
+                    'ssh -A host sudo true', 'ssh -S ./ctl host sudo true', 'ssh -P tag host sudo true',
+                    'ssh -o UserKnownHostsFile=./known host sudo true', 'ssh -o ControlPath=./c host sudo true',
+                    'scp -A app host:/app', 'sftp -b ./batch host', 'rsync --rsync-path="sudo rsync" app host:/app',
+                    'rsync --write-batch=./b app host:/app', 'rsync -D app host:/app'):
+            with self.subTest(cmd=cmd):
+                for agent in ('codex', 'claude'):
+                    self.assertNotEqual(self.bash(cmd, agent=agent)[0], 'allow', self.kinds(cmd))
+
+    def test_local_output_files_go_through_the_write_check(self):
+        state = f'{self.root}/projects/app/project.json'
+        for cmd in (f'ssh -E {state} host sudo true', f'rsync --log-file={state} app host:/app',
+                    f'rsync --log-file {state} app host:/app', f'rsync -e "ssh -E {state}" app host:/app',
+                    f'rsync --only-write-batch={state} app host:/app'):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(any(f['kind'] == 'forbidden' for f in self.kinds(cmd)), self.kinds(cmd))
+
+    def test_known_safe_options_only_need_the_deploy_approval(self):
+        plugin = Path(self.tmp.name) / 'home' / '.claude/plugins/cache/taeng-marketplace/devflow/0.5.3/scripts'
+        plugin.mkdir(parents=True)
+        (plugin / 'deploy.sh').write_text('echo deploy\n', encoding='utf-8')
+        trova = ('scp -i k -o BatchMode=yes app.jar host:/tmp/x.jar ; '
+                 'ssh -i k -o BatchMode=yes host "sudo cp -p a b; sudo install -o u -g u -m 644 t a; '
+                 'sudo systemctl restart svc" ; '
+                 f'bash {plugin}/deploy.sh --skip-build')
+        cases = [(trova, ['host', 'host', 'script:plugin:taeng-marketplace/devflow/scripts/deploy.sh']),
+                 ('ssh -q -t -T -C -4 -p 22 -l me -o StrictHostKeyChecking=yes -o ConnectTimeout=5 '
+                  '-o UserKnownHostsFile=/dev/null host sudo true', ['host']),
+                 ('scp -q -r -p -C -P 22 -i k app host:/app', ['host']),
+                 ('rsync -avz --delete --progress --exclude=.git -e "ssh -i k -p 22" app host:/app', ['host']),
+                 ('bash -euo pipefail ./deploy.sh --skip-build', ['script:deploy.sh']),
+                 ('bash --norc --noprofile -xc "./deploy.sh"', ['script:deploy.sh'])]
+        (self.app / 'deploy.sh').write_text('echo deploy\n', encoding='utf-8')
+        home = {'HOME': str(Path(self.tmp.name) / 'home'), 'USERPROFILE': str(Path(self.tmp.name) / 'home')}
+        from unittest.mock import patch
+        with patch.dict(os.environ, home):
+            for cmd, refs in cases:
+                with self.subTest(cmd=cmd):
+                    fs = [f for f in self.kinds(cmd) if f['kind'] != 'seen']
+                    self.assertEqual([f.get('ref') for f in fs if f.get('gate') == 'deploy'], refs, fs)
+                    self.assertEqual([f for f in fs if f.get('gate') != 'deploy'], [], fs)
+
+
 if __name__ == "__main__":
     unittest.main()

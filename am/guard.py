@@ -1253,7 +1253,9 @@ RSYNC_LONG_ARGS = {'--rsh', '--exclude', '--include', '--filter', '--files-from'
                    '--exclude-from', '--include-from', '--password-file', '--port',
                    '--rsync-path', '--log-file', '--out-format', '--backup-dir',
                    '--suffix', '--timeout', '--contimeout', '--bwlimit', '--temp-dir',
-                   '--partial-dir', '--link-dest', '--compare-dest', '--copy-dest', '--usermap', '--groupmap', '--chown', '--chmod'}
+                   '--partial-dir', '--link-dest', '--compare-dest', '--copy-dest', '--usermap', '--groupmap', '--chown', '--chmod',
+                   '--write-batch', '--only-write-batch', '--read-batch', '--info', '--debug', '--max-size',
+                   '--min-size', '--max-delete', '--modify-window', '--compress-level', '--block-size', '--address'}
 
 
 def _remote_operands(word, args, options=None):
@@ -1303,28 +1305,64 @@ def _remote_host(target):
     return None
 
 
-def _transport_opaque(word, options, seg):
-    """A server deployment approval never approves programs run on this PC."""
-    unsafe = False
+# Allow list: an option missing here may run a program or load a library on this PC, read another
+# config, write a local file or change the server — a person looks at it (opaque) on top of the deploy approval.
+TRANSPORT_SAFE = {
+    'ssh': {'-q', '-v', '-t', '-T', '-C', '-4', '-6', '-n', '-x', '-i', '-p', '-l', '-o'},
+    'scp': {'-q', '-v', '-C', '-4', '-6', '-r', '-p', '-B', '-O', '-T', '-i', '-P', '-l', '-c', '-o'},
+    'sftp': {'-q', '-v', '-C', '-4', '-6', '-r', '-p', '-i', '-P', '-l', '-c', '-o'},
+    'rsync': {'-a', '-v', '-z', '-r', '-l', '-p', '-t', '-g', '-o', '-h', '-P', '-q', '-c', '-u', '-n', '-H',
+              '-S', '-i', '-e', '--archive', '--verbose', '--compress', '--recursive', '--links', '--perms',
+              '--times', '--group', '--owner', '--human-readable', '--progress', '--partial', '--quiet',
+              '--checksum', '--update', '--dry-run', '--delete', '--delete-after', '--delete-before',
+              '--delete-during', '--delete-delay', '--delete-excluded', '--exclude', '--include', '--stats',
+              '--itemize-changes', '--rsh', '--timeout', '--contimeout', '--bwlimit', '--mkpath',
+              '--hard-links', '--sparse', '--no-motd'},
+}
+SSH_SAFE_CONFIG = {'batchmode', 'stricthostkeychecking', 'connecttimeout', 'serveraliveinterval',
+                   'serveralivecountmax', 'connectionattempts', 'port', 'user', 'identitiesonly', 'identityfile',
+                   'loglevel', 'compression', 'requesttty', 'passwordauthentication', 'pubkeyauthentication',
+                   'preferredauthentications', 'addressfamily', 'tcpkeepalive', 'userknownhostsfile'}
+# Options whose value is a file written on this PC → the usual file-write check.
+TRANSPORT_WRITES = {'ssh': {'-E'}, 'scp': set(), 'sftp': set(),
+                    'rsync': {'--log-file', '--write-batch', '--only-write-batch'}}
+
+
+def _transport_check(word, options):
+    """(an option outside the allow list?, local files the options write)."""
+    unsafe, writes = False, []
     for option, value in options:
-        if option == '-F' and word in ('ssh', 'scp', 'sftp') or option == '-D':
+        if option in TRANSPORT_WRITES[word]:
+            writes.append(value)
+        if option not in TRANSPORT_SAFE[word]:
             unsafe = True
-        if option == '-S' and word in ('scp', 'sftp'):
-            unsafe = True
-        if option == '-o' and word in ('ssh', 'scp', 'sftp'):
-            name = re.split(r'[=\s]', value.strip(), maxsplit=1)[0].lower()
-            if name in {'proxycommand', 'localcommand', 'permitlocalcommand', 'match', 'hostname',
-                        'include', 'knownhostscommand', 'proxyjump', 'pkcs11provider', 'securitykeyprovider'}:
+        elif option == '-o' and word != 'rsync':
+            parts = re.split(r'\s*=\s*|\s+', value.strip(), maxsplit=1)
+            name, setting = parts[0].lower(), (parts[1] if len(parts) > 1 else '')
+            if name not in SSH_SAFE_CONFIG or name == 'userknownhostsfile' and setting.lower() not in ('/dev/null', 'nul'):
                 unsafe = True
-        if word == 'rsync' and option in ('-e', '--rsh'):
+        elif word == 'rsync' and option in ('-e', '--rsh'):
             launch = tokens(value)
             if not launch or launch[0] != 'ssh':
                 unsafe = True
             else:
                 nested = []
                 _remote_operands('ssh', launch[1:], nested)
-                unsafe = unsafe or bool(_transport_opaque('ssh', nested, seg))
-    return [_finding('opaque', seg, reason='접속 옵션이 이 PC의 프로그램·설정을 실행하거나 접속 서버를 바꿀 수 있음')] if unsafe else []
+                inner_unsafe, inner_writes = _transport_check('ssh', nested)
+                unsafe, writes = unsafe or inner_unsafe, writes + inner_writes
+    return unsafe, writes
+
+
+def _transport_opaque(word, options, seg, cwd=None, root=None):
+    """A server deployment approval never approves programs run on this PC or local file writes."""
+    unsafe, writes = _transport_check(word, options)
+    out = [_finding('opaque', seg, reason='접속 옵션이 허용 목록 밖 — 이 PC에서 프로그램·설정을 실행하거나 파일을 쓰거나 접속 서버를 바꿀 수 있음')] if unsafe else []
+    for target in writes:
+        if not target or '$' in target or SUBST in target or cwd is None:
+            out.append(_finding('opaque', seg, reason='접속 옵션의 로컬 출력 파일을 미리 알 수 없음'))
+        else:
+            out += classify_file('Write', restore(target), cwd, root, via=seg)
+    return out
 
 
 CURL_LONG_CHANGES = ('--request', '--data', '--json', '--form', '--upload-file', '--output', '--remote-name',
@@ -1347,12 +1385,12 @@ def _curl_changes(arg):
     return False
 
 
-def _remote_deploy(word, args, seg):
+def _remote_deploy(word, args, seg, cwd=None, root=None):
     if word not in REMOTE_OPTION_ARGS:
         return []
     options = []
     operands = _remote_operands(word, args, options)
-    out = _transport_opaque(word, options, seg)
+    out = _transport_opaque(word, options, seg, cwd, root)
     if word != 'ssh':
         # scp/rsync destination is the last operand; downloads stay default ask.
         # sftp's single server operand also opens a session that can upload files.
@@ -1399,36 +1437,50 @@ def _remote_deploy(word, args, seg):
     return out + [_gated('deploy', seg, ref=ref)]
 
 
+SHELL_SAFE_LETTERS = set("ceuxvnfEl")  # command string, errexit, nounset, xtrace, verbose, noexec, noglob, errtrace, login (Codex runs `bash -lc`; the user's own profile, not a file named in the command)
+SHELL_SAFE_SET = {"pipefail", "errexit", "nounset", "xtrace", "verbose", "noglob", "noclobber", "errtrace"}
+SHELL_SAFE_LONG = {"--norc", "--noprofile", "--posix", "--login"}
+
+
 def _shell_options(word, args):
-    """Shell invocation → (has a command-string flag, index of the first operand).
+    """Shell invocation → (has a command-string flag, index of the first operand, unsafe option).
     The operand is the command string when the flag is set, otherwise the script. A -c after the script
-    is the script's own argument, never the shell's flag."""
-    command, i = False, 0
+    is the script's own argument, never the shell's flag. For sh/bash/zsh/dash only the options above are
+    known; any other (-i, -l, --rcfile, --init-file, -O, -s …) may run init files or read other input."""
+    command, unsafe, i = False, False, 0
     while i < len(args):
         a = args[i]
         low = a.lower()
         if word in POSIX_SHELLS:
             if a == "--":
-                return command, i + 1
+                return command, i + 1, unsafe
             if a in ("--rcfile", "--init-file"):
-                i += 2
+                unsafe, i = True, i + 2
                 continue
             if a.startswith("--"):
+                unsafe = unsafe or a not in SHELL_SAFE_LONG
                 i += 1
                 continue
             if re.fullmatch(r"[-+][A-Za-z]+", a):
-                command = command or a[0] == "-" and "c" in a[1:]
-                i += 2 if "o" in a[1:] or "O" in a[1:] else 1  # -o / -euo pipefail: the next word is the value
+                letters = a[1:]
+                command = command or a[0] == "-" and "c" in letters
+                if "o" in letters or "O" in letters:  # -o / -euo pipefail: the next word is the value
+                    value = args[i + 1] if i + 1 < len(args) else ""
+                    unsafe = unsafe or "O" in letters or value not in SHELL_SAFE_SET
+                    i += 2
+                else:
+                    i += 1
+                unsafe = unsafe or any(ch not in SHELL_SAFE_LETTERS | {"o"} for ch in letters)
                 continue
         elif word == "cmd":
             if low in ("/c", "/k"):
-                return True, i + 1
+                return True, i + 1, unsafe
             if a.startswith("/"):
                 i += 1
                 continue
         else:  # pwsh / powershell
             if PS_COMMAND.fullmatch(low):
-                return True, i + 1
+                return True, i + 1, unsafe
             if low in PS_OPTS_WITH_ARG:
                 i += 2
                 continue
@@ -1436,7 +1488,27 @@ def _shell_options(word, args):
                 i += 1
                 continue
         break
-    return command, i
+    return command, i, unsafe
+
+
+def _plugin_script(path):
+    """A Claude Code plugin's own script (devflow's scripts/deploy.sh) → '<marketplace>/<plugin>/<path in plugin>'.
+    The version folder is left out so the approval names the plugin's script, not one install."""
+    plugins = Path(os.path.expanduser("~")) / ".claude" / "plugins"
+    for base, skip in ((plugins / "cache", 1), (plugins / "marketplaces", 0)):
+        if not _under(path, base) or _norm(path) == _norm(base):
+            continue
+        parts = _rel(path, base).split("/")
+        if base.name == "marketplaces":  # marketplaces/<mk>/plugins/<plugin>/…
+            if len(parts) < 4 or parts[1] != "plugins":
+                return None
+            parts = [parts[0]] + parts[2:]
+        else:  # cache/<mk>/<plugin>/<version>/…
+            if len(parts) < 4:
+                return None
+            parts = parts[:2] + parts[2 + skip:]
+        return "/".join(parts) if ".." not in parts else None
+    return None
 
 
 def _deployment_script(script, args, seg, cwd, shell=False):
@@ -1452,6 +1524,9 @@ def _deployment_script(script, args, seg, cwd, shell=False):
     local = re.search(r'[/\\]', script) or shell and path.is_file()
     if local and top and _under(path, top) and '$' not in script and SUBST not in script:
         return [_gated('deploy', seg, ref='script:' + _rel(path, top))]
+    plugin = _plugin_script(path) if local and '$' not in script and SUBST not in script else None
+    if plugin:
+        return [_gated('deploy', seg, ref='script:plugin:' + plugin)]
     return [_finding('opaque', seg, reason='작업 레포 밖(또는 PATH)의 배포 스크립트 — 무엇이 실행될지 확인해야 함'),
             _gated('deploy', seg)]
 
@@ -1524,7 +1599,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             re.search(r"(auth\.json|\.git-credentials|credentials\.json)$", a, re.I) for a in args):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
 
-    remote = _remote_deploy(word, args, seg)
+    remote = _remote_deploy(word, args, seg, cwd, root)
     out.extend(remote)
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
@@ -1532,7 +1607,9 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             return out + [_finding("opaque", seg, reason="인코딩된 명령")]
         if word == "cmd":
             out += _cmd_variables(" ".join(args), seg)
-        command, i = _shell_options(word, args)
+        command, i, unsafe = _shell_options(word, args)
+        if unsafe:
+            out.append(_finding("opaque", seg, reason="셸 옵션이 허용 목록 밖 — 초기화 파일·다른 입력을 실행할 수 있음"))
         if command and i < len(args):
             inner = " ".join(args[i:])
             if word in ("pwsh", "powershell"):
