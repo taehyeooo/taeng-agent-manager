@@ -102,3 +102,17 @@ class DoctorTest(unittest.TestCase):
         self.assertFalse(row['required'])
         self.assertIn('sh', calls[-1][0])
         self.assertIn('python3 -c', calls[-1][-1])
+
+    def test_guard_probe_uses_isolated_home_and_pointer(self):
+        from pathlib import Path
+        def run(args, **kwargs):
+            if args[1:2] == ['-c']:
+                home = Path(kwargs['env']['HOME'])
+                self.assertNotEqual(home, Path.home())
+                self.assertTrue(home.is_dir())
+                self.assertEqual((home / '.config/agent-manager/home').read_text(encoding='utf-8'), home.as_posix())
+                self.assertEqual(args[2], cli.HOOK_CMD.format(agent='claude'))
+                self.assertIn('SystemExit(0)', (home / 'am/guard.py').read_text(encoding='utf-8'))
+            return subprocess.CompletedProcess(args, 0, 'runtimeReachable: true', '')
+        self.assertTrue(next(row for row in doctor.run_checks(which=lambda name: name, run=run)
+                             if row['name'] == 'guard hook')['ok'])

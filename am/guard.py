@@ -1301,17 +1301,18 @@ def _transport_opaque(word, options, seg):
     """A server deployment approval never approves programs run on this PC."""
     unsafe = False
     for option, value in options:
-        if option == '-F' and word in ('ssh', 'sftp') or option == '-D':
+        if option == '-F' and word in ('ssh', 'scp', 'sftp') or option == '-D':
             unsafe = True
         if option == '-S' and word in ('scp', 'sftp'):
             unsafe = True
         if option == '-o' and word in ('ssh', 'scp', 'sftp'):
             name = re.split(r'[=\s]', value.strip(), maxsplit=1)[0].lower()
-            if name in {'proxycommand', 'localcommand', 'permitlocalcommand', 'match', 'hostname'}:
+            if name in {'proxycommand', 'localcommand', 'permitlocalcommand', 'match', 'hostname',
+                        'include', 'knownhostscommand', 'proxyjump', 'pkcs11provider', 'securitykeyprovider'}:
                 unsafe = True
         if word == 'rsync' and option in ('-e', '--rsh'):
             launch = tokens(value)
-            if not launch or _word(launch[0]) != 'ssh':
+            if not launch or launch[0] != 'ssh':
                 unsafe = True
             else:
                 nested = []
@@ -1344,7 +1345,13 @@ def _remote_deploy(word, args, seg):
     remote = ' '.join(operands[1:])
     # Unknown programs and shell expansions may change the server. Only an explicit
     # read-only subset stays opaque (ask), never automatically allowed.
-    readonly = bool(remote) and not re.search(r'[$`<>]|' + re.escape(SUBST), remote)
+    # Operators inside remote quotes are data. Expandable strings and escaped
+    # local quotes remain conservative: their remote syntax may be ambiguous.
+    expanded = re.sub(r"'[^']*'", "", remote)
+    escaped_quote = '\\\"' in seg or chr(INERT + ord('"')) in seg
+    readonly = (bool(remote) and not escaped_quote
+                and not re.search(r'[$`]|' + re.escape(SUBST), expanded)
+                and not re.search(r'[<>]', unquoted(remote)))
     for part in split_commands(remote):
         ts = tokens(part)
         if not ts:
@@ -1356,14 +1363,14 @@ def _remote_deploy(word, args, seg):
             safe = pos[:1] == ['status']
         elif command == 'curl':
             safe = not any(a in ('-X', '--request', '-d', '--data', '--data-raw',
-                                  '--data-binary', '-F', '--form', '-T', '--upload-file',
+                                  '--data-binary', '--json', '-F', '--form', '-T', '--upload-file',
                                   '-o', '--output', '-O', '--remote-name', '--config', '-K')
-                           or a.startswith(('--request=', '--data', '--form=', '--upload-file=',
+                           or a.startswith(('--request=', '--data', '--json', '--form=', '--upload-file=',
                                             '--output=', '--config='))
                            or a.startswith(('-X', '-d', '-F', '-T', '-o', '-K')) for a in rest)
         else:
             safe = command in {'journalctl', 'free', 'df', 'uptime', 'cat', 'tail', 'head', 'grep'}
-            if command == 'journalctl' and any(a.startswith(('--vacuum', '--rotate', '--flush', '--sync')) for a in rest):
+            if command == 'journalctl' and any(a.startswith(('--vacuum', '--rotate', '--flush', '--sync', '--setup-keys')) for a in rest):
                 safe = False
         readonly = readonly and safe
     if readonly:

@@ -119,6 +119,32 @@ class HookCommandTest(unittest.TestCase):
             self.assertEqual(cli.install_guard(tmp)[1], 'current')
             self.assertEqual(path.read_bytes(), before)
 
+    def test_repo_hook_matches_current_command(self):
+        cfg = json.loads((Path(__file__).resolve().parent.parent / '.claude/settings.json').read_text(encoding='utf-8'))
+        hooks = [h for entry in cfg['hooks']['PreToolUse'] for h in entry['hooks']
+                 if 'am/guard.py' in h.get('command', '')]
+        self.assertEqual([h['command'] for h in hooks], [cli.HOOK_CMD.format(agent='claude')])
+
+    def test_install_refreshes_matcher_and_deduplicates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / '.claude/settings.json'
+            path.parent.mkdir()
+            guard = {'type': 'command', 'command': 'python /old/am/guard.py claude'}
+            other = {'type': 'command', 'command': 'echo other'}
+            cfg = {'permissions': {}, 'hooks': {'PreToolUse': [
+                {'matcher': 'Bash', 'hooks': [dict(guard), dict(guard)]},
+                {'matcher': 'Write', 'hooks': [dict(guard), other]},
+            ]}, 'other': True}
+            path.write_text(json.dumps(cfg), encoding='utf-8')
+            self.assertEqual(cli.install_guard(tmp)[1], 'updated')
+            updated = json.loads(path.read_text(encoding='utf-8'))
+            entries = updated['hooks']['PreToolUse']
+            self.assertEqual(entries[0]['matcher'], cli.HOOK_MATCHER)
+            self.assertEqual(entries[1], {'matcher': 'Write', 'hooks': [other]})
+            self.assertEqual(sum('am/guard.py' in h.get('command', '') for e in entries for h in e['hooks']), 1)
+            self.assertEqual(list(updated), list(cfg))
+            self.assertEqual(cli.install_guard(tmp)[1], 'current')
+
     def test_probe_preserves_stdin_and_rejects_old_python(self):
         import os
         import shutil
@@ -158,7 +184,7 @@ class HookCommandTest(unittest.TestCase):
         import subprocess
         shell = shutil.which('sh')
         if os.name == 'nt' or not shell:
-            self.skipTest('POSIX executable fixture; Windows selection checked by doctor tests')
+            self.skipTest('POSIX executable/symlink fixture; Windows interpreter fallback is not exercised')
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp)
             pointer = home / '.config/agent-manager/home'

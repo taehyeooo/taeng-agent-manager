@@ -192,18 +192,32 @@ def install_guard(repo_path):
     f = Path(repo_path) / ".claude" / "settings.json"
     cfg = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
     pre = cfg.setdefault("hooks", {}).setdefault("PreToolUse", [])
-    status = "current"
-    found = False
+    before = json.dumps(pre)
+    found, rebuilt = False, []
     for entry in pre:
+        kept, canonical = [], None
         for hook in entry.get("hooks", []):
-            if "am/guard.py" in hook.get("command", ""):
+            if "am/guard.py" not in hook.get("command", ""):
+                kept.append(hook)
+            elif not found:
                 found = True
-                if hook["command"] != HOOK_CMD.format(agent="claude"):
-                    hook["command"] = HOOK_CMD.format(agent="claude")
-                    status = "updated"
+                hook["command"] = HOOK_CMD.format(agent="claude")
+                canonical = hook
+                kept.append(hook)
+        if canonical and entry.get("matcher") != HOOK_MATCHER:
+            if len(kept) > 1:
+                # Other hooks retain their original matcher and settings.
+                rebuilt.append(dict(entry, matcher=HOOK_MATCHER, hooks=[canonical]))
+                kept.remove(canonical)
+            else:
+                entry["matcher"] = HOOK_MATCHER
+        if kept or not entry.get("hooks"):
+            entry["hooks"] = kept
+            rebuilt.append(entry)
     if not found:
-        pre.append(guard_settings()["hooks"]["PreToolUse"][0])
-        status = "added"
+        rebuilt.append(guard_settings()["hooks"]["PreToolUse"][0])
+    pre[:] = rebuilt
+    status = "added" if not found else "updated" if json.dumps(pre) != before else "current"
     if status != "current":
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

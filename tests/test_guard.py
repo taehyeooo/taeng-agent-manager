@@ -1216,7 +1216,7 @@ class RemoteDeployTest(unittest.TestCase):
             with self.subTest(cmd=cmd):
                 gated = [f for f in self.findings(cmd) if f.get('gate') == 'deploy']
                 self.assertTrue(gated, cmd)
-                self.assertIn(gated[0]['ref'], ('host', 'other'))
+                self.assertEqual(gated[0]['ref'], 'other' if cmd.startswith('scp host:/') else 'host')
 
     def test_readonly_and_download_still_ask(self):
         commands = ['scp -P 22 host:/opt/app ./app',
@@ -1247,6 +1247,21 @@ class DeployScriptTest(unittest.TestCase):
 class T6SecurityReviewTest(unittest.TestCase):
     def findings(self, cmd):
         return G.classify_command(cmd, tempfile.gettempdir())
+
+    def test_more_remote_mutation_and_read_boundaries(self):
+        for remote in ('curl -X POST http://localhost', 'curl --json data http://localhost',
+                       'curl -d data http://localhost', 'journalctl --vacuum-time=1d',
+                       'journalctl --setup-keys'):
+            fs = self.findings(f'ssh host "{remote}"')
+            self.assertEqual([f['ref'] for f in fs if f.get('gate') == 'deploy'], ['host'])
+        self.assertEqual([f['ref'] for f in self.findings('sftp user@host') if f.get('gate') == 'deploy'], ['host'])
+        for cmd in ("ssh host \"grep '<error>' log\"", "ssh host 'grep \"<error>\" log'"):
+            fs = self.findings(cmd)
+            self.assertFalse(any(f.get('gate') == 'deploy' for f in fs), fs)
+            self.assertTrue(any(f['kind'] == 'opaque' for f in fs), fs)
+        escaped = r'ssh host "cat \"; reboot; echo \""'
+        fs = self.findings(escaped)
+        self.assertTrue(any(f.get('gate') == 'deploy' for f in fs), fs)
 
     def test_script_approval_is_scoped_and_dry_run_asks(self):
         for cmd in ('./deploy.sh', 'bash scripts/deploy.sh --skip-build'):
@@ -1287,12 +1302,13 @@ class T6SecurityReviewTest(unittest.TestCase):
         commands = [
             'ssh -o ProxyCommand="sh proxy.sh" host sudo true',
             'ssh -oLocalCommand="sh local.sh" -oPermitLocalCommand=yes host sudo true',
-            'ssh -F config host sudo true', 'ssh -o "Match exec anything" host sudo true',
+            'ssh -F config host sudo true', 'scp -F config app host:/app',
+            'ssh -oKnownHostsCommand=helper host sudo true', 'ssh -o "Match exec anything" host sudo true',
             'scp -S local-program app.jar host:/app', 'scp -D local-server app host:/app',
             'rsync -e "sh transport.sh" app host:/app',
             'rsync app host:/app --rsh="sh transport.sh"',
             'rsync -e "ssh -oProxyCommand=helper" app host:/app',
-            'rsync -D app host:/app',
+            'rsync -D app host:/app', 'rsync -e /tmp/ssh app host:/app',
         ]
         for cmd in commands:
             with self.subTest(cmd=cmd):
