@@ -44,7 +44,13 @@ else:
     from . import state as S
 
 SHELLS = {"bash", "sh", "zsh", "dash", "pwsh", "powershell", "cmd"}
-SHELL_CMD_FLAGS = {"-c", "-lc", "-ic", "-command", "/c", "/k", "/s"}
+POSIX_SHELLS = {"bash", "sh", "zsh", "dash"}
+# PowerShell accepts any prefix of -Command; these options take the next argument as their value.
+PS_COMMAND = re.compile(r"-c(?:o(?:m(?:m(?:a(?:n(?:d)?)?)?)?)?)?")
+PS_OPTS_WITH_ARG = {"-executionpolicy", "-ep", "-ex", "-workingdirectory", "-wd", "-outputformat", "-of", "-o",
+                    "-inputformat", "-if", "-in", "-windowstyle", "-w", "-configurationname", "-config",
+                    "-settingsfile", "-settings", "-version", "-v", "-custompipename", "-psconsolefile"}
+WINDOWS = os.name == "nt"  # scp/rsync treat C:/path as a local drive only on Windows
 SCRIPTERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl"}
 PY_OPTS_WITH_ARG = {"-X", "-W", "--check-hash-based-pycs"}
 PREFIXES = {"&", ".", "call", "start", "start-process", "npx", "pnpx", "bunx"}
@@ -1286,8 +1292,8 @@ def _remote_operands(word, args, options=None):
 
 
 def _remote_host(target):
-    if re.match(r'^[A-Za-z]:[/\\]', target):
-        return None  # Windows drive, not a server
+    if WINDOWS and re.match(r'^[A-Za-z]:[/\\]', target):
+        return None  # Windows drive, not a server (elsewhere `h:/opt` is the server h)
     pattern = r'^(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+):'
     if re.match(r'^(?:rsync|scp|sftp)://', target):
         pattern = r'^(?:rsync|scp|sftp)://(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+)(?::\d+)?/'
@@ -1319,6 +1325,26 @@ def _transport_opaque(word, options, seg):
                 _remote_operands('ssh', launch[1:], nested)
                 unsafe = unsafe or bool(_transport_opaque('ssh', nested, seg))
     return [_finding('opaque', seg, reason='접속 옵션이 이 PC의 프로그램·설정을 실행하거나 접속 서버를 바꿀 수 있음')] if unsafe else []
+
+
+CURL_LONG_CHANGES = ('--request', '--data', '--json', '--form', '--upload-file', '--output', '--remote-name',
+                     '--config', '--cookie-jar', '--dump-header', '--trace', '--stderr', '--libcurl', '--output-dir')
+CURL_SHORT_CHANGES = set('XdFToOKcD')  # method, body, upload, files written on the server, config
+CURL_SHORT_VALUE = set('AbCEeHKmPQrtUuwxYyzXdFToKcD')  # the rest of the word (or the next word) is a value
+
+
+def _curl_changes(arg):
+    """One curl word changes something (request method/body, a file on the server) — -sSLX POST included."""
+    if arg.startswith('--'):
+        return arg.split('=', 1)[0].startswith(CURL_LONG_CHANGES)
+    if not arg.startswith('-') or arg == '-':
+        return False
+    for ch in arg[1:]:
+        if ch in CURL_SHORT_CHANGES:
+            return True
+        if ch in CURL_SHORT_VALUE:
+            return False
+    return False
 
 
 def _remote_deploy(word, args, seg):
@@ -1362,12 +1388,7 @@ def _remote_deploy(word, args, seg):
             pos = [a for a in rest if not a.startswith('-')]
             safe = pos[:1] == ['status']
         elif command == 'curl':
-            safe = not any(a in ('-X', '--request', '-d', '--data', '--data-raw',
-                                  '--data-binary', '--json', '-F', '--form', '-T', '--upload-file',
-                                  '-o', '--output', '-O', '--remote-name', '--config', '-K')
-                           or a.startswith(('--request=', '--data', '--json', '--form=', '--upload-file=',
-                                            '--output=', '--config='))
-                           or a.startswith(('-X', '-d', '-F', '-T', '-o', '-K')) for a in rest)
+            safe = not any(_curl_changes(a) for a in rest)
         else:
             safe = command in {'journalctl', 'free', 'df', 'uptime', 'cat', 'tail', 'head', 'grep'}
             if command == 'journalctl' and any(a.startswith(('--vacuum', '--rotate', '--flush', '--sync', '--setup-keys')) for a in rest):
@@ -1378,12 +1399,61 @@ def _remote_deploy(word, args, seg):
     return out + [_gated('deploy', seg, ref=ref)]
 
 
-def _deployment_script(script, args, seg):
+def _shell_options(word, args):
+    """Shell invocation → (has a command-string flag, index of the first operand).
+    The operand is the command string when the flag is set, otherwise the script. A -c after the script
+    is the script's own argument, never the shell's flag."""
+    command, i = False, 0
+    while i < len(args):
+        a = args[i]
+        low = a.lower()
+        if word in POSIX_SHELLS:
+            if a == "--":
+                return command, i + 1
+            if a in ("--rcfile", "--init-file"):
+                i += 2
+                continue
+            if a.startswith("--"):
+                i += 1
+                continue
+            if re.fullmatch(r"[-+][A-Za-z]+", a):
+                command = command or a[0] == "-" and "c" in a[1:]
+                i += 2 if "o" in a[1:] or "O" in a[1:] else 1  # -o / -euo pipefail: the next word is the value
+                continue
+        elif word == "cmd":
+            if low in ("/c", "/k"):
+                return True, i + 1
+            if a.startswith("/"):
+                i += 1
+                continue
+        else:  # pwsh / powershell
+            if PS_COMMAND.fullmatch(low):
+                return True, i + 1
+            if low in PS_OPTS_WITH_ARG:
+                i += 2
+                continue
+            if a.startswith("-") and low not in ("-file", "-f"):
+                i += 1
+                continue
+        break
+    return command, i
+
+
+def _deployment_script(script, args, seg, cwd, shell=False):
     if not re.search(r'(^|[/\\])deploy\.sh$', script):
         return []
     if args in (['--dry-run'], ['--checks-only']):
         return [_finding('opaque', seg, reason='배포 스크립트의 확인 전용 옵션은 사람이 확인해야 함')]
-    return [_gated('deploy', seg, ref='deploy.sh')]
+    # The approval names one script in this repository: script:<repo-relative path>. The same file name
+    # elsewhere (another folder, a program found on PATH) needs a blanket approval and a person's look.
+    top = _repo_top(cwd)
+    path = _abs(script, cwd)
+    # `deploy.sh` alone: a direct run searches PATH; `bash deploy.sh` reads ./deploy.sh when it exists.
+    local = re.search(r'[/\\]', script) or shell and path.is_file()
+    if local and top and _under(path, top) and '$' not in script and SUBST not in script:
+        return [_gated('deploy', seg, ref='script:' + _rel(path, top))]
+    return [_finding('opaque', seg, reason='작업 레포 밖(또는 PATH)의 배포 스크립트 — 무엇이 실행될지 확인해야 함'),
+            _gated('deploy', seg)]
 
 
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
@@ -1462,35 +1532,21 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             return out + [_finding("opaque", seg, reason="인코딩된 명령")]
         if word == "cmd":
             out += _cmd_variables(" ".join(args), seg)
-        for i, a in enumerate(low):
-            if (a in SHELL_CMD_FLAGS or word in ('sh', 'bash', 'zsh') and re.fullmatch(r'-[a-z]*c[a-z]*', a)) and i + 1 < len(args):
-                inner = " ".join(args[i + 1:])
-                if word in ("pwsh", "powershell"):
-                    inner = ps_escapes(inner)
-                elif word == "cmd":  # %NAME% / !NAME! → ${NAME}: the $-variable rules below judge it
-                    inner = cmd_escapes(CMD_VAR.sub(lambda m: "${" + re.sub(r"\W", "_", m.group(2) or m.group(4)) + "}", inner))
-                else:  # bash/sh: g\it pu\sh → git push
-                    inner = bash_escapes(inner)
-                if depth >= 4:
-                    return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
-                return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
+        command, i = _shell_options(word, args)
+        if command and i < len(args):
+            inner = " ".join(args[i:])
+            if word in ("pwsh", "powershell"):
+                inner = ps_escapes(inner)
+            elif word == "cmd":  # %NAME% / !NAME! → ${NAME}: the $-variable rules below judge it
+                inner = cmd_escapes(CMD_VAR.sub(lambda m: "${" + re.sub(r"\W", "_", m.group(2) or m.group(4)) + "}", inner))
+            else:  # bash/sh: g\it pu\sh → git push
+                inner = bash_escapes(inner)
+            if depth >= 4:
+                return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
+            return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
         # A deployment script requires approval even when run through a shell.
-        if word in ('sh', 'bash', 'zsh'):
-            script, i = '', 0
-            while i < len(args):
-                arg = args[i]
-                if arg == '--':
-                    script = args[i + 1] if i + 1 < len(args) else ''
-                    break
-                if arg in ('-o', '+o', '-O', '+O', '--rcfile', '--init-file'):
-                    i += 2
-                    continue
-                if not arg.startswith(('-', '+')):
-                    script = arg
-                    break
-                i += 1
-            script_args = args[i + 2:] if i < len(args) and args[i] == '--' else args[i + 1:]
-            script_findings = _deployment_script(script, script_args, seg)
+        if word in POSIX_SHELLS and i < len(args):
+            script_findings = _deployment_script(args[i], args[i + 1:], seg, cwd, shell=True)
             if script_findings:
                 return out + script_findings
     
@@ -1601,7 +1657,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if word == "gh":
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
-    out.extend(_deployment_script(toks[0], args, seg))
+    out.extend(_deployment_script(toks[0], args, seg, cwd))
 
     # deploy / db / system / credentials
     if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I):

@@ -1264,8 +1264,9 @@ class T6SecurityReviewTest(unittest.TestCase):
         self.assertTrue(any(f.get('gate') == 'deploy' for f in fs), fs)
 
     def test_script_approval_is_scoped_and_dry_run_asks(self):
+        # 레포 밖(임시 폴더)이라 스크립트별 승인 대상이 없다 — 전체 배포 승인이 필요(레포 안: T6Round3Test)
         for cmd in ('./deploy.sh', 'bash scripts/deploy.sh --skip-build'):
-            self.assertEqual([f['ref'] for f in self.findings(cmd) if f.get('gate') == 'deploy'], ['deploy.sh'])
+            self.assertEqual([f['ref'] for f in self.findings(cmd) if f.get('gate') == 'deploy'], [None])
         for cmd in ('./deploy.sh --dry-run', 'bash scripts/deploy.sh --checks-only',
                     'zsh -eu scripts/deploy.sh --dry-run'):
             with self.subTest(cmd=cmd):
@@ -1324,6 +1325,80 @@ class T6SecurityReviewTest(unittest.TestCase):
                     fs = self.findings(f'{shell} "{inner}; ./deploy.sh"')
                     self.assertTrue(any(f['kind'] == kind for f in fs), fs)
                     self.assertTrue(any(f.get('gate') == 'deploy' for f in fs), fs)
+
+
+class T6Round3Test(unittest.TestCase):
+    """3차 수정: 셸 -c 위치, 배포 스크립트 승인 대상, 한 글자 서버, curl 묶음 옵션."""
+    def findings(self, cmd, cwd=None):
+        return G.classify_command(cmd, cwd or tempfile.gettempdir())
+
+    def deploy_refs(self, cmd, cwd=None):
+        return [f['ref'] for f in self.findings(cmd, cwd) if f.get('gate') == 'deploy']
+
+    def test_c_after_script_is_a_script_argument(self):
+        # -c 뒤 문자열만 보고 자동 허용하면 안 된다: 스크립트가 실행된다
+        for cmd in ('bash scripts/deploy.sh -c true', 'bash scripts/deploy.sh -c "git status"',
+                    'sh ./deploy.sh -xc ls', 'bash -e scripts/deploy.sh -c true',
+                    'bash -euo pipefail scripts/deploy.sh', 'dash ./deploy.sh -c true'):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(self.deploy_refs(cmd), self.findings(cmd))
+        for cmd in ('bash evil.sh -c true', 'sh evil.sh -xc ls', 'zsh evil.sh -ec true',
+                    'bash -- -c true', 'bash -- evil.sh -c true', 'dash evil.sh -c true',
+                    'pwsh evil.ps1 -c true', 'pwsh evil.ps1 -command true', 'cmd evil.bat /c echo'):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(any(f['kind'] == 'opaque' for f in self.findings(cmd)), self.findings(cmd))
+
+    def test_c_before_script_is_still_parsed(self):
+        for prefix in ('bash -c', 'bash -xc', 'sh -ec', 'bash --norc -c', 'bash --login -c',
+                       'bash -o pipefail -c', 'zsh -lc', 'dash -c', 'pwsh -NoProfile -c',
+                       'pwsh -ExecutionPolicy Bypass -Command'):
+            with self.subTest(prefix=prefix):
+                fs = self.findings(f'{prefix} "git push --force origin main"')
+                self.assertTrue(any(f['kind'] == 'forbidden' for f in fs), fs)
+
+    def test_deploy_script_ref_is_namespaced_repo_path(self):
+        with tempfile.TemporaryDirectory() as d:
+            repo = Path(d) / "app"
+            (repo / "scripts").mkdir(parents=True)
+            git(repo, "init", "-q")
+            (repo / "deploy.sh").write_text("echo deploy\n", encoding="utf-8")
+            cases = [('./deploy.sh', 'script:deploy.sh'), ('bash deploy.sh', 'script:deploy.sh'),
+                     ('bash scripts/deploy.sh --skip-build', 'script:scripts/deploy.sh'),
+                     ('sh -e ./scripts/deploy.sh', 'script:scripts/deploy.sh')]
+            for cmd, ref in cases:
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.deploy_refs(cmd, repo), [ref])
+            # 레포 밖·PATH의 deploy.sh는 이름만 같다 — 전체 승인 필요 + 사람 확인
+            outside = Path(d) / "evil" / "deploy.sh"
+            for cmd in (f'bash {outside}', f'{outside}', 'deploy.sh', 'bash ../evil/deploy.sh'):
+                with self.subTest(cmd=cmd):
+                    fs = self.findings(cmd, repo)
+                    self.assertEqual([f['ref'] for f in fs if f.get('gate') == 'deploy'], [None], fs)
+                    self.assertTrue(any(f['kind'] == 'opaque' for f in fs), fs)
+            # 서버 별칭 deploy.sh와 겹치지 않는다
+            self.assertEqual(self.deploy_refs('ssh deploy.sh sudo true', repo), ['deploy.sh'])
+            p = {"approvals": []}
+            S.approve(p, "deploy", "deploy.sh")
+            self.assertFalse(S.has_approval(p, "deploy", "script:deploy.sh"))
+
+    def test_single_letter_host_depends_on_platform(self):
+        from unittest.mock import patch
+        with patch.object(G, 'WINDOWS', False):
+            self.assertEqual(self.deploy_refs('scp app.jar h:/opt/'), ['h'])
+        with patch.object(G, 'WINDOWS', True):
+            self.assertEqual(self.deploy_refs('scp app.jar h:/opt/'), [])
+
+    def test_curl_bundled_and_writing_options(self):
+        for remote in ('curl -sSLX POST http://localhost', 'curl -sd data http://localhost',
+                       'curl -sO http://localhost/x', 'curl -c jar http://localhost',
+                       'curl -D head http://localhost', 'curl --cookie-jar=jar http://localhost'):
+            with self.subTest(remote=remote):
+                self.assertEqual(self.deploy_refs(f'ssh host "{remote}"'), ['host'])
+        for remote in ('curl -sSL http://localhost/health', 'curl -sH "Accept: x" http://localhost',
+                       'curl -m 5 http://localhost'):
+            with self.subTest(remote=remote):
+                fs = self.findings(f'ssh host "{remote}"')
+                self.assertFalse(any(f.get('gate') == 'deploy' for f in fs), fs)
 
 
 if __name__ == "__main__":

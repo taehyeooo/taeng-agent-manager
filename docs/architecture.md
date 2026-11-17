@@ -87,6 +87,11 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
 - 훅은 `python3`의 Python 3.10 이상 실행 성공을 표준입력 없이 확인하고 실패하면 `python`을 쓴다. 위치 파일은 있지만 둘 다 실행되지 않으면 종료 코드 2로 차단한다. `am setup --install`은 오래된 훅을 제자리에서 갱신하며, `am doctor`는 격리된 위치 파일과 무해한 가드로 훅 실행을 점검한다.
 - 원격 업로드(scp·rsync·sftp), SSH의 서버 변경·대화형 접속·불명확한 실행, 셸을 통한 `deploy.sh` 실행은 각각 서버·스크립트별 배포 승인 대상이다(`--dry-run`·`--checks-only` 단독은 사람 확인). 로컬 접속 프로그램·설정을 바꾸는 옵션은 배포 승인과 별도로 사람 확인이 필요하다. SSH 읽기 명령과 다운로드는 기본 사람 확인을 유지한다.
+  - 배포 스크립트 승인 대상은 `script:<레포 기준 상대 경로>`(예: `script:scripts/deploy.sh`) — 서버 별칭(`deploy.sh`라는 SSH 서버)과 겹치지 않는다. 레포 밖이나 PATH에서 찾는 `deploy.sh`는 이름만 같으므로 사람 확인 + 대상 없는(전체) 배포 승인이 필요하다.
+  - 셸의 `-c`(`-xc`·`-ec`·`--norc -c`·`-o pipefail -c` 포함)는 첫 비옵션 인수(스크립트) **앞**에 있을 때만 명령 문자열 플래그로 본다. `bash deploy.sh -c true`의 `-c`는 스크립트 인수이고, `--` 뒤의 `-c`는 스크립트 이름이다. PowerShell·cmd도 같은 규칙(`pwsh x.ps1 -c ...` → 스크립트 실행).
+  - `h:/opt/`처럼 한 글자 서버는 Windows가 아닐 때 서버로 본다(Windows에서는 드라이브 문자 — 로컬 경로).
+  - SSH 원격 문자열의 curl은 묶음 옵션(`-sSLX POST`)과 서버에 파일을 쓰는 옵션(`-c`·`-D`·`--trace` 등)도 변경으로 보아 배포 승인 대상이다.
+  - 알려진 보수적 판정(안전 쪽, 고치지 않음): 원격 문자열 안 작은따옴표 묶음과 백틱이 섞이면 따옴표 경계를 확정하지 않고 읽기 전용으로 인정하지 않는다 — 그 명령은 배포 승인 또는 사람 확인으로 간다.
 - 입력이 비었거나 깨지거나 가드 자체가 오류 나면 종료 코드 2로 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
 - CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only, `scripts/check_approvals.py`).
 - **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음):
