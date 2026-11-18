@@ -2118,6 +2118,30 @@ class DefaultModeAllowlistTest(OpaqueReviewRegressionTest):
                 self.assertEqual(self.bash(command)[0], "allow")
 
 
+    def test_same_line_write_cancels_clean_script_for_every_language(self):
+        self.commit_on_main("tools/check.js", "require('./helper')\n")
+        self.commit_on_main("tools/helper.js", "module.exports = 1\n")
+        self.commit_on_main("tools/check.py", "print(1)\n")
+        (self.app / "replacement.txt").write_text("x\n", encoding="utf-8")
+        self.assertEqual(self.bash("node tools/check.js")[0], "allow")
+        for command in ("cp replacement.txt tools/check.js && node tools/check.js",
+                        "cp replacement.txt tools/helper.js && node tools/check.js",
+                        "cp replacement.txt tools/helper.js; node tools/check.js",
+                        "echo x > tools/check.py && python3 tools/check.py",
+                        "node tools/check.js && cp replacement.txt tools/helper.js"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+
+    def test_wrapped_or_versioned_stdin_programs_need_confirmation(self):
+        for name in ("code.py", "code.js", "code.sh"):
+            (self.app / name).write_text("x\n", encoding="utf-8")
+        for command in ("cat code.py | uv run python -", "cat code.js | node22", "node22 < code.js",
+                        "cat code.sh | busybox sh", "cat code.py | pnpm exec python3 -", "uv run python < code.py",
+                        "cat code.py | python3.12", "cat code.py | env python3 -", "busybox sh < code.sh",
+                        "cat code.sh | npx bash /dev/stdin"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+
     def test_low_risk_codes_do_not_cover_these(self):
         # 허용 목록 사유가 붙을 만한 입력이라도 기본 모드에서 확인(또는 차단)
         self.commit_on_main("tools/check.py", "import helper\n")
@@ -2186,7 +2210,9 @@ class DefaultModeShadowTest(unittest.TestCase):
 class LowRiskCodeMisuseCases(GuardTest):
     """확인(ask) 설정에서 확인·차단인 입력 — DefaultModeShadowTest가 기본 모드에서도 허용되지 않는지 본다."""
     COMMANDS = ("python3 tools/check.py", "uv run python -c 'print(1)'", "php8.3 -r 'echo 1;'",
-                "busybox sh -c 'touch marker'", "pnpm exec python3 -c 'print(1)'", "cd ../other && touch marker")
+                "busybox sh -c 'touch marker'", "pnpm exec python3 -c 'print(1)'", "cd ../other && touch marker",
+                "cp tools/helper.py tools/check.py && python3 tools/check.py", "cat code.py | uv run python -",
+                "node22 < code.js")
 
     def test_misuse_cases_need_a_person(self):
         DefaultModeAllowlistTest.commit_on_main(self, "tools/check.py", "import helper\n")

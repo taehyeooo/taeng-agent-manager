@@ -1671,22 +1671,28 @@ CODE_OPTION = re.compile(r"-[A-Za-z0-9]*[ceErp](?:.*)?|--(?:eval|print|run|expr\
                          r"|-(?:command|encodedcommand|enc|ec)|eval", re.I | re.S)
 
 
-def _code_string_anywhere(toks):
-    """명령 어디든(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs 뒤 포함) 인터프리터·셸 이름이 보이고 그 뒤에
-    코드 옵션이 오면 True. 첫 스크립트 파일 인수(경로·확장자)에서 멈춘다 — 그 뒤는 스크립트의 인수다.
-    echo·grep 같은 읽기 명령의 인수 글자는 실행되지 않으므로 보지 않는다."""
+def _code_string_anywhere(toks, seg="", piped=False):
+    """명령 어디든(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs 뒤 포함, 버전 붙은 이름 포함) 인터프리터·셸
+    이름이 보이고 (1) 그 뒤에 코드 옵션이 오거나 (2) 프로그램을 표준입력으로 받으면(- 또는 /dev/stdin 인수, 또는
+    스크립트 파일 인수 없이 파이프·< 입력) True. 첫 스크립트 파일 인수(경로·확장자)에서 멈춘다 — 그 뒤는 스크립트의
+    인수다. echo·grep 같은 읽기 명령의 인수 글자는 실행되지 않으므로 보지 않는다."""
     if not toks or _word(toks[0]) in READ_ONLY:
         return False
+    redirected = re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg)) is not None
     for i, tok in enumerate(toks):
         name = _interpreter_name(tok)
         # 맨 앞의 python·bash 같은 이름은 아래 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
         if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS:
             continue
+        script = False
         for a in toks[i + 1:]:
-            if CODE_OPTION.fullmatch(a):
+            if CODE_OPTION.fullmatch(a) or a in STDIN_PATHS:
                 return True
             if not a.startswith("-") and (re.search(r"[/\\]", a) or re.search(r"\.\w{1,5}$", a)):
+                script = True
                 break
+        if not script and (piped or redirected) and not any(not a.startswith("-") for a in toks[i + 1:]):
+            return True  # cat code.py | uv run python, node22 < code.js, cat code.sh | busybox sh
     return False
 
 
@@ -1713,9 +1719,9 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     its program from there runs code nobody can see beforehand."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
-    if _code_string_anywhere(toks):
+    if _code_string_anywhere(toks, seg, piped and not script_stdin):
         out.append(_finding("opaque", seg, confirm=True,
-                            reason="래퍼·버전 붙은 이름을 거쳐도 인터프리터·셸에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
+                            reason="래퍼·버전 붙은 이름을 거쳐도 인터프리터·셸에 코드 문자열·표준입력 프로그램을 넘겨 실행 — 내용과 상관없이 확인"))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
         out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
     toks = _strip_prefixes(toks, seg, out, cwd, trusted, ctx)
@@ -2610,6 +2616,9 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
 
 def _distrust_content(findings, seg):
     """A step earlier in the same command line may have replaced the file whose content earned trust."""
+    # clean_script(원격 main과 같은 스크립트·같은 언어 소스가 깨끗함)도 파일 내용으로 얻은 신뢰다 — 모든 언어 공통으로
+    # 같은 줄에 쓰기 단계가 있으면 허용 목록 사유를 떼어 확인으로 돌린다.
+    findings = [dict(f, code=None) if f.get("code") == "clean_script" else f for f in findings]
     if any(f["kind"] == "seen" and (f["tag"] == "build" or f["tag"].startswith("trust:")) for f in findings):
         return findings + [_finding("opaque", seg, reason="같은 명령줄의 다른 단계가 파일을 쓰거나 바꿈 — "
                                     "패치 파일·추적 스크립트의 지금 내용을 믿을 수 없음")]
