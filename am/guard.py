@@ -60,12 +60,17 @@ PREFIXES = {"&", ".", "call", "start", "start-process", "npx", "pnpx", "bunx"}
 SHELL_KEYWORDS = {"if", "then", "else", "elif", "do", "while", "until", "!", "fi", "done", "esac", "time"}
 # 프로그램 파일 자리에 오면 표준 입력을 프로그램으로 읽는다(bash /dev/stdin, python3 -)
 STDIN_PATHS = {"-", "/dev/stdin", "/dev/fd/0", "/proc/self/fd/0"}
-# python 이외 인라인 코드(node -e·ruby -e·perl -e·awk)에서 파일 삭제·외부 전송 → python의 os.*·shutil.*과 같이 확인
-SCRIPT_SIDE_EFFECTS = re.compile(
-    r"\b(?:rmSync|rmdirSync|unlinkSync|unlink|rmdir|rm_rf|rm_r|truncateSync|truncate|rename|renameSync)\s*[(\s'\"]"
-    r"|\bfs\.(?:rm|rmdir|unlink|truncate|rename|promises)\b|\bFile(?:Utils)?\.(?:delete|unlink|rm\w*|remove\w*|mv|move|rename)\b"
-    r"|\bDir\.(?:delete|rmdir|unlink)\b|\bfetch\s*\(|\bhttps?\.request\b|\bNet::HTTP\b|\bLWP::|\bHTTP::Tiny\b|\bXMLHttpRequest\b"
-    r"|\bsystem\b|\bexec\w*\b|\bspawn\w*\b|\bfork\b|\bpopen\b")
+# 코드 실행 지점은 내용과 상관없이 확인한다(위협 모델: docs/architecture.md 가드 절).
+# 문자열을 쪼개 위험 단어를 숨기는 것("git pu"."sh")은 본문 검사로 막을 수 없으므로, 코드 문자열을 받는
+# 옵션 자체를 확인 대상으로 삼는다. SCRIPTERS(python·node·ruby·perl·bun·deno)는 아래 analyze에서 본문을 꺼낸다.
+CODE_STRING_FLAGS = {  # 이 인터프리터들은 다음 옵션 뒤 인수를 코드로 실행한다
+    "php": re.compile(r"-[rRBE]|--run"), "lua": re.compile(r"-e.*"), "luajit": re.compile(r"-e.*"),
+    "osascript": re.compile(r"-e"), "rscript": re.compile(r"-e|--expr.*"), "r": re.compile(r"-e|--expr.*"),
+    "jrunscript": re.compile(r"-e"), "groovy": re.compile(r"-e"), "julia": re.compile(r"-e|-E|--eval|--print"),
+}
+CODE_SUBCOMMANDS = {"deno": {"eval"}}  # deno eval '<코드>'
+# 스크립트 파일 없이 부르면 표준 입력을 프로그램으로 읽는 인터프리터(SCRIPTERS 외)
+STDIN_INTERPRETERS = {"php", "lua", "luajit", "tclsh", "wish", "osascript", "rscript", "r", "julia", "groovy", "jrunscript"}
 OPAQUE_WORDS = {"eval", "iex", "invoke-expression", "invoke-command", "source"}
 # wrappers that run the rest of the line as a command: word → (options that take a value, positionals before the command)
 WRAPPERS = {"timeout": ({"-s", "--signal", "-k", "--kill-after"}, 1), "nice": ({"-n", "--adjustment"}, 0),
@@ -1662,7 +1667,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             scripts = plain[:1]
         if any(a in ("-f", "--file") or a.startswith("--file=") for a in args) or any(
                 re.search(r"(^|[;{}\n])\s*[\d,$!]*\s*[ewW]\b|/[gpIiMm\d]*[ewW]", s) for s in scripts):
-            out.append(_finding("opaque", seg, reason="sed 스크립트가 명령을 실행하거나 파일을 쓸 수 있음"))
+            # GNU sed의 e 명령(1e)·s///e 플래그는 셸 명령 실행 → 명령 실행 옵션이므로 확인
+            out.append(_finding("opaque", seg, confirm=True, reason="sed 스크립트가 명령을 실행하거나 파일을 쓸 수 있음"))
     if word == "awk":
         program = next((a for i, a in enumerate(args) if not a.startswith("-") and (i == 0 or args[i - 1] not in ("-v", "-F"))), "")
         # system()·파이프(print | "sh", "cmd" | getline)·파일 쓰기·확장 로드·프로그램 파일 → 확인(python os.*과 같은 기준)
@@ -1688,11 +1694,14 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     out.extend(remote)
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
-        if any(a in ("-encodedcommand", "-enc", "-e", "-ec") for a in low) and word in ("pwsh", "powershell"):
-            return out + [_finding("opaque", seg, reason="인코딩된 명령")]
+        if word in ("pwsh", "powershell") and any(re.fullmatch(r"[-/](?:e|ec|en|enc|enco\w*)", a) for a in low):
+            return out + [_finding("opaque", seg, confirm=True, reason="인코딩된 명령")]
         if word == "cmd":
             out += _cmd_variables(" ".join(args), seg)
         command, i, unsafe = _shell_options(word, args)
+        if word in ("pwsh", "powershell") and command:
+            # PowerShell 코드 문자열(-c/-Command)은 내용과 상관없이 확인 — 안쪽 명령도 아래에서 그대로 검사한다
+            out.append(_finding("opaque", seg, confirm=True, reason="PowerShell에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
         if unsafe:
             out.append(_finding("opaque", seg, reason="셸 옵션이 허용 목록 밖 — 초기화 파일·다른 입력을 실행할 수 있음"))
         if command and i < len(args):
@@ -1720,6 +1729,15 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         return out + [_finding("opaque", seg, confirm=reads_stdin,
                                reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
+
+    # 코드 문자열 옵션(php -r, lua -e, osascript -e, Rscript -e, deno eval …)·표준 입력 프로그램 → 확인
+    positional = [a for a in args if not a.startswith("-")]
+    flags = CODE_STRING_FLAGS.get(word)
+    if flags and any(flags.fullmatch(a) for a in args) or positional[:1] and positional[0].lower() in CODE_SUBCOMMANDS.get(word, ()):
+        out.append(_finding("opaque", seg, confirm=True, reason="인터프리터에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
+    elif word in STDIN_INTERPRETERS and not script_stdin and (not positional or positional[0] in STDIN_PATHS) and (
+            piped or positional[:1] and positional[0] != "-" or re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg))):
+        out.append(_finding("opaque", seg, confirm=True, reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
 
     if word in SCRIPTERS:
         i, module, body, script = 0, None, None, None
@@ -1772,8 +1790,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         elif body is not None:
             out.append(_seen("script", seg))
             out += _check_script(body, seg, cwd, root, python=python)
-            if not python and SCRIPT_SIDE_EFFECTS.search(body):
-                out.append(_finding("opaque", seg, confirm=True, reason="인라인 스크립트가 명령 실행·파일 삭제·외부 전송을 함"))
+            out.append(_finding("opaque", seg, confirm=True, reason="인터프리터에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
             reason = "인라인 Python 실행은 자동 허용 목록 밖" if python else "인라인 스크립트 실행은 자동 허용 목록 밖"
         elif module == "am":
             ok, reason = python and _own_am(cwd), "이 매니저 레포의 am이 아닌 am 모듈 실행"
@@ -2116,12 +2133,13 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
         if name in ("-c", "--config-env"):
             key = val.split("=", 1)[0].lower()
             if key.startswith("alias."):
-                return out + [_finding("opaque", seg, reason="명령 안에서 git 별칭을 새로 정의")]
+                return out + [_finding("opaque", seg, confirm=True, reason="명령 안에서 git 별칭을 새로 정의")]
             if key in ("core.hookspath", "core.sshcommand", "core.fsmonitor", "core.editor", "core.pager", "credential.helper") \
                     or key.startswith(("filter.", "diff.", "merge.")) and key.endswith((".clean", ".smudge", ".textconv", ".driver", ".command")):
                 return out + [_finding("forbidden", seg, reason=f"git 설정({key})으로 훅·검사를 바꾸거나 명령을 끼워 넣음")]
             if not GIT_SAFE_CONFIG.match(key):
-                out.append(_finding("opaque", seg, reason=f"git 설정({key})이 실행 동작을 바꿀 수 있음"))
+                # 허용 목록 밖 설정은 셸 명령을 끼워 넣을 수 있다(core.askPass·gpg.program·diff.external·'!…' 값)
+                out.append(_finding("opaque", seg, confirm=True, reason=f"git 설정({key})이 실행 동작을 바꿀 수 있음"))
         if name == "--exec-path" and val:
             out.append(_finding("opaque", seg, reason="git 보조 프로그램 폴더를 바꿈"))
         elif name not in GIT_GLOBAL_OK:
@@ -2136,14 +2154,14 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             or sub == "rebase" and any(a in ("-x", "--exec") or a.startswith(("--exec=", "-x")) for a in sargs) \
             or sub in ("clone", "init") and any(a in ("-u", "--upload-pack", "-c", "--config", "--template") or
                                                 a.startswith(("--upload-pack=", "--config=", "--template=")) for a in sargs):
-        out.append(_finding("opaque", seg, reason=f"git {sub}이 다른 명령·훅을 실행"))
+        out.append(_finding("opaque", seg, confirm=True, reason=f"git {sub}이 다른 명령·훅을 실행"))
     if sub == "config" and not _rewrites_refs(sub, sargs, []):
         keys = [a.lower() for a in sargs if not a.startswith("-")]
         keys = keys[1:] if keys[:1] in (["set"], ["unset"], ["get"]) else keys
         reading = any(a in ("--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l") for a in sargs) \
             or sargs[:1] == ["get"] or len(keys) < 2 and not any(a.startswith(("--unset", "--add", "--replace", "--rename", "--remove")) for a in sargs)
         if not reading and keys and not GIT_SAFE_CONFIG.match(keys[0]):
-            out.append(_finding("opaque", seg, reason=f"git 설정({keys[0]})이 실행 동작을 바꿀 수 있음"))
+            out.append(_finding("opaque", seg, confirm=True, reason=f"git 설정({keys[0]})이 실행 동작을 바꿀 수 있음"))
     if sub in GIT_RUNS_HOOKS and not _hooks_clean(where):
         out.append(_finding("opaque", seg, reason="작업 폴더 안 훅 폴더(core.hooksPath)의 훅이 원격 main과 다름"))
     elif sub in GIT_RUNS_HOOKS and _git(where, "config", "--get", "core.hookspath"):
@@ -2163,7 +2181,7 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
         alias = _git(where, "config", "--get", f"alias.{sub}")
         if alias:
             if alias.startswith("!") or depth >= 4:
-                return out + [_finding("opaque", seg, reason=f"git 별칭 '{sub}'이 셸 명령을 실행")]
+                return out + [_finding("opaque", seg, confirm=True, reason=f"git 별칭 '{sub}'이 셸 명령을 실행")]
             return out + classify_command("git " + alias + " " + " ".join(sargs), where, root, depth + 1)
         if not re.fullmatch(r"-.*", sub):  # git-<sub> on PATH: an unknown program
             return out + [_finding("opaque", seg, reason=f"알 수 없는 git 하위 명령({sub}) — 외부 프로그램일 수 있음")]
@@ -2818,8 +2836,11 @@ def _audit_excerpt(command):
     text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|glpat-[\w-]+|sk[-_][\w-]+|xox[baprs]-[\w-]+|AKIA[A-Z0-9]+)\b"
                   r"|\bAIza[\w-]+", "[가림]", text)
     value = r"(?:\"[^\"]*\"|'[^']*'|[^\s;'\"]+)"
-    # -u user:pw / --user user:pw (mysql·curl) — 사용자 이름은 남기고 비밀번호만 가린다.
-    text = re.sub(r"(?i)((?<!\S)(?:-u|--user)(?:=|\s+)[^\s:;'\"]+:)" + value, r"\1[가림]", text)
+    # Cookie 헤더·curl -b/--cookie는 첫 값만이 아니라 값 전체(a=1; b=2 …)를 가린다.
+    text = re.sub(r"(?i)(\bcookie\s*:\s*)[^'\"\n]+", r"\1[가림]", text)
+    text = re.sub(r"(?i)((?<!\S)(?:-b|--cookie)(?:=|\s+))" + value, r"\1[가림]", text)
+    # -u user:pw / --user "user:pw" / -uuser:pw (mysql·curl) — 사용자 이름은 남기고 비밀번호만 가린다.
+    text = re.sub(r"(?i)((?<!\S)(?:-u|--user)(?:=|\s+)?[\"']?[^\s:;'\"]+:)[^\s;'\"]+", r"\1[가림]", text)
     # mysql -p 값 / --password 값 — 공백으로 떨어진 값도 가린다(옵션처럼 보이는 다음 단어는 제외).
     text = re.sub(r"(?i)(?<!\S)(-p|--password)\s+(?!-)" + value, r"\1 [가림]", text)
     text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)" + value,

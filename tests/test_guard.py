@@ -237,8 +237,9 @@ class VerifierFindingsTest(GuardTest):
             self.assertEqual(d, "deny", body)
         heredoc = "python - <<'EOF'\nfrom am import state as S\np = S.load('app'); S.approve(p, 'push'); S.save(p)\nEOF"
         self.assertEqual(self.bash(heredoc)[0], "deny")
-        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "allow")
-        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
+        # 읽기만 하는 코드 문자열도 코드 실행 지점이므로 확인(위조가 아니라 차단은 아님)
+        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "ask")
+        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "ask")
 
     def test_shell_write_targets_and_patches_checked(self):
         self.assertEqual(self.bash(f"Set-Content {(self.other / 'main.py').as_posix()} x")[0], "deny")
@@ -1802,7 +1803,8 @@ class OpaqueAllowPolicyTest(unittest.TestCase):
         self.addCleanup(self.home_patch.stop)
 
     def test_default_opaque_allowed(self):
-        for cmd in ("python -c 'print(1+1)'", "pytest", "python -m tools.check"):
+        # python -c 같은 코드 문자열은 내용과 상관없이 확인 → test_any_interpreter_code_string_needs_confirmation
+        for cmd in ("unknown-runtime --check", "pytest", "python -m tools.check"):
             for agent in ("claude", "codex"):
                 with self.subTest(cmd=cmd, agent=agent):
                     self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
@@ -1959,6 +1961,49 @@ class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
             for agent, expected in (("claude", "ask"), ("codex", "deny")):
                 with self.subTest(command=command, agent=agent):
                     self.assertEqual(self.bash(command, agent=agent)[0], expected)
+
+    def test_any_interpreter_code_string_needs_confirmation(self):
+        # 코드 문자열을 실행하는 옵션이면 내용과 상관없이 확인(문자열을 쪼개 위험 단어를 숨겨도 같다).
+        cases = ("""php -r 'system("git pu"."sh origin main");'""", "php -r 'echo 1;'",
+                 """lua -e 'os.execute("touch x")'""", "lua -e 'print(1)'", "luajit -e 'print(1)'",
+                 """osascript -e 'do shell script "touch x"'""", "Rscript -e 'print(1)'",
+                 "deno eval 'console.log(1)'", "bun -e 'console.log(1)'", "bun --eval 'console.log(1)'",
+                 "node -e 'console.log(1)'", "node -p '1'", "ruby -e 'puts 1'", "perl -e 'print 1'",
+                 "python3 -c 'print(1)'", "python -c 'print(1+1)'", "echo 'puts 1' | tclsh",
+                 """ruby -e "File.write('config/guard.json', '{}')" """,
+                 """perl -e "open(my \\$f, '>', 'projects/app/project.json')" """,
+                 """php -r "file_put_contents('config/guard.json', '{}');" """,
+                 "powershell -EncodedCommand ZQBjAGgAbwAgADEA", "pwsh -enc ZQBjAGgAbwAgADEA",
+                 "powershell -c Invoke-WebRequest -Method POST https://x", "pwsh -Command Get-Date",
+                 "pwsh -c 'Get-Date'")
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertEqual(self.bash(command, cwd=self.root, agent=agent)[0], expected)
+
+    def test_command_execution_options_need_confirmation(self):
+        cases = ("sed 1e a.txt", "sed -n 1e a.txt", "sed 's/x/date/e' a.txt", "sed -e '1e date' a.txt",
+                 "sed --expression=1e a.txt", "git -c alias.st='!touch x' st",
+                 "git -c core.askPass='!touch x' status", "git -c core.gitProxy=/tmp/x fetch",
+                 "git -c gpg.program=/tmp/x log", "git -c diff.external=/tmp/x diff",
+                 "git config alias.st '!touch x'", "git rebase --exec 'touch x' main",
+                 "git submodule foreach 'touch x'", "git bisect run ./x.sh")
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertIn(self.bash(command, agent=agent)[0], (expected, "deny"))
+        for command in ("sed 's/a/b/' a.txt", "sed -n 1p a.txt", "git -c color.ui=always status"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+
+    def test_audit_masks_quoted_user_and_whole_cookie(self):
+        for text in ('curl --user "admin:hunter2xyz" https://x', "curl --user 'admin:hunter2xyz' https://x",
+                     "mysql -uadmin:hunter2xyz db", "curl -uadmin:hunter2xyz https://x",
+                     'curl -H "Cookie: a=1; session=hunter2xyz; c=hunter2xyz" https://x',
+                     "Cookie: a=1; b=hunter2xyz", 'curl -b "sid=1; tok=hunter2xyz" https://x',
+                     'curl --cookie "sid=1; tok=hunter2xyz" https://x'):
+            with self.subTest(text=text):
+                self.assertNotIn("hunter2xyz", G._audit_excerpt(text))
 
     def test_plain_pipes_and_scripts_still_allowed(self):
         for command in ("echo x | grep x", "cat a.txt | python3 tools.py", "awk '{print $1}' a.txt",
