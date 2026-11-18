@@ -101,6 +101,12 @@
       "ref": "guard-opaque-allow",
       "note": "2026-11-18 사용자: '그냥 다 승인해줘. 아예 이 에이전트 매니저 자체를 수정해서 다음에 할 때도 안 뜨게 해줘' — 판단 불가(opaque) 명령은 위험 신호가 없으면 자동 허용+기록, 승인 대상·금지는 유지",
       "at": "2026-11-18T10:32:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#10",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증·CI 통과 PR 머지",
+      "at": "2026-11-18T11:28:04+09:00"
     }
   ],
   "tasks": [
@@ -257,26 +263,34 @@
     {
       "id": "T7",
       "title": "가드 오탐: heredoc 커밋 메시지(git commit -F - <<EOF) 본문 줄을 명령으로 읽음, 레포에 커밋된 검사 스크립트(scripts/*.py)·설치된 reviewflow 스크립트 실행이 매번 확인 창 — 밤사이 워커가 반복해서 멈춤(2026-11-18)",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T7",
       "pr": "10",
       "dispatch": "ctx_0ab261c92183",
-      "note": "2a956b5 수정(271 OK), Claude 재검증 중"
+      "note": "PR #10 머지 b30d7ad",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "Codex 재검증 PASS(cda86c2), 279 OK, CI Ubuntu·Windows 통과",
+        "at": "2026-11-18T11:28:04+09:00"
+      }
     },
     {
       "id": "T9",
       "title": "가드: 판단 불가 명령은 위험 신호 없으면 자동 허용+기록 (사용자 지시 2026-11-18)",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
       "status": "dispatched",
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8",
       "pr": "11",
       "dispatch": "ctx_9404156b20e6",
-      "note": "Codex 구현 904b99e(282 OK), Claude 교차 검증 시작"
+      "note": "Claude 수정 fae2cfd(315 OK), T7 최신 위로 rebase 중 → Codex 재검증 예정"
     }
   ],
   "history": [
@@ -1211,10 +1225,94 @@
     {
       "at": "2026-11-18T10:41:20+09:00",
       "event": "작업 T7 변경: note=2a956b5 수정(271 OK), Claude 재검증 중"
+    },
+    {
+      "at": "2026-11-18T10:57:38+09:00",
+      "event": "작업 T9 변경: agent=claude, note=Codex 2회 검증 fail → 규칙대로 Claude가 수정, 검증은 Codex로"
+    },
+    {
+      "at": "2026-11-18T10:59:28+09:00",
+      "event": "작업 T7 변경: agent=claude, note=Codex 3회 검증 fail(heredoc am, 인코딩, format=flowed) → Claude 수정, 검증은 Codex"
+    },
+    {
+      "at": "2026-11-18T11:00:51+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T7)"
+    },
+    {
+      "at": "2026-11-18T11:01:50+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:01:57+09:00",
+      "event": "작업 T7 변경: note=Claude 수정 ddaf151(273 OK), Codex 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T11:04:37+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 f6ddc27(308 OK), Codex 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T11:08:08+09:00",
+      "event": "작업 T9 변경: note=Codex 검증 FAIL(인터프리터·인코딩·마스킹 7건) → Claude가 일반 규칙으로 정리 중"
+    },
+    {
+      "at": "2026-11-18T11:09:44+09:00",
+      "event": "작업 T7 변경: note=Codex 검증 FAIL 3건(git --output, 같은 줄 바꿔치기) → Claude 수정 중"
+    },
+    {
+      "at": "2026-11-18T11:11:48+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:13:49+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 46761a4(311 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T11:14:36+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T7)"
+    },
+    {
+      "at": "2026-11-18T11:15:00+09:00",
+      "event": "작업 T7 변경: note=Claude 수정 80d095b(275 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T11:20:39+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T7)"
+    },
+    {
+      "at": "2026-11-18T11:21:03+09:00",
+      "event": "작업 T7 변경: note=Claude 수정 cda86c2(275 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T11:21:18+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:22:02+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 fae2cfd(315 OK), T7 최신 위로 rebase 중 → Codex 재검증 예정"
+    },
+    {
+      "at": "2026-11-18T11:25:07+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:28:04+09:00",
+      "event": "작업 T7 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T11:28:04+09:00",
+      "event": "승인 기록: merge_main (PR#10)"
+    },
+    {
+      "at": "2026-11-18T11:28:14+09:00",
+      "event": "작업 T7 변경: status=done, note=PR #10 머지 b30d7ad"
+    },
+    {
+      "at": "2026-11-18T11:39:14+09:00",
+      "event": "승인된 작업 실행: push(work/state-trova)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T10:41:20+09:00",
+  "updated_at": "2026-11-18T11:39:14+09:00",
   "requests": [
     {
       "gate": "push",

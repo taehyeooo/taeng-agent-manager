@@ -17,6 +17,18 @@
       "ref": "PR#458",
       "note": "사용자 승인(2026-11-18): 가드 설정 머지",
       "at": "2026-11-18T10:13:33+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#428-memory-pressure-stall-alert",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 통과 PR push",
+      "at": "2026-11-18T11:23:46+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#459",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): O1 교차 검증 통과, Java 변경 없음(경보 설정·문서), validate·단위 10개 통과",
+      "at": "2026-11-18T11:39:04+09:00"
     }
   ],
   "tasks": [
@@ -25,19 +37,19 @@
       "title": "운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": "fix/#428-memory-pressure-stall-alert",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
-      "pr": null,
+      "pr": "459",
       "dispatch": "ctx_cdc995d9eadf",
-      "note": "식별자 충돌 정리·main rebase (codex, Mac)",
+      "note": "PR #459 머지. Grafana Cloud 반영은 별도 승인 대기",
       "verification": {
         "tests": "pass",
         "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow",
-        "summary": "5f13c87 재검증: 1차 지적 9건 중 8건 해결, 1건(devflow·CLAUDE.md 사일런스 단계)은 Cloud 반영 뒤 후속. 새 낮음: 후보 JSON이 운영 규칙과 같은 uid라 폴더 통째 import 시 덮어쓸 위험",
-        "at": "2026-11-18T01:16:06+09:00"
+        "by": "claude",
+        "summary": "3차 교차 검증 pass(6c4b38f): 후보 PromQL 공백 보간, runbook 반영·롤백, ADR 0050, 비밀값 없음. validate·단위 10개·promtool 통과",
+        "at": "2026-11-18T11:23:46+09:00"
       },
       "files": [
         "monitoring/grafana-cloud/alerting/candidates/high-memory-pressure-gap.json",
@@ -161,12 +173,12 @@
       "title": "QA2: 앱 UI/UX QA — 화면·흐름 점검, 캡처 포함 PDF (Windows 노트북, Q1 뒤 — 에뮬레이터 하나)",
       "agent": "codex",
       "kind": "test",
-      "status": "blocked",
+      "status": "dispatched",
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-uiux",
       "pr": null,
       "dispatch": "ctx_bb1931c8e008",
-      "note": "부분 완료: PDF 12쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/). 높음1(다크 모드 새 여행 이름 입력 대비 1.14:1)·중간3(큰 글자 탭 잘림, 버튼 대비, 장소 정보 없을 때 다음 행동 없음)·낮음1(문구 어절 분리). 미완: 첫 실행·로그인·동의·공유·복사·수정 — 전용 QA 계정 필요. 기기 설정 원복, 개인정보 원본 삭제"
+      "note": "2차 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/), 높음1·중간3·낮음2, #149 재현"
     }
   ],
   "history": [
@@ -293,10 +305,42 @@
     {
       "at": "2026-11-18T10:28:42+09:00",
       "event": "작업 Q1 변경: note=보완 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). 교차 검토 전"
+    },
+    {
+      "at": "2026-11-18T11:04:37+09:00",
+      "event": "작업 Q2 변경: status=dispatched, note=2차: QA 전용 계정 전체 흐름 (Windows codex)"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "작업 O1 변경: agent=codex, branch=fix/#428-memory-pressure-stall-alert"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "작업 O1 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "승인 기록: push (fix/#428-memory-pressure-stall-alert)"
+    },
+    {
+      "at": "2026-11-18T11:23:54+09:00",
+      "event": "승인된 작업 실행: push(fix/#428-memory-pressure-stall-alert)"
+    },
+    {
+      "at": "2026-11-18T11:39:04+09:00",
+      "event": "승인 기록: merge_main (PR#459)"
+    },
+    {
+      "at": "2026-11-18T11:39:08+09:00",
+      "event": "작업 O1 변경: status=done, pr=459, note=PR #459 머지. Grafana Cloud 반영은 별도 승인 대기"
+    },
+    {
+      "at": "2026-11-18T11:39:14+09:00",
+      "event": "작업 Q2 변경: note=2차 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/), 높음1·중간3·낮음2, #149 재현"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T10:28:42+09:00",
+  "updated_at": "2026-11-18T11:39:14+09:00",
   "requests": [
     {
       "gate": "push",
