@@ -2142,6 +2142,30 @@ class DefaultModeAllowlistTest(OpaqueReviewRegressionTest):
             with self.subTest(command=command):
                 self.assertEqual(self.both(command), ("ask", "deny"))
 
+    def test_wrapped_interpreter_only_runs_a_script_right_after_its_name(self):
+        # 형태 고정: 래퍼·버전 이름 뒤 인터프리터·셸은 '이름 바로 다음이 추적·미수정 스크립트 경로'일 때만 기존 판정
+        self.commit_on_main("tools/ok.py", "print(1)\n")
+        self.commit_on_main("tools/ok.js", "console.log(1)\n")
+        self.commit_on_main("tools/ok.sh", "echo 1\n")
+        for name in ("code.py", "code.sh", "helper.js", "init.sh"):
+            (self.app / name).write_text("x\n", encoding="utf-8")
+        for command in ("cat code.py | uv run python3 -X dev", "busybox sh -o errexit < code.sh",
+                        "node22 --require ./helper.js -e 'console.log(1)'", "uv run bash --rcfile ./init.sh -c 'echo 1'",
+                        "uv run python3 -X dev tools/ok.py", "node22 --require ./helper.js tools/ok.js",
+                        "busybox sh -e tools/ok.sh", "uv run python -m tools.ok", "pnpm exec node --import ./helper.js tools/ok.js",
+                        "uv run python tools/ok.py < code.py", "cat code.py | uv run python tools/ok.py",
+                        "uv run python code.py", "node22 helper.js"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+        (self.app / "code.py").unlink()
+        (self.app / "helper.js").unlink()
+        for name in ("code.sh", "init.sh"):
+            (self.app / name).unlink()
+        for command in ("uv run python tools/ok.py", "uv run python tools/ok.py --flag -x", "node22 tools/ok.js",
+                        "busybox sh tools/ok.sh", "timeout 60 python -m unittest discover -s tests"):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command, agent="codex")[0], "deny")
+
     def test_low_risk_codes_do_not_cover_these(self):
         # 허용 목록 사유가 붙을 만한 입력이라도 기본 모드에서 확인(또는 차단)
         self.commit_on_main("tools/check.py", "import helper\n")

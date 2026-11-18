@@ -1665,34 +1665,33 @@ def _interpreter_name(tok):
     return None
 
 
-# 인터프리터·셸 이름 뒤에서 코드 문자열을 받는 옵션: -c·-lc·-ec(셸·python), -e·-ne·-E(perl·ruby·node·lua…),
-# -r·--run(php), --eval·--print·-p(node·bun), -Command·-enc(pwsh), deno eval
-CODE_OPTION = re.compile(r"-[A-Za-z0-9]*[ceErp](?:.*)?|--(?:eval|print|run|expr\w*|command|encodedcommand)(?:=.*)?"
-                         r"|-(?:command|encodedcommand|enc|ec)|eval", re.I | re.S)
 
 
-def _code_string_anywhere(toks, seg="", piped=False):
-    """명령 어디든(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs 뒤 포함, 버전 붙은 이름 포함) 인터프리터·셸
-    이름이 보이고 (1) 그 뒤에 코드 옵션이 오거나 (2) 프로그램을 표준입력으로 받으면(- 또는 /dev/stdin 인수, 또는
-    스크립트 파일 인수 없이 파이프·< 입력) True. 첫 스크립트 파일 인수(경로·확장자)에서 멈춘다 — 그 뒤는 스크립트의
-    인수다. echo·grep 같은 읽기 명령의 인수 글자는 실행되지 않으므로 보지 않는다."""
-    if not toks or _word(toks[0]) in READ_ONLY:
+# 뒤에 오는 명령을 실행하는 실행기·래퍼 — 그 뒤의 인터프리터·셸은 아래 형태 규칙으로 본다
+LAUNCHERS = {"uv", "uvx", "pnpm", "npm", "yarn", "npx", "pnpx", "bunx", "busybox", "toybox", "env", "sudo", "doas",
+             "poetry", "pipx", "pdm", "hatch", "conda", "mamba", "micromamba", "rye", "pixi", "mise", "asdf", "rtx",
+             "nix-shell", "nix", "direnv", "dotenv", "xargs", "time", "watch", "flock", "chrt", "taskset", "firejail",
+             } | set(WRAPPERS) | PREFIXES
+
+
+def _code_string_anywhere(toks, seg="", piped=False, cwd="."):
+    """래퍼(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs …) 뒤나 버전 붙은 이름(node22·php8.3)의 인터프리터·셸은
+    옵션을 해석하지 않고 형태로 고정한다: '이름 바로 다음 토큰이 원격 main과 같은 스크립트 경로'(그 뒤 인수는 자유)이고
+    파이프·< 표준입력이 없을 때만 안전 — 버전 확인·허용 목록 명령(python -m unittest·이 매니저의 am)도 그대로 둔다.
+    이름과 스크립트 사이에 옵션이 하나라도 있으면(-X, -o, --require, --rcfile, -m …) True(확인)."""
+    if not toks:
         return False
     redirected = re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg)) is not None
+    launched = _word(toks[0]) in LAUNCHERS
     for i, tok in enumerate(toks):
         name = _interpreter_name(tok)
-        # 맨 앞의 python·bash 같은 이름은 아래 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
-        if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS:
+        # 맨 앞의 python·bash 같은 이름은 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
+        if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS or i > 0 and not launched:
             continue
-        script = False
-        for a in toks[i + 1:]:
-            if CODE_OPTION.fullmatch(a) or a in STDIN_PATHS:
-                return True
-            if not a.startswith("-") and (re.search(r"[/\\]", a) or re.search(r"\.\w{1,5}$", a)):
-                script = True
-                break
-        if not script and (piped or redirected) and not any(not a.startswith("-") for a in toks[i + 1:]):
-            return True  # cat code.py | uv run python, node22 < code.js, cat code.sh | busybox sh
+        rest = toks[i + 1:]
+        safe = not (piped or redirected) and _plain_script_run(name, rest, [name] + rest, cwd, False)
+        if not safe:
+            return True
     return False
 
 
@@ -1719,7 +1718,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     its program from there runs code nobody can see beforehand."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
-    if _code_string_anywhere(toks, seg, piped and not script_stdin):
+    if _code_string_anywhere(toks, seg, piped and not script_stdin, cwd):
         out.append(_finding("opaque", seg, confirm=True,
                             reason="래퍼·버전 붙은 이름을 거쳐도 인터프리터·셸에 코드 문자열·표준입력 프로그램을 넘겨 실행 — 내용과 상관없이 확인"))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
