@@ -842,6 +842,32 @@ def _clean_siblings(path, cwd):
     return _rel(p, top) in flags and _clean_paths(top, flags, flags)
 
 
+# 인터프리터가 import·require·load로 함께 읽을 수 있는 같은 언어 소스 확장자
+LANG_SOURCES = {
+    "python": (".py", ".pyw", ".pth", ".pyc", ".so"), "py": (".py", ".pyw", ".pth", ".pyc", ".so"),
+    "python3": (".py", ".pyw", ".pth", ".pyc", ".so"),
+    "node": (".js", ".mjs", ".cjs", ".json", ".node", ".ts", ".mts", ".cts"), "deno": (".js", ".mjs", ".ts", ".tsx", ".json"),
+    "bun": (".js", ".mjs", ".cjs", ".ts", ".tsx", ".json"), "ruby": (".rb",), "perl": (".pl", ".pm"),
+    "php": (".php", ".inc"), "php-cgi": (".php", ".inc"), "lua": (".lua",), "luajit": (".lua",),
+    "pwsh": (".ps1", ".psm1", ".psd1"), "powershell": (".ps1", ".psm1", ".psd1"), "tclsh": (".tcl",), "wish": (".tcl",),
+    "rscript": (".r", ".R"), "r": (".r", ".R"), "julia": (".jl",), "groovy": (".groovy",),
+}
+
+
+def _lang_tree_clean(word, cwd):
+    """같은 레포에 그 언어 소스가 하나라도 수정·추가·추적 안 됨 상태면 False — 원격 main과 같은 스크립트도
+    바뀐 형제 모듈을 import할 수 있으므로 자동 허용(clean_script)의 조건으로 쓴다."""
+    top = _repo_top(cwd)
+    exts = LANG_SOURCES.get(word)
+    if not top or not exts:
+        return False
+    r = _run(top, ("status", "--porcelain", "-z", "--untracked-files=all", "--ignored=no"))
+    if r is None or r.returncode != 0:
+        return False
+    entries = [e[3:] for e in r.stdout.decode("utf-8", "replace").split("\0") if len(e) > 3]
+    return not any(e.lower().endswith(tuple(x.lower() for x in exts)) for e in entries)
+
+
 def _sibling_blockers(path, cwd):
     """Why _clean_siblings said no, for the message only (runs after the decision): the .py files next to the script
     that are new, untracked or differ from the trusted remote main — or None when the script itself is not clean."""
@@ -1630,6 +1656,40 @@ def _deployment_script(script, args, seg, cwd, shell=False):
             _gated('deploy', seg)]
 
 
+def _interpreter_name(tok):
+    """python3.12 → python, php8.3 → php, node22 → node, /usr/bin/bash → bash; 인터프리터·셸이 아니면 None."""
+    name = _word(tok)
+    for candidate in (name, re.sub(r"(?:[\d.]+|-\d[\w.]*)$", "", name)):
+        if candidate in INTERPRETERS or candidate in SHELLS:
+            return candidate
+    return None
+
+
+# 인터프리터·셸 이름 뒤에서 코드 문자열을 받는 옵션: -c·-lc·-ec(셸·python), -e·-ne·-E(perl·ruby·node·lua…),
+# -r·--run(php), --eval·--print·-p(node·bun), -Command·-enc(pwsh), deno eval
+CODE_OPTION = re.compile(r"-[A-Za-z0-9]*[ceErp](?:.*)?|--(?:eval|print|run|expr\w*|command|encodedcommand)(?:=.*)?"
+                         r"|-(?:command|encodedcommand|enc|ec)|eval", re.I | re.S)
+
+
+def _code_string_anywhere(toks):
+    """명령 어디든(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs 뒤 포함) 인터프리터·셸 이름이 보이고 그 뒤에
+    코드 옵션이 오면 True. 첫 스크립트 파일 인수(경로·확장자)에서 멈춘다 — 그 뒤는 스크립트의 인수다.
+    echo·grep 같은 읽기 명령의 인수 글자는 실행되지 않으므로 보지 않는다."""
+    if not toks or _word(toks[0]) in READ_ONLY:
+        return False
+    for i, tok in enumerate(toks):
+        name = _interpreter_name(tok)
+        # 맨 앞의 python·bash 같은 이름은 아래 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
+        if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS:
+            continue
+        for a in toks[i + 1:]:
+            if CODE_OPTION.fullmatch(a):
+                return True
+            if not a.startswith("-") and (re.search(r"[/\\]", a) or re.search(r"\.\w{1,5}$", a)):
+                break
+    return False
+
+
 def _plain_script_run(word, args, toks, cwd, piped):
     """인터프리터 호출이 확실히 안전한 형태인가: 버전 확인, 허용 목록의 테스트·빌드 명령, 이 매니저의 am,
     또는 '작업 폴더 안 원격 main과 같은(추적·미수정) 스크립트 파일 하나 실행'. 그 밖은 모두 False(확인)."""
@@ -1653,6 +1713,9 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     its program from there runs code nobody can see beforehand."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
+    if _code_string_anywhere(toks):
+        out.append(_finding("opaque", seg, confirm=True,
+                            reason="래퍼·버전 붙은 이름을 거쳐도 인터프리터·셸에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
         out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
     toks = _strip_prefixes(toks, seg, out, cwd, trusted, ctx)
@@ -1848,7 +1911,9 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         elif module:
             reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"
         elif python:
-            ok, reason = script_stdin or _build_allowed(toks, cwd), "추적·변경 여부를 확인하지 못한 Python 스크립트"
+            # 스크립트 파일이 원격 main과 같아도 같은 레포의 .py가 바뀌었거나 새로 생겼으면 import로 바뀐 코드가 돈다
+            ok = script_stdin or _build_allowed(toks, cwd) and (script is None or _lang_tree_clean(word, cwd))
+            reason = "추적·변경 여부를 확인하지 못한 Python 스크립트"
             blockers = None if ok or not args else _sibling_blockers(args[0], cwd)
             if blockers:
                 reason = (f"스크립트({args[0]})는 원격 main과 같지만, 같은 폴더의 파일이 원격 main과 달라 막음 — "
@@ -1860,7 +1925,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             # a heredoc program was read in full (_check_script), not trusted by a file's content
             out.append(_seen("stdin-script" if script_stdin and args in ([], ["-"]) else "build", seg))
         if not ok and (python or not trusted):
-            plain = ctx["plain_script"] and module is None and body is None
+            plain = ctx["plain_script"] and module is None and body is None and _lang_tree_clean(word, cwd)
             out.append(_finding("opaque", seg, reason=reason, code="clean_script" if plain else None))
 
     readonly = word in ("npm", "pnpm", "yarn", "bun") and _npm_readonly(args)  # before any git lookup
@@ -2603,12 +2668,16 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
         if words and _word(words[0]) in CD_WORDS:
             target = _cd_target(words[1], cwd) if len(words) == 2 and not any(
                 c in words[1] for c in ("$", SUBST, "%", "`")) else None
+            readonly_after = _readonly_tail(segments[index + 1:])
             if target is not None and _word(words[0]) == "cd" and target.is_dir() and (
                     _under(target, initial_top) or
-                    (os.path.isabs(words[1]) or words[1].startswith("~")) and _readonly_tail(segments[index + 1:])):
+                    (os.path.isabs(words[1]) or words[1].startswith("~")) and readonly_after):
                 cwd = str(target)
             else:
-                out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경", code="outside_cd"))
+                # 작업 트리 밖 이동의 자동 허용은 뒤 명령이 모두 읽기일 때만 — 뒤에 쓰기가 있으면 어디에 쓰는지
+                # 이 작업 트리 기준으로 확정할 수 없으므로 확인(Codex 차단). 쓰기 경로 판정은 원래 작업 폴더 기준 그대로.
+                out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경",
+                                    code="outside_cd" if readonly_after else None))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
         found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index])

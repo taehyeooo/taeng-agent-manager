@@ -1035,6 +1035,9 @@ class BuildAllowlistTest(GuardTest):
                     "cat x.sh | sh", "cat x.sh | bash", "git lfs pull", "gh extension exec x", "gh alias set x y",
                     "python -m pip install x", "python -m am status"):
             self._not_allowed(cmd)
+        # 추적 안 된 .py(pkg/__main__.py)가 있으면 원격 main과 같은 스크립트도 import로 바뀐 코드를 돌릴 수 있어 확인
+        self._not_allowed("python scripts/check.py")
+        shutil.rmtree(self.app / "pkg")
         for cmd in ("npm test", "npm run build", "gradlew test", "python scripts/check.py", "sh scripts/check.sh",
                     "python -m unittest discover -s tests", "ls -la", "cat package.json | grep test", "git status",
                     "gh pr view 3", "orca orchestration check", "mkdir -p out && echo x > out/a.txt"):
@@ -2115,6 +2118,33 @@ class DefaultModeAllowlistTest(OpaqueReviewRegressionTest):
                 self.assertEqual(self.bash(command)[0], "allow")
 
 
+    def test_low_risk_codes_do_not_cover_these(self):
+        # 허용 목록 사유가 붙을 만한 입력이라도 기본 모드에서 확인(또는 차단)
+        self.commit_on_main("tools/check.py", "import helper\n")
+        self.commit_on_main("tools/helper.py", "x = 1\n")
+        self.assertEqual(self.bash("python3 tools/check.py")[0], "allow")
+        (self.app / "tools/helper.py").write_text("open('x', 'w')\n", encoding="utf-8")  # 수정된 형제 모듈
+        self.assertEqual(self.both("python3 tools/check.py"), ("ask", "deny"))
+        (self.app / "tools/helper.py").write_text("x = 1\n", encoding="utf-8")
+        (self.app / "other_mod.py").write_text("x = 2\n", encoding="utf-8")  # 추적 안 된 같은 언어 파일
+        self.assertEqual(self.both("python3 tools/check.py"), ("ask", "deny"))
+        for command in ("uv run python -c 'print(1)'", "php8.3 -r 'echo 1;'", "busybox sh -c 'touch marker'",
+                        "pnpm exec python3 -c 'print(1)'", "npx node -e 'console.log(1)'", "env bash -c 'echo 1'",
+                        "nice python3.12 -c 'print(1)'", "timeout 5 node22 -e 'console.log(1)'",
+                        "uv run python -c \"open('config/guard.json','w').write('{}')\"", "bunx ruby3.2 -e 'puts 1'",
+                        "yarn exec perl -e 'print 1'", "uv run bash -lc 'echo 1'"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+        for command in ("cd ../other && touch marker", "cd ../other; echo x > marker", "cd ../other && unknown-runtime"):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], "allow")
+                self.assertEqual(self.bash(command, agent="codex")[0], "deny")
+        self.assertFalse((self.other / "marker").exists())
+        for command in ("cd ../other && git status", "cd ../other && ls"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+
+
 class DefaultModeShadowTest(unittest.TestCase):
     """기존 검사를 원래 환경(HOME 그대로) 그대로 돌리며 기본 모드 판정을 함께 본다."""
 
@@ -2138,7 +2168,7 @@ class DefaultModeShadowTest(unittest.TestCase):
 
         suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(cls) for cls in (
             T7FalsePositiveTest, T6SecurityReviewTest, T6Round3Test, T6Round4Test, T6Round5Test,
-            BuildAllowlistTest, VerifierRound4Test))
+            BuildAllowlistTest, VerifierRound4Test, LowRiskCodeMisuseCases))
         result = unittest.TestResult()
         with patch.object(G, "decide", shadow):
             suite.run(result)
@@ -2148,6 +2178,23 @@ class DefaultModeShadowTest(unittest.TestCase):
             with self.subTest(command=tool_input, agent=agent):
                 self.assertTrue(codes)
                 self.assertTrue(set(codes) <= G.LOW_RISK_CODES, codes)
+        # 허용 목록 사유(clean_script·unknown_program·unlisted_build·outside_cd)가 붙을 만한 입력이라도 기본 모드에서 확인
+        misuse = {c for c in LowRiskCodeMisuseCases.COMMANDS}
+        self.assertEqual([t for t, _, _ in flipped if t.get("command") in misuse], [])
+
+
+class LowRiskCodeMisuseCases(GuardTest):
+    """확인(ask) 설정에서 확인·차단인 입력 — DefaultModeShadowTest가 기본 모드에서도 허용되지 않는지 본다."""
+    COMMANDS = ("python3 tools/check.py", "uv run python -c 'print(1)'", "php8.3 -r 'echo 1;'",
+                "busybox sh -c 'touch marker'", "pnpm exec python3 -c 'print(1)'", "cd ../other && touch marker")
+
+    def test_misuse_cases_need_a_person(self):
+        DefaultModeAllowlistTest.commit_on_main(self, "tools/check.py", "import helper\n")
+        DefaultModeAllowlistTest.commit_on_main(self, "tools/helper.py", "x = 1\n")
+        (self.app / "tools/helper.py").write_text("open('x', 'w')\n", encoding="utf-8")
+        for command in self.COMMANDS:
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], "allow")
 
 
 if __name__ == "__main__":
