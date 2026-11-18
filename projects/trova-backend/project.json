@@ -47,6 +47,66 @@
       "ref": "PR#461",
       "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 pass",
       "at": "2026-11-18T14:01:55+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#462-trip-day-places",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T17:25:13+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#463",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T17:25:13+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#464-video-admin-queries",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T18:01:49+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#465",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T18:01:49+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#466-trip-drafts-auto",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T18:34:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#467",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T18:34:58+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "perf-phase1-523308a",
+      "note": "사용자 승인(2026-11-18 '승인(지금)'): main 523308a(P1 #463·P2 #465·P3 #467) 운영 배포, devflow deploy.sh",
+      "at": "2026-11-18T18:44:17+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
+      "note": "사용자 승인(2026-11-18 '승인(지금)'): main 523308a 성능 1단계 운영 배포를 devflow deploy.sh로 실행(이번 배포 한정 의도)",
+      "at": "2026-11-18T18:50:20+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#464-perf-phase1-deploy-record",
+      "note": "배포 기록 문서 1개만 변경, 사용자 위임(검증된 push·PR 진행 후 보고) 2026-11-18",
+      "at": "2026-11-18T22:17:33+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#468",
+      "note": "배포 기록 문서만, 내용 확인 후 사용자 위임으로 병합 2026-11-18",
+      "at": "2026-11-18T22:36:40+09:00"
     }
   ],
   "tasks": [
@@ -217,6 +277,78 @@
         "summary": "PR #461 교차 검증 pass(낮음 4건: 로컬 경로 표기 등), validate·단위 10개 통과, Java 변경 없음",
         "at": "2026-11-18T14:01:55+09:00"
       }
+    },
+    {
+      "id": "T13",
+      "title": "P1 성능: 여행 상세·삭제 영향·재구성 일차별 N+1 제거 (codex-tasks 03)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#462-trip-day-places",
+      "worktree": null,
+      "pr": "463",
+      "dispatch": null,
+      "note": "PR #463 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #463 교차 검증 pass(낮음 3: 안 쓰는 import·필드, 완전한 이름, 공유 링크 N+1 범위 밖). Windows WSL 전체 테스트 1217 통과",
+        "at": "2026-11-18T17:25:13+09:00"
+      }
+    },
+    {
+      "id": "T14",
+      "title": "P2 성능: 같은 영상 여행 찾기·관리자 상세 N+1 제거 (codex-tasks 06) + 없음은 404 대신 정상 응답(share-link 포함)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#464-video-admin-queries",
+      "worktree": null,
+      "pr": "465",
+      "dispatch": null,
+      "note": "PR #465 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #465 교차 검증 pass(높음·중간 0, 낮음 3). 정보 노출 없음, 앱 호환 확인, 캡처 개인정보 없음. WSL 전체 테스트 1225 통과",
+        "at": "2026-11-18T18:01:49+09:00"
+      }
+    },
+    {
+      "id": "T15",
+      "title": "P3 성능: 홈 자동 초안(trip-drafts/auto) 짧은 캐시",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#466-trip-drafts-auto",
+      "worktree": null,
+      "pr": "467",
+      "dispatch": null,
+      "note": "PR #467 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #467 교차 검증 pass(높음·중간 0, 낮음 3). WSL 전체 1229 통과",
+        "at": "2026-11-18T18:34:57+09:00"
+      }
+    },
+    {
+      "id": "T16",
+      "title": "P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": ""
     }
   ],
   "history": [
@@ -411,10 +543,150 @@
     {
       "at": "2026-11-18T14:01:59+09:00",
       "event": "작업 T12 변경: status=done, note=PR #461 머지"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T13 (codex): P1 성능: 여행 상세·삭제 영향·재구성 일차별 N+1 제거 (codex-tasks 03)"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T14 (codex): P2 성능: 같은 영상 여행 찾기·관리자 상세 N+1 제거 (codex-tasks 06) + 없음은 404 대신 정상 응답(share-link 포함)"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T15 (codex): P3 성능: 홈 자동 초안(trip-drafts/auto) 짧은 캐시"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T16 (codex): P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험"
+    },
+    {
+      "at": "2026-11-18T16:41:44+09:00",
+      "event": "작업 T13 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T17:16:54+09:00",
+      "event": "작업 T13 변경: branch=perf/#462-trip-day-places, pr=463, note=Codex PR #463: 상세 SQL 6·10·14·18→5 고정, 삭제 영향 3~9→3, 전체 테스트 통과(WSL). Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "작업 T13 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "승인 기록: push (perf/#462-trip-day-places)"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "승인 기록: merge_main (PR#463)"
+    },
+    {
+      "at": "2026-11-18T17:25:17+09:00",
+      "event": "작업 T13 변경: status=done, note=PR #463 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T17:25:40+09:00",
+      "event": "작업 T14 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T17:50:06+09:00",
+      "event": "작업 T14 변경: branch=perf/#464-video-admin-queries, pr=465, note=Codex PR #465: 영상 8·16→7, 관리자 13·17→12, 공개 여행 6~18→5, 정상 없음 200 null(타인·없는 원본 404 유지), 1225 통과(WSL), 기록·캡처 3장. Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "작업 T14 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "승인 기록: push (perf/#464-video-admin-queries)"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "승인 기록: merge_main (PR#465)"
+    },
+    {
+      "at": "2026-11-18T18:01:53+09:00",
+      "event": "작업 T14 변경: status=done, note=PR #465 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T18:02:18+09:00",
+      "event": "작업 T15 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T18:23:13+09:00",
+      "event": "작업 T15 변경: branch=perf/#466-trip-drafts-auto, pr=467, note=Codex PR #467: scalar projection, SQL 5→3, 엔티티 로딩 4·18·42→0, 캐시 없음(a) 선택, 1229 통과. 기준선 캡처 생략(도구 없음). Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T18:34:57+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T18:34:57+09:00",
+      "event": "승인 기록: push (perf/#466-trip-drafts-auto)"
+    },
+    {
+      "at": "2026-11-18T18:34:58+09:00",
+      "event": "승인 기록: merge_main (PR#467)"
+    },
+    {
+      "at": "2026-11-18T18:35:03+09:00",
+      "event": "작업 T15 변경: status=done, note=PR #467 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T18:44:17+09:00",
+      "event": "승인 기록: deploy (perf-phase1-523308a)"
+    },
+    {
+      "at": "2026-11-18T18:50:20+09:00",
+      "event": "승인 기록: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-18T21:36:02+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-18T21:39:25+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/places/videos/1/trip"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1/share-link"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trip-drafts/auto"
+    },
+    {
+      "at": "2026-11-18T21:39:29+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-18T21:39:43+09:00",
+      "event": "승인 요청: push (docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:17:33+09:00",
+      "event": "승인 기록: push (docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:17:44+09:00",
+      "event": "승인된 작업 실행: push(docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:36:40+09:00",
+      "event": "승인 기록: merge_main (PR#468)"
+    },
+    {
+      "at": "2026-11-18T22:36:40+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#468)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T14:01:59+09:00",
+  "updated_at": "2026-11-18T22:36:40+09:00",
   "requests": [
     {
       "gate": "push",
@@ -423,6 +695,14 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-18T00:42:45+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#464-perf-phase1-deploy-record",
+      "cmd": "git push -q -u origin \"docs/#464-perf-phase1-deploy-record\"",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-18T21:39:43+09:00"
     }
   ]
 }

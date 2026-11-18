@@ -1439,10 +1439,22 @@
     {
       "at": "2026-11-18T15:34:53+09:00",
       "event": "승인된 작업 실행: push(work/state-trova)"
+    },
+    {
+      "at": "2026-11-18T16:37:34+09:00",
+      "event": "승인된 작업 실행: push(work/state-trova)"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for t in \"P1 성능: 여행 상세·삭제 영향·재구성 일차별 N+1 제거 (codex-tasks 03)\" \"P2 성능: 같은 영상 여행 찾기·관리자 상세 N+1 제거 (codex-tasks 06) + 없음은 4"
+    },
+    {
+      "at": "2026-11-18T21:39:26+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음, 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: for p in /actuator/health /api/trips/1 /api/places/videos/1/trip /api/trip-drafts/auto; do echo \"$p $(curl -s -o /dev/nu"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T15:34:53+09:00",
+  "updated_at": "2026-11-18T22:36:40+09:00",
   "requests": [
     {
       "gate": "push",
