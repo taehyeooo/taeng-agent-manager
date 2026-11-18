@@ -1199,6 +1199,7 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
         if _package_runner(toks):
             if _build_allowed(toks, cwd):
                 ctx["built"] = True
+                out.append(_seen("trust:build", seg))
                 return toks
             out.append(_finding("opaque", seg, reason="허용 목록 밖 패키지 실행기"))
         if w == "command" and toks[1:2] in (["-v"], ["-V"]):
@@ -2072,6 +2073,8 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             out.append(_finding("opaque", seg, reason=f"git 설정({keys[0]})이 실행 동작을 바꿀 수 있음"))
     if sub in GIT_RUNS_HOOKS and not _hooks_clean(where):
         out.append(_finding("opaque", seg, reason="작업 폴더 안 훅 폴더(core.hooksPath)의 훅이 원격 main과 다름"))
+    elif sub in GIT_RUNS_HOOKS and _git(where, "config", "--get", "core.hookspath"):
+        out.append(_seen("trust:hooks", seg))  # the hooks were trusted by their content
     if sub == "update-index" or sub == "config" and any(re.match(r"(?:filter|diff)\.", a, re.I) for a in sargs):
         out.append(_finding("opaque", seg, reason="Git 파일 변경 검사를 바꿀 수 있는 명령"))
     if _rewrites_refs(sub, sargs, args[:len(args) - len(rest)]):
@@ -2313,6 +2316,7 @@ def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None, mail=False):
         except (OSError, UnicodeError, ValueError):
             out.append(_finding("opaque", seg, reason="패치 입력 파일을 확인할 수 없음"))
         else:
+            out.append(_seen("trust:patch-file", seg))
             out += check(text)
     if body is None and not files:
         out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
@@ -2377,7 +2381,16 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
     return HEREDOC.sub(one, cmd)
 
 
-def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
+def _distrust_content(findings, seg):
+    """A step earlier in the same command line may have replaced the file whose content earned trust."""
+    if any(f["kind"] == "seen" and (f["tag"] == "build" or f["tag"].startswith("trust:")) for f in findings):
+        return findings + [_finding("opaque", seg, reason="같은 명령줄의 다른 단계가 파일을 쓰거나 바꿈 — "
+                                    "패치 파일·추적 스크립트의 지금 내용을 믿을 수 없음")]
+    return findings
+
+
+def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=False):
+    """untrusted: an enclosing command line also writes files, so content-based trust does not hold here."""
     out, stored = [], []
     if depth == 0:
         _CACHE.clear()  # git state may have changed since the last judgement
@@ -2390,21 +2403,30 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
     flat, inner, broken = extract_substitutions(cmd)
     if broken:
         return out + [_finding("opaque", cmd[:120], reason="닫히지 않은 명령 치환")]
-    for sub in inner:
-        out += classify_command(sub, cwd, root, depth + 1, trusted) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
-    initial_top = _top(cwd)
-    compound = len(split_commands(flat)) > 1
     segments = split_commands(flat)
+    heads = [stored[int(m.group(1))][0] if m else seg
+             for seg, m in ((s, re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s)) for s in segments)]
+    writes = [_segment_writes(h) for h in heads]
+    sub_writes = any(_segment_writes(s) for sub in inner for s in split_commands(sub))
+    for sub in inner:
+        out += classify_command(sub, cwd, root, depth + 1, trusted, untrusted or sub_writes or any(writes)) \
+            if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
+    initial_top = _top(cwd)
+    compound = len(segments) > 1
     for index, seg in enumerate(segments):
+        # content trust (patch file paths, tracked scripts) needs no other step on this line that writes files
+        distrust = untrusted or sub_writes or any(w for j, w in enumerate(writes) if j != index)
         m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
         if m:  # `python - <<EOF` judged where it runs (after any cd above it)
             head, body, python = stored[int(m.group(1))]
             if python == "patch":
-                out += analyze(head, cwd, root, depth, script_stdin=True, patch_body=body)
+                found = analyze(head, cwd, root, depth, script_stdin=True, patch_body=body)
+                out += _distrust_content(found, head) if distrust else found
                 continue
             if python is not None:
                 out += _check_script(body, head, cwd, root, python=python)
-            out += analyze(head, cwd, root, depth, script_stdin=True)
+            found = analyze(head, cwd, root, depth, script_stdin=True)
+            out += _distrust_content(found, head) if distrust else found
             continue
         words = _lead(tokens(seg))
         if compound and words and _word(words[0]) == "find" and any(
@@ -2421,12 +2443,57 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
-        out += analyze(seg, cwd, root, depth, trusted=trusted)
+        found = analyze(seg, cwd, root, depth, trusted=trusted)
+        out += _distrust_content(found, seg) if distrust else found
     if depth == 0:
         out += tripwire(cmd, out)
     for f in out:
         f["seg"] = restore(f["seg"].replace(SUBST, "$(…)"))
     return out
+
+
+FILE_CHANGERS = {"rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink", "ln", "mklink", "new-item", "ni",
+                 "patch", "dd", "wget", "unzip", "7z", "shred", "chown", "chgrp"}
+GIT_CHANGES_FILES = GIT_REWRITES_FILES | {"merge", "pull", "rebase", "clean", "checkout-index", "read-tree", "worktree", "bisect"}
+LINE_WRAPPERS = {"sudo", "doas", "env", "nohup", "time", "nice", "ionice", "timeout", "stdbuf", "xargs", "command", "builtin", "exec"}
+
+
+def _git_writes_files(toks):
+    """git that changes work-tree files or writes an output file (diff --output, format-patch, archive -o, bundle create)."""
+    sub, sargs = _git_stdin_subcommand(toks)
+    if sub in GIT_CHANGES_FILES:
+        return not (sub in ("stash", "worktree") and sargs[:1] in (["list"], ["show"]))
+    opts = [a for a in sargs[:sargs.index("--")] if a.startswith("-")] if "--" in sargs else [a for a in sargs if a.startswith("-")]
+    if sub in GIT_DIFF_OUTPUT and any(a == "--output" or a.startswith("--output=") for a in opts):
+        return True
+    if sub == "format-patch":
+        return "--stdout" not in opts
+    if sub == "archive":
+        return any(a == "--output" or a.startswith("--output=") or re.fullmatch(r"-[^-]*o.*", a) for a in opts)
+    return sub == "bundle" and sargs[:1] == ["create"]
+
+
+def _segment_writes(seg):
+    """Does this simple command write or replace a file (redirect, cp/mv/ln/tee/sed -i, git checkout, git diff --output …)?"""
+    words = _lead(_drop_redirections(tokens(seg)))
+    while words and (re.match(r"^[A-Za-z_]\w*=", words[0]) or _word(words[0]) in LINE_WRAPPERS or words[0].startswith("-")
+                     or re.fullmatch(r"\d+(\.\d+)?[smhd]?", words[0])):
+        words = words[1:]
+    word, args = (_word(words[0]), words[1:]) if words else ("", [])
+    if word in ("mkdir", "md"):  # a new empty folder replaces no content; its redirections still count
+        word, args = "", []
+    if _write_targets(word, args, seg):
+        return True
+    if word in FILE_CHANGERS or word == "git" and _git_writes_files(words):
+        return True
+    if word in SHELLS:  # bash -c "cp a b": the inner command line
+        return any(_segment_writes(s) for s in split_commands(" ".join(args)))
+    if word == "curl":
+        return any(a in ("--output", "--remote-name", "--remote-name-all") or a.startswith("--output=")
+                   or re.fullmatch(r"-[a-zA-Z]*[oO].*", a) for a in args)
+    if word == "tar":
+        return any(a in ("--extract", "--get") or re.fullmatch(r"-?[a-zA-Z]*x[a-zA-Z]*", a) for a in args[:1] + [a for a in args if a.startswith("-")])
+    return False
 
 
 def _readonly_tail(segments):
@@ -2436,7 +2503,7 @@ def _readonly_tail(segments):
         if not words:
             continue
         word, args = _word(words[0]), words[1:]
-        if _write_targets(word, args, seg):
+        if _segment_writes(seg):
             return False
         if word in READ_ONLY or word == "cd":
             continue
@@ -2512,7 +2579,7 @@ def tripwire(cmd, found):
     flat, _, _ = extract_substitutions(cmd)
     hits = []
     for seg in split_commands(flat):
-        if tags.get(seg):
+        if any(not t.startswith("trust:") for t in tags.get(seg, ())):  # trust:* marks content trust, not parsing
             continue
         text = tripwire_text(seg)
         for pat, _owners in TRIPWIRES:

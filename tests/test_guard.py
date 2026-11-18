@@ -1320,6 +1320,8 @@ class T7FalsePositiveTest(GuardTest):
                         'echo x >> gradlew && ./gradlew test',
                         'git restore --source=HEAD~1 scripts/check.sh && sh scripts/check.sh',
                         'cp evil.sh scripts/check.sh && bash -c "sh scripts/check.sh"',
+                        'bash -c "cp evil.sh scripts/check.sh" && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh && echo $(sh scripts/check.sh)',
                         "cat > scripts/check.sh <<'X'\ngit push origin main\nX\nsh scripts/check.sh"):
             with self.subTest(command=command):
                 self.assertNotEqual(self.bash(command)[0], 'allow')
