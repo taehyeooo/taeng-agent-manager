@@ -1162,6 +1162,44 @@ class T7FalsePositiveTest(GuardTest):
             self.assertEqual(self.bash("git am <<'X'\nContent-Transfer-Encoding: " + encoding + '\n\n' + safe + 'X')[0], 'allow')
         self.assertEqual(self.bash('git am missing.mbox')[0], 'ask')
 
+    def test_t7_git_am_content_type_allowlist(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        # format=flowed; delsp=yes: git mailinfo joins "proj " + "ect.json" into project.json
+        flowed = '--- /dev/null\n+++ b/projects/x/proj \nect.json\n@@ -0,0 +1 @@\n+{}\n'
+        opaque = (
+            'Content-Type: text/plain; charset=UTF-8; format=flowed; delsp=yes\n\n' + flowed,
+            'Content-Type: text/plain; format=flowed\n\n' + safe,
+            'Content-Type: text/plain; charset=utf-8; x-unknown=1\n\n' + safe,
+            'Content-Type: text/plain; charset=iso-8859-1\n\n' + safe,
+            'Content-Type: text/plain; charset=utf-8; charset=utf-8\n\n' + safe,
+            'Content-Type: text/plain (comment)\n\n' + safe,
+            'Content-Type: text/html\n\n' + safe,
+            'Content-Type: application/octet-stream\n\n' + safe,
+            'Content-Type:\n text/plain;\n format=flowed\n\n' + safe,
+            'Content-Type: text/plain\n\n' + safe + '\nFrom second@example.com\n'
+            'Content-Type: text/plain; format=flowed; delsp=yes\n\n' + flowed,
+        )
+        for body in opaque:
+            with self.subTest(body=body):
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X')[0], 'ask')
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X', agent='codex')[0], 'deny')
+                (self.app / 'flowed.mbox').write_text(body, encoding='utf-8')
+                for command in ('git am flowed.mbox', 'git am -3 flowed.mbox'):
+                    self.assertEqual(self.bash(command)[0], 'ask')
+        plain = (
+            'Content-Type: text/plain\n\n',
+            'Content-Type: text/plain; charset=UTF-8\n\n',
+            'content-type: TEXT/PLAIN ; Charset = "us-ascii"\n\n',
+            'Content-Type: text/plain;\n charset="utf-8"\nContent-Transfer-Encoding: 8bit\n\n',
+        )
+        for head in plain:
+            with self.subTest(head=head):
+                self.assertEqual(self.bash("git am <<'X'\n" + head + safe + 'X')[0], 'allow')
+                (self.app / 'plain.mbox').write_text(head + safe, encoding='utf-8')
+                self.assertEqual(self.bash('git am plain.mbox')[0], 'allow')
+                secret = '--- /dev/null\n+++ b/projects/x/project.json\n@@ -0,0 +1 @@\n+{}\n'
+                self.assertEqual(self.bash("git am <<'X'\n" + head + secret + 'X')[0], 'deny')
+
     def test_t7_git_patch_inputs_protect_paths(self):
         for command in ('git apply', 'git apply --cached', 'git am', 'git am -3',
                         'git -c user.name=test apply', 'git apply -p0',
