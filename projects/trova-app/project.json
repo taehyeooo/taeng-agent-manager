@@ -60,7 +60,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": ""
+      "note": "사용자 결정(2026-11-18): QA 수정(PR #183)은 OTA 대신 v8 재빌드에 포함해 Play 제출. 조건: Play Console 신고 수정·AdMob 인증"
     },
     {
       "id": "T4",
@@ -183,8 +183,12 @@
     {
       "at": "2026-11-18T14:02:02+09:00",
       "event": "작업 T6 변경: status=done, note=PR #183 머지. 사용자 반영은 OTA/v9 필요"
+    },
+    {
+      "at": "2026-11-18T14:05:33+09:00",
+      "event": "작업 T3 변경: note=사용자 결정(2026-11-18): QA 수정(PR #183)은 OTA 대신 v8 재빌드에 포함해 Play 제출. 조건: Play Console 신고 수정·AdMob 인증"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-18T14:02:02+09:00"
+  "updated_at": "2026-11-18T14:05:33+09:00"
 }

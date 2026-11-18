@@ -107,6 +107,12 @@
       "ref": "PR#10",
       "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증·CI 통과 PR 머지",
       "at": "2026-11-18T11:28:04+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#11",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘', 정책 변경은 architecture_policy guard-opaque-allow로 승인됨): 교차 검증·CI 통과",
+      "at": "2026-11-18T14:27:08+09:00"
     }
   ],
   "tasks": [
@@ -285,12 +291,20 @@
       "title": "가드: 판단 불가 명령은 위험 신호 없으면 자동 허용+기록 (사용자 지시 2026-11-18)",
       "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8",
       "pr": "11",
       "dispatch": "ctx_9404156b20e6",
-      "note": "c48e124 push(403 OK), Codex 재검증 중"
+      "note": "PR #11 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "Codex 최종 재검증 PASS(3438601), 지적 없음, 405 OK, CI Ubuntu·Windows 통과",
+        "at": "2026-11-18T14:27:08+09:00"
+      }
     }
   ],
   "history": [
@@ -1373,10 +1387,42 @@
     {
       "at": "2026-11-18T14:02:33+09:00",
       "event": "작업 T9 변경: note=c48e124 push(403 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T14:12:28+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T14:12:54+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 37084d4(403 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T14:19:04+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T14:19:29+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 3438601(403 OK), Codex 최종 재검증 중"
+    },
+    {
+      "at": "2026-11-18T14:27:08+09:00",
+      "event": "작업 T9 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T14:27:08+09:00",
+      "event": "승인 기록: merge_main (PR#11)"
+    },
+    {
+      "at": "2026-11-18T14:27:12+09:00",
+      "event": "작업 T9 변경: status=done, note=PR #11 머지"
+    },
+    {
+      "at": "2026-11-18T14:27:19+09:00",
+      "event": "승인된 작업 실행: push(work/state-trova)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T14:02:33+09:00",
+  "updated_at": "2026-11-18T14:27:19+09:00",
   "requests": [
     {
       "gate": "push",
