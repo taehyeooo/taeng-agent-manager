@@ -58,6 +58,14 @@ SCRIPTERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl"}
 PY_OPTS_WITH_ARG = {"-X", "-W", "--check-hash-based-pycs"}
 PREFIXES = {"&", ".", "call", "start", "start-process", "npx", "pnpx", "bunx"}
 SHELL_KEYWORDS = {"if", "then", "else", "elif", "do", "while", "until", "!", "fi", "done", "esac", "time"}
+# 프로그램 파일 자리에 오면 표준 입력을 프로그램으로 읽는다(bash /dev/stdin, python3 -)
+STDIN_PATHS = {"-", "/dev/stdin", "/dev/fd/0", "/proc/self/fd/0"}
+# python 이외 인라인 코드(node -e·ruby -e·perl -e·awk)에서 파일 삭제·외부 전송 → python의 os.*·shutil.*과 같이 확인
+SCRIPT_SIDE_EFFECTS = re.compile(
+    r"\b(?:rmSync|rmdirSync|unlinkSync|unlink|rmdir|rm_rf|rm_r|truncateSync|truncate|rename|renameSync)\s*[(\s'\"]"
+    r"|\bfs\.(?:rm|rmdir|unlink|truncate|rename|promises)\b|\bFile(?:Utils)?\.(?:delete|unlink|rm\w*|remove\w*|mv|move|rename)\b"
+    r"|\bDir\.(?:delete|rmdir|unlink)\b|\bfetch\s*\(|\bhttps?\.request\b|\bNet::HTTP\b|\bLWP::|\bHTTP::Tiny\b|\bXMLHttpRequest\b"
+    r"|\bsystem\b|\bexec\w*\b|\bspawn\w*\b|\bfork\b|\bpopen\b")
 OPAQUE_WORDS = {"eval", "iex", "invoke-expression", "invoke-command", "source"}
 # wrappers that run the rest of the line as a command: word → (options that take a value, positionals before the command)
 WRAPPERS = {"timeout": ({"-s", "--signal", "-k", "--kill-after"}, 1), "nice": ({"-n", "--adjustment"}, 0),
@@ -422,6 +430,39 @@ def split_commands(cmd):
             cur.append(ch)
     out.append("".join(cur))
     return [s.strip() for s in out if s.strip()]
+
+
+def piped_segments(cmd):
+    """split_commands와 같은 구분 → 각 조각이 파이프(| 또는 |&, ||는 제외)로 표준 입력을 받는지."""
+    flags, cur, seps, q = [], [], "", None
+    for i, ch in enumerate(cmd):
+        if q:
+            cur.append(ch)
+            if ch == q:
+                q = None
+        elif ch in "\"'":
+            q = ch
+            cur.append(ch)
+        elif ch == "&" and ((i > 0 and cmd[i - 1] in "<>") or (i + 1 < len(cmd) and cmd[i + 1] == ">")):
+            cur.append(ch)
+        elif cmd[i:i + 2] == "{}" or ch == "}" and i > 0 and cmd[i - 1] == "{":
+            cur.append(ch)
+        elif ch in ";|&\n{}()":
+            if "".join(cur).strip():
+                flags.append(_pipe_sep(seps))
+                seps = ""
+            seps += ch
+            cur = []
+        else:
+            cur.append(ch)
+    if "".join(cur).strip():
+        flags.append(_pipe_sep(seps))
+    return flags
+
+
+def _pipe_sep(seps):
+    # a | b, a |& b, a | (b), a | { b; } — ||는 파이프가 아니다.
+    return "|" in seps and "||" not in seps
 
 
 def tokens(seg):
@@ -1570,8 +1611,10 @@ def _deployment_script(script, args, seg, cwd, shell=False):
             _gated('deploy', seg)]
 
 
-def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None):
-    """One simple command → findings. A program that no rule below explains is opaque (policy applied by decide)."""
+def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None, piped=False):
+    """One simple command → findings. A program that no rule below explains is opaque (policy applied by decide).
+    piped: the segment's standard input is the previous command's output (a | b) — an interpreter that reads
+    its program from there runs code nobody can see beforehand."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
@@ -1622,8 +1665,11 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             out.append(_finding("opaque", seg, reason="sed 스크립트가 명령을 실행하거나 파일을 쓸 수 있음"))
     if word == "awk":
         program = next((a for i, a in enumerate(args) if not a.startswith("-") and (i == 0 or args[i - 1] not in ("-v", "-F"))), "")
-        if any(a == "-f" or a.startswith("--file") for a in args) or re.search(r"system|getline|\||>|ENVIRON|@load|close", program):
-            out.append(_finding("opaque", seg, reason="awk 프로그램이 명령을 실행하거나 파일을 쓸 수 있음"))
+        # system()·파이프(print | "sh", "cmd" | getline)·파일 쓰기·확장 로드·프로그램 파일 → 확인(python os.*과 같은 기준)
+        if any(a == "-f" or a.startswith("--file") for a in args) or re.search(r"system|\||>|@load", program):
+            out.append(_finding("opaque", seg, confirm=True, reason="awk 프로그램이 명령을 실행하거나 파일을 쓸 수 있음"))
+        elif re.search(r"getline|ENVIRON|close", program):
+            out.append(_finding("opaque", seg, reason="awk 프로그램이 다른 입력·환경 변수를 읽음"))
     if word == "find":
         out += _analyze_find(args, seg, cwd, root, depth, trusted)
 
@@ -1670,17 +1716,25 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             return out + [_seen("build", seg)]
         if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
             return out + [_seen("build", seg)]
-        return out + [_finding("opaque", seg, confirm=not args or i >= len(args) or args[i] == "-" or "-s" in args,
+        reads_stdin = not args or i >= len(args) or args[i] in STDIN_PATHS or "-s" in args
+        return out + [_finding("opaque", seg, confirm=reads_stdin,
                                reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
 
     if word in SCRIPTERS:
-        i, module, body = 0, None, None
+        i, module, body, script = 0, None, None, None
         while i < len(args):
             a = args[i]
             if a in PY_OPTS_WITH_ARG:
                 i += 2
                 continue
+            if a == "-":  # python - / node -: 프로그램을 표준 입력에서 읽는다
+                script = a
+                break
+            # perl·ruby 옵션 묶음: -e, -ne, -lne, -pe, -E — 다음 인수가 코드
+            if word in ("perl", "ruby") and re.fullmatch(r"-[a-zA-Z0-9]*[eE]", a):
+                body = " ".join(args[i + 1:]) if i + 1 < len(args) else ""
+                break
             if a in ("--eval", "-p", "--print") and i + 1 < len(args):
                 body = " ".join(args[i + 1:])
                 break
@@ -1700,9 +1754,15 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             if not a.startswith("-"):
                 if re.search(r"am[/\\](__main__|cli)\.py$", a) and "approve" in low:
                     out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
+                script = a
                 break
             i += 1
         python = word in ("python", "python3", "py")
+        # 프로그램을 표준 입력에서 읽는 실행기: echo … | python3 -, 모르는 프로그램 | node, perl /dev/stdin.
+        # heredoc 본문(script_stdin)은 따로 검사하므로 제외한다.
+        if module is None and body is None and (script is None or script in STDIN_PATHS) and not script_stdin and (
+                piped or script in STDIN_PATHS - {"-"} or re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg))):
+            out.append(_finding("opaque", seg, confirm=True, reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
         if module:
             out.append(_seen(f"{_word(module)}:{(margs or [''])[0]}", seg))
         ok, reason = False, "자동 허용 목록 밖 스크립트 실행기"
@@ -1712,6 +1772,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         elif body is not None:
             out.append(_seen("script", seg))
             out += _check_script(body, seg, cwd, root, python=python)
+            if not python and SCRIPT_SIDE_EFFECTS.search(body):
+                out.append(_finding("opaque", seg, confirm=True, reason="인라인 스크립트가 명령 실행·파일 삭제·외부 전송을 함"))
             reason = "인라인 Python 실행은 자동 허용 목록 밖" if python else "인라인 스크립트 실행은 자동 허용 목록 밖"
         elif module == "am":
             ok, reason = python and _own_am(cwd), "이 매니저 레포의 am이 아닌 am 모듈 실행"
@@ -1891,10 +1953,13 @@ def _is_state_file(path, cwd, root=None):
     p = _abs(path, cwd)
     top = Path(_top(cwd))
     # 이 스위치는 사용자만 수정한다. 디렉터리 삭제와 심볼릭 링크도 같은 보호를 적용한다.
-    guard_configs = (root / "config/guard.json", top / "config/guard.json")
-    if any(_under(config, p) or _norm(p) == _norm(config) or
-           _norm(os.path.realpath(p)) == _norm(os.path.realpath(config)) for config in guard_configs):
-        return True
+    # macOS·Windows 파일 시스템은 대소문자를 구분하지 않는다 → Guard.JSON·CONFIG/도 같은 파일로 본다.
+    # _abs가 ./·..를, _norm이 구분자·심볼릭 링크를 정규화한 뒤 casefold로 비교한다.
+    target = _norm(p).casefold()
+    for config in (root / "config/guard.json", top / "config/guard.json"):
+        protected = _norm(config).casefold()
+        if target == protected or protected.startswith(target + os.sep):
+            return True
     # Preserve lexical names inside the repo while tolerating OS aliases of the
     # repo root itself (/var and /private/var on macOS).
     lexical_top = next((a for a in p.parents if _norm(a) == _norm(top)), top)
@@ -2413,7 +2478,7 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
         # 위험 신호 검사가 120자 뒤의 글자도 보도록 명령 전체를 남긴다(T8)
         return out + [_finding("opaque", cmd, reason="닫히지 않은 명령 치환")]
     segments = split_commands(flat)
-    heads = [stored[int(m.group(1))][0] if m else seg
+    heads =[stored[int(m.group(1))][0] if m else seg
              for seg, m in ((s, re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s)) for s in segments)]
     # an interpreter heredoc body is code: count it as a write step whatever its head says
     writes = [_segment_writes(h) or bool(m and stored[int(m.group(1))][2] in (True, False))
@@ -2424,6 +2489,9 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
             if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     initial_top = _top(cwd)
     compound = len(segments) > 1
+    piped = piped_segments(flat)
+    if len(piped) != len(segments):  # 같은 규칙이므로 어긋나면 안 된다 — 어긋나면 보수적으로 모두 파이프 입력으로 본다
+        piped = [True] * len(segments)
     for index, seg in enumerate(segments):
         # content trust (patch file paths, tracked scripts) needs no other step on this line that writes files
         distrust = untrusted or sub_writes or any(w for j, w in enumerate(writes) if j != index)
@@ -2454,7 +2522,7 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
-        found = analyze(seg, cwd, root, depth, trusted=trusted)
+        found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index])
         out += _distrust_content(found, seg) if distrust else found
     if depth == 0:
         out += tripwire(cmd, out)
@@ -2747,11 +2815,19 @@ def _audit_excerpt(command):
     # 헤더는 먼저 가린다. 키=값 규칙으로 Authorization의 scheme만 가려지는 것을 방지한다.
     text = re.sub(r"(?i)(\bauthorization\s*[:=]\s*)(?:bearer|token|basic)?\s*[^\s'\"]+",
                   r"\1[가림]", command)
-    text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|sk[-_][\w-]+|xox[baprs]-[\w-]+|AKIA[A-Z0-9]+)\b", "[가림]", text)
-    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)(?:\"[^\"]*\"|'[^']*'|[^\s;]+)",
+    text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|glpat-[\w-]+|sk[-_][\w-]+|xox[baprs]-[\w-]+|AKIA[A-Z0-9]+)\b"
+                  r"|\bAIza[\w-]+", "[가림]", text)
+    value = r"(?:\"[^\"]*\"|'[^']*'|[^\s;'\"]+)"
+    # -u user:pw / --user user:pw (mysql·curl) — 사용자 이름은 남기고 비밀번호만 가린다.
+    text = re.sub(r"(?i)((?<!\S)(?:-u|--user)(?:=|\s+)[^\s:;'\"]+:)" + value, r"\1[가림]", text)
+    # mysql -p 값 / --password 값 — 공백으로 떨어진 값도 가린다(옵션처럼 보이는 다음 단어는 제외).
+    text = re.sub(r"(?i)(?<!\S)(-p|--password)\s+(?!-)" + value, r"\1 [가림]", text)
+    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)" + value,
                   r"\1[가림]", text)
+    # 이름에 PASS·PWD·SECRET·TOKEN·KEY·DSN·COOKIE·AUTH가 들어간 키=값·헤더(Cookie: …)는 값을 가린다.
+    text = re.sub(r"(?i)([\w-]*(?:pass|pwd|secret|token|key|dsn|cookie|auth)[\w-]*\s*[=:]\s*)" + value, r"\1[가림]", text)
     text = re.sub(r"(?i)([a-z][a-z0-9+.-]*://)[^\s/@]+@", r"\1[가림]@", text)
-    text = re.sub(r"(?i)(?<!\S)-p(?:\"[^\"]*\"|'[^']*'|[^\s;]+)", "-p[가림]", text)
+    text = re.sub(r"(?i)(?<!\S)-p" + value, "-p[가림]", text)
     text = re.sub(r"(?i)\bbearer\s+[^\s'\"]+", "Bearer [가림]", text)
     text = re.sub(r"\b[A-Za-z0-9_+/=-]{32,}\b", "[가림]", text)
     return " ".join(text.split())[:120]

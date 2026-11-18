@@ -1925,6 +1925,47 @@ class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
             self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", command)
         self.assertEqual(self.tool("Read", target)[0], "allow")
 
+    def test_guard_config_protected_case_insensitively(self):
+        # macOS·Windows 파일 시스템은 대소문자를 구분하지 않아 Guard.JSON도 같은 파일이다.
+        target = Path(self.root) / "config/guard.json"
+        target.write_text('{"opaque":"allow"}', encoding="utf-8")
+        for command in ("rm config/Guard.JSON", "rm CONFIG/guard.json", "rm ./config/../config/GUARD.json",
+                        "rm -rf Config", "mv config/guard.JSON x.json", "echo x > Config/Guard.json"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command, cwd=self.root)[0], "deny")
+        for tool in ("Write", "Edit"):
+            self.assertEqual(self.tool(tool, Path(self.root) / "CONFIG/Guard.Json")[0], "deny")
+
+    def test_audit_masks_option_and_named_credentials(self):
+        for text in ("mysql -u root -p hunter2xyz", "mysql -u root:hunter2xyz db", "curl -u admin:hunter2xyz https://x",
+                     "curl --user admin:hunter2xyz https://x", "DB_DSN=postgres-hunter2xyz", "Cookie: session=hunter2xyz",
+                     'curl -H "Cookie: session=hunter2xyz"', "PRIVATE_KEY=hunter2xyz", "glpat-hunter2xyz",
+                     "AIzaSyhunter2xyz", "MY_AUTH=hunter2xyz", "SERVICE_KEY=hunter2xyz", "APP_PWD=hunter2xyz"):
+            with self.subTest(text=text):
+                self.assertNotIn("hunter2xyz", G._audit_excerpt(text))
+
+    def test_stdin_and_dynamic_programs_need_confirmation(self):
+        cases = ('echo "git pu""sh" | bash /dev/stdin', 'echo "git pu""sh" | sh /dev/fd/0',
+                 "echo 'print(1)' | python3 -", "echo 'print(1)' | python3", "unknown-runtime | python3",
+                 "unknown-runtime | node", "unknown-runtime | bash -s", "unknown-runtime | perl",
+                 """awk 'BEGIN{system("touch x")}'""", """awk 'BEGIN{print "x" | "sh"}'""",
+                 """node -e "require('fs').rmSync('src', {recursive: true})" """,
+                 """node -e "fetch('https://x', {method: 'POST'})" """,
+                 """node -e "require('fs').unlinkSync('a')" """,
+                 """ruby -e "File.delete('a')" """, """ruby -e "system('touch x')" """,
+                 """perl -e "unlink 'a'" """, """perl -ne 'system("touch x")' a.txt""",
+                 """perl -e 'exec "touch", "x"'""")
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertEqual(self.bash(command, agent=agent)[0], expected)
+
+    def test_plain_pipes_and_scripts_still_allowed(self):
+        for command in ("echo x | grep x", "cat a.txt | python3 tools.py", "awk '{print $1}' a.txt",
+                        "unknown-runtime | grep x"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+
 
 if __name__ == "__main__":
     unittest.main()
