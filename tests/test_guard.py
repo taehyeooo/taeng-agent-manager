@@ -1268,6 +1268,63 @@ class T7FalsePositiveTest(GuardTest):
                         'cd "$HOME"; pwd', 'cd "$(pwd)"; pwd', 'cd /missing-t7-path; pwd', 'cd ..; pwd'):
             self.assertNotEqual(self.bash(command)[0], 'allow', command)
 
+    def test_t7_git_output_options_are_writes(self):
+        other, app = self.other.as_posix(), self.app.as_posix()
+        keep = (self.other / 'keep.txt')
+        keep.write_text('data\n', encoding='utf-8')
+        target = keep.as_posix()
+        for command in (f'cd "{other}" && git diff --output="{target}"',
+                        f'cd "{other}" && git diff --output "{target}"',
+                        f'cd "{other}"; git log -1 --output={target}',
+                        f'cd "{other}"; git show HEAD --output={target}',
+                        f'git -C "{other}" diff --output={target}'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'deny')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+        for command in (f'cd "{other}" && git diff --output=keep.txt',
+                        f'cd "{other}" && git log --output keep.txt',
+                        f'cd "{other}" && git format-patch -o out HEAD~1'):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], 'allow')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+        for command in (f'cd "{other}" && git diff --stat', f'cd "{other}"; git log --oneline -3',
+                        f'cd "{other}"; git show --stat HEAD', f'cd "{app}"; git diff --output=out.diff'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+
+    def test_t7_same_line_write_breaks_content_trust(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        (self.app / 'safe.patch').write_text(safe, encoding='utf-8')
+        (self.app / 'evil.patch').write_text(safe.replace('safe.md', 'projects/x/project.json'), encoding='utf-8')
+        (self.app / 'evil.sh').write_text('git push --force origin main\n', encoding='utf-8')
+        for command in ('git apply safe.patch', 'git am safe.patch', 'git apply --check safe.patch && git status',
+                        'python scripts/check.py', 'sh scripts/check.sh', './scripts/check.sh',
+                        'python scripts/check.py && git status', 'git status; sh scripts/check.sh',
+                        'sh scripts/check.sh > out.txt; cat out.txt',
+                        'git add -A && git commit -m x'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+        for command in ('cp evil.patch safe.patch && git apply safe.patch',
+                        'cp evil.patch safe.patch; git am safe.patch',
+                        'cp evil.patch safe.patch\ngit apply safe.patch',
+                        'mv evil.patch safe.patch || git apply safe.patch',
+                        'echo x > safe.patch && git apply safe.patch',
+                        'cat evil.patch | tee safe.patch | git apply safe.patch',
+                        'sed -i s/safe/x/ safe.patch && git apply safe.patch',
+                        'ln -sf evil.patch safe.patch && git apply safe.patch',
+                        'git checkout HEAD~1 -- safe.patch && git apply safe.patch',
+                        'cp evil.sh scripts/check.sh && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh; ./scripts/check.sh',
+                        'cp evil.sh scripts/check.py && python scripts/check.py',
+                        'ln -sf ../evil.sh scripts/check.sh && bash scripts/check.sh',
+                        'echo x >> gradlew && ./gradlew test',
+                        'git restore --source=HEAD~1 scripts/check.sh && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh && bash -c "sh scripts/check.sh"',
+                        "cat > scripts/check.sh <<'X'\ngit push origin main\nX\nsh scripts/check.sh"):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], 'allow')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+
     def test_t7_document_stdin(self):
         body = 'ssh production\nvercel deploy\ngit push --force origin main\n'
         for head in ('git commit -F -', 'git -c user.name=test commit --file=-',
