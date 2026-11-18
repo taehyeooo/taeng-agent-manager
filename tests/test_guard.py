@@ -1322,7 +1322,15 @@ class T7FalsePositiveTest(GuardTest):
                         'cp evil.sh scripts/check.sh && bash -c "sh scripts/check.sh"',
                         'bash -c "cp evil.sh scripts/check.sh" && sh scripts/check.sh',
                         'cp evil.sh scripts/check.sh && echo $(sh scripts/check.sh)',
-                        "cat > scripts/check.sh <<'X'\ngit push origin main\nX\nsh scripts/check.sh"):
+                        "cat > scripts/check.sh <<'X'\ngit push origin main\nX\nsh scripts/check.sh",
+                        "python - <<'X'\nfrom pathlib import Path\nPath('scripts/check.sh').write_text('x')\nX\n"
+                        "sh scripts/check.sh",
+                        "python3 - <<'X' && git apply safe.patch\nfrom pathlib import Path\nPath('safe.patch').write_text('x')\nX",
+                        "node - <<'X'\nrequire('fs').writeFileSync('scripts/check.sh', 'x')\nX\nsh scripts/check.sh",
+                        "python -c \"print(1)\" && sh scripts/check.sh",
+                        "node -e \"1\"; python scripts/check.py",
+                        "echo x | python && git apply safe.patch",
+                        "cat x.py | python - ; ./scripts/check.sh"):
             with self.subTest(command=command):
                 self.assertNotEqual(self.bash(command)[0], 'allow')
                 self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
