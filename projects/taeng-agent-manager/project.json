@@ -89,6 +89,12 @@
       "ref": "PR#6",
       "note": "2026-11-12 사용자: 'work/state도 main에 합쳐줘' — 매니저 PR #6(work/state → main) 병합",
       "at": "2026-11-12T11:12:28+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#7",
+      "note": "사용자 승인(2026-11-18 아침): T6 가드 수정 머지, merge 9ff1a5f",
+      "at": "2026-11-18T10:08:42+09:00"
     }
   ],
   "tasks": [
@@ -217,12 +223,12 @@
       "title": "가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로",
       "agent": "claude",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": "taehyeooo/taeng-agent-manager-T6",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T6",
       "pr": "7",
       "dispatch": "ctx_27edf61328c3",
-      "note": "교차 검증 통과(88313e0, PR #7). 남은 것: main 합치기 승인(사용자)",
+      "note": "PR #7 머지 9ff1a5f",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1135,10 +1141,18 @@
     {
       "at": "2026-11-18T02:06:46+09:00",
       "event": "작업 T6 변경: status=review, note=교차 검증 통과(88313e0, PR #7). 남은 것: main 합치기 승인(사용자)"
+    },
+    {
+      "at": "2026-11-18T10:08:42+09:00",
+      "event": "승인 기록: merge_main (PR #7)"
+    },
+    {
+      "at": "2026-11-18T10:08:59+09:00",
+      "event": "작업 T6 변경: status=done, note=PR #7 머지 9ff1a5f"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T02:06:46+09:00",
+  "updated_at": "2026-11-18T10:08:59+09:00",
   "requests": [
     {
       "gate": "push",

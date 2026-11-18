@@ -136,12 +136,12 @@
       "title": "QA1: 앱 모니터링 QA — API 요청·응답 시간·서버 CPU/메모리 기록, 캡처 포함 PDF (Windows 노트북)",
       "agent": "codex",
       "kind": "test",
-      "status": "blocked",
+      "status": "dispatched",
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-monitoring",
       "pr": null,
-      "dispatch": "ctx_948a52cf51d8",
-      "note": "부분 수행: PDF 7쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). Grafana 로그인 안 돼 있어 서버 자원 측정 불가, 앱 네트워크 계측 미확보, 조회 화면 4개만. 필요: 사용자가 Windows 브라우저에서 Grafana 로그인 + 앱 요청 계측 방법(qa 빌드/프록시) 결정"
+      "dispatch": "ctx_88f516bc2f9a",
+      "note": "Grafana 로그인 후 보완 재실행(Windows codex)"
     },
     {
       "id": "Q2",
@@ -260,10 +260,14 @@
     {
       "at": "2026-11-18T01:36:32+09:00",
       "event": "작업 Q2 변경: status=blocked, note=부분 완료: PDF 12쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/). 높음1(다크 모드 새 여행 이름 입력 대비 1.14:1)·중간3(큰 글자 탭 잘림, 버튼 대비, 장소 정보 없을 때 다음 행동 없음)·낮음1(문구 어절 분리). 미완: 첫 실행·로그인·동의·공유·복사·수정 — 전용 QA 계정 필요. 기기 설정 원복, 개인정보 원본 삭제"
+    },
+    {
+      "at": "2026-11-18T10:08:59+09:00",
+      "event": "작업 Q1 변경: status=dispatched, dispatch=ctx_88f516bc2f9a, note=Grafana 로그인 후 보완 재실행(Windows codex)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T01:36:32+09:00",
+  "updated_at": "2026-11-18T10:08:59+09:00",
   "requests": [
     {
       "gate": "push",
