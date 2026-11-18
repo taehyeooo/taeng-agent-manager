@@ -580,8 +580,9 @@ class VerifierRound4Test(GuardTest):
         self.assertEqual(self.bash("python -c \"print(open('w.txt').read())\"")[0], "ask")
         self.assertEqual(self.bash(f"python -c \"open('{(self.other / 'w.txt').as_posix()}', 'w').write('x')\"")[0], "deny")
         # 매니저가 실제로 막혔던 오탐: 정규식 문자열이 들어간 heredoc 스크립트
+        # (차단되지 않고 확인까지만 — 파일 인수 없는 인터프리터 실행은 내용과 상관없이 확인)
         heredoc = "python - <<'EOF'\nimport re\nopen('out.txt', 'w').write(re.sub(r\"[/\\\\]\", \"-\", 'a/b') + '(G, \"x\")')\nEOF"
-        self.assertEqual(self.bash(heredoc)[0], "allow")
+        self.assertEqual(self.bash(heredoc)[0], "ask")
 
 
 class BuildAllowlistTest(GuardTest):
@@ -831,7 +832,8 @@ class BuildAllowlistTest(GuardTest):
                     "python -c 'print(1)' <<'EOF'\nx\nEOF", "node evil.js <<'EOF'\nx\nEOF",
                     "python - <<'EOF' | sh\nprint('git status')\nEOF", "X=1 python - <<'EOF'\nprint(1)\nEOF"):
             self._not_allowed(cmd)
-        self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "allow")
+        # 인터프리터는 추적·미수정 스크립트 파일 실행만 기존 판정 — 파일 인수 없는 heredoc 프로그램은 확인
+        self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "ask")
 
     def test_reverify_b_baseline_ref_commands_need_a_person(self):
         for cmd in ("git update-ref refs/remotes/origin/main HEAD",
@@ -1008,7 +1010,8 @@ class BuildAllowlistTest(GuardTest):
             "import io\np = 'brief.md'\ntext = 'project and .am/local.json'\nio.open(p, 'w').write(text.replace('project', 'task'))",
         )
         for body in bodies:
-            self.assertEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF")[0], "allow", body)
+            # 문서 글자로 차단(deny)하지 않는다. 파일 인수 없는 인터프리터 실행이므로 확인(ask)까지는 간다.
+            self.assertEqual(self.bash("python - <<'EOF'\n" + body + "\nEOF")[0], "ask", body)
 
     def test_heredoc_still_checks_actual_writes_and_commands(self):
         for body in ("open('projects/app/project.json', 'w').write('{}')",
@@ -1804,7 +1807,8 @@ class OpaqueAllowPolicyTest(unittest.TestCase):
 
     def test_default_opaque_allowed(self):
         # python -c 같은 코드 문자열은 내용과 상관없이 확인 → test_any_interpreter_code_string_needs_confirmation
-        for cmd in ("unknown-runtime --check", "pytest", "python -m tools.check"):
+        # python -m <모듈>은 스크립트 파일 실행 형태가 아니므로 확인 → test_interpreter_anything_else_needs_confirmation
+        for cmd in ("unknown-runtime --check", "pytest", "unknown-tool run"):
             for agent in ("claude", "codex"):
                 with self.subTest(cmd=cmd, agent=agent):
                     self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
@@ -2006,10 +2010,68 @@ class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
                 self.assertNotIn("hunter2xyz", G._audit_excerpt(text))
 
     def test_plain_pipes_and_scripts_still_allowed(self):
-        for command in ("echo x | grep x", "cat a.txt | python3 tools.py", "awk '{print $1}' a.txt",
-                        "unknown-runtime | grep x"):
+        for command in ("echo x | grep x", "unknown-runtime | grep x"):
             with self.subTest(command=command):
                 self.assertEqual(self.bash(command)[0], "allow")
+
+    def commit_on_main(self, rel, text):
+        path = self.app / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        git(self.app, "add", rel)
+        git(self.app, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "add " + rel)
+        fetched_baseline(self.app)
+        return path
+
+    def test_interpreter_runs_only_a_clean_tracked_script_without_confirmation(self):
+        # 인터프리터는 '추적·미수정 스크립트 파일 하나 실행'으로 확실히 판명될 때만 기존 판정
+        script = self.commit_on_main("tools/ok.py", "print(1)\n")
+        self.commit_on_main("tools/ok.js", "console.log(1)\n")
+        for command in ("python3 tools/ok.py", "python3 tools/ok.py --flag x", "cat a.txt | python3 tools/ok.py",
+                        "node tools/ok.js", "python3 --version", "node -v"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+        script.write_text("print(2)\n", encoding="utf-8")  # 수정된 스크립트는 확인
+        self.assertEqual(self.bash("python3 tools/ok.py")[0], "ask")
+
+    def test_interpreter_anything_else_needs_confirmation(self):
+        (self.app / "new.py").write_text("print(1)\n", encoding="utf-8")
+        cases = ("php -r'echo 1;'", "php --run='echo 1;'", "php -d k=v", "php -d k=v x.php", "lua -l math",
+                 "osascript -l JavaScript", "python3", "node", "tclsh", "echo x | ruby", "python3 new.py",
+                 "python3 -u tools/ok.py", "python -m tools.check", "Rscript x.R", "pwsh -File x.ps1",
+                 "awk '{print $1}' a.txt", "gawk 'BEGIN{print 1}'", "mawk -f x.awk a.txt", "deno run x.ts",
+                 "bun x.ts", "perl x.pl", "lua x.lua", "python3 - <<'EOF'\nprint(1)\nEOF")
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertEqual(self.bash(command, agent=agent)[0], expected)
+
+    def test_more_command_execution_options_need_confirmation(self):
+        cases = ("rg --pre ./x foo", "rg --pre=./x foo", "rg --pre-glob '*.gz' foo", "git grep -O foo",
+                 "git grep -Ovim foo", "git grep --open-files-in-pager foo", "git grep --open-files-in-pager=vim foo",
+                 "man -P 'touch x' ls", "man --pager='touch x' ls", "less '+!touch x' a.txt", "less '+|touch x' a.txt",
+                 "find . -exec touch x ';'", "find . -ok touch x ';'", "echo a | xargs touch",
+                 "tar --to-command='touch x' -xf a.tar", "tar --use-compress-program=./x -cf a.tar .",
+                 "tar -I ./x -cf a.tar .", "tar --checkpoint-action=exec=touch -cf a.tar .",
+                 "rsync -e 'touch x' a b", "rsync --rsh='touch x' a b", "rsync -avze 'touch x' a b",
+                 "rsync --rsync-path='touch x' a host:b")
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertIn(self.bash(command, agent=agent)[0], (expected, "deny"))
+
+    def test_audit_masks_whole_argument_after_marker(self):
+        for text in ('curl --user "admin:word leakprobe" https://x', 'curl --user "admin:word;leakprobe" https://x',
+                     "curl --user 'admin:word leakprobe' https://x", "curl -u'admin:word leakprobe' https://x",
+                     'curl -H "Authorization: Digest username=alice, response=leakprobe" https://x',
+                     'curl -H "Proxy-Authorization: Basic leakprobe" https://x',
+                     "curl -H 'Proxy-Authorization: Negotiate a leakprobe' https://x",
+                     'curl -H "Cookie: a=1; b=c leakprobe" https://x', 'tool --password "word leakprobe"',
+                     'DB_PASSWORD="word leakprobe" tool', "tool --token='a leakprobe'"):
+            with self.subTest(text=text):
+                masked = G._audit_excerpt(text)
+                self.assertNotIn("leakprobe", masked)
+                self.assertNotIn("word", masked.replace("password", "").replace("PASSWORD", ""))
 
 
 if __name__ == "__main__":

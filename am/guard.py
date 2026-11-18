@@ -69,6 +69,10 @@ CODE_STRING_FLAGS = {  # 이 인터프리터들은 다음 옵션 뒤 인수를 �
     "jrunscript": re.compile(r"-e"), "groovy": re.compile(r"-e"), "julia": re.compile(r"-e|-E|--eval|--print"),
 }
 CODE_SUBCOMMANDS = {"deno": {"eval"}}  # deno eval '<코드>'
+# 인터프리터: 추적·미수정 스크립트 파일 하나를 실행하는 형태일 때만 기존 판정, 그 밖은 내용과 상관없이 확인
+INTERPRETERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl", "php", "php-cgi", "lua", "luajit",
+                "osascript", "pwsh", "powershell", "tclsh", "wish", "rscript", "r", "awk", "gawk", "mawk", "nawk",
+                "julia", "groovy", "jrunscript"}
 # 스크립트 파일 없이 부르면 표준 입력을 프로그램으로 읽는 인터프리터(SCRIPTERS 외)
 STDIN_INTERPRETERS = {"php", "lua", "luajit", "tclsh", "wish", "osascript", "rscript", "r", "julia", "groovy", "jrunscript"}
 OPAQUE_WORDS = {"eval", "iex", "invoke-expression", "invoke-command", "source"}
@@ -100,7 +104,17 @@ WRITERS = {  # change files only; every target is checked with classify_file
 KNOWN = READ_ONLY | WRITERS | {"set", "cd", "chdir", "pushd", "popd", "set-location", "sl", "push-location",
                                "pop-location", "orca", "git", "gh", "find"}
 # options that make a "read only" tool run a program (sort -o / uniq OUT / tree -o write files: _write_targets)
-UNSAFE_OPTION_WORDS = {"rg": {"--pre", "--pre-glob"}, "diff": {"--output"}, "date": {"-s", "--set"}}
+# 다른 프로그램을 실행(또는 파일을 씀)하는 옵션 → 내용과 상관없이 확인. 두 글자 옵션은 값을 붙여 써도 잡는다.
+UNSAFE_OPTION_WORDS = {
+    "rg": {"--pre", "--pre-glob"}, "diff": {"--output"}, "date": {"-s", "--set"},
+    "man": {"-P", "--pager", "-H", "--html", "--browser"},
+    "less": {"-o", "-O", "--log-file", "--LOG-FILE", "--lesskey-file", "--lesskey-src", "-k"},
+    "tar": {"--to-command", "--use-compress-program", "-I", "--checkpoint-action", "--info-script", "-F",
+            "--new-volume-script", "--rsh-command", "--rmt-command"},
+    "sort": {"--compress-program"},
+}  # rsync -e/--rsh/--rsync-path는 _remote_deploy가 안쪽 ssh 명령까지 해석한다
+# 짧은 옵션 묶음 안의 실행 옵션(tar -xIzstd …)
+UNSAFE_SHORT_LETTERS = {"tar": "IF"}
 # read-only tools that may run with arguments nobody has seen (xargs, find -exec): no option of theirs runs a
 # program or writes a file — sort/uniq/tree/rg/diff/date/file have such options, so they need visible arguments
 STDIN_ARGS_SAFE = READ_ONLY - {"sort", "uniq", "tree", "rg", "diff", "date", "file"}
@@ -1616,6 +1630,23 @@ def _deployment_script(script, args, seg, cwd, shell=False):
             _gated('deploy', seg)]
 
 
+def _plain_script_run(word, args, toks, cwd, piped):
+    """인터프리터 호출이 확실히 안전한 형태인가: 버전 확인, 허용 목록의 테스트·빌드 명령, 이 매니저의 am,
+    또는 '작업 폴더 안 원격 main과 같은(추적·미수정) 스크립트 파일 하나 실행'. 그 밖은 모두 False(확인)."""
+    if args in (["--version"], ["-v"], ["-V"], ["version"]):
+        return True
+    if word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or _build_allowed(toks, cwd):
+        return True
+    if word in ("awk", "gawk", "mawk", "nawk"):  # awk -f <프로그램 파일> [입력 파일…]
+        return len(args) >= 2 and args[0] == "-f" and _clean_script(args[1], cwd, None)
+    if word in ("pwsh", "powershell") and args[:1] and args[0].lower() in ("-file", "-f"):
+        args = args[1:]
+    elif word in ("deno", "bun") and args[:1] == ["run"]:
+        args = args[1:]
+    return bool(args) and not args[0].startswith(("-", "+")) and args[0] not in STDIN_PATHS \
+        and _clean_script(args[0], cwd, None)
+
+
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None, piped=False):
     """One simple command → findings. A program that no rule below explains is opaque (policy applied by decide).
     piped: the segment's standard input is the previous command's output (a | b) — an interpreter that reads
@@ -1655,10 +1686,13 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     if not trusted and word not in READ_ONLY and re.search(r"\$[\w{('\"@*?#!$-]", no_single):
         out.append(_finding("opaque", seg, reason="명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음"))
     if ctx.get("stdin_args") and word not in STDIN_ARGS_SAFE:
-        out.append(_finding("opaque", seg, reason="xargs가 넘기는 인수를 미리 알 수 없음 — 읽기 명령만 자동 허용"))
+        out.append(_finding("opaque", seg, confirm=True, reason="xargs가 넘기는 인수를 미리 알 수 없음 — 읽기 명령만 자동 허용"))
     bad = UNSAFE_OPTION_WORDS.get(word, ())
-    if any(a.split("=", 1)[0] in bad or any(len(o) == 2 and a.startswith(o) for o in bad) for a in args):
-        out.append(_finding("opaque", seg, reason=f"{word}의 이 옵션은 프로그램을 실행하거나 파일을 씀"))
+    letters = UNSAFE_SHORT_LETTERS.get(word, "")
+    if any(a.split("=", 1)[0] in bad or any(len(o) == 2 and a.startswith(o) for o in bad)
+           or letters and re.fullmatch(r"-[A-Za-z0-9]+", a) and any(ch in letters for ch in a[1:]) for a in args) \
+            or word == "less" and any(a.startswith("+") and re.search(r"[!|]", a) for a in args):
+        out.append(_finding("opaque", seg, confirm=True, reason=f"{word}의 이 옵션은 프로그램을 실행하거나 파일을 씀"))
     if word == "sed":
         scripts = [args[i + 1] for i, a in enumerate(args[:-1]) if a in ("-e", "--expression")]
         scripts += [a.split("=", 1)[1] for a in args if a.startswith("--expression=")]
@@ -1692,6 +1726,11 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
 
     remote = _remote_deploy(word, args, seg, cwd, root)
     out.extend(remote)
+    if word in INTERPRETERS and not _plain_script_run(word, args, toks, cwd, piped):
+        # 인터프리터는 '작업 폴더 안, 원격 main과 같은 스크립트 파일 하나 실행'으로 판명될 때만 아래 기존 판정.
+        # 코드 옵션(붙여 쓰기·= 형태 포함), 옵션 값 뒤 표준입력, 파일 인수 없음, 파이프 입력 등은 모두 확인.
+        out.append(_finding("opaque", seg, confirm=True,
+                            reason="인터프리터 실행이 '추적·미수정 스크립트 파일 하나 실행' 형태가 아님 — 내용과 상관없이 확인"))
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
         if word in ("pwsh", "powershell") and any(re.fullmatch(r"[-/](?:e|ec|en|enc|enco\w*)", a) for a in low):
@@ -1954,7 +1993,7 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
                 out.append(_finding("opaque", seg, reason="find -exec 명령을 해석할 수 없음"))
             else:
                 if _word(inner[0]) not in STDIN_ARGS_SAFE:
-                    out.append(_finding("opaque", seg, reason="find -exec가 미리 모르는 파일들로 명령 실행 — 읽기 명령만 자동 허용"))
+                    out.append(_finding("opaque", seg, confirm=True, reason="find -exec가 미리 모르는 파일들로 명령 실행 — 읽기 명령만 자동 허용"))
                 out += analyze(line, cwd, root, depth + 1, trusted=trusted)
             i = j
         elif a == "-delete":
@@ -2155,6 +2194,8 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             or sub in ("clone", "init") and any(a in ("-u", "--upload-pack", "-c", "--config", "--template") or
                                                 a.startswith(("--upload-pack=", "--config=", "--template=")) for a in sargs):
         out.append(_finding("opaque", seg, confirm=True, reason=f"git {sub}이 다른 명령·훅을 실행"))
+    if sub == "grep" and any(re.match(r"-O|--open-files-in-pager(=|$)", a) for a in sargs):
+        out.append(_finding("opaque", seg, confirm=True, reason="git grep -O가 찾은 파일을 다른 프로그램으로 엶"))
     if sub == "config" and not _rewrites_refs(sub, sargs, []):
         keys = [a.lower() for a in sargs if not a.startswith("-")]
         keys = keys[1:] if keys[:1] in (["set"], ["unset"], ["get"]) else keys
@@ -2828,27 +2869,65 @@ def _opaque_risks(opaque):
     return risks
 
 
+# (표지 정규식, 헤더 여부) — 표지 다음부터가 가릴 값이다
+AUDIT_MARKERS = (
+    (r"(?i)\b(?:proxy-authorization|authorization|set-cookie|cookie)\s*[:=]\s*", True),  # 헤더 값 전체
+    (r"(?i)(?<!\S)(?:-u|--user)(?:=|\s+)?(?=[\"']?[^\s:'\"]*:)", False),  # -u/--user 사용자:비밀번호
+    (r"(?<!\S)(?:-b|--cookie)(?:=|\s+)", False),  # curl 쿠키
+    (r"(?i)(?<!\S)(?:-p|--pass|--passwd|--password)(?:=|\s+)(?!-)", False),  # mysql -p 값, --password 값
+    (r"(?i)(?<!\S)--?[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key)[\w-]*(?:=|\s+)(?!-)", False),
+    (r"(?i)[\w.-]*(?:pass|pwd|secret|token|key|dsn|cookie|auth|credential)[\w.-]*\s*[=:]\s*", False),  # 키=값
+    (r"(?<!\S)-p(?=\S)", False),  # mysql -p값(붙여 쓰기)
+)
+
+
+def _open_quote(text, index):
+    """text[:index]를 셸처럼 읽었을 때 열려 있는 따옴표 문자(없으면 None)."""
+    q = None
+    for ch in text[:index]:
+        if q:
+            if ch == q:
+                q = None
+        elif ch in "\"'":
+            q = ch
+    return q
+
+
+def _mask_after(text, marker, header=False):
+    out, pos = [], 0
+    for m in re.finditer(marker, text):
+        start = m.end()
+        if m.start() < pos or start >= len(text):
+            continue
+        q = _open_quote(text, start)
+        if q:  # 표지가 따옴표 안: 그 따옴표가 닫힐 때까지
+            end = text.find(q, start)
+        elif text[start] in "\"'":  # 값이 따옴표로 시작: 묶음 전체
+            end = text.find(text[start], start + 1)
+            end = -1 if end < 0 else end + 1
+        elif header:
+            end = text.find("\n", start)
+        else:
+            space = re.search(r"\s", text[start:])
+            end = start + space.start() if space else -1
+        end = len(text) if end < 0 else end
+        if end > start:
+            out.append(text[pos:start] + "[가림]")
+            pos = end
+    out.append(text[pos:])
+    return "".join(out)
+
+
 def _audit_excerpt(command):
     # 마스킹 후 잘라야 경계에서 잘린 토큰도 새지 않는다. 로그 줄바꿈도 막는다.
-    # 헤더는 먼저 가린다. 키=값 규칙으로 Authorization의 scheme만 가려지는 것을 방지한다.
-    text = re.sub(r"(?i)(\bauthorization\s*[:=]\s*)(?:bearer|token|basic)?\s*[^\s'\"]+",
-                  r"\1[가림]", command)
+    # 민감 표지 뒤는 값의 일부가 아니라 통째로 가린다: 표지가 따옴표 안이면 그 따옴표 끝까지, 값이 따옴표로
+    # 시작하면 따옴표 묶음 전체, 헤더는 줄 끝까지, 그 밖은 다음 공백까지(= 셸 인수 하나).
+    text = command
+    for marker, header in AUDIT_MARKERS:
+        text = _mask_after(text, marker, header)
     text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|glpat-[\w-]+|sk[-_][\w-]+|xox[baprs]-[\w-]+|AKIA[A-Z0-9]+)\b"
                   r"|\bAIza[\w-]+", "[가림]", text)
-    value = r"(?:\"[^\"]*\"|'[^']*'|[^\s;'\"]+)"
-    # Cookie 헤더·curl -b/--cookie는 첫 값만이 아니라 값 전체(a=1; b=2 …)를 가린다.
-    text = re.sub(r"(?i)(\bcookie\s*:\s*)[^'\"\n]+", r"\1[가림]", text)
-    text = re.sub(r"(?i)((?<!\S)(?:-b|--cookie)(?:=|\s+))" + value, r"\1[가림]", text)
-    # -u user:pw / --user "user:pw" / -uuser:pw (mysql·curl) — 사용자 이름은 남기고 비밀번호만 가린다.
-    text = re.sub(r"(?i)((?<!\S)(?:-u|--user)(?:=|\s+)?[\"']?[^\s:;'\"]+:)[^\s;'\"]+", r"\1[가림]", text)
-    # mysql -p 값 / --password 값 — 공백으로 떨어진 값도 가린다(옵션처럼 보이는 다음 단어는 제외).
-    text = re.sub(r"(?i)(?<!\S)(-p|--password)\s+(?!-)" + value, r"\1 [가림]", text)
-    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)" + value,
-                  r"\1[가림]", text)
-    # 이름에 PASS·PWD·SECRET·TOKEN·KEY·DSN·COOKIE·AUTH가 들어간 키=값·헤더(Cookie: …)는 값을 가린다.
-    text = re.sub(r"(?i)([\w-]*(?:pass|pwd|secret|token|key|dsn|cookie|auth)[\w-]*\s*[=:]\s*)" + value, r"\1[가림]", text)
     text = re.sub(r"(?i)([a-z][a-z0-9+.-]*://)[^\s/@]+@", r"\1[가림]@", text)
-    text = re.sub(r"(?i)(?<!\S)-p" + value, "-p[가림]", text)
     text = re.sub(r"(?i)\bbearer\s+[^\s'\"]+", "Bearer [가림]", text)
     text = re.sub(r"\b[A-Za-z0-9_+/=-]{32,}\b", "[가림]", text)
     return " ".join(text.split())[:120]
