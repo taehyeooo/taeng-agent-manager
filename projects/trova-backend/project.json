@@ -5,7 +5,14 @@
   "phase": "developing",
   "repo": "Trovapp/trova-backend",
   "test_cmd": "./gradlew test",
-  "approvals": [],
+  "approvals": [
+    {
+      "gate": "push",
+      "ref": "chore/am-guard",
+      "note": "사용자 승인(2026-11-18): Trova에 가드 설정(.claude/settings.json) 올리고 PR 생성",
+      "at": "2026-11-18T10:09:51+09:00"
+    }
+  ],
   "tasks": [
     {
       "id": "O1",
@@ -264,10 +271,14 @@
     {
       "at": "2026-11-18T10:08:59+09:00",
       "event": "작업 Q1 변경: status=dispatched, dispatch=ctx_88f516bc2f9a, note=Grafana 로그인 후 보완 재실행(Windows codex)"
+    },
+    {
+      "at": "2026-11-18T10:09:51+09:00",
+      "event": "승인 기록: push (chore/am-guard)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T10:08:59+09:00",
+  "updated_at": "2026-11-18T10:09:51+09:00",
   "requests": [
     {
       "gate": "push",
