@@ -2322,7 +2322,15 @@ class CleanScriptMatrixTest(OpaqueReviewRegressionTest):
                           ("gawk -f tools/gawk/check.awk -e 'BEGIN {print 2}'", "ask"),
                           ("awk -f tools/awk/check.awk -f tools/program.txt", "ask"),
                           ("awk -f tools/awk/check.awk --source 'BEGIN {print 2}'", "ask"),
-                          ("python3 tools/python3/check.py --exec x", "ask")):
+                          ("python3 tools/python3/check.py --exec x", "ask"),
+                          # awk류는 허용 옵션 목록(-f 깨끗한 파일·-v 이름=값·-F 구분자·입력 파일) 밖이면 표기와 상관없이 확인
+                          ("awk -f tools/awk/check.awk -Wsource='BEGIN {print 2}'", "ask"),
+                          ("gawk -f tools/gawk/check.awk --sourc='BEGIN {print 2}'", "ask"),
+                          ("awk -f tools/awk/check.awk -W file=tools/program.txt", "ask"),
+                          ("gawk -f tools/gawk/check.awk --fil=tools/program.txt", "ask"),
+                          ("mawk -f tools/mawk/check.awk -W exec tools/program.txt", "ask"),
+                          ("awk -v n=1 -F , -f tools/awk/check.awk -f tools/awk/lib.awk replacement.txt", "allow"),
+                          ("awk -F: -f tools/awk/check.awk replacement.txt", "allow")):
             with self.subTest(command=cmd):
                 self.assertEqual(self.bash(cmd)[0], want)
         codex = clean_script_matrix(self, lambda cmd: self.bash(cmd, agent="codex")[0], names={"php", "lua"})

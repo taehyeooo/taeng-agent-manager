@@ -1735,13 +1735,23 @@ def _plain_script_run(word, args, toks, cwd, piped):
         return False  # 스크립트 뒤에 코드를 더 받는 옵션 — 허용 목록 스크립트라도 확인
     if word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or _build_allowed(toks, cwd):
         return True
-    if word in AWKS:  # awk -f <프로그램 파일> [-f <프로그램 파일>…] [입력 파일…] — 모든 -f 파일이 깨끗해야 함
+    if word in AWKS:
+        # 허용 옵션 목록: -f <깨끗한 프로그램 파일>(여러 개), -v 이름=값, -F 구분자(-F: 붙여 쓰기 포함), '-'로 시작하지 않는
+        # 입력 파일. 그 밖에 '-'로 시작하는 인수(-W …, --긴 옵션과 GNU 접두 약어, -e, -, --)는 표기와 상관없이 확인.
         files, i = [], 0
-        while i + 1 < len(args) and args[i] == "-f":
-            files.append(args[i + 1])
-            i += 2
-        return bool(files) and not any(CODE_INPUT_OPTION.match(a) for a in args[i:]) \
-            and all(f not in STDIN_PATHS and _clean_script(f, cwd, None) for f in files)
+        while i < len(args):
+            a = args[i]
+            if a in ("-f", "-v", "-F") and i + 1 < len(args):
+                if a == "-f":
+                    files.append(args[i + 1])
+                elif a == "-v" and not re.fullmatch(r"[A-Za-z_]\w*=.*", args[i + 1], re.S):
+                    return False
+                i += 2
+                continue
+            if a.startswith("-") and not (a.startswith("-F") and len(a) > 2):
+                return False
+            i += 1
+        return bool(files) and all(f not in STDIN_PATHS and _clean_script(f, cwd, None) for f in files)
     if word in ("pwsh", "powershell") and args[:1] and args[0].lower() in ("-file", "-f"):
         args = args[1:]
     elif word in ("deno", "bun") and args[:1] == ["run"]:
