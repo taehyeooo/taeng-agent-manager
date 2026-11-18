@@ -1,5 +1,6 @@
 """Execution-time guard: real git repos in a temp dir, payloads shaped like Claude Code / Codex hooks."""
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -8,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -1128,6 +1130,92 @@ class BuildAllowlistTest(GuardTest):
         (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
         (hooks / "pre-push").write_text("#!/bin/sh\n", encoding="utf-8")  # 새 훅
         self._not_allowed("git commit -m x")
+
+
+class T7FalsePositiveTest(GuardTest):
+    build = classmethod(BuildAllowlistTest.build.__func__)
+
+    def test_t7_reviewflow_collect_pin(self):
+        home = self.app.parent / 'home'
+        script = home / '.claude/plugins/cache/taeng-marketplace/reviewflow/0.1.0/scripts/review.sh'
+        script.parent.mkdir(parents=True)
+        content = b'#!/bin/bash\n# pinned collect fixture\n'
+        script.write_bytes(content)
+        command_path = script.as_posix()
+        with patch.object(Path, 'home', return_value=home), patch.object(
+                G, 'REVIEWFLOW_COLLECT_SHA256', hashlib.sha256(content).hexdigest(), create=True):
+            for prefix in ('bash ', ''):
+                self.assertEqual(self.bash(f'{prefix}"{command_path}" collect 123')[0], 'allow')
+            for args in ('record', 'comment', 'collect --upload', 'collect main extra'):
+                self.assertEqual(self.bash(f'bash "{command_path}" {args}')[0], 'ask')
+            script.write_bytes(content + b'# modified\n')
+            self.assertEqual(self.bash(f'bash "{command_path}" collect')[0], 'ask')
+
+    def test_t7_external_cd_readonly(self):
+        other, app = self.other.as_posix(), self.app.as_posix()
+        for command in (f'cd "{other}" && git status',
+                        f'cd "{other}"; grep hello README.md | head -3',
+                        'cd ~; orca orchestration check',
+                        f'cd "{other}"; cd "{app}"; pwd'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+        for command in (f'cd "{other}"; touch x', f'cd "{other}"; git commit -m x',
+                        f'cd "{other}"; git push origin main', f'cd "{other}"; bash scripts/deploy.sh',
+                        f'cd "{other}"; rm -rf src', f'cd "{other}"; echo x > out',
+                        f'cd "{other}"; git status --output=out', f'cd "{other}"; rg --pre bash x',
+                        f'cd "{other}"; sqlite3 db "DROP TABLE users"',
+                        'cd "$HOME"; pwd', 'cd "$(pwd)"; pwd', 'cd /missing-t7-path; pwd', 'cd ..; pwd'):
+            self.assertNotEqual(self.bash(command)[0], 'allow', command)
+
+    def test_t7_document_stdin(self):
+        body = 'ssh production\nvercel deploy\ngit push --force origin main\n'
+        for head in ('git commit -F -', 'git -c user.name=test commit --file=-',
+                     'orca orchestration check', 'orca orchestration send --body document'):
+            self.assertEqual(self.bash(head + " <<'DOC'\n" + body + 'DOC')[0], 'allow', head)
+        for head in ('bash', 'python scripts/check.py', 'ssh production', 'env bash'):
+            self.assertNotEqual(self.bash(head + " <<'DOC'\n" + body + 'DOC')[0], 'allow', head)
+        self.assertNotEqual(self.bash("orca orchestration check <<DOC\n$(git push origin main)\nDOC")[0], 'allow')
+        self.assertEqual(self.bash("orca orchestration check <<'DOC'\nx\nDOC\ngit push --force origin main")[0], 'deny')
+
+    def test_t7_script_launchers(self):
+        for command in ('bash scripts/check.sh', 'zsh scripts/check.sh', './scripts/check.sh', './scripts/check.py'):
+            self.assertEqual(self.bash(command)[0], 'allow', command)
+        (self.app / 'monitoring').mkdir()
+        script = self.app / 'monitoring/validate.py'
+        script.write_text('print("ok")\n', encoding='utf-8')
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'ask')
+        git(self.app, 'add', 'monitoring/validate.py')
+        git(self.app, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm', 'validation')
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'ask')
+        fetched_baseline(self.app)
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'allow')
+        script.write_text('# changed\n', encoding='utf-8')
+        self.assertEqual(self.bash('./monitoring/validate.py')[0], 'ask')
+        (self.app / 'scripts/check.sh').write_text('# changed\n', encoding='utf-8')
+        for command in ('bash scripts/check.sh', './scripts/check.sh'):
+            self.assertEqual(self.bash(command)[0], 'ask', command)
+        git(self.app, 'add', 'scripts/check.sh')
+        self.assertEqual(self.bash('bash scripts/check.sh')[0], 'ask')
+        self.assertEqual(self.bash('bash scripts/deploy.sh')[0], 'deny')
+
+    def test_t7_specs_and_scratch_boundaries(self):
+        for path in ('.am/specs/T7.md', '.am/specs/repro/example.py'):
+            self.assertEqual(self.tool('Write', self.app / path)[0], 'allow', path)
+            self.assertEqual(self.bash(f"cat > {path} <<'DOC'\nssh production\nDOC")[0], 'allow', path)
+        for path in ('.am/local.json', '.am/approvals.json', '.am/specs/../local.json',
+                     '.am/specs', 'projects/app/project.json', '.am/specs/project.json'):
+            self.assertEqual(self.tool('Write', self.app / path)[0], 'deny', path)
+        specs = self.app / '.am/specs'
+        specs.mkdir(parents=True)
+        try:
+            (specs / 'escape').symlink_to(Path(self.root), target_is_directory=True)
+        except OSError:
+            pass
+        else:
+            self.assertEqual(self.tool('Write', specs / 'escape/.am/local.json')[0], 'deny')
+        if os.name != 'nt':
+            self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/scratchpad/spec.md')[0], 'allow')
+            self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/other/spec.md')[0], 'deny')
 
 
 class TrustLayerStateTest(unittest.TestCase):

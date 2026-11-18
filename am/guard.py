@@ -29,6 +29,7 @@ are append-only approvals in CI and server-side branch protection (docs/architec
 Blocking uses exit code 2 + stderr, which both Claude Code and Codex treat as "deny, tell the agent why".
 """
 import ast
+import hashlib
 import json
 import os
 import re
@@ -739,7 +740,7 @@ def _build_allowed(toks, cwd):
         if args[isolated:isolated + 2] == ["-m", "unittest"]:
             return _unittest_args(args[isolated + 2:], cwd) and (isolated or not _shadowed(cwd, "unittest"))
         return bool(args and _clean_siblings(args[0], cwd))
-    if word == "sh":
+    if word in POSIX_SHELLS:
         return bool(args and _clean_script(args[0], cwd, ".sh"))
     return False
 
@@ -1498,7 +1499,7 @@ def _shell_options(word, args):
 def _plugin_script(path):
     """A Claude Code plugin's own script (devflow's scripts/deploy.sh) → '<marketplace>/<plugin>/<path in plugin>'.
     The version folder is left out so the approval names the plugin's script, not one install."""
-    plugins = Path(os.path.expanduser("~")) / ".claude" / "plugins"
+    plugins = Path.home() / ".claude" / "plugins"
     for base, skip in ((plugins / "cache", 1), (plugins / "marketplaces", 0)):
         if not _under(path, base) or _norm(path) == _norm(base):
             continue
@@ -1513,6 +1514,33 @@ def _plugin_script(path):
             parts = parts[:2] + parts[2 + skip:]
         return "/".join(parts) if ".." not in parts else None
     return None
+
+
+# Reviewed taeng-marketplace/reviewflow 0.1.0: collect fetches review inputs and
+# writes reports/usage locally; it neither posts comments nor runs repository code.
+REVIEWFLOW_COLLECT_SHA256 = "94d19778aacd8fddf391e3b612ead5b4ca633dcecac54bc94424e2630e836c1e"
+
+
+def _reviewflow_collect(script, args, cwd):
+    if not args or args[0] != "collect" or len(args) > 2:
+        return False
+    if len(args) == 2 and not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_./-]*", args[1]):
+        return False
+    path = _abs(script, cwd)
+    if _plugin_script(path) != "taeng-marketplace/reviewflow/scripts/review.sh":
+        return False
+    # Check lexical AND resolved paths: symlinks may not borrow a trusted name.
+    plugin_root = Path.home() / ".claude" / "plugins"
+    try:
+        relative = path.relative_to(plugin_root)
+    except ValueError:
+        return False
+    if Path(os.path.realpath(path)) != Path(os.path.realpath(plugin_root)) / relative:
+        return False
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest() == REVIEWFLOW_COLLECT_SHA256
+    except OSError:
+        return False
 
 
 def _deployment_script(script, args, seg, cwd, shell=False):
@@ -1637,6 +1665,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     
         if args and _build_allowed(toks, cwd):
             return out + [_seen("build", seg)]
+        if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
+            return out + [_seen("build", seg)]
         return out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
 
@@ -1743,6 +1773,14 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
     out.extend(_deployment_script(toks[0], args, seg, cwd))
+    if not any(f.get("gate") == "deploy" for f in out):
+        # Explicit paths only: a bare check.sh is looked up through PATH.
+        if re.search(r"[/\\]", toks[0]) and (
+                _reviewflow_collect(toks[0], args, cwd) or
+                toks[0].endswith(".py") and _clean_siblings(toks[0], cwd) or
+                toks[0].endswith(".sh") and _clean_script(toks[0], cwd, ".sh")):
+            out.append(_seen("build", seg))
+            ctx["built"] = True
 
     # deploy / db / system / credentials
     if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I):
@@ -1846,6 +1884,15 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
 def _is_state_file(path, cwd, root=None):
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
+    specs = Path(_top(cwd)) / ".am" / "specs"
+    # state.py reads .am/local.json and projects/*/project.json, never specs.
+    # Resolve before exempting: ../ and symlinks cannot reach state/approvals.
+    canonical_specs = Path(os.path.realpath(_top(cwd))) / ".am" / "specs"
+    if (_norm(specs) == os.path.normcase(str(canonical_specs)) and _under(p, specs)
+            and _norm(p) != _norm(specs) and _under(p, _top(cwd))):
+        parts = Path(os.path.relpath(os.path.realpath(p), os.path.realpath(specs))).parts
+        if not any(part.lower() in {".am", ".git", "project.json", "local.json"} for part in parts):
+            return False
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
 
@@ -2137,20 +2184,11 @@ def _stdin_interpreter(toks):
 
 
 def _stdin_data(toks):
-    """Commands that only read the heredoc as text: cat, tee, git commit -F -, gh … --body-file -."""
-    word, args = _word(toks[0]), toks[1:]
-    dash_file = any(a in ("-F", "--file", "--body-file") and args[i + 1:i + 2] == ["-"] or a in ("--file=-", "--body-file=-")
-                    for i, a in enumerate(args))
-    if word == "cat":
-        return all(a == "-" for a in args)
-    if word == "tee":
-        return all(a in ("-a", "--append") or not a.startswith("-") for a in args)
-    if word == "git":
-        return args[:1] == ["commit"] and dash_file
-    if word == "gh":
-        return [a for a in args if not a.startswith("-")][:2] in (["pr", "create"], ["pr", "edit"], ["pr", "comment"],
-                                                                   ["issue", "create"], ["issue", "comment"]) and dash_file
-    return False
+    """Ordinary commands receive data. Execution-capable readers remain conservative."""
+    word = _word(toks[0])
+    if word in SHELLS | SCRIPTERS | OPAQUE_WORDS | PREFIXES | set(WRAPPERS) | {"ssh", "env", "sudo", "xargs", "watch"}:
+        return False
+    return word in KNOWN
 
 
 def _lead(words):
@@ -2179,8 +2217,8 @@ def _changes_env(words):
 
 def _heredocs(cmd, cwd, root, depth, out, stored):
     """Each heredoc → its head line goes back into the command (split and judged like any other line).
-    Only `<interpreter> [-]` gets its body checked as a program; cat/tee/commit message bodies are data; anything else
-    that reads a heredoc is opaque and its body stays in the command as shell lines."""
+    Only `<interpreter> [-]` gets its body checked as a program; known ordinary commands receive data.
+    Execution-capable or unresolved readers stay opaque and their bodies are also checked as shell lines."""
     def one(m):
         head, tail, body = m.group("head"), m.group("tail"), m.group("body")
         line = m.group(0).split("\n", 1)[0]
@@ -2225,7 +2263,8 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
         out += classify_command(sub, cwd, root, depth + 1, trusted) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     initial_top = _top(cwd)
     compound = len(split_commands(flat)) > 1
-    for seg in split_commands(flat):
+    segments = split_commands(flat)
+    for index, seg in enumerate(segments):
         m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
         if m:  # `python - <<EOF` judged where it runs (after any cd above it)
             head, body, python = stored[int(m.group(1))]
@@ -2238,8 +2277,11 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
                 a in ("-exec", "-execdir", "-ok", "-okdir", "-delete", "-fprint", "-fprint0", "-fprintf", "-fls") for a in words[1:]):
             out.append(_finding("opaque", seg, reason="셸 조합의 find가 명령 실행·파일 쓰기를 포함함"))
         if words and _word(words[0]) in CD_WORDS:
-            target = _cd_target(words[1], cwd) if len(words) == 2 else None
-            if target is not None and _word(words[0]) == "cd" and _under(target, initial_top) and target.is_dir():
+            target = _cd_target(words[1], cwd) if len(words) == 2 and not any(
+                c in words[1] for c in ("$", SUBST, "%", "`")) else None
+            if target is not None and _word(words[0]) == "cd" and target.is_dir() and (
+                    _under(target, initial_top) or
+                    (os.path.isabs(words[1]) or words[1].startswith("~")) and _readonly_tail(segments[index + 1:])):
                 cwd = str(target)
             else:
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
@@ -2251,6 +2293,26 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
     for f in out:
         f["seg"] = restore(f["seg"].replace(SUBST, "$(…)"))
     return out
+
+
+def _readonly_tail(segments):
+    """Only a narrow read grammar permits leaving the work tree; analyze still checks every option/gate."""
+    for seg in segments:
+        words = tokens(seg)
+        if not words:
+            continue
+        word, args = _word(words[0]), words[1:]
+        if _write_targets(word, args, seg):
+            return False
+        if word in READ_ONLY or word == "cd":
+            continue
+        if word == "git" and args and args[0] in {
+                "status", "diff", "log", "show", "rev-parse", "ls-files", "ls-tree", "rev-list", "shortlog"}:
+            continue
+        if word == "orca" and args[:2] in (["orchestration", "check"], ["orchestration", "worker-show"]):
+            continue
+        return False
+    return True
 
 
 def _cd_target(path, cwd):
@@ -2352,6 +2414,11 @@ def classify_file(tool, path, cwd, root=None, via=None):
             other_repo = _repo_top(anc)
             in_other_repo = bool(other_repo) and _norm(other_repo) != _norm(top)
             scratch = [tempfile.gettempdir(), Path.home() / ".claude", Path.home() / ".codex"]
+            # macOS Claude scratchpad is outside the per-user TMPDIR; don't open
+            # all /private/tmp or allow a symlink to another location.
+            real = Path(os.path.realpath(p)).as_posix()
+            if re.fullmatch(r"/private/tmp/claude-[^/]+/(?:[^/]+/)*scratchpad/.+", real):
+                scratch.append(Path(real).parent)
             if not _under(p, top) and (in_other_repo or not any(_under(p, a) for a in scratch)):
                 out.append(_finding("forbidden", label, reason=f"지금 작업 폴더({top}) 밖 파일 수정 — 관련 없는 프로젝트·매니저의 직접 코딩 금지"))
             elif ".git" in [part.lower() for part in (*p.parts, *Path(os.path.realpath(str(p))).parts)]:
