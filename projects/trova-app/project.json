@@ -23,6 +23,12 @@
       "ref": "PR#183",
       "note": "사용자 위임(2026-11-18): 교차 검증 pass, main 합쳐도 자동 배포 없음 확인",
       "at": "2026-11-18T14:01:59+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "v8-play-production",
+      "note": "사용자 승인(2026-11-18 '틈틈이 확인해서 v8 배포까지 완료해줘'): v8 재빌드(AdMob+PR #183) Play 프로덕션 제출·출시",
+      "at": "2026-11-18T14:58:24+09:00"
     }
   ],
   "tasks": [
@@ -55,12 +61,12 @@
       "title": "v8 Play 제출 (AdMob 인증·신고 수정 뒤)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "사용자 결정(2026-11-18): QA 수정(PR #183)은 OTA 대신 v8 재빌드에 포함해 Play 제출. 조건: Play Console 신고 수정·AdMob 인증"
+      "note": "v8 재빌드(main: AdMob+PR #183) 시작"
     },
     {
       "id": "T4",
@@ -191,8 +197,16 @@
     {
       "at": "2026-11-18T14:46:52+09:00",
       "event": "작업 T2 변경: note=2026-11-18 Claude가 Play Console에서 진행(사용자 요청): 광고 포함=예, 광고 ID=예(광고·분석·사기 방지), 데이터 보안: 대략적 위치·진단 추가, 앱 상호작용·기기 ID에 Google 공유 추가, 기기 ID 필수. Google 검토 제출 완료(코드 작업 아님, 검증 skip). AdMob 앱 인증 완료"
+    },
+    {
+      "at": "2026-11-18T14:51:06+09:00",
+      "event": "작업 T3 변경: status=dispatched, note=v8 재빌드(main: AdMob+PR #183) 시작"
+    },
+    {
+      "at": "2026-11-18T14:58:24+09:00",
+      "event": "승인 기록: deploy (v8-play-production)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-18T14:46:52+09:00"
+  "updated_at": "2026-11-18T14:58:24+09:00"
 }
