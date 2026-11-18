@@ -2074,5 +2074,81 @@ class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
                 self.assertNotIn("word", masked.replace("password", "").replace("PASSWORD", ""))
 
 
+class DefaultModeAllowlistTest(OpaqueReviewRegressionTest):
+    """기본(allow) 모드에서 자동 허용은 '위험이 낮다고 명시한 사유 코드'의 opaque에만 적용된다."""
+
+    def both(self, command, cwd=None):
+        return tuple(self.bash(command, cwd=cwd, agent=agent)[0] for agent in ("claude", "codex"))
+
+    def test_same_line_replacement_still_needs_confirmation(self):
+        # T7: 같은 명령줄에서 신뢰한 파일을 바꿔치기하면 기본 모드에서도 확인
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        evil = '--- /dev/null\n+++ b/projects/x/project.json\n@@ -0,0 +1 @@\n+{}\n'
+        self.commit_on_main("safe.patch", safe)
+        (self.app / "evil.patch").write_text(evil, encoding="utf-8")
+        self.commit_on_main("check.py", "print(1)\n")
+        self.assertEqual(self.bash("python3 check.py")[0], "allow")
+        for command in ("cp evil.patch safe.patch && git apply safe.patch", "echo x > check.py && python3 check.py",
+                        "cp evil.patch safe.patch; git apply safe.patch"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+
+    def test_attached_sed_expressions_need_confirmation(self):
+        for command in ("sed -e'1e date' a.txt", "sed -e's/x/date/e' a.txt", "sed -e1e a.txt",
+                        "sed --expression='1e date' a.txt", "sed --expression=s/x/date/e a.txt", "sed -ne'1e date' a.txt",
+                        "sed -n -e '1e date' a.txt"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+        for command in ("sed -e's/x/y/' a.txt", "sed -n -e 1p a.txt", "sed -n 's/date/x/p' a.txt"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+
+    def test_git_external_program_options_need_confirmation(self):
+        for command in ("git grep -nOcat pattern", "git grep -O pattern", "git grep -iO pattern",
+                        "git grep --open-files-in-pager=cat pattern", "git diff --ext-diff", "git diff --textconv",
+                        "git log --textconv -p", "git show --ext-diff HEAD", "git difftool --extcmd=./formatter HEAD",
+                        "git difftool --extcmd ./formatter HEAD", "git difftool -x ./formatter HEAD"):
+            with self.subTest(command=command):
+                self.assertEqual(self.both(command), ("ask", "deny"))
+        for command in ("git grep -n pattern", "git diff --no-ext-diff", "git log --no-textconv -p"):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], "allow")
+
+
+class DefaultModeShadowTest(unittest.TestCase):
+    """기존 검사를 원래 환경(HOME 그대로) 그대로 돌리며 기본 모드 판정을 함께 본다."""
+
+    def test_auto_allow_only_for_low_risk_reason_codes(self):
+        # 이전 검사들(T6·T7·빌드 허용 목록)을 그대로 돌리면서, 같은 입력을 기본(allow) 모드로도 판정한다.
+        # 기본 모드에서만 allow가 된 판정은 모든 opaque 사유가 허용 목록 코드여야 한다.
+        flipped, original = [], G.decide
+
+        def shadow(payload, agent="claude", root=None):
+            result = original(payload, agent, root)
+            if result[0] == "allow":
+                return result
+            seen = []
+            with patch.object(G, "_opaque_policy", return_value="allow"), \
+                    patch.object(G, "_record_opaque_allow", side_effect=lambda c, o, *a: seen.append(o)), \
+                    patch.object(S, "save"), patch.object(S, "event"), patch.object(S, "add_request"):
+                default = original(payload, agent, root)
+            if default[0] == "allow":
+                flipped.append((payload["tool_input"], agent, [f.get("code") for opaque in seen for f in opaque]))
+            return result
+
+        suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(cls) for cls in (
+            T7FalsePositiveTest, T6SecurityReviewTest, T6Round3Test, T6Round4Test, T6Round5Test,
+            BuildAllowlistTest, VerifierRound4Test))
+        result = unittest.TestResult()
+        with patch.object(G, "decide", shadow):
+            suite.run(result)
+        self.assertEqual(result.failures + result.errors, [])
+        self.assertTrue(flipped)  # 자동 허용 자체는 동작한다(위험 낮은 흔한 경우)
+        for tool_input, agent, codes in flipped:
+            with self.subTest(command=tool_input, agent=agent):
+                self.assertTrue(codes)
+                self.assertTrue(set(codes) <= G.LOW_RISK_CODES, codes)
+
+
 if __name__ == "__main__":
     unittest.main()
