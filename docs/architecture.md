@@ -85,7 +85,16 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
 ```
 - 명령은 `&& ; | 줄바꿈` 단위로 나눠 하나씩 본다. `rm -rf node_modules` 같은 빌드 산출물·임시 폴더 삭제는 자동 진행.
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
-- 가드 자체가 오류 나면 위험해 보이는 명령만 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
+- 훅은 `python3`의 Python 3.10 이상 실행 성공을 표준입력 없이 확인하고 실패하면 `python`을 쓴다. 위치 파일은 있지만 둘 다 실행되지 않으면 종료 코드 2로 차단한다. `am setup --install`은 오래된 훅을 제자리에서 갱신하며, `am doctor`는 격리된 위치 파일과 무해한 가드로 훅 실행을 점검한다.
+- 원격 업로드(scp·rsync·sftp), SSH의 서버 변경·대화형 접속·불명확한 실행, 셸을 통한 `deploy.sh` 실행은 각각 서버·스크립트별 배포 승인 대상이다(`--dry-run`·`--checks-only` 단독은 사람 확인). 로컬 접속 프로그램·설정을 바꾸는 옵션은 배포 승인과 별도로 사람 확인이 필요하다. SSH 읽기 명령과 다운로드는 기본 사람 확인을 유지한다.
+  - 배포 스크립트 승인 대상은 `repo-script:<레포 기준 상대 경로>`(예: `repo-script:scripts/deploy.sh`) — 서버 별칭(`deploy.sh`라는 SSH 서버)과 겹치지 않는다. Claude Code 플러그인에 들어 있는 스크립트(`~/.claude/plugins/cache/<마켓>/<플러그인>/<버전>/…`, `marketplaces/<마켓>/plugins/<플러그인>/…`)는 버전을 뺀 `plugin-script:<마켓>/<플러그인>/<경로>`(예: devflow의 `plugin-script:taeng-marketplace/devflow/scripts/deploy.sh`). 두 이름공간은 최상위에서 나뉘고, 경로에 콜론(`:`)이 있으면 승인 대상을 만들지 않는다 — 레포 안 `./plugin-script:…/deploy.sh` 같은 폴더 이름으로 다른 승인을 흉내 낼 수 없다. 그 밖의 레포 밖이나 PATH에서 찾는 `deploy.sh`, 콜론이 든 경로는 사람 확인 + 대상 없는(전체) 배포 승인이 필요하다.
+  - **접속 프로그램 옵션은 허용 목록**(`TRANSPORT_SAFE`): ssh `-q -v -t -T -C -4 -6 -n -x -i -p -l -o`, scp·sftp는 여기에 `-r -p -P -c`(scp `-B -O -T`), rsync는 `-a -v -z -r …`·`--delete`·`--exclude`·`--progress` 같은 전송 옵션과 `-e "ssh <허용 옵션>"`(서버·명령 같은 피연산자나 `--`가 들어 있으면 rsync가 붙이는 승인된 서버 대신 그 서버·명령이 쓰이므로 사람 확인). `-o`는 BatchMode·StrictHostKeyChecking·ConnectTimeout·ServerAlive*·Port·User·IdentityFile 등 접속 설정만, `UserKnownHostsFile`은 `/dev/null`일 때만(Windows에서는 `NUL`도 — 다른 OS에서 `nul`은 보통 파일). 목록 밖 옵션(`-I` PKCS#11 라이브러리, `-A`, `-S`, `-F`, `-P` 태그, `--rsync-path` …)은 배포 승인과 별도로 사람 확인. 로컬 파일에 쓰는 옵션(ssh `-E`, rsync `--log-file`·`--write-batch`·`--only-write-batch`, `-e "ssh -E …"` 포함)은 그 경로를 파일 쓰기 검사에 넘긴다 — 상태 파일이면 금지.
+  - **셸 옵션도 허용 목록**(bash·sh·zsh·dash): `-c -e -u -x -v -n -f -E -l`, `-o pipefail|errexit|nounset|xtrace|verbose|noglob|noclobber|errtrace`, `--norc --noprofile --posix --login`. `-l`은 Codex가 모든 명령을 `bash -lc`로 감싸기 때문에 허용한다(사용자 기본 프로필, 명령에 적힌 파일이 아님). 목록 밖(`--rcfile`·`--init-file`·`-i`·`-s`·`-O` …)은 초기화 파일·다른 입력을 실행할 수 있어 사람 확인. `ENV=`·`BASH_ENV=`·`ZDOTDIR=` 같은 접두는 기존 환경 변수 접두 규칙으로 사람 확인.
+  - 셸의 `-c`(`-xc`·`-ec`·`--norc -c`·`-o pipefail -c` 포함)는 첫 비옵션 인수(스크립트) **앞**에 있을 때만 명령 문자열 플래그로 본다. `bash deploy.sh -c true`의 `-c`는 스크립트 인수이고, `--` 뒤의 `-c`는 스크립트 이름이다. PowerShell·cmd도 같은 규칙(`pwsh x.ps1 -c ...` → 스크립트 실행).
+  - `h:/opt/`처럼 한 글자 서버는 Windows가 아닐 때 서버로 본다(Windows에서는 드라이브 문자 — 로컬 경로).
+  - SSH 원격 문자열의 curl은 묶음 옵션(`-sSLX POST`)과 서버에 파일을 쓰는 옵션(`-c`·`-D`·`--trace` 등)도 변경으로 보아 배포 승인 대상이다.
+  - 알려진 보수적 판정(안전 쪽, 고치지 않음): 원격 문자열 안 작은따옴표 묶음과 백틱이 섞이면 따옴표 경계를 확정하지 않고 읽기 전용으로 인정하지 않는다 — 그 명령은 배포 승인 또는 사람 확인으로 간다.
+- 입력이 비었거나 깨지거나 가드 자체가 오류 나면 종료 코드 2로 막는다(fail closed). 기기에 `am setup`이 안 돼 있으면 훅은 아무것도 하지 않는다 — `am doctor`·세션 시작 규칙으로 확인.
 - CI(`.github/workflows/test.yml`): 테스트를 Ubuntu·Windows에서, 그리고 `project.json`의 기존 승인 기록이 바뀌거나 지워지면 실패(append-only, `scripts/check_approvals.py`).
 - **가드는 명령을 해석한다**(정규식으로 문자열 전체를 훑지 않음):
   - 따옴표 밖에서만 `; | & { } ( )`·줄바꿈으로 나누고, `$(...)`·`` `...` `` 안의 명령도 따로 검사한다.

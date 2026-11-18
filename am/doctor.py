@@ -1,5 +1,8 @@
 """Read-only checks for the manager's local tools."""
 import json
+import os
+import tempfile
+from pathlib import Path
 import shutil
 import subprocess
 import sys
@@ -39,6 +42,27 @@ def run_checks(which=shutil.which, run=subprocess.run):
     reachable = ok and 'runtimeReachable: true' in output
     results.append(dict(name='orca runtime', ok=reachable,
                         detail='runtimeReachable: true' if reachable else '', required=False))
+    # Exercise the exact installed shell command with an isolated pointer and a
+    # harmless guard stub. Never execute the user's real hook or touch its state.
+    from .cli import HOOK_CMD
+    shell = which('sh')
+    ok, detail = False, '경고: sh 또는 실행 가능한 Python이 없어 가드 훅을 실행할 수 없습니다'
+    if shell:
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                home = Path(tmp)
+                pointer = home / '.config/agent-manager/home'
+                pointer.parent.mkdir(parents=True)
+                pointer.write_text(home.as_posix(), encoding='utf-8')
+                (home / 'am').mkdir()
+                (home / 'am/guard.py').write_text('raise SystemExit(0)\n', encoding='utf-8')
+                result = run([shell, '-c', HOOK_CMD.format(agent='claude')],
+                             env=dict(os.environ, HOME=home.as_posix()), capture_output=True,
+                             text=True, encoding='utf-8', errors='replace', timeout=15)
+                ok = result.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    results.append(dict(name='guard hook', ok=ok, detail='실행 성공' if ok else detail, required=False))
     return results
 
 
