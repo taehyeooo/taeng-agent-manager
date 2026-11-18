@@ -1135,6 +1135,42 @@ class BuildAllowlistTest(GuardTest):
 class T7FalsePositiveTest(GuardTest):
     build = classmethod(BuildAllowlistTest.build.__func__)
 
+    def test_t7_git_patch_inputs_protect_paths(self):
+        for command in ('git apply', 'git apply --cached', 'git am', 'git am -3',
+                        'git -c user.name=test apply', 'git apply -p0',
+                        'git apply --directory=.am', 'git apply --directory .am'):
+            for name in ('projects/x/project.json', '.am/local.json', '../other/main.py'):
+                path = name if '-p0' in command else 'b/' + name
+                if '--directory' in command:
+                    path = 'b/local.json'
+                body = f'--- /dev/null\n+++ {path}\n@@ -0,0 +1 @@\n+{{}}\n'
+                with self.subTest(command=command, name=name):
+                    self.assertEqual(self.bash(command + " <<'X'\n" + body + 'X')[0], 'deny')
+
+    def test_t7_git_patch_files_and_safe_messages(self):
+        patchfile = self.app / 'change.patch'
+        for command in ('git apply change.patch', 'git apply --cached change.patch', 'git am -3 change.patch'):
+            patchfile.write_text('--- /dev/null\n+++ b/.am/local.json\n@@ -0,0 +1 @@\n+{}\n', encoding='utf-8')
+            self.assertEqual(self.bash(command)[0], 'deny', command)
+        for command in ('git apply', 'git apply --cached', 'git am -3'):
+            self.assertEqual(self.bash(command + " <<'X'\n--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\nX")[0], 'allow')
+        body = '+++ b/.am/local.json\nssh production\n'
+        for command in ('git commit -F -', 'git notes add --file=-', 'git tag -F - v1'):
+            self.assertEqual(self.bash(command + " <<'X'\n" + body + 'X')[0], 'allow')
+        self.assertNotEqual(self.bash('git apply missing.patch')[0], 'allow')
+
+    def test_t7_git_patch_path_variants(self):
+        bodies = ('--- a/.am/local.json\n+++ /dev/null\n',
+                  'diff --git a/.am/local.json b/safe.md\nrename from .am/local.json\nrename to safe.md\n',
+                  '--- /dev/null\n+++ "b/.am/local.json"\n',
+                  '--- /dev/null\n+++ b/../other/main.py\n')
+        for body in bodies:
+            self.assertEqual(self.bash("git apply <<'X'\n" + body + 'X')[0], 'deny', body)
+        self.assertEqual(self.bash(f'git -C "{self.other.as_posix()}" apply' + " <<'X'\n+++ b/main.py\nX")[0], 'deny')
+        self.assertEqual(self.bash("git apply -p0 <<'X'\n+++ .am/local.json\nX")[0], 'deny')
+        for command in ('git apply --unknown', 'git apply --directory="$DIR"', 'git status'):
+            self.assertNotEqual(self.bash(command + " <<'X'\n+++ b/safe.md\nX")[0], 'allow')
+
     def test_t7_reviewflow_collect_pin(self):
         home = self.app.parent / 'home'
         script = home / '.claude/plugins/cache/taeng-marketplace/reviewflow/0.1.0/scripts/review.sh'

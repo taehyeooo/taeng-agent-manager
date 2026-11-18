@@ -1568,7 +1568,7 @@ def _deployment_script(script, args, seg, cwd, shell=False):
             _gated('deploy', seg)]
 
 
-def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
+def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None):
     """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
@@ -1769,7 +1769,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             out.append(_gated("destructive_delete", seg))
 
     if word == "git":
-        return out + _analyze_git(args, seg, cwd, root, depth)
+        return out + _analyze_git(args, seg, cwd, root, depth, patch_body=patch_body)
     if word == "gh":
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
@@ -2023,7 +2023,7 @@ def _git_options(sub, sargs, seg, cwd, where, root):
     return out
 
 
-def _analyze_git(args, seg, cwd, root, depth):
+def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
     out, where, rest = [], cwd, list(args)
     while rest and rest[0].startswith("-"):
         opt = rest.pop(0)
@@ -2056,6 +2056,8 @@ def _analyze_git(args, seg, cwd, root, depth):
         return out
     sub, sargs = rest[0].lower(), rest[1:]
     out.append(_seen(f"git:{sub}", seg))
+    if sub in {"apply", "am"}:
+        out += _git_patch_inputs(sargs, seg, where, root, patch_body, scope_cwd=cwd)
     if sub == "submodule" and "foreach" in sargs or sub == "bisect" and sargs[:1] == ["run"] \
             or sub == "rebase" and any(a in ("-x", "--exec") or a.startswith(("--exec=", "-x")) for a in sargs) \
             or sub in ("clone", "init") and any(a in ("-u", "--upload-pack", "-c", "--config", "--template") or
@@ -2195,9 +2197,81 @@ def _stdin_interpreter(toks):
 def _stdin_data(toks):
     """Ordinary commands receive data. Execution-capable readers remain conservative."""
     word = _word(toks[0])
+    if word == "git":
+        sub, args = _git_stdin_subcommand(toks)
+        return sub in {"commit", "notes", "tag"} and any(
+            a in {"-F", "--file"} and args[i + 1:i + 2] == ["-"] or a in {"--file=-", "-F-"}
+            for i, a in enumerate(args))
     if word in SHELLS | SCRIPTERS | OPAQUE_WORDS | PREFIXES | set(WRAPPERS) | {"ssh", "env", "sudo", "xargs", "watch"}:
         return False
     return word in KNOWN
+
+
+def _git_stdin_subcommand(toks):
+    """Identify a Git stdin reader; actual global-option policy stays in _analyze_git."""
+    if not toks or _word(toks[0]) != "git":
+        return "", []
+    args, i = toks[1:], 0
+    while i < len(args) and args[i].startswith("-"):
+        opt = args[i]
+        i += 1
+        if opt in GIT_GLOBAL_WITH_ARG:
+            i += 1
+    return (args[i].lower(), args[i + 1:]) if i < len(args) else ("", [])
+
+
+def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None):
+    """Inspect patch data without applying it. Unknown options/inputs require a person."""
+    out, files, strip, directory, i = [], [], 1, "", 0
+    while i < len(args):
+        a = args[i]
+        i += 1
+        if a == "--":
+            files.extend(args[i:])
+            break
+        if a in {"-p", "--directory"}:
+            if i >= len(args):
+                return [_finding("opaque", seg, reason="패치 경로 옵션의 값이 없음")]
+            value, i = args[i], i + 1
+            if a == "-p":
+                if not value.isdecimal():
+                    return [_finding("opaque", seg, reason="패치 경로 제거 수를 해석할 수 없음")]
+                strip = int(value)
+            else:
+                directory = value
+        elif re.fullmatch(r"-p\d+", a):
+            strip = int(a[2:])
+        elif a.startswith("--directory="):
+            directory = a.split("=", 1)[1]
+        elif a in {"--cached", "--index", "--3way", "-3", "--reverse", "-R", "--check", "--stat",
+                   "--numstat", "--summary", "--binary", "--allow-empty", "--recount", "--ignore-space-change",
+                   "--ignore-whitespace", "--reject", "--inaccurate-eof", "--verbose", "-v", "--quiet", "-q"}:
+            pass
+        elif a.startswith("-") and a != "-":
+            out.append(_finding("opaque", seg, reason="패치 옵션이 허용 목록 밖 — 적용 경로를 확정할 수 없음"))
+        else:
+            files.append(a)
+    if "$" in directory or SUBST in directory:
+        return out + [_finding("opaque", seg, reason="패치 적용 폴더를 미리 알 수 없음")]
+    if body is not None:
+        out += _patch_paths(body, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+    for name in files:
+        if name == "-":
+            if body is None:
+                out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
+            continue
+        path = _abs(name, cwd)
+        try:
+            if "$" in name or SUBST in name or path.is_symlink() or not path.is_file() or path.stat().st_size > 4 * 1024 * 1024:
+                raise ValueError()
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError, ValueError):
+            out.append(_finding("opaque", seg, reason="패치 입력 파일을 확인할 수 없음"))
+        else:
+            out += _patch_paths(text, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+    if body is None and not files:
+        out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
+    return out
 
 
 def _lead(words):
@@ -2240,6 +2314,9 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
         command = head + " " + tail
         segs = split_commands(command)
         toks = _drop_redirections(tokens(segs[0])) if len(segs) == 1 else []
+        if toks and _git_stdin_subcommand(toks)[0] in {"apply", "am"}:
+            stored.append((segs[0], body, "patch"))
+            return f"{HEREDOC_MARK}{len(stored) - 1}\n"
         if toks and _word(toks[0]) == 'ssh':
             # The remote shell can execute standard input; don't lose this fact
             # when removing the heredoc boundary before normal shell parsing.
@@ -2277,6 +2354,9 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
         m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
         if m:  # `python - <<EOF` judged where it runs (after any cd above it)
             head, body, python = stored[int(m.group(1))]
+            if python == "patch":
+                out += analyze(head, cwd, root, depth, script_stdin=True, patch_body=body)
+                continue
             if python is not None:
                 out += _check_script(body, head, cwd, root, python=python)
             out += analyze(head, cwd, root, depth, script_stdin=True)
@@ -2399,8 +2479,42 @@ def tripwire(cmd, found):
     return []
 
 
-def _patch_paths(text, cwd, root):
+def _patch_paths(text, cwd, root, git_strip=None, directory="", scope_cwd=None):
     out = []
+    if git_strip is not None:
+        paths = []
+        for line in text.splitlines():
+            if line.startswith(("--- ", "+++ ")):
+                paths.append((line[4:].split("\t", 1)[0], git_strip))
+            elif line.startswith(("rename from ", "rename to ", "copy from ", "copy to ")):
+                paths.append((line.split(" ", 2)[2], 0))
+            elif line.startswith("diff --git "):
+                paths.extend((p, git_strip) for p in tokens(line[11:]))
+        if not paths:
+            return [_finding("opaque", "patch", reason="패치 대상 경로를 찾을 수 없음")]
+        for raw, count in paths:
+            if "\\" in raw or "$" in raw or SUBST in raw:
+                out.append(_finding("opaque", "patch", reason="패치 경로의 이스케이프·치환을 확정할 수 없음"))
+                continue
+            try:
+                path = ast.literal_eval(raw) if raw.startswith('"') else raw
+            except (ValueError, SyntaxError):
+                out.append(_finding("opaque", "patch", reason="인용한 패치 경로를 해석할 수 없음"))
+                continue
+            if not isinstance(path, str):
+                out.append(_finding("opaque", "patch", reason="패치 경로가 문자열이 아님"))
+                continue
+            if path == "/dev/null":
+                continue
+            parts = path.split("/")
+            if count >= len(parts):
+                out.append(_finding("opaque", "patch", reason="패치 경로 제거 뒤 대상이 없음"))
+                continue
+            target = "/".join(parts[count:])
+            if directory:
+                target = directory.rstrip("/") + "/" + target
+            out += classify_file("Write", str(_abs(target, cwd)), scope_cwd or cwd, root, via="patch")
+        return out
     for m in re.finditer(r"^\*\*\* (?:Add|Update|Delete) File: (.+)$|^\*\*\* Move to: (.+)$|^\+\+\+ b/(.+)$", text, re.M):
         path = (m.group(1) or m.group(2) or m.group(3)).strip()
         out += classify_file("Write", path, cwd, root, via="patch")
