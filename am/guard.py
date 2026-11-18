@@ -44,7 +44,13 @@ else:
     from . import state as S
 
 SHELLS = {"bash", "sh", "zsh", "dash", "pwsh", "powershell", "cmd"}
-SHELL_CMD_FLAGS = {"-c", "-lc", "-ic", "-command", "/c", "/k", "/s"}
+POSIX_SHELLS = {"bash", "sh", "zsh", "dash"}
+# PowerShell accepts any prefix of -Command; these options take the next argument as their value.
+PS_COMMAND = re.compile(r"-c(?:o(?:m(?:m(?:a(?:n(?:d)?)?)?)?)?)?")
+PS_OPTS_WITH_ARG = {"-executionpolicy", "-ep", "-ex", "-workingdirectory", "-wd", "-outputformat", "-of", "-o",
+                    "-inputformat", "-if", "-in", "-windowstyle", "-w", "-configurationname", "-config",
+                    "-settingsfile", "-settings", "-version", "-v", "-custompipename", "-psconsolefile"}
+WINDOWS = os.name == "nt"  # scp/rsync treat C:/path as a local drive only on Windows
 SCRIPTERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl"}
 PY_OPTS_WITH_ARG = {"-X", "-W", "--check-hash-based-pycs"}
 PREFIXES = {"&", ".", "call", "start", "start-process", "npx", "pnpx", "bunx"}
@@ -1236,6 +1242,303 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
     return toks
 
 
+# Options with a separate argument; attached forms (-p22, -oKey=value) need no skip.
+REMOTE_OPTION_ARGS = {
+    'ssh': set('BbcDEeFIiJLlmOopPQRSWw'),
+    'scp': set('cDFiJloPSX'),
+    'sftp': set('BbcDFiJloPRsSX'),
+    'rsync': set('efBTM'),
+}
+RSYNC_LONG_ARGS = {'--rsh', '--exclude', '--include', '--filter', '--files-from',
+                   '--exclude-from', '--include-from', '--password-file', '--port',
+                   '--rsync-path', '--log-file', '--out-format', '--backup-dir',
+                   '--suffix', '--timeout', '--contimeout', '--bwlimit', '--temp-dir',
+                   '--partial-dir', '--link-dest', '--compare-dest', '--copy-dest', '--usermap', '--groupmap', '--chown', '--chmod',
+                   '--write-batch', '--only-write-batch', '--read-batch', '--info', '--debug', '--max-size',
+                   '--min-size', '--max-delete', '--modify-window', '--compress-level', '--block-size', '--address'}
+
+
+def _remote_operands(word, args, options=None):
+    """Parse transport options without treating key paths / option values as hosts."""
+    operands, i = [], 0
+    options = [] if options is None else options
+    while i < len(args):
+        arg = args[i]
+        if arg == '--':
+            return operands + args[i + 1:]
+        if not arg.startswith('-') or arg == '-':
+            operands.append(arg)
+            if word == 'ssh':
+                # Everything after the host belongs to the remote shell.
+                tail = args[i + 1:]
+                return operands + (tail[1:] if tail[:1] == ['--'] else tail)
+        elif arg.startswith('--'):
+            option, sep, value = arg.partition('=')
+            if not sep and option in RSYNC_LONG_ARGS:
+                i += 1
+                value = args[i] if i < len(args) else ''
+            options.append((option, value))
+        else:
+            for n, option in enumerate(arg[1:], 1):
+                value = ''
+                if option in REMOTE_OPTION_ARGS[word]:
+                    value = arg[n + 1:]
+                    if not value:
+                        i += 1
+                        value = args[i] if i < len(args) else ''
+                    options.append(('-' + option, value))
+                    break
+                options.append(('-' + option, value))
+        i += 1
+    return operands
+
+
+def _remote_host(target):
+    if WINDOWS and re.match(r'^[A-Za-z]:[/\\]', target):
+        return None  # Windows drive, not a server (elsewhere `h:/opt` is the server h)
+    pattern = r'^(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+):'
+    if re.match(r'^(?:rsync|scp|sftp)://', target):
+        pattern = r'^(?:rsync|scp|sftp)://(?:[^/@:]+@)?(\[[^\]]+\]|[^/:]+)(?::\d+)?/'
+    match = re.match(pattern, target)
+    if match:
+        return match.group(1)
+    return None
+
+
+# Allow list: an option missing here may run a program or load a library on this PC, read another
+# config, write a local file or change the server — a person looks at it (opaque) on top of the deploy approval.
+TRANSPORT_SAFE = {
+    'ssh': {'-q', '-v', '-t', '-T', '-C', '-4', '-6', '-n', '-x', '-i', '-p', '-l', '-o'},
+    'scp': {'-q', '-v', '-C', '-4', '-6', '-r', '-p', '-B', '-O', '-T', '-i', '-P', '-l', '-c', '-o'},
+    'sftp': {'-q', '-v', '-C', '-4', '-6', '-r', '-p', '-i', '-P', '-l', '-c', '-o'},
+    'rsync': {'-a', '-v', '-z', '-r', '-l', '-p', '-t', '-g', '-o', '-h', '-P', '-q', '-c', '-u', '-n', '-H',
+              '-S', '-i', '-e', '--archive', '--verbose', '--compress', '--recursive', '--links', '--perms',
+              '--times', '--group', '--owner', '--human-readable', '--progress', '--partial', '--quiet',
+              '--checksum', '--update', '--dry-run', '--delete', '--delete-after', '--delete-before',
+              '--delete-during', '--delete-delay', '--delete-excluded', '--exclude', '--include', '--stats',
+              '--itemize-changes', '--rsh', '--timeout', '--contimeout', '--bwlimit', '--mkpath',
+              '--hard-links', '--sparse', '--no-motd'},
+}
+SSH_SAFE_CONFIG = {'batchmode', 'stricthostkeychecking', 'connecttimeout', 'serveraliveinterval',
+                   'serveralivecountmax', 'connectionattempts', 'port', 'user', 'identitiesonly', 'identityfile',
+                   'loglevel', 'compression', 'requesttty', 'passwordauthentication', 'pubkeyauthentication',
+                   'preferredauthentications', 'addressfamily', 'tcpkeepalive', 'userknownhostsfile'}
+# Options whose value is a file written on this PC → the usual file-write check.
+TRANSPORT_WRITES = {'ssh': {'-E'}, 'scp': set(), 'sftp': set(),
+                    'rsync': {'--log-file', '--write-batch', '--only-write-batch'}}
+
+
+def _transport_check(word, options):
+    """(an option outside the allow list?, local files the options write)."""
+    unsafe, writes = False, []
+    for option, value in options:
+        if option in TRANSPORT_WRITES[word]:
+            writes.append(value)
+        if option not in TRANSPORT_SAFE[word]:
+            unsafe = True
+        elif option == '-o' and word != 'rsync':
+            parts = re.split(r'\s*=\s*|\s+', value.strip(), maxsplit=1)
+            name, setting = parts[0].lower(), (parts[1] if len(parts) > 1 else '')
+            # Only the null device: NUL is that device on Windows only; elsewhere ./nul is an ordinary file.
+            null = {'/dev/null', 'nul'} if WINDOWS else {'/dev/null'}
+            if name not in SSH_SAFE_CONFIG or name == 'userknownhostsfile' and setting.lower() not in null:
+                unsafe = True
+        elif word == 'rsync' and option in ('-e', '--rsh'):
+            launch = tokens(value)
+            if not launch or launch[0] != 'ssh':
+                unsafe = True
+            else:
+                nested = []
+                # `ssh <allowed options>` only: rsync appends the server and command after these words, so a
+                # server or command written here would replace the one the approval names.
+                operands = _remote_operands('ssh', launch[1:], nested)
+                inner_unsafe, inner_writes = _transport_check('ssh', nested)
+                unsafe, writes = unsafe or inner_unsafe or bool(operands) or '--' in launch[1:], writes + inner_writes
+    return unsafe, writes
+
+
+def _transport_opaque(word, options, seg, cwd=None, root=None):
+    """A server deployment approval never approves programs run on this PC or local file writes."""
+    unsafe, writes = _transport_check(word, options)
+    out = [_finding('opaque', seg, reason='접속 옵션이 허용 목록 밖 — 이 PC에서 프로그램·설정을 실행하거나 파일을 쓰거나 접속 서버를 바꿀 수 있음')] if unsafe else []
+    for target in writes:
+        if not target or '$' in target or SUBST in target or cwd is None:
+            out.append(_finding('opaque', seg, reason='접속 옵션의 로컬 출력 파일을 미리 알 수 없음'))
+        else:
+            out += classify_file('Write', restore(target), cwd, root, via=seg)
+    return out
+
+
+CURL_LONG_CHANGES = ('--request', '--data', '--json', '--form', '--upload-file', '--output', '--remote-name',
+                     '--config', '--cookie-jar', '--dump-header', '--trace', '--stderr', '--libcurl', '--output-dir')
+CURL_SHORT_CHANGES = set('XdFToOKcD')  # method, body, upload, files written on the server, config
+CURL_SHORT_VALUE = set('AbCEeHKmPQrtUuwxYyzXdFToKcD')  # the rest of the word (or the next word) is a value
+
+
+def _curl_changes(arg):
+    """One curl word changes something (request method/body, a file on the server) — -sSLX POST included."""
+    if arg.startswith('--'):
+        return arg.split('=', 1)[0].startswith(CURL_LONG_CHANGES)
+    if not arg.startswith('-') or arg == '-':
+        return False
+    for ch in arg[1:]:
+        if ch in CURL_SHORT_CHANGES:
+            return True
+        if ch in CURL_SHORT_VALUE:
+            return False
+    return False
+
+
+def _remote_deploy(word, args, seg, cwd=None, root=None):
+    if word not in REMOTE_OPTION_ARGS:
+        return []
+    options = []
+    operands = _remote_operands(word, args, options)
+    out = _transport_opaque(word, options, seg, cwd, root)
+    if word != 'ssh':
+        # scp/rsync destination is the last operand; downloads stay default ask.
+        # sftp's single server operand also opens a session that can upload files.
+        target = operands[-1] if operands else ''
+        host = _remote_host(target)
+        if word == 'sftp' and len(operands) == 1 and not host and ':' not in target:
+            host = target.rsplit('@', 1)[-1]
+        if host:
+            return out + [_gated('deploy', seg, ref=host if '$' not in host and SUBST not in host else None)]
+        return out
+    host = operands[0].rsplit('@', 1)[-1] if operands else None
+    for option, value in options:
+        if option == '-o' and re.match(r'(?i)^hostname(?:=|\s)', value):
+            host = re.split(r'[=\s]+', value, maxsplit=1)[1]
+    ref = host if host and '$' not in host and SUBST not in host else None
+    remote = ' '.join(operands[1:])
+    # Unknown programs and shell expansions may change the server. Only an explicit
+    # read-only subset stays opaque (ask), never automatically allowed.
+    # Operators inside remote quotes are data. Expandable strings and escaped
+    # local quotes remain conservative: their remote syntax may be ambiguous.
+    expanded = re.sub(r"'[^']*'", "", remote)
+    escaped_quote = '\\\"' in seg or chr(INERT + ord('"')) in seg
+    readonly = (bool(remote) and not escaped_quote
+                and not re.search(r'[$`]|' + re.escape(SUBST), expanded)
+                and not re.search(r'[<>]', unquoted(remote)))
+    for part in split_commands(remote):
+        ts = tokens(part)
+        if not ts:
+            readonly = False
+            continue
+        command, rest = _word(ts[0]), ts[1:]
+        if command == 'systemctl':
+            pos = [a for a in rest if not a.startswith('-')]
+            safe = pos[:1] == ['status']
+        elif command == 'curl':
+            safe = not any(_curl_changes(a) for a in rest)
+        else:
+            safe = command in {'journalctl', 'free', 'df', 'uptime', 'cat', 'tail', 'head', 'grep'}
+            if command == 'journalctl' and any(a.startswith(('--vacuum', '--rotate', '--flush', '--sync', '--setup-keys')) for a in rest):
+                safe = False
+        readonly = readonly and safe
+    if readonly:
+        return out
+    return out + [_gated('deploy', seg, ref=ref)]
+
+
+SHELL_SAFE_LETTERS = set("ceuxvnfEl")  # command string, errexit, nounset, xtrace, verbose, noexec, noglob, errtrace, login (Codex runs `bash -lc`; the user's own profile, not a file named in the command)
+SHELL_SAFE_SET = {"pipefail", "errexit", "nounset", "xtrace", "verbose", "noglob", "noclobber", "errtrace"}
+SHELL_SAFE_LONG = {"--norc", "--noprofile", "--posix", "--login"}
+
+
+def _shell_options(word, args):
+    """Shell invocation → (has a command-string flag, index of the first operand, unsafe option).
+    The operand is the command string when the flag is set, otherwise the script. A -c after the script
+    is the script's own argument, never the shell's flag. For sh/bash/zsh/dash only the options above are
+    known; any other (-i, -l, --rcfile, --init-file, -O, -s …) may run init files or read other input."""
+    command, unsafe, i = False, False, 0
+    while i < len(args):
+        a = args[i]
+        low = a.lower()
+        if word in POSIX_SHELLS:
+            if a == "--":
+                return command, i + 1, unsafe
+            if a in ("--rcfile", "--init-file"):
+                unsafe, i = True, i + 2
+                continue
+            if a.startswith("--"):
+                unsafe = unsafe or a not in SHELL_SAFE_LONG
+                i += 1
+                continue
+            if re.fullmatch(r"[-+][A-Za-z]+", a):
+                letters = a[1:]
+                command = command or a[0] == "-" and "c" in letters
+                if "o" in letters or "O" in letters:  # -o / -euo pipefail: the next word is the value
+                    value = args[i + 1] if i + 1 < len(args) else ""
+                    unsafe = unsafe or "O" in letters or value not in SHELL_SAFE_SET
+                    i += 2
+                else:
+                    i += 1
+                unsafe = unsafe or any(ch not in SHELL_SAFE_LETTERS | {"o"} for ch in letters)
+                continue
+        elif word == "cmd":
+            if low in ("/c", "/k"):
+                return True, i + 1, unsafe
+            if a.startswith("/"):
+                i += 1
+                continue
+        else:  # pwsh / powershell
+            if PS_COMMAND.fullmatch(low):
+                return True, i + 1, unsafe
+            if low in PS_OPTS_WITH_ARG:
+                i += 2
+                continue
+            if a.startswith("-") and low not in ("-file", "-f"):
+                i += 1
+                continue
+        break
+    return command, i, unsafe
+
+
+def _plugin_script(path):
+    """A Claude Code plugin's own script (devflow's scripts/deploy.sh) → '<marketplace>/<plugin>/<path in plugin>'.
+    The version folder is left out so the approval names the plugin's script, not one install."""
+    plugins = Path(os.path.expanduser("~")) / ".claude" / "plugins"
+    for base, skip in ((plugins / "cache", 1), (plugins / "marketplaces", 0)):
+        if not _under(path, base) or _norm(path) == _norm(base):
+            continue
+        parts = _rel(path, base).split("/")
+        if base.name == "marketplaces":  # marketplaces/<mk>/plugins/<plugin>/…
+            if len(parts) < 4 or parts[1] != "plugins":
+                return None
+            parts = [parts[0]] + parts[2:]
+        else:  # cache/<mk>/<plugin>/<version>/…
+            if len(parts) < 4:
+                return None
+            parts = parts[:2] + parts[2 + skip:]
+        return "/".join(parts) if ".." not in parts else None
+    return None
+
+
+def _deployment_script(script, args, seg, cwd, shell=False):
+    if not re.search(r'(^|[/\\])deploy\.sh$', script):
+        return []
+    if args in (['--dry-run'], ['--checks-only']):
+        return [_finding('opaque', seg, reason='배포 스크립트의 확인 전용 옵션은 사람이 확인해야 함')]
+    # The approval names one script: repo-script:<repo-relative path> or plugin-script:<market>/<plugin>/<path>.
+    # Separate top-level names, and no ':' inside the path, so one can never spell the other. The same file
+    # name elsewhere (another folder, a program found on PATH) needs a blanket approval and a person's look.
+    top = _repo_top(cwd)
+    path = _abs(script, cwd)
+    # `deploy.sh` alone: a direct run searches PATH; `bash deploy.sh` reads ./deploy.sh when it exists.
+    local = (re.search(r'[/\\]', script) or shell and path.is_file()) and '$' not in script and SUBST not in script
+    if local and top and _under(path, top):
+        rel = _rel(path, top)
+        if ':' not in rel:
+            return [_gated('deploy', seg, ref='repo-script:' + rel)]
+    elif local:
+        plugin = _plugin_script(path)
+        if plugin and ':' not in plugin:
+            return [_gated('deploy', seg, ref='plugin-script:' + plugin)]
+    return [_finding('opaque', seg, reason='승인 대상으로 정할 수 없는 배포 스크립트(레포 밖·PATH·경로에 콜론) — 무엇이 실행될지 확인해야 함'),
+            _gated('deploy', seg)]
+
+
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
     out, ctx = [], {}
@@ -1304,24 +1607,34 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             re.search(r"(auth\.json|\.git-credentials|credentials\.json)$", a, re.I) for a in args):
         out.append(_finding("forbidden", seg, reason="인증정보 노출"))
 
+    remote = _remote_deploy(word, args, seg, cwd, root)
+    out.extend(remote)
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
         if any(a in ("-encodedcommand", "-enc", "-e", "-ec") for a in low) and word in ("pwsh", "powershell"):
             return out + [_finding("opaque", seg, reason="인코딩된 명령")]
         if word == "cmd":
             out += _cmd_variables(" ".join(args), seg)
-        for i, a in enumerate(low):
-            if a in SHELL_CMD_FLAGS and i + 1 < len(args):
-                inner = " ".join(args[i + 1:])
-                if word in ("pwsh", "powershell"):
-                    inner = ps_escapes(inner)
-                elif word == "cmd":  # %NAME% / !NAME! → ${NAME}: the $-variable rules below judge it
-                    inner = cmd_escapes(CMD_VAR.sub(lambda m: "${" + re.sub(r"\W", "_", m.group(2) or m.group(4)) + "}", inner))
-                else:  # bash/sh: g\it pu\sh → git push
-                    inner = bash_escapes(inner)
-                if depth >= 4:
-                    return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
-                return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
+        command, i, unsafe = _shell_options(word, args)
+        if unsafe:
+            out.append(_finding("opaque", seg, reason="셸 옵션이 허용 목록 밖 — 초기화 파일·다른 입력을 실행할 수 있음"))
+        if command and i < len(args):
+            inner = " ".join(args[i:])
+            if word in ("pwsh", "powershell"):
+                inner = ps_escapes(inner)
+            elif word == "cmd":  # %NAME% / !NAME! → ${NAME}: the $-variable rules below judge it
+                inner = cmd_escapes(CMD_VAR.sub(lambda m: "${" + re.sub(r"\W", "_", m.group(2) or m.group(4)) + "}", inner))
+            else:  # bash/sh: g\it pu\sh → git push
+                inner = bash_escapes(inner)
+            if depth >= 4:
+                return out + [_finding("opaque", seg, reason="너무 깊게 감싼 명령")]
+            return out + [_seen("shell-parsed", seg)] + classify_command(inner, cwd, root, depth + 1)
+        # A deployment script requires approval even when run through a shell.
+        if word in POSIX_SHELLS and i < len(args):
+            script_findings = _deployment_script(args[i], args[i + 1:], seg, cwd, shell=True)
+            if script_findings:
+                return out + script_findings
+    
         if args and _build_allowed(toks, cwd):
             return out + [_seen("build", seg)]
         return out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
@@ -1429,9 +1742,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     if word == "gh":
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
+    out.extend(_deployment_script(toks[0], args, seg, cwd))
+
     # deploy / db / system / credentials
-    if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I) \
-            or re.search(r"(^|[/\\])deploy\.sh$", toks[0]):
+    if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I):
         out.append(_gated("deploy", seg))
     if re.match(r"^(supabase db (push|reset)|prisma migrate (deploy|reset)|prisma db push)\b", joined, re.I) \
             or word in ("psql", "mysql", "sqlite3", "sqlcmd") and re.search(r"\b(drop\s+(table|database|schema)|truncate\s+table|delete\s+from|alter\s+table)\b", seg, re.I):
@@ -1879,6 +2193,10 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
         command = head + " " + tail
         segs = split_commands(command)
         toks = _drop_redirections(tokens(segs[0])) if len(segs) == 1 else []
+        if toks and _word(toks[0]) == 'ssh':
+            # The remote shell can execute standard input; don't lose this fact
+            # when removing the heredoc boundary before normal shell parsing.
+            out.extend(_remote_deploy('ssh', toks[1:] + [SUBST], line))
         if toks and _stdin_interpreter(toks):
             stored.append((segs[0], body, _word(toks[0]) != "node"))
             return f"{HEREDOC_MARK}{len(stored) - 1}\n"
@@ -2172,12 +2490,15 @@ def main(argv=None):
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
-    raw = sys.stdin.read()
     try:
-        decision, msg = decide(json.loads(raw or "{}"), agent)
-    except Exception as e:  # fail closed for anything that looks risky
-        risky = re.search(r"push|gh\s|rm\s|Remove-Item|deploy|\.env|approve|project\.json|patch|merge", raw, re.I)
-        decision, msg = ("deny" if risky else "allow"), f"[am guard] 가드 오류로 막았습니다: {e!r}"
+        payload = json.loads(sys.stdin.read())
+        if not isinstance(payload, dict) or not isinstance(payload.get('tool_name') or payload.get('tool'), str):
+            raise ValueError('missing tool')
+        decision, msg = decide(payload, agent)
+    except Exception as e:
+        # Missing/malformed input may mean the hook launcher lost its stdin.
+        # Never turn parser or runtime failures into an automatic permission.
+        decision, msg = 'deny', f"[am guard] 입력을 검사할 수 없어 막았습니다 ({type(e).__name__})"
     if decision == "deny":
         print(msg, file=sys.stderr)
         return 2

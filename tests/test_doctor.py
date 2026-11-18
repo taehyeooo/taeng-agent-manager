@@ -22,7 +22,9 @@ class DoctorTest(unittest.TestCase):
         self.assertEqual(calls, [
             [f'C:/x/{name}.CMD', '--version']
             for name in ('git', 'gh', 'orca', 'claude', 'codex')
-        ] + [['C:/x/gh.CMD', 'auth', 'status'], ['C:/x/orca.CMD', 'status']])
+        ] + [['C:/x/gh.CMD', 'auth', 'status'], ['C:/x/orca.CMD', 'status'],
+             calls[-1]])
+        self.assertEqual(calls[-1][0:2], ['C:/x/sh.CMD', '-c'])
 
     def test_missing_commands_are_not_executed(self):
         def run(args, **kwargs):
@@ -88,3 +90,29 @@ class DoctorTest(unittest.TestCase):
     def test_old_python(self):
         with patch.object(doctor.sys, 'version_info', (3, 9, 0)):
             self.assertEqual(self.invoke(self.checks())[0], 1)
+
+    def test_guard_hook_probe_and_warning(self):
+        calls = []
+        def run(args, **kwargs):
+            calls.append(args)
+            return subprocess.CompletedProcess(args, 2 if args[1:2] == ['-c'] else 0, '', '')
+        results = doctor.run_checks(which=lambda name: name, run=run)
+        row = next(row for row in results if row['name'] == 'guard hook')
+        self.assertFalse(row['ok'])
+        self.assertFalse(row['required'])
+        self.assertIn('sh', calls[-1][0])
+        self.assertIn('python3 -c', calls[-1][-1])
+
+    def test_guard_probe_uses_isolated_home_and_pointer(self):
+        from pathlib import Path
+        def run(args, **kwargs):
+            if args[1:2] == ['-c']:
+                home = Path(kwargs['env']['HOME'])
+                self.assertNotEqual(home, Path.home())
+                self.assertTrue(home.is_dir())
+                self.assertEqual((home / '.config/agent-manager/home').read_text(encoding='utf-8'), home.as_posix())
+                self.assertEqual(args[2], cli.HOOK_CMD.format(agent='claude'))
+                self.assertIn('SystemExit(0)', (home / 'am/guard.py').read_text(encoding='utf-8'))
+            return subprocess.CompletedProcess(args, 0, 'runtimeReachable: true', '')
+        self.assertTrue(next(row for row in doctor.run_checks(which=lambda name: name, run=run)
+                             if row['name'] == 'guard hook')['ok'])
