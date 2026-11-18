@@ -264,7 +264,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T7",
       "pr": "10",
       "dispatch": "ctx_0ab261c92183",
-      "note": "Codex 구현 완료(268 OK), Claude 교차 검증 중"
+      "note": "2a956b5 수정(271 OK), Claude 재검증 중"
     },
     {
       "id": "T9",
@@ -274,9 +274,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8",
-      "pr": null,
+      "pr": "11",
       "dispatch": "ctx_9404156b20e6",
-      "note": ""
+      "note": "Codex 구현 904b99e(282 OK), Claude 교차 검증 시작"
     }
   ],
   "history": [
@@ -1195,10 +1195,26 @@
     {
       "at": "2026-11-18T10:33:48+09:00",
       "event": "승인된 작업 실행: push(work/state-trova)"
+    },
+    {
+      "at": "2026-11-18T10:35:55+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-18T10:36:36+09:00",
+      "event": "작업 T7 변경: note=1차 교차 검증 fail(heredoc git apply/am 우회) → Codex 수정 중"
+    },
+    {
+      "at": "2026-11-18T10:39:55+09:00",
+      "event": "작업 T9 변경: pr=11, note=Codex 구현 904b99e(282 OK), Claude 교차 검증 시작"
+    },
+    {
+      "at": "2026-11-18T10:41:20+09:00",
+      "event": "작업 T7 변경: note=2a956b5 수정(271 OK), Claude 재검증 중"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T10:33:48+09:00",
+  "updated_at": "2026-11-18T10:41:20+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1231,6 +1247,14 @@
       "impact": "서비스가 실제로 바뀐다",
       "risk": "실제 사용자에게 바로 영향이 가고, 비용이 생길 수 있다",
       "at": "2026-11-18T10:18:28+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "rm -rf /Users/gimtaehyeong/orca/workspaces/trova-app/디자인-적용 /Users/gimtaehyeong/orca/workspaces/trova-app/pwa-qa",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-18T10:35:55+09:00"
     }
   ]
 }
