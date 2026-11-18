@@ -1727,7 +1727,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         elif args in (["-v"], ["--version"], ["-V"]):
             ok = True
         if ok and not module and body is None:
-            out.append(_seen("build", seg))
+            # a heredoc program was read in full (_check_script), not trusted by a file's content
+            out.append(_seen("stdin-script" if script_stdin and args in ([], ["-"]) else "build", seg))
         if not ok and (python or not trusted):
             out.append(_finding("opaque", seg, reason=reason))
 
@@ -2406,7 +2407,9 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
     segments = split_commands(flat)
     heads = [stored[int(m.group(1))][0] if m else seg
              for seg, m in ((s, re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s)) for s in segments)]
-    writes = [_segment_writes(h) for h in heads]
+    # an interpreter heredoc body is code: count it as a write step whatever its head says
+    writes = [_segment_writes(h) or bool(m and stored[int(m.group(1))][2] in (True, False))
+              for h, m in zip(heads, (re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s) for s in segments))]
     sub_writes = any(_segment_writes(s) for sub in inner for s in split_commands(sub))
     for sub in inner:
         out += classify_command(sub, cwd, root, depth + 1, trusted, untrusted or sub_writes or any(writes)) \
@@ -2486,6 +2489,11 @@ def _segment_writes(seg):
         return True
     if word in FILE_CHANGERS or word == "git" and _git_writes_files(words):
         return True
+    if word in SCRIPTERS:  # code from stdin/heredoc or a code option (python -c, node -e) may write any file
+        script = next((a for a in args if not a.startswith("-")), None)
+        return script is None or script == "-" or any(
+            a in ("--eval", "--print") or a.startswith(("--eval=", "--print=")) or
+            re.fullmatch(r"-[A-Za-z]*[cep].*", a) and not a.startswith("--") for a in args)
     if word in SHELLS:  # bash -c "cp a b": the inner command line
         return any(_segment_writes(s) for s in split_commands(" ".join(args)))
     if word == "curl":
