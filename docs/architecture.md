@@ -75,14 +75,15 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
           am approve? ──예──▶ Claude: 사용자 확인 창 / Codex: 차단(사용자가 직접)
               │아니오
               ▼
-          승인 필요 명령? ──아니오──▶ 허용 (읽기·수정·테스트·로컬 커밋)
+          승인 필요 명령? ──아니오──▶ opaque 정책 검사 → 허용 또는 확인
               │예
               ▼
-          cwd → git common dir → 프로젝트 → project.json에 gate(+ref) 승인? ──예──▶ 허용 + 기록
+          cwd → git common dir → 프로젝트 → project.json에 gate(+ref) 승인? ──예──▶ opaque 정책 검사 + 기록
               │아니오
               ▼
           차단 + 승인 요청(명령·영향 범위·위험) 기록 → 매니저가 사용자에게 보여 줌
 ```
+- 아래의 확인 설명 중 opaque(해석 불가) 판정은 최종적으로 “기본 허용 + 기록” 정책과 설정을 따른다. 금지·승인 필요·승인 기록 명령의 처리는 유지한다.
 - 명령은 `&& ; | 줄바꿈` 단위로 나눠 하나씩 본다. `rm -rf node_modules` 같은 빌드 산출물·임시 폴더 삭제는 자동 진행.
 - ref 단위 승인: `push`는 브랜치, `merge_main`은 `PR#n`, ref 없는 승인은 그 gate 전체.
 - 훅은 `python3`의 Python 3.10 이상 실행 성공을 표준입력 없이 확인하고 실패하면 `python`을 쓴다. 위치 파일은 있지만 둘 다 실행되지 않으면 종료 코드 2로 차단한다. `am setup --install`은 오래된 훅을 제자리에서 갱신하며, `am doctor`는 격리된 위치 파일과 무해한 가드로 훅 실행을 점검한다.
@@ -100,11 +101,14 @@ taeng-agent-manager/            ← Orca에서 여는 매니저 레포
   - 따옴표 밖에서만 `; | & { } ( )`·줄바꿈으로 나누고, `$(...)`·`` `...` `` 안의 명령도 따로 검사한다.
   - escape(bash `\`, PowerShell `` ` ``, cmd `^`)는 미리 풀지 않고 "효력 없는 글자"로 남긴 채 나눈다 — `echo \"; git push`의 `\"`가 따옴표를 열어 뒤 명령을 숨기지 못한다. cmd에는 작은따옴표가 없다는 것도 반영한다.
   - `bash -c`·`powershell -Command`·`cmd /c`·`env`·`&`·`sudo`·`npx`/`pnpm dlx`/`npm exec`, 그리고 `timeout`·`nice`·`nohup`·`stdbuf`·`setsid`·`ionice`·`chronic`·`exec`·`command`·`watch`(→ `sh -c`)를 벗겨 안쪽 명령을 그대로 분석한다. `xargs`와 `find -exec/-execdir/-ok`의 안쪽 명령도 분석하되, 미리 모르는 인수(파일 이름)로 실행되므로 읽기 명령만 자동 허용한다. `find -delete`는 삭제 승인.
-  - **기본 ask**: 아는 명령(읽기·문서 도구, 작업 폴더 안 파일 쓰기 도구, git·gh, orca)과 허용 목록 실행(아래)만 자동 허용한다. 그 밖의 프로그램·`./x.sh`·`node x.js`·`python -m <unittest·am 밖>`·`pytest`·`uv run`/`pipx run`/`poetry run` 같은 실행기·표준 입력으로 받는 `sh`는 위험 단어가 없어도 사람 확인이다. 승인 대상 명령(배포·설치 등)은 승인이 곧 확인이다. git은 모르는 하위 명령(외부 `git-<x>`), 안전 목록 밖 설정 키(`-c`·`git config`), `--exec-path`, `submodule foreach`·`bisect run`·`rebase -x`·`clone/init --template`도 사람 확인이고, 작업 폴더 안 훅 폴더(`core.hooksPath`, husky 등)의 훅은 commit·push 등에서 기준과 같아야 한다. gh는 pr·issue·repo·api·run·workflow·release·search·status·label 등만(확장·별칭·`auth` 설정은 사람 확인). 읽기 도구라도 프로그램을 실행·파일을 쓰는 옵션(`rg --pre`, `sort -o`, sed `e`/`w`, awk `system`/`>` 등)은 사람 확인. 인수·쓰기 대상에 변수(`$X`, `$'…'`)가 있으면(읽기 명령 제외) 사람 확인, `~`는 홈 폴더로 풀어 본다.
+  - **기본 허용 + 기록**(사용자 지시 2026-11-18): 해석을 끝내지 못한 명령(opaque)도 금지·미승인 작업·승인 기록 명령이 아니고, 해당 구간에 아래 위험 신호가 없으면 확인 창 없이 실행한다. 변수 값은 읽지 않고 보이는 글자만 검사한다. 알려진 안전 명령의 커밋 메시지·문서 인수까지 위험 명령으로 취급하지 않는다.
+  - 위험 신호는 `OPAQUE_RISK_SIGNALS` 상수와 테스트로 고정한다: `git push`, `gh pr merge`, `gh repo`, `gh release`, `gh api` 쓰기 메서드·필드; `ssh/scp/rsync/sftp`; `deploy`; `sudo/systemctl/service`; `rm -r/-rf`, `find -delete`, `shred`; `kill/pkill`; `docker/kubectl/terraform/helm`; `psql/mysql/mongo/redis-cli/supabase`, `DROP/DELETE FROM/TRUNCATE/ALTER`; `curl/wget/http`의 POST·PUT·PATCH·DELETE·데이터 전송; `npm/pnpm/yarn publish`; `eas submit/update`; base64 디코드·eval·source·다운로드한 코드의 셸 실행; `.env`, `*.pem`, `id_rsa`, `credentials` 비밀값 파일. 위험 신호가 보이면 Claude 확인 창·Codex 차단을 유지한다.
+  - `config/guard.json`의 `{"opaque":"allow"}`가 기본이며 파일이 없어도 같다. `{"opaque":"ask"}`면 예전처럼 모든 opaque 명령을 확인한다. 설정이 깨지거나 읽히지 않으면 확인 방식으로 돌아간다. Write/Edit 같은 파일 도구의 경로 판정은 바꾸지 않는다.
+  - 자동 허용한 opaque 명령은 프로젝트 이력에 `확인 없이 실행: <사유>; 명령: <요약>`으로 남긴다. 프로젝트를 찾지 못하면 `~/.config/agent-manager/guard-allowed.log`에 한 줄로 남긴다. 명령은 비밀값처럼 보이는 토큰을 가린 뒤 120자로 자르고 줄바꿈을 없앤다. 기록 실패는 실행을 막지 않는다.
   - git 앞 옵션(`-C <폴더>`는 그 폴더 기준), git 별칭(실제 내용으로 펼침, `!셸` 별칭은 사람 확인), gh `-R/--repo`(이 프로젝트 저장소와 다르면 금지), python 옵션(`-u -m am approve`)을 해석한다.
-  - 명령어 자리만 보므로 커밋 메시지·echo 인수 속 글자는 무시한다.
-  - 변수·eval·인코딩된 명령·짝 없는 치환·스크립트 안 subprocess처럼 미리 알 수 없는 실행은 사람에게 넘긴다(Claude 확인 창, Codex 차단).
-- **한계(남는 위험) — 정직하게**: 가드는 안전벨트지 샌드박스가 아니다.
+  - 해석이 끝난 명령은 명령어 자리를 보므로 커밋 메시지·echo 인수 속 글자는 무시한다. opaque 구간의 위험 신호 검사는 인수의 글자도 본다.
+  - 변수·인코딩된 명령·짝 없는 치환·스크립트 안 subprocess도 opaque 정책을 따른다. eval 등 위험 신호가 보이거나 `ask` 설정일 때 사람에게 넘긴다(Claude 확인 창, Codex 차단).
+- **한계(남는 위험) — 정직하게**: 가드는 안전벨트지 샌드박스가 아니다. 아래의 “사람 확인”·“자동 허용하지 않음”은 파서가 opaque로 분류한다는 뜻이다. 최종 실행은 위의 2026-11-18 정책을 따른다. 위험 신호가 안 보이는 동적 코드·수정된 스크립트는 기본 설정에서 실행될 수 있다. 글자 검사로 숨겨진 실행을 증명할 수 없고, 로그 마스킹도 모든 비밀값을 알아내지는 못한다.
   - 테스트·빌드는 좁은 명령 목록으로 허용한다: `gradlew[.bat]`의 `test/build/check/compileJava/compileTestJava/classes/testClasses/assemble` 및 제한된 옵션, 트리 안 경로의 `-p`; `npm ci`·`npm install`(인수 없음), package.json scripts에 있는 `npm test`·`npm run[-script] build/test/lint`, `npx vitest run`; 작업 트리 안 경로·점 이름만 받는 `python -m unittest`(작업 폴더에 `unittest.py`·`unittest/`가 있으면 `python -I -m unittest`만), 추적된 `.py`·`.sh`의 `python`·`sh` 실행, 이 매니저 레포 자신의 `python -m am`이다. 파일 실행은 기준(`refs/remotes/origin/main`)과 인덱스·실제 파일 내용이 모두 같아야 하고(CRLF/LF 차이는 허용, 경로 여러 개를 `ls-files -v`·`cat-file --batch` 두 번으로 묶어 본다), `python` 스크립트는 같은 폴더의 `.py`도 모두 기준과 같고 추적 안 된 `.py`가 없어야 한다(모듈 shadowing). assume-unchanged·skip-worktree·심볼릭 링크는 허용하지 않는다.
   - 기준은 **믿을 수 있을 때만** 쓴다: origin이 네트워크 주소(insteadOf 적용 후)이고, 그 ref의 마지막 reflog가 fetch·pull·clone·push가 남긴 것이며 현재 값과 같아야 한다. `git replace`는 무시하고 읽는다. 아니면 사람 확인. 같은 세션에서 기준을 바꿀 수 있는 명령(`update-ref`·`replace`·`symbolic-ref` 쓰기, `fetch`/`pull`의 `:` refspec·경로/URL 원격, `remote add/set-url/…`, `remote.*`·`url.*` 설정, `git -c remote.…/url.…`, `push .`·`refs/remotes/`로의 push)과 `.git/` 안 파일 쓰기도 사람 확인이다. 자동 fetch는 하지 않는다. 남는 한계: 사람이 승인한 위 명령(`update-ref -m "fetch …"`)이나 가드 밖 프로그램이 reflog까지 맞춰 위조하면 막지 못한다.
   - Gradle은 wrapper·build/settings.gradle(.kts)·gradle.properties·init.d·buildSrc·build-logic(트리 전체, 무시된 파일 포함, 무시된 폴더는 접어서 본다), npm/npx는 현재 폴더와 그 위 폴더들의 package.json·package-lock.json·npm-shrinkwrap.json·.npmrc(무시된 파일 포함, workspaces가 있으면 트리 전체)의 추가·삭제·수정을 같은 기준으로 검사한다. 기준 ref·reflog는 `.git` 파일에서 직접 읽고(reftable 저장소면 기준 없음 → 사람 확인), 한 판정 안의 git 조회는 캐시한다 — `npm test` 판정은 git 프로세스 3개, `npm -v` 같은 읽기 명령은 0개. 브랜치가 이 파일들을 정당하게 바꿔도(의존성 추가) 기준에 들어가기 전까지는 사람 확인이다.

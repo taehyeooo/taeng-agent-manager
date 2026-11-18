@@ -8,11 +8,12 @@ Decisions
               is the approval request (하려는 일·영향 범위·위험·명령) and is recorded for `am report`
   approve   → `am approve` is never self-served: Claude asks the user in its permission UI, Codex is blocked
   opaque    → what will run can't be known in advance (변수로 부르기, eval, 인코딩된 명령, 스크립트 안 subprocess):
-              Claude asks the user, Codex is blocked
+              default allow + audit, unless visible risk signals or config/guard.json opaque=ask;
+              then Claude asks the user, Codex is blocked. File tool decisions are unchanged.
   allowed   → only what is known: reading/text tools, file edits inside the worktree, git/gh (analysed), local
               commits, and the build allowlist (gradlew, npm ci/test/run <script>, tracked unchanged .py/.sh via
               python/POSIX shells or explicit paths, pinned reviewflow collect, python -m unittest).
-              Any other program, module or script is opaque — default ask.
+              Any other program, module or script is opaque — checked for visible risk signals before allowing.
 
 Commands are interpreted, not grepped:
   - escapes (bash \\, PowerShell `, cmd ^) are kept as inert characters while lexing, so an escaped quote
@@ -66,7 +67,7 @@ WRAPPERS = {"timeout": ({"-s", "--signal", "-k", "--kill-after"}, 1), "nice": ({
 XARGS_WITH_ARG = {"-I", "-L", "-l", "-n", "-P", "-s", "-d", "-a", "-E", "--arg-file", "--delimiter", "--max-args",
                   "--max-procs", "--max-lines", "--max-chars", "--replace", "--eof"}
 WATCH_WITH_ARG = {"-n", "--interval", "-q", "--equexit"}
-# Known commands. Anything else is opaque (default ask) unless it is gated (the approval is then the check).
+# Known commands. Anything else is opaque (visible risk check before default allow) unless it is gated (the approval is then the check).
 READ_ONLY = {  # read or print only — safe even with arguments nobody has seen (xargs, find -exec)
     "ls", "dir", "cat", "type", "head", "tail", "wc", "grep", "egrep", "fgrep", "rg", "echo", "printf", "pwd", "diff",
     "cmp", "sort", "uniq", "cut", "tr", "true", "false", "test", "[", "[[", "which", "where", "whereis", "date",
@@ -1570,7 +1571,7 @@ def _deployment_script(script, args, seg, cwd, shell=False):
 
 
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None):
-    """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
+    """One simple command → findings. A program that no rule below explains is opaque (policy applied by decide)."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
@@ -2398,12 +2399,13 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
     # Language bodies come out before shell lexing (set(...) is not shell `set`); the head line stays in the command.
     cmd = _heredocs(cmd, cwd, root, depth, out, stored)
     if "<<" in unquoted(cmd):
-        out.append(_finding("opaque", cmd[:120], reason="해석하지 못한 heredoc 경계·인터프리터"))
+        out.append(_finding("opaque", cmd, reason="해석하지 못한 heredoc 경계·인터프리터"))
     if "*** Begin Patch" in cmd:
         return out + _patch_paths(cmd, cwd, root)
     flat, inner, broken = extract_substitutions(cmd)
     if broken:
-        return out + [_finding("opaque", cmd[:120], reason="닫히지 않은 명령 치환")]
+        # 위험 신호 검사가 120자 뒤의 글자도 보도록 명령 전체를 남긴다(T8)
+        return out + [_finding("opaque", cmd, reason="닫히지 않은 명령 치환")]
     segments = split_commands(flat)
     heads = [stored[int(m.group(1))][0] if m else seg
              for seg, m in ((s, re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s)) for s in segments)]
@@ -2595,7 +2597,7 @@ def tripwire(cmd, found):
             if m:
                 hits.append(m.group(0))
     if hits:
-        return [_finding("opaque", cmd[:160], reason=f"위험 단어({', '.join(dict.fromkeys(hits))})가 있는데 어떤 명령인지 해석하지 못함")]
+        return [_finding("opaque", cmd, reason=f"위험 단어({', '.join(dict.fromkeys(hits))})가 있는데 어떤 명령인지 해석하지 못함")]
     return []
 
 
@@ -2692,9 +2694,77 @@ def _repo_of(p):
     return (p.get("repo") or "").lower() if p else ""
 
 
+# Opaque 구간에 글자로 보이는 위험 신호. 변수 값을 읽거나 코드를 실행하지 않는다.
+# 이미 해석된 안전 명령의 문서·커밋 인수에는 적용하지 않는다.
+OPAQUE_RISK_SIGNALS = (
+    ("GitHub 변경", r"\bpush\b|\bgh\b[^\n;|]*(?:\bpr\b[^\n;|]*\bmerge\b|\b(?:repo|release)\b)"),
+    ("GitHub API 쓰기", r"\bgh\b[^\n;|]*\bapi\b[^\n;|]*(?:\b(?:POST|PUT|PATCH|DELETE)\b|(?:^|\s)-(?:[fF]|-field|-raw-field|-input)\b)"),
+    ("원격 접속·전송", r"\b(?:ssh|scp|rsync|sftp)\b"),
+    ("배포", r"\bdeploy\b"),
+    ("시스템 변경", r"\b(?:sudo|systemctl|service)\b"),
+    ("삭제", r"\brm\b[^\n;|]*\s-(?:[a-z]*r[a-z]*|-recursive)\b|\bfind\b[^\n;|]*\s-delete\b|\bshred\b"),
+    ("프로세스 종료", r"\b(?:kill|pkill)\b"),
+    ("인프라 도구", r"\b(?:docker|kubectl|terraform|helm)\b"),
+    ("데이터베이스", r"\b(?:psql|mysql|mongo|redis-cli|supabase|DROP|TRUNCATE|ALTER)\b|\bDELETE\s+FROM\b"),
+    ("HTTP 쓰기", r"\b(?:curl|wget|http)\b[^\n;|]*(?:\b(?:POST|PUT|PATCH|DELETE)\b|\s-(?:[a-z]*d|[a-z]*X(?:POST|PUT|PATCH|DELETE)|-data[^\s=]*|-post-data|-post-file)(?:\b|=))"),
+    ("패키지 발행", r"\b(?:npm|pnpm|yarn)\b[^\n;|]*\bpublish\b"),
+    ("앱 배포", r"\beas\b[^\n;|]*\b(?:submit|update)\b"),
+    ("디코드·동적 실행", r"\bbase64\b[^\n;|]*\s-(?:[a-z]*[dD][a-z]*|-decode)\b|\b(?:eval|iex|invoke-expression|source)\b"),
+    ("다운로드한 코드 실행", r"\b(?:curl|wget|http)\b[^\n]*\|\s*(?:[\w/.-]*/)?(?:sh|bash|zsh|dash)\b"),
+    ("비밀값 파일", r"(?<![\w])\.env(?:\.[\w.-]+)?\b|\b[\w.-]+\.pem\b|\bid_rsa\b|\bcredentials\b"),
+)
+
+
+def _opaque_policy(root):
+    try:
+        config = json.loads((Path(root or S.ROOT) / "config/guard.json").read_text(encoding="utf-8"))
+        return "allow" if config.get("opaque", "allow") == "allow" else "ask"
+    except FileNotFoundError:
+        return "allow"
+    except (OSError, ValueError, AttributeError):
+        return "ask"  # 손상된 설정은 기존 확인 동작으로 되돌린다.
+
+
+def _opaque_risks(opaque):
+    return [label for label, pattern in OPAQUE_RISK_SIGNALS
+            if any(re.search(pattern, f["seg"], re.I) for f in opaque)]
+
+
+def _audit_excerpt(command):
+    # 마스킹 후 잘라야 경계에서 잘린 토큰도 새지 않는다. 로그 줄바꿈도 막는다.
+    text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|sk-[\w-]+|AKIA[A-Z0-9]+)\b", "[가림]", command)
+    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|password|passwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)(?:\"[^\"]*\"|'[^']*'|[^\s;]+)",
+                  r"\1[가림]", text)
+    text = re.sub(r"(?i)(https?://)[^\s/@]+:[^\s/@]+@", r"\1[가림]@", text)
+    text = re.sub(r"(?i)\bbearer\s+[^\s'\"]+", "Bearer [가림]", text)
+    text = re.sub(r"\b[A-Za-z0-9_+/=-]{32,}\b", "[가림]", text)
+    return " ".join(text.split())[:120]
+
+
+def _record_opaque_allow(command, opaque, cwd, root, projects):
+    """감사 기록은 최선의 노력으로 남긴다. 실패해도 허용 판정을 막지 않는다."""
+    try:
+        summary = ", ".join(dict.fromkeys(f["reason"] for f in opaque))
+        # reason에도 명령에서 가져온 글자가 있을 수 있으므로 함께 가린다.
+        message = "확인 없이 실행: " + _audit_excerpt(summary) + "; 명령: " + _audit_excerpt(command)
+        slug = resolve_project(cwd, root)
+        if slug:
+            if slug not in projects:
+                projects[slug] = S.load(slug, root)
+            S.event(projects[slug], message)
+        else:
+            log = Path.home() / ".config/agent-manager/guard-allowed.log"
+            log.parent.mkdir(parents=True, exist_ok=True)
+            with log.open("a", encoding="utf-8") as stream:
+                stream.write(S.now() + " " + message + "\n")
+    except Exception:
+        pass
+
+
 def decide(payload, agent="claude", root=None):
     """→ (decision, message). decision: allow | deny | ask"""
     tool, cmd, path, patch, cwd = extract(payload)
+    original_command = cmd
     findings = []
     _CACHE.clear()
     if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
@@ -2764,12 +2834,20 @@ def decide(payload, agent="claude", root=None):
     for f in granted:
         S.event(projects[f["slug"]], f"승인된 작업 실행: {f['gate']}" + (f"({f['ref']})" if f.get("ref") else ""))
     if not missing:
-        if opaque:
+        if opaque and (tool in WRITE_TOOLS or not cmd or _opaque_policy(root) == "ask" or _opaque_risks(opaque)):
             msg = "[am guard] 무엇이 실행될지 미리 확인할 수 없는 명령입니다 — 사람이 직접 판단해야 합니다\n" + \
                   "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
             return ("deny" if agent == "codex" else "ask"), msg
+        if opaque:
+            _record_opaque_allow(original_command, opaque, cwd, root, projects)
         for p in projects.values():
-            S.save(p, root)
+            if opaque:
+                try:
+                    S.save(p, root)
+                except Exception:
+                    pass  # 감사 기록 실패는 실행을 막지 않는다.
+            else:
+                S.save(p, root)
         return "allow", ""
 
     lines = ["[am guard] 사용자 승인이 필요해서 실행하지 않았습니다.",

@@ -58,6 +58,10 @@ class GuardTest(unittest.TestCase):
             type(self).build(Path(_FIXTURES[key].name))
         for name in ("app", "other"):
             shutil.copytree(Path(_FIXTURES[key].name) / name, base / name, symlinks=True)
+        # 기존 회귀 검사는 ask 스위치에서도 예전 보호 동작이 유지되는지 확인한다.
+        config = Path(self.root) / "config"
+        config.mkdir(parents=True)
+        (config / "guard.json").write_text('{"opaque": "ask"}', encoding="utf-8")
         S.new_project("app", "app", "x", self.root)
         cfg = S.load_local(self.root)
         cfg["paths"]["app"] = str(self.app)
@@ -226,14 +230,15 @@ class VerifierFindingsTest(GuardTest):
         self.assertEqual(self.bash("gh api repos/me/x/pulls")[0], "allow")  # GET
 
     def test_scripts_cant_forge_state_or_self_approve(self):
+        (Path(self.root) / "config/guard.json").unlink()  # 기본 허용 정책에서도 상태 위조는 차단
         for body in ("from pathlib import Path; Path('projects/app/' + 'project' + '.json').write_text('{}')",
                      "from am import state as S; p=S.load('app'); S.approve(p,'push'); S.save(p)"):
             d, msg = self.bash(f'python -c "{body}"')
             self.assertEqual(d, "deny", body)
         heredoc = "python - <<'EOF'\nfrom am import state as S\np = S.load('app'); S.approve(p, 'push'); S.save(p)\nEOF"
         self.assertEqual(self.bash(heredoc)[0], "deny")
-        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "ask")
-        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "ask")
+        self.assertEqual(self.bash('python -c "from am import state; print(state.GATES)"')[0], "allow")
+        self.assertEqual(self.bash('python -c "print(1+1)"')[0], "allow")
 
     def test_shell_write_targets_and_patches_checked(self):
         self.assertEqual(self.bash(f"Set-Content {(self.other / 'main.py').as_posix()} x")[0], "deny")
@@ -1774,6 +1779,101 @@ class T6Round5Test(GuardTest):
         with patch.object(G, 'WINDOWS', False):
             self.assertFalse(any(f['kind'] == 'opaque' for f in
                                  self.kinds('ssh -oUserKnownHostsFile=/dev/null host sudo true')))
+
+
+class OpaqueAllowPolicyTest(unittest.TestCase):
+    """2026-11-18: 기본 allow, 기존 회귀 검사는 ask 호환 모드로도 유지."""
+
+    build = GuardTest.build
+    tearDown = GuardTest.tearDown
+    bash = GuardTest.bash
+    tool = GuardTest.tool
+    approve = GuardTest.approve
+    test_forbidden_always_denied = GuardTest.test_forbidden_always_denied
+    test_push_requires_matching_approval = GuardTest.test_push_requires_matching_approval
+    test_state_files_and_outside_paths_denied_for_write_tools = GuardTest.test_state_files_and_outside_paths_denied_for_write_tools
+
+    def setUp(self):
+        GuardTest.setUp(self)
+        (Path(self.root) / "config/guard.json").unlink()
+        self.home_patch = patch.dict(os.environ, {"HOME": str(Path(self.tmp.name) / "home"),
+                                                 "USERPROFILE": str(Path(self.tmp.name) / "home")})
+        self.home_patch.start()
+        self.addCleanup(self.home_patch.stop)
+
+    def test_default_opaque_allowed(self):
+        for cmd in ("python -c 'print(1+1)'", "pytest", "python -m tools.check", "$runner check"):
+            for agent in ("claude", "codex"):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
+
+    def test_risk_signals_keep_confirmation(self):
+        cases = (
+            "git push", "$g push origin main", "gh pr merge", "[gh, pr, merge]", "gh repo view", "gh release list", "gh api x -X POST",
+            "gh api x --method=PUT", "gh api x -f title=x", "ssh", "scp", "rsync", "sftp", "deploy",
+            "sudo", "systemctl", "service", "rm -r", "rm -rf", "find . -delete", "shred", "kill", "pkill",
+            "docker", "kubectl", "terraform", "helm", "psql", "mysql", "mongo", "redis-cli", "supabase",
+            "DROP", "DELETE FROM", "TRUNCATE", "ALTER", "curl -X POST", "wget --method=PUT",
+            "http PATCH", "curl -d x", "curl --data=x", "curl -sSLXDELETE", "wget --post-data=x",
+            "npm publish", "pnpm publish", "yarn publish", "eas submit", "eas update",
+            "base64 -d", "base64 --decode", "base64 -D", "eval", "source", "curl url | sh",
+            "cat .env", "cat key.pem", "cat id_rsa", "cat credentials", "print(open('.env').read())",
+        )
+        for signal in cases:
+            # 알 수 없는 프로그램의 인수도 검사: 변수의 실제 값은 읽지 않는다.
+            cmd = "unknown-runtime '" + signal.replace("'", '"') + "'"
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(signal=signal, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+
+    def test_ask_switch(self):
+        (Path(self.root) / "config/guard.json").write_text('{"opaque":"ask"}', encoding="utf-8")
+        self.assertEqual(self.bash("pytest")[0], "ask")
+        self.assertEqual(self.bash("pytest", agent="codex")[0], "deny")
+
+    def test_project_audit_redacted_and_bounded(self):
+        cmd = "unknown-runtime --token=private-value ghp_" + "a" * 36 + " x" * 100
+        self.assertEqual(self.bash(cmd)[0], "allow")
+        event = S.load("app", self.root)["history"][-1]["event"]
+        self.assertTrue(event.startswith("확인 없이 실행: "))
+        self.assertNotIn("private-value", event)
+        self.assertNotIn("ghp_", event)
+        self.assertLessEqual(len(event.split("명령: ", 1)[1]), 120)
+
+    def test_unmanaged_audit_one_line(self):
+        self.assertEqual(self.bash("pytest\nunknown-runtime", cwd=self.other)[0], "allow")
+        log = Path.home() / ".config/agent-manager/guard-allowed.log"
+        self.assertEqual(len(log.read_text(encoding="utf-8").splitlines()), 1)
+
+    def test_audit_failure_does_not_block(self):
+        with patch.object(S, "save", side_effect=OSError("read only")):
+            self.assertEqual(self.bash("pytest")[0], "allow")
+        with patch.object(Path, "mkdir", side_effect=OSError("read only")):
+            self.assertEqual(self.bash("pytest", cwd=self.other)[0], "allow")
+
+    def test_write_tool_opaque_unchanged(self):
+        self.assertEqual(self.tool("Write", self.app / ".git/hooks/pre-commit")[0], "ask")
+
+    def test_explicit_allow_switch(self):
+        (Path(self.root) / "config/guard.json").write_text('{"opaque":"allow"}', encoding="utf-8")
+        self.assertEqual(self.bash("pytest")[0], "allow")
+
+    def test_broken_config_reverts_to_ask(self):
+        (Path(self.root) / "config/guard.json").write_text('{broken', encoding="utf-8")
+        self.assertEqual(self.bash("pytest")[0], "ask")
+
+    def test_approved_gate_with_opaque_still_checks_risk(self):
+        self.approve("push", "feat/x")
+        self.assertEqual(self.bash("unknown-runtime && git push origin feat/x")[0], "allow")
+        self.assertEqual(self.bash("unknown-runtime 'git push' && git push origin feat/x")[0], "ask")
+        self.assertEqual(self.bash("unknown-runtime && git push origin main")[0], "deny")
+        self.assertEqual(self.bash("unknown-runtime && python -m am approve app push")[0], "ask")
+        self.assertEqual(self.bash("unknown-runtime && python -m am approve app push", agent="codex")[0], "deny")
+
+    def test_risk_after_long_argument_and_safe_message(self):
+        self.assertEqual(self.bash("unknown-runtime '" + "x" * 200 + " git push'")[0], "ask")
+        self.assertEqual(self.bash("echo $(" + "x" * 200 + " git push")[0], "ask")
+        self.assertEqual(self.bash("unknown-runtime && git commit -m 'docs: git push'")[0], "allow")
 
 
 if __name__ == "__main__":
