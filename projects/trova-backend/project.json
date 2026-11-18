@@ -355,12 +355,24 @@
       "title": "P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_db4c3d4ecb56",
       "note": ""
+    },
+    {
+      "id": "T17",
+      "title": "P1 후속 분석: 여행 상세 응답 시간이 배포 후에도 그대로인 원인(SQL 6~18→5회인데 평균 352→355ms) — 코드·쿼리 읽고 개선안 문서만",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_7bbb398b1767",
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -711,10 +723,22 @@
     {
       "at": "2026-11-19T00:12:32+09:00",
       "event": "승인된 작업 실행: merge_main(PR#470)"
+    },
+    {
+      "at": "2026-11-19T00:47:24+09:00",
+      "event": "작업 추가 T17 (codex, 자동): P1 후속 분석: 여행 상세 응답 시간이 배포 후에도 그대로인 원인(SQL 6~18→5회인데 평균 352→355ms) — 코드·쿼리 읽고 개선안 문서만"
+    },
+    {
+      "at": "2026-11-19T00:48:32+09:00",
+      "event": "작업 T16 변경: status=dispatched, dispatch=ctx_db4c3d4ecb56"
+    },
+    {
+      "at": "2026-11-19T00:48:32+09:00",
+      "event": "작업 T17 변경: status=dispatched, dispatch=ctx_7bbb398b1767"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T00:12:32+09:00",
+  "updated_at": "2026-11-19T00:48:32+09:00",
   "requests": [
     {
       "gate": "push",
