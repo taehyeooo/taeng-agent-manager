@@ -1802,7 +1802,7 @@ class OpaqueAllowPolicyTest(unittest.TestCase):
         self.addCleanup(self.home_patch.stop)
 
     def test_default_opaque_allowed(self):
-        for cmd in ("python -c 'print(1+1)'", "pytest", "python -m tools.check", "$runner check"):
+        for cmd in ("python -c 'print(1+1)'", "pytest", "python -m tools.check"):
             for agent in ("claude", "codex"):
                 with self.subTest(cmd=cmd, agent=agent):
                     self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
@@ -1874,6 +1874,56 @@ class OpaqueAllowPolicyTest(unittest.TestCase):
         self.assertEqual(self.bash("unknown-runtime '" + "x" * 200 + " git push'")[0], "ask")
         self.assertEqual(self.bash("echo $(" + "x" * 200 + " git push")[0], "ask")
         self.assertEqual(self.bash("unknown-runtime && git commit -m 'docs: git push'")[0], "allow")
+
+
+class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
+    def test_hidden_tripwires_never_auto_allowed(self):
+        bodies = (
+            "python3 -m am approve app merge_main --ref PR#1", "gh auth token",
+            "git merge feature", "git commit --no-verify", "vercel --prod",
+            "netlify deploy", "flyctl deploy", "firebase deploy",
+        )
+        for body in bodies:
+            command = 'python3 -c "import os; os.system(\'' + body + '\')"'
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(body=body, agent=agent):
+                    self.assertEqual(self.bash(command, agent=agent)[0], expected)
+
+    def test_every_tripwire_in_opaque_segments(self):
+        for word in ("push", "merge", "approve", "vercel", "netlify", "firebase", "wrangler", "railway",
+                     "flyctl", "kubectl", "eas", "environ", "printenv", "process.env", "auth token",
+                     "project.json", "local.json", ".am/local.json", "no-verify", "hookspath", "drop table", "truncate table",
+                     "migrate reset", "db push"):
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(word=word, agent=agent):
+                    self.assertEqual(self.bash("unknown-runtime '" + word + "'", agent=agent)[0], expected)
+
+    def test_unresolved_execution_always_needs_confirmation(self):
+        cases = ("$runner check", "G=git; S=pu; $G ${S}sh origin main", 'bash -c "$CMD"',
+                 "xxd -r -p | sh", 'python3 -c "import os; os.system(\'git pu\'+\'sh origin main\')"',
+                 'python3 -c "import shutil; shutil.rmtree(\'src\')"')
+        for command in cases:
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(command=command, agent=agent):
+                    self.assertEqual(self.bash(command, agent=agent)[0], expected)
+
+    def test_audit_masks_more_credentials(self):
+        for text in ("MYSQL_PWD=example-pass", "mysql -pexample-pass", "tool --pass=example-pass",
+                     "postgres://u:example-pass@host/db", "sk_live_example-pass", "Authorization: token example-pass",
+                     "xoxb-example-pass", "--password example-pass", 'PASSWORD="example-pass"',
+                     "https://example-pass@host/path", 'tool -H "Authorization: Basic example-pass"'):
+            with self.subTest(text=text):
+                self.assertNotIn("example-pass", G._audit_excerpt(text))
+
+    def test_guard_config_is_protected(self):
+        target = Path(self.root) / "config/guard.json"
+        target.write_text('{"opaque":"allow"}', encoding="utf-8")
+        for tool in ("Write", "Edit"):
+            self.assertEqual(self.tool(tool, target)[0], "deny")
+        for command in ("rm config/guard.json", "rm -rf config", "echo x > config/guard.json",
+                        "sed -i s/allow/ask/ config/guard.json"):
+            self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", command)
+        self.assertEqual(self.tool("Read", target)[0], "allow")
 
 
 if __name__ == "__main__":

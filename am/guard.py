@@ -907,7 +907,7 @@ def _check_script(body, seg, cwd, root, python=False):
                 if isinstance(node, ast.Call):
                     call = ast.unparse(node.func)
                     if call.startswith(("os.", "shutil.")) or call not in safe_calls and not (isinstance(node.func, ast.Attribute) and node.func.attr in safe_methods):
-                        out.append(_finding("opaque", seg, reason="Python 호출의 부작용을 확정할 수 없음"))
+                        out.append(_finding("opaque", seg, confirm=True, reason="Python 호출의 부작용을 확정할 수 없음"))
             # Preserve the old safety net whenever the AST grammar is insufficient.
             if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|\.am[/\\]", body):
                 if writes or re.search(r"\b(shutil|os|pathlib)\b|\bopen\b", body):
@@ -931,7 +931,7 @@ def _check_script(body, seg, cwd, root, python=False):
         out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 값을 출력)"))
     if re.search(r"\bimportlib\b|\b__import__\b|\brunpy\b|\bsubprocess\b|os\.system|os\.popen|os\.exec|child_process|\bexecSync\b|\bspawn\w*\s*\(|\bexec\s*\(|\beval\s*\("
                  r"|\bsystem\s*[\(\s'\"]|%x\{|`|\bIO\.popen|\bopen3\b|\bqx\s*[\(\{/]|\bDeno\.(run|Command)|\bBun\.spawn", body):
-        out.append(_finding("opaque", seg, reason="스크립트 안에서 다른 명령·코드를 실행"))
+        out.append(_finding("opaque", seg, confirm=True, reason="스크립트 안에서 다른 명령·코드를 실행"))
     return out
 
 
@@ -1603,7 +1603,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             if m and (not m.group(1) or re.search(r"[*?\[]", m.group(1)) or SECRET_NAME.search(m.group(1))):
                 out.append(_finding("forbidden", seg, reason="인증정보 노출(환경 변수 드라이브 env:)"))
     if SUBST in toks[0] or word.startswith("$") or word in OPAQUE_WORDS:
-        return out + [_finding("opaque", seg, reason="실행할 명령을 미리 알 수 없음(변수·치환·eval)")]
+        return out + [_finding("opaque", seg, confirm=True, reason="실행할 명령을 미리 알 수 없음(변수·치환·eval)")]
     if not trusted and word not in READ_ONLY and re.search(r"\$[\w{('\"@*?#!$-]", no_single):
         out.append(_finding("opaque", seg, reason="명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음"))
     if ctx.get("stdin_args") and word not in STDIN_ARGS_SAFE:
@@ -1670,7 +1670,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             return out + [_seen("build", seg)]
         if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
             return out + [_seen("build", seg)]
-        return out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
+        return out + [_finding("opaque", seg, confirm=not args or i >= len(args) or args[i] == "-" or "-s" in args,
+                               reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
 
     if word in SCRIPTERS:
@@ -1889,6 +1890,11 @@ def _is_state_file(path, cwd, root=None):
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
     top = Path(_top(cwd))
+    # 이 스위치는 사용자만 수정한다. 디렉터리 삭제와 심볼릭 링크도 같은 보호를 적용한다.
+    guard_configs = (root / "config/guard.json", top / "config/guard.json")
+    if any(_under(config, p) or _norm(p) == _norm(config) or
+           _norm(os.path.realpath(p)) == _norm(os.path.realpath(config)) for config in guard_configs):
+        return True
     # Preserve lexical names inside the repo while tolerating OS aliases of the
     # repo root itself (/var and /private/var on macOS).
     lexical_top = next((a for a in p.parents if _norm(a) == _norm(top)), top)
@@ -2087,7 +2093,7 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
     if sub in GIT_REWRITES_FILES and any(_is_state_file(a, where, root) for a in sargs if not a.startswith("-")):
         out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
     if SUBST in sub or sub.startswith("$"):
-        return out + [_finding("opaque", seg, reason="git 하위 명령을 미리 알 수 없음")]
+        return out + [_finding("opaque", seg, confirm=True, reason="git 하위 명령을 미리 알 수 없음")]
     if sub not in GIT_BUILTINS:
         alias = _git(where, "config", "--get", f"alias.{sub}")
         if alias:
@@ -2697,6 +2703,8 @@ def _repo_of(p):
 # Opaque 구간에 글자로 보이는 위험 신호. 변수 값을 읽거나 코드를 실행하지 않는다.
 # 이미 해석된 안전 명령의 문서·커밋 인수에는 적용하지 않는다.
 OPAQUE_RISK_SIGNALS = (
+    ("승인·보호 규칙", r"\b(?:approve|merge|no-verify)\b|\bauth\s+token\b|\bproject\.json\b|(?<!\w)\.am[/\\]"),
+    ("배포 서비스", r"\b(?:vercel|netlify|flyctl)\b|\bfirebase\b[^\n;|]*\bdeploy\b"),
     ("GitHub 변경", r"\bpush\b|\bgh\b[^\n;|]*(?:\bpr\b[^\n;|]*\bmerge\b|\b(?:repo|release)\b)"),
     ("GitHub API 쓰기", r"\bgh\b[^\n;|]*\bapi\b[^\n;|]*(?:\b(?:POST|PUT|PATCH|DELETE)\b|(?:^|\s)-(?:[fF]|-field|-raw-field|-input)\b)"),
     ("원격 접속·전송", r"\b(?:ssh|scp|rsync|sftp)\b"),
@@ -2726,16 +2734,24 @@ def _opaque_policy(root):
 
 
 def _opaque_risks(opaque):
-    return [label for label, pattern in OPAQUE_RISK_SIGNALS
-            if any(re.search(pattern, f["seg"], re.I) for f in opaque)]
+    signals = list(OPAQUE_RISK_SIGNALS) + [("보호 단어: " + pattern, pattern) for pattern, _ in TRIPWIRES]
+    risks = [label for label, pattern in signals
+             if any(re.search(pattern, f["seg"], re.I) for f in opaque)]
+    if any(f.get("confirm") for f in opaque):
+        risks.append("실행 내용이 동적으로 결정됨")
+    return risks
 
 
 def _audit_excerpt(command):
     # 마스킹 후 잘라야 경계에서 잘린 토큰도 새지 않는다. 로그 줄바꿈도 막는다.
-    text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|sk-[\w-]+|AKIA[A-Z0-9]+)\b", "[가림]", command)
-    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|password|passwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)(?:\"[^\"]*\"|'[^']*'|[^\s;]+)",
+    # 헤더는 먼저 가린다. 키=값 규칙으로 Authorization의 scheme만 가려지는 것을 방지한다.
+    text = re.sub(r"(?i)(\bauthorization\s*[:=]\s*)(?:bearer|token|basic)?\s*[^\s'\"]+",
+                  r"\1[가림]", command)
+    text = re.sub(r"(?i)\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|sk[-_][\w-]+|xox[baprs]-[\w-]+|AKIA[A-Z0-9]+)\b", "[가림]", text)
+    text = re.sub(r"(?i)((?:[\w-]*(?:token|secret|pass(?:word|wd)?|pwd|api[_-]?key|access[_-]?key|authorization)[\w-]*)[\s=:]+)(?:\"[^\"]*\"|'[^']*'|[^\s;]+)",
                   r"\1[가림]", text)
-    text = re.sub(r"(?i)(https?://)[^\s/@]+:[^\s/@]+@", r"\1[가림]@", text)
+    text = re.sub(r"(?i)([a-z][a-z0-9+.-]*://)[^\s/@]+@", r"\1[가림]@", text)
+    text = re.sub(r"(?i)(?<!\S)-p(?:\"[^\"]*\"|'[^']*'|[^\s;]+)", "-p[가림]", text)
     text = re.sub(r"(?i)\bbearer\s+[^\s'\"]+", "Bearer [가림]", text)
     text = re.sub(r"\b[A-Za-z0-9_+/=-]{32,}\b", "[가림]", text)
     return " ".join(text.split())[:120]
