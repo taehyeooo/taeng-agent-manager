@@ -2220,6 +2220,23 @@ def _git_stdin_subcommand(toks):
     return (args[i].lower(), args[i + 1:]) if i < len(args) else ("", [])
 
 
+def _am_plain_content_type(value):
+    """Allowlist: exactly text/plain, optionally one charset=us-ascii/utf-8. Anything else
+    (format=flowed, delsp, unknown parameters, comments, other types) may let mailinfo
+    rewrite the patch lines, so the caller treats it as opaque."""
+    parts = [p.strip() for p in value.split(";")]
+    if parts[0].lower() != "text/plain":
+        return False
+    params = parts[1:]
+    if len(params) > 1:
+        return False
+    for param in params:
+        m = re.fullmatch(r"charset\s*=\s*(\"?)([A-Za-z0-9-]+)\1", param, re.I)
+        if not m or m.group(2).lower() not in {"us-ascii", "utf-8"}:
+            return False
+    return True
+
+
 def _am_encoded_input(text):
     """Do not guess the paths Git mailinfo will decode, including later mbox messages."""
     unfolded = re.sub(r"\r?\n[ \t]+", " ", text)
@@ -2227,7 +2244,7 @@ def _am_encoded_input(text):
         if value.strip().lower() not in {"7bit", "8bit"}:
             return True
     for value in re.findall(r"^[ \t]*Content-Type\s*:\s*([^\r\n]*)", unfolded, re.I | re.M):
-        if re.search(r"\bmultipart\b", value, re.I):
+        if not _am_plain_content_type(value):
             return True
     # Also catch unlabelled encoded data beside a harmless plain-text decoy.
     # Short wrapped lines count together; this intentionally may ask on long
@@ -2278,7 +2295,7 @@ def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None, mail=False):
     def check(text):
         findings = _patch_paths(text, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
         if mail and _am_encoded_input(text):
-            findings.append(_finding("opaque", seg, reason="git am의 인코딩·multipart 입력은 적용 경로를 확정할 수 없음"))
+            findings.append(_finding("opaque", seg, reason="git am의 인코딩·multipart·허용 목록 밖 Content-Type 입력은 적용 경로를 확정할 수 없음"))
         return findings
 
     if body is not None:
