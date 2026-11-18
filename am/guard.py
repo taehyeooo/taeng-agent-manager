@@ -11,7 +11,8 @@ Decisions
               Claude asks the user, Codex is blocked
   allowed   → only what is known: reading/text tools, file edits inside the worktree, git/gh (analysed), local
               commits, and the build allowlist (gradlew, npm ci/test/run <script>, tracked unchanged .py/.sh via
-              python/sh, python -m unittest). Any other program, module or script is opaque — default ask.
+              python/POSIX shells or explicit paths, pinned reviewflow collect, python -m unittest).
+              Any other program, module or script is opaque — default ask.
 
 Commands are interpreted, not grepped:
   - escapes (bash \\, PowerShell `, cmd ^) are kept as inert characters while lexing, so an escaped quote
@@ -1884,14 +1885,22 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
 def _is_state_file(path, cwd, root=None):
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
-    specs = Path(_top(cwd)) / ".am" / "specs"
+    top = Path(_top(cwd))
+    # Preserve lexical names inside the repo while tolerating OS aliases of the
+    # repo root itself (/var and /private/var on macOS).
+    lexical_top = next((a for a in p.parents if _norm(a) == _norm(top)), top)
+    specs = lexical_top / ".am" / "specs"
     # state.py reads .am/local.json and projects/*/project.json, never specs.
     # Resolve before exempting: ../ and symlinks cannot reach state/approvals.
-    canonical_specs = Path(os.path.realpath(_top(cwd))) / ".am" / "specs"
+    canonical_specs = Path(os.path.realpath(top)) / ".am" / "specs"
+    try:
+        lexical_parts = p.relative_to(specs).parts
+    except ValueError:
+        lexical_parts = ()
     if (_norm(specs) == os.path.normcase(str(canonical_specs)) and _under(p, specs)
-            and _norm(p) != _norm(specs) and _under(p, _top(cwd))):
+            and lexical_parts and _norm(p) != _norm(specs) and _under(p, _top(cwd))):
         parts = Path(os.path.relpath(os.path.realpath(p), os.path.realpath(specs))).parts
-        if not any(part.lower() in {".am", ".git", "project.json", "local.json"} for part in parts):
+        if not any(part.lower() in {".am", ".git", "project.json", "local.json"} for part in (*parts, *lexical_parts)):
             return False
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None

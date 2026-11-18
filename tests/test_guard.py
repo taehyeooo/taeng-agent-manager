@@ -1213,6 +1213,9 @@ class T7FalsePositiveTest(GuardTest):
             pass
         else:
             self.assertEqual(self.tool('Write', specs / 'escape/.am/local.json')[0], 'deny')
+            (specs / 'document.md').write_text('data', encoding='utf-8')
+            (self.app / '.am/local.json').symlink_to(specs / 'document.md')
+            self.assertEqual(self.tool('Write', self.app / '.am/local.json')[0], 'deny')
         if os.name != 'nt':
             self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/scratchpad/spec.md')[0], 'allow')
             self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/other/spec.md')[0], 'deny')
