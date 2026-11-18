@@ -95,6 +95,12 @@
       "ref": "PR#7",
       "note": "사용자 승인(2026-11-18 아침): T6 가드 수정 머지, merge 9ff1a5f",
       "at": "2026-11-18T10:08:42+09:00"
+    },
+    {
+      "gate": "architecture_policy",
+      "ref": "guard-opaque-allow",
+      "note": "2026-11-18 사용자: '그냥 다 승인해줘. 아예 이 에이전트 매니저 자체를 수정해서 다음에 할 때도 안 뜨게 해줘' — 판단 불가(opaque) 명령은 위험 신호가 없으면 자동 허용+기록, 승인 대상·금지는 유지",
+      "at": "2026-11-18T10:32:07+09:00"
     }
   ],
   "tasks": [
@@ -253,12 +259,24 @@
       "title": "가드 오탐: heredoc 커밋 메시지(git commit -F - <<EOF) 본문 줄을 명령으로 읽음, 레포에 커밋된 검사 스크립트(scripts/*.py)·설치된 reviewflow 스크립트 실행이 매번 확인 창 — 밤사이 워커가 반복해서 멈춤(2026-11-18)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T7",
+      "pr": "10",
+      "dispatch": "ctx_0ab261c92183",
+      "note": "Codex 구현 완료(268 OK), Claude 교차 검증 중"
+    },
+    {
+      "id": "T9",
+      "title": "가드: 판단 불가 명령은 위험 신호 없으면 자동 허용+기록 (사용자 지시 2026-11-18)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8",
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_9404156b20e6",
+      "note": ""
     }
   ],
   "history": [
@@ -1149,10 +1167,38 @@
     {
       "at": "2026-11-18T10:08:59+09:00",
       "event": "작업 T6 변경: status=done, note=PR #7 머지 9ff1a5f"
+    },
+    {
+      "at": "2026-11-18T10:18:28+09:00",
+      "event": "승인 요청: deploy (host)"
+    },
+    {
+      "at": "2026-11-18T10:19:02+09:00",
+      "event": "작업 T7 변경: status=dispatched, agent=codex, worktree=/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T7, dispatch=ctx_0ab261c92183, note=오탐 4종(cd 후 읽기, heredoc 본문, 레포 스크립트, 지시문 쓰기 위치)"
+    },
+    {
+      "at": "2026-11-18T10:30:39+09:00",
+      "event": "작업 T7 변경: status=dispatched, pr=10, note=Codex 구현 완료(268 OK), Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T10:32:07+09:00",
+      "event": "승인 기록: architecture_policy (guard-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T10:32:33+09:00",
+      "event": "작업 추가 T9 (codex): 가드: 판단 불가 명령은 위험 신호 없으면 자동 허용+기록 (사용자 지시 2026-11-18)"
+    },
+    {
+      "at": "2026-11-18T10:32:41+09:00",
+      "event": "작업 T9 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8, dispatch=ctx_9404156b20e6"
+    },
+    {
+      "at": "2026-11-18T10:33:48+09:00",
+      "event": "승인된 작업 실행: push(work/state-trova)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T10:08:59+09:00",
+  "updated_at": "2026-11-18T10:33:48+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1177,6 +1223,14 @@
       "impact": "파일이나 작업 기록이 지워진다",
       "risk": "되살리지 못할 수 있다",
       "at": "2026-11-18T00:54:57+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "host",
+      "cmd": "ssh host <<EOF",
+      "impact": "서비스가 실제로 바뀐다",
+      "risk": "실제 사용자에게 바로 영향이 가고, 비용이 생길 수 있다",
+      "at": "2026-11-18T10:18:28+09:00"
     }
   ]
 }
