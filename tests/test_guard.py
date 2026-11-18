@@ -1,5 +1,6 @@
 """Execution-time guard: real git repos in a temp dir, payloads shaped like Claude Code / Codex hooks."""
 import contextlib
+import base64
 import hashlib
 import io
 import json
@@ -1134,6 +1135,32 @@ class BuildAllowlistTest(GuardTest):
 
 class T7FalsePositiveTest(GuardTest):
     build = classmethod(BuildAllowlistTest.build.__func__)
+
+    def test_t7_git_am_encoded_mail_requires_confirmation(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        secret = '--- /dev/null\n+++ b/projects/x/project.json\n@@ -0,0 +1 @@\n+{}\n'
+        encoded = base64.b64encode(secret.encode()).decode()
+        cases = (
+            'Content-Transfer-Encoding: quoted-printable\n\n' + secret.replace('project.json', 'project=2Ejson'),
+            safe + '\nFrom second@example.com\nContent-Transfer-Encoding: base64\n\n' + encoded + '\n',
+            'Content-Type: multipart/mixed; boundary=X\n\n--X\n' + safe,
+            'cOnTeNt-TyPe:\n multipart/alternative; boundary=X\n\n' + safe,
+            'content-transfer-encoding:\n Base64\n\n' + safe,
+            'Content-Transfer-Encoding: binary\n\n' + safe,
+            safe + '\n' + encoded + '\n',
+            'Content-Transfer-Encoding: 7bit\n\n' + safe + '\n' + encoded + '\n',
+            safe + '\n' + '\n'.join(encoded[i:i + 8] for i in range(0, len(encoded), 8)) + '\n',
+        )
+        for body in cases:
+            with self.subTest(body=body):
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X')[0], 'ask')
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X', agent='codex')[0], 'deny')
+                (self.app / 'encoded.mbox').write_text(body, encoding='utf-8')
+                for command in ('git am encoded.mbox', 'git am -3 encoded.mbox'):
+                    self.assertEqual(self.bash(command)[0], 'ask')
+        for encoding in ('7bit', '8bit'):
+            self.assertEqual(self.bash("git am <<'X'\nContent-Transfer-Encoding: " + encoding + '\n\n' + safe + 'X')[0], 'allow')
+        self.assertEqual(self.bash('git am missing.mbox')[0], 'ask')
 
     def test_t7_git_patch_inputs_protect_paths(self):
         for command in ('git apply', 'git apply --cached', 'git am', 'git am -3',

@@ -2057,7 +2057,7 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
     sub, sargs = rest[0].lower(), rest[1:]
     out.append(_seen(f"git:{sub}", seg))
     if sub in {"apply", "am"}:
-        out += _git_patch_inputs(sargs, seg, where, root, patch_body, scope_cwd=cwd)
+        out += _git_patch_inputs(sargs, seg, where, root, patch_body, scope_cwd=cwd, mail=sub == "am")
     if sub == "submodule" and "foreach" in sargs or sub == "bisect" and sargs[:1] == ["run"] \
             or sub == "rebase" and any(a in ("-x", "--exec") or a.startswith(("--exec=", "-x")) for a in sargs) \
             or sub in ("clone", "init") and any(a in ("-u", "--upload-pack", "-c", "--config", "--template") or
@@ -2220,7 +2220,28 @@ def _git_stdin_subcommand(toks):
     return (args[i].lower(), args[i + 1:]) if i < len(args) else ("", [])
 
 
-def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None):
+def _am_encoded_input(text):
+    """Do not guess the paths Git mailinfo will decode, including later mbox messages."""
+    unfolded = re.sub(r"\r?\n[ \t]+", " ", text)
+    for value in re.findall(r"^[ \t]*Content-Transfer-Encoding\s*:\s*([^\r\n]*)", unfolded, re.I | re.M):
+        if value.strip().lower() not in {"7bit", "8bit"}:
+            return True
+    for value in re.findall(r"^[ \t]*Content-Type\s*:\s*([^\r\n]*)", unfolded, re.I | re.M):
+        if re.search(r"\bmultipart\b", value, re.I):
+            return True
+    # Also catch unlabelled encoded data beside a harmless plain-text decoy.
+    # Short wrapped lines count together; this intentionally may ask on long
+    # alphanumeric prose/patch lines rather than silently trusting encoded paths.
+    run = 0
+    for line in text.splitlines():
+        value = line.strip()
+        run = run + len(value) if re.fullmatch(r"[A-Za-z0-9+/]+={0,2}", value) else 0
+        if run >= 32:
+            return True
+    return False
+
+
+def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None, mail=False):
     """Inspect patch data without applying it. Unknown options/inputs require a person."""
     out, files, strip, directory, i = [], [], 1, "", 0
     while i < len(args):
@@ -2253,8 +2274,15 @@ def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None):
             files.append(a)
     if "$" in directory or SUBST in directory:
         return out + [_finding("opaque", seg, reason="패치 적용 폴더를 미리 알 수 없음")]
+
+    def check(text):
+        findings = _patch_paths(text, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+        if mail and _am_encoded_input(text):
+            findings.append(_finding("opaque", seg, reason="git am의 인코딩·multipart 입력은 적용 경로를 확정할 수 없음"))
+        return findings
+
     if body is not None:
-        out += _patch_paths(body, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+        out += check(body)
     for name in files:
         if name == "-":
             if body is None:
@@ -2268,7 +2296,7 @@ def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None):
         except (OSError, UnicodeError, ValueError):
             out.append(_finding("opaque", seg, reason="패치 입력 파일을 확인할 수 없음"))
         else:
-            out += _patch_paths(text, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+            out += check(text)
     if body is None and not files:
         out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
     return out
