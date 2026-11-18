@@ -11,7 +11,8 @@ Decisions
               Claude asks the user, Codex is blocked
   allowed   → only what is known: reading/text tools, file edits inside the worktree, git/gh (analysed), local
               commits, and the build allowlist (gradlew, npm ci/test/run <script>, tracked unchanged .py/.sh via
-              python/sh, python -m unittest). Any other program, module or script is opaque — default ask.
+              python/POSIX shells or explicit paths, pinned reviewflow collect, python -m unittest).
+              Any other program, module or script is opaque — default ask.
 
 Commands are interpreted, not grepped:
   - escapes (bash \\, PowerShell `, cmd ^) are kept as inert characters while lexing, so an escaped quote
@@ -29,6 +30,7 @@ are append-only approvals in CI and server-side branch protection (docs/architec
 Blocking uses exit code 2 + stderr, which both Claude Code and Codex treat as "deny, tell the agent why".
 """
 import ast
+import hashlib
 import json
 import os
 import re
@@ -739,7 +741,7 @@ def _build_allowed(toks, cwd):
         if args[isolated:isolated + 2] == ["-m", "unittest"]:
             return _unittest_args(args[isolated + 2:], cwd) and (isolated or not _shadowed(cwd, "unittest"))
         return bool(args and _clean_siblings(args[0], cwd))
-    if word == "sh":
+    if word in POSIX_SHELLS:
         return bool(args and _clean_script(args[0], cwd, ".sh"))
     return False
 
@@ -1197,6 +1199,7 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
         if _package_runner(toks):
             if _build_allowed(toks, cwd):
                 ctx["built"] = True
+                out.append(_seen("trust:build", seg))
                 return toks
             out.append(_finding("opaque", seg, reason="허용 목록 밖 패키지 실행기"))
         if w == "command" and toks[1:2] in (["-v"], ["-V"]):
@@ -1498,7 +1501,7 @@ def _shell_options(word, args):
 def _plugin_script(path):
     """A Claude Code plugin's own script (devflow's scripts/deploy.sh) → '<marketplace>/<plugin>/<path in plugin>'.
     The version folder is left out so the approval names the plugin's script, not one install."""
-    plugins = Path(os.path.expanduser("~")) / ".claude" / "plugins"
+    plugins = Path.home() / ".claude" / "plugins"
     for base, skip in ((plugins / "cache", 1), (plugins / "marketplaces", 0)):
         if not _under(path, base) or _norm(path) == _norm(base):
             continue
@@ -1513,6 +1516,33 @@ def _plugin_script(path):
             parts = parts[:2] + parts[2 + skip:]
         return "/".join(parts) if ".." not in parts else None
     return None
+
+
+# Reviewed taeng-marketplace/reviewflow 0.1.0: collect fetches review inputs and
+# writes reports/usage locally; it neither posts comments nor runs repository code.
+REVIEWFLOW_COLLECT_SHA256 = "94d19778aacd8fddf391e3b612ead5b4ca633dcecac54bc94424e2630e836c1e"
+
+
+def _reviewflow_collect(script, args, cwd):
+    if not args or args[0] != "collect" or len(args) > 2:
+        return False
+    if len(args) == 2 and not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_./-]*", args[1]):
+        return False
+    path = _abs(script, cwd)
+    if _plugin_script(path) != "taeng-marketplace/reviewflow/scripts/review.sh":
+        return False
+    # Check lexical AND resolved paths: symlinks may not borrow a trusted name.
+    plugin_root = Path.home() / ".claude" / "plugins"
+    try:
+        relative = path.relative_to(plugin_root)
+    except ValueError:
+        return False
+    if Path(os.path.realpath(path)) != Path(os.path.realpath(plugin_root)) / relative:
+        return False
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest() == REVIEWFLOW_COLLECT_SHA256
+    except OSError:
+        return False
 
 
 def _deployment_script(script, args, seg, cwd, shell=False):
@@ -1539,7 +1569,7 @@ def _deployment_script(script, args, seg, cwd, shell=False):
             _gated('deploy', seg)]
 
 
-def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
+def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None):
     """One simple command → findings. Default ask: a program that no rule below explains is opaque."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
@@ -1637,6 +1667,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
     
         if args and _build_allowed(toks, cwd):
             return out + [_seen("build", seg)]
+        if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
+            return out + [_seen("build", seg)]
         return out + [_finding("opaque", seg, reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
 
@@ -1695,7 +1727,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
         elif args in (["-v"], ["--version"], ["-V"]):
             ok = True
         if ok and not module and body is None:
-            out.append(_seen("build", seg))
+            # a heredoc program was read in full (_check_script), not trusted by a file's content
+            out.append(_seen("stdin-script" if script_stdin and args in ([], ["-"]) else "build", seg))
         if not ok and (python or not trusted):
             out.append(_finding("opaque", seg, reason=reason))
 
@@ -1738,11 +1771,19 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False):
             out.append(_gated("destructive_delete", seg))
 
     if word == "git":
-        return out + _analyze_git(args, seg, cwd, root, depth)
+        return out + _analyze_git(args, seg, cwd, root, depth, patch_body=patch_body)
     if word == "gh":
         return out + (_analyze_gh(args, seg, cwd) if args else [])
 
     out.extend(_deployment_script(toks[0], args, seg, cwd))
+    if not any(f.get("gate") == "deploy" for f in out):
+        # Explicit paths only: a bare check.sh is looked up through PATH.
+        if re.search(r"[/\\]", toks[0]) and (
+                _reviewflow_collect(toks[0], args, cwd) or
+                toks[0].endswith(".py") and _clean_siblings(toks[0], cwd) or
+                toks[0].endswith(".sh") and _clean_script(toks[0], cwd, ".sh")):
+            out.append(_seen("build", seg))
+            ctx["built"] = True
 
     # deploy / db / system / credentials
     if re.match(r"^(vercel|netlify deploy|fly deploy|flyctl deploy|firebase deploy|wrangler (deploy|publish)|railway up|docker push|kubectl (apply|delete|rollout)|eas (submit|update)|npm run deploy|pnpm (run )?deploy|yarn deploy)\b", joined, re.I):
@@ -1846,6 +1887,23 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
 def _is_state_file(path, cwd, root=None):
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
+    top = Path(_top(cwd))
+    # Preserve lexical names inside the repo while tolerating OS aliases of the
+    # repo root itself (/var and /private/var on macOS).
+    lexical_top = next((a for a in p.parents if _norm(a) == _norm(top)), top)
+    specs = lexical_top / ".am" / "specs"
+    # state.py reads .am/local.json and projects/*/project.json, never specs.
+    # Resolve before exempting: ../ and symlinks cannot reach state/approvals.
+    canonical_specs = Path(os.path.realpath(top)) / ".am" / "specs"
+    try:
+        lexical_parts = p.relative_to(specs).parts
+    except ValueError:
+        lexical_parts = ()
+    if (_norm(specs) == os.path.normcase(str(canonical_specs)) and _under(p, specs)
+            and lexical_parts and _norm(p) != _norm(specs) and _under(p, _top(cwd))):
+        parts = Path(os.path.relpath(os.path.realpath(p), os.path.realpath(specs))).parts
+        if not any(part.lower() in {".am", ".git", "project.json", "local.json"} for part in (*parts, *lexical_parts)):
+            return False
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
 
@@ -1967,7 +2025,7 @@ def _git_options(sub, sargs, seg, cwd, where, root):
     return out
 
 
-def _analyze_git(args, seg, cwd, root, depth):
+def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
     out, where, rest = [], cwd, list(args)
     while rest and rest[0].startswith("-"):
         opt = rest.pop(0)
@@ -2000,6 +2058,8 @@ def _analyze_git(args, seg, cwd, root, depth):
         return out
     sub, sargs = rest[0].lower(), rest[1:]
     out.append(_seen(f"git:{sub}", seg))
+    if sub in {"apply", "am"}:
+        out += _git_patch_inputs(sargs, seg, where, root, patch_body, scope_cwd=cwd, mail=sub == "am")
     if sub == "submodule" and "foreach" in sargs or sub == "bisect" and sargs[:1] == ["run"] \
             or sub == "rebase" and any(a in ("-x", "--exec") or a.startswith(("--exec=", "-x")) for a in sargs) \
             or sub in ("clone", "init") and any(a in ("-u", "--upload-pack", "-c", "--config", "--template") or
@@ -2014,6 +2074,8 @@ def _analyze_git(args, seg, cwd, root, depth):
             out.append(_finding("opaque", seg, reason=f"git 설정({keys[0]})이 실행 동작을 바꿀 수 있음"))
     if sub in GIT_RUNS_HOOKS and not _hooks_clean(where):
         out.append(_finding("opaque", seg, reason="작업 폴더 안 훅 폴더(core.hooksPath)의 훅이 원격 main과 다름"))
+    elif sub in GIT_RUNS_HOOKS and _git(where, "config", "--get", "core.hookspath"):
+        out.append(_seen("trust:hooks", seg))  # the hooks were trusted by their content
     if sub == "update-index" or sub == "config" and any(re.match(r"(?:filter|diff)\.", a, re.I) for a in sargs):
         out.append(_finding("opaque", seg, reason="Git 파일 변경 검사를 바꿀 수 있는 명령"))
     if _rewrites_refs(sub, sargs, args[:len(args) - len(rest)]):
@@ -2137,20 +2199,129 @@ def _stdin_interpreter(toks):
 
 
 def _stdin_data(toks):
-    """Commands that only read the heredoc as text: cat, tee, git commit -F -, gh … --body-file -."""
-    word, args = _word(toks[0]), toks[1:]
-    dash_file = any(a in ("-F", "--file", "--body-file") and args[i + 1:i + 2] == ["-"] or a in ("--file=-", "--body-file=-")
-                    for i, a in enumerate(args))
-    if word == "cat":
-        return all(a == "-" for a in args)
-    if word == "tee":
-        return all(a in ("-a", "--append") or not a.startswith("-") for a in args)
+    """Ordinary commands receive data. Execution-capable readers remain conservative."""
+    word = _word(toks[0])
     if word == "git":
-        return args[:1] == ["commit"] and dash_file
-    if word == "gh":
-        return [a for a in args if not a.startswith("-")][:2] in (["pr", "create"], ["pr", "edit"], ["pr", "comment"],
-                                                                   ["issue", "create"], ["issue", "comment"]) and dash_file
+        sub, args = _git_stdin_subcommand(toks)
+        return sub in {"commit", "notes", "tag"} and any(
+            a in {"-F", "--file"} and args[i + 1:i + 2] == ["-"] or a in {"--file=-", "-F-"}
+            for i, a in enumerate(args))
+    if word in SHELLS | SCRIPTERS | OPAQUE_WORDS | PREFIXES | set(WRAPPERS) | {"ssh", "env", "sudo", "xargs", "watch"}:
+        return False
+    return word in KNOWN
+
+
+def _git_stdin_subcommand(toks):
+    """Identify a Git stdin reader; actual global-option policy stays in _analyze_git."""
+    if not toks or _word(toks[0]) != "git":
+        return "", []
+    args, i = toks[1:], 0
+    while i < len(args) and args[i].startswith("-"):
+        opt = args[i]
+        i += 1
+        if opt in GIT_GLOBAL_WITH_ARG:
+            i += 1
+    return (args[i].lower(), args[i + 1:]) if i < len(args) else ("", [])
+
+
+def _am_plain_content_type(value):
+    """Allowlist: exactly text/plain, optionally one charset=us-ascii/utf-8. Anything else
+    (format=flowed, delsp, unknown parameters, comments, other types) may let mailinfo
+    rewrite the patch lines, so the caller treats it as opaque."""
+    parts = [p.strip() for p in value.split(";")]
+    if parts[0].lower() != "text/plain":
+        return False
+    params = parts[1:]
+    if len(params) > 1:
+        return False
+    for param in params:
+        m = re.fullmatch(r"charset\s*=\s*(\"?)([A-Za-z0-9-]+)\1", param, re.I)
+        if not m or m.group(2).lower() not in {"us-ascii", "utf-8"}:
+            return False
+    return True
+
+
+def _am_encoded_input(text):
+    """Do not guess the paths Git mailinfo will decode, including later mbox messages."""
+    unfolded = re.sub(r"\r?\n[ \t]+", " ", text)
+    for value in re.findall(r"^[ \t]*Content-Transfer-Encoding\s*:\s*([^\r\n]*)", unfolded, re.I | re.M):
+        if value.strip().lower() not in {"7bit", "8bit"}:
+            return True
+    for value in re.findall(r"^[ \t]*Content-Type\s*:\s*([^\r\n]*)", unfolded, re.I | re.M):
+        if not _am_plain_content_type(value):
+            return True
+    # Also catch unlabelled encoded data beside a harmless plain-text decoy.
+    # Short wrapped lines count together; this intentionally may ask on long
+    # alphanumeric prose/patch lines rather than silently trusting encoded paths.
+    run = 0
+    for line in text.splitlines():
+        value = line.strip()
+        run = run + len(value) if re.fullmatch(r"[A-Za-z0-9+/]+={0,2}", value) else 0
+        if run >= 32:
+            return True
     return False
+
+
+def _git_patch_inputs(args, seg, cwd, root, body, scope_cwd=None, mail=False):
+    """Inspect patch data without applying it. Unknown options/inputs require a person."""
+    out, files, strip, directory, i = [], [], 1, "", 0
+    while i < len(args):
+        a = args[i]
+        i += 1
+        if a == "--":
+            files.extend(args[i:])
+            break
+        if a in {"-p", "--directory"}:
+            if i >= len(args):
+                return [_finding("opaque", seg, reason="패치 경로 옵션의 값이 없음")]
+            value, i = args[i], i + 1
+            if a == "-p":
+                if not value.isdecimal():
+                    return [_finding("opaque", seg, reason="패치 경로 제거 수를 해석할 수 없음")]
+                strip = int(value)
+            else:
+                directory = value
+        elif re.fullmatch(r"-p\d+", a):
+            strip = int(a[2:])
+        elif a.startswith("--directory="):
+            directory = a.split("=", 1)[1]
+        elif a in {"--cached", "--index", "--3way", "-3", "--reverse", "-R", "--check", "--stat",
+                   "--numstat", "--summary", "--binary", "--allow-empty", "--recount", "--ignore-space-change",
+                   "--ignore-whitespace", "--reject", "--inaccurate-eof", "--verbose", "-v", "--quiet", "-q"}:
+            pass
+        elif a.startswith("-") and a != "-":
+            out.append(_finding("opaque", seg, reason="패치 옵션이 허용 목록 밖 — 적용 경로를 확정할 수 없음"))
+        else:
+            files.append(a)
+    if "$" in directory or SUBST in directory:
+        return out + [_finding("opaque", seg, reason="패치 적용 폴더를 미리 알 수 없음")]
+
+    def check(text):
+        findings = _patch_paths(text, cwd, root, git_strip=strip, directory=directory, scope_cwd=scope_cwd)
+        if mail and _am_encoded_input(text):
+            findings.append(_finding("opaque", seg, reason="git am의 인코딩·multipart·허용 목록 밖 Content-Type 입력은 적용 경로를 확정할 수 없음"))
+        return findings
+
+    if body is not None:
+        out += check(body)
+    for name in files:
+        if name == "-":
+            if body is None:
+                out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
+            continue
+        path = _abs(name, cwd)
+        try:
+            if "$" in name or SUBST in name or path.is_symlink() or not path.is_file() or path.stat().st_size > 4 * 1024 * 1024:
+                raise ValueError()
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError, ValueError):
+            out.append(_finding("opaque", seg, reason="패치 입력 파일을 확인할 수 없음"))
+        else:
+            out.append(_seen("trust:patch-file", seg))
+            out += check(text)
+    if body is None and not files:
+        out.append(_finding("opaque", seg, reason="패치 표준 입력을 확인할 수 없음"))
+    return out
 
 
 def _lead(words):
@@ -2179,8 +2350,8 @@ def _changes_env(words):
 
 def _heredocs(cmd, cwd, root, depth, out, stored):
     """Each heredoc → its head line goes back into the command (split and judged like any other line).
-    Only `<interpreter> [-]` gets its body checked as a program; cat/tee/commit message bodies are data; anything else
-    that reads a heredoc is opaque and its body stays in the command as shell lines."""
+    Only `<interpreter> [-]` gets its body checked as a program; known ordinary commands receive data.
+    Execution-capable or unresolved readers stay opaque and their bodies are also checked as shell lines."""
     def one(m):
         head, tail, body = m.group("head"), m.group("tail"), m.group("body")
         line = m.group(0).split("\n", 1)[0]
@@ -2193,6 +2364,9 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
         command = head + " " + tail
         segs = split_commands(command)
         toks = _drop_redirections(tokens(segs[0])) if len(segs) == 1 else []
+        if toks and _git_stdin_subcommand(toks)[0] in {"apply", "am"}:
+            stored.append((segs[0], body, "patch"))
+            return f"{HEREDOC_MARK}{len(stored) - 1}\n"
         if toks and _word(toks[0]) == 'ssh':
             # The remote shell can execute standard input; don't lose this fact
             # when removing the heredoc boundary before normal shell parsing.
@@ -2208,7 +2382,16 @@ def _heredocs(cmd, cwd, root, depth, out, stored):
     return HEREDOC.sub(one, cmd)
 
 
-def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
+def _distrust_content(findings, seg):
+    """A step earlier in the same command line may have replaced the file whose content earned trust."""
+    if any(f["kind"] == "seen" and (f["tag"] == "build" or f["tag"].startswith("trust:")) for f in findings):
+        return findings + [_finding("opaque", seg, reason="같은 명령줄의 다른 단계가 파일을 쓰거나 바꿈 — "
+                                    "패치 파일·추적 스크립트의 지금 내용을 믿을 수 없음")]
+    return findings
+
+
+def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=False):
+    """untrusted: an enclosing command line also writes files, so content-based trust does not hold here."""
     out, stored = [], []
     if depth == 0:
         _CACHE.clear()  # git state may have changed since the last judgement
@@ -2221,36 +2404,124 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False):
     flat, inner, broken = extract_substitutions(cmd)
     if broken:
         return out + [_finding("opaque", cmd[:120], reason="닫히지 않은 명령 치환")]
+    segments = split_commands(flat)
+    heads = [stored[int(m.group(1))][0] if m else seg
+             for seg, m in ((s, re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s)) for s in segments)]
+    # an interpreter heredoc body is code: count it as a write step whatever its head says
+    writes = [_segment_writes(h) or bool(m and stored[int(m.group(1))][2] in (True, False))
+              for h, m in zip(heads, (re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", s) for s in segments))]
+    sub_writes = any(_segment_writes(s) for sub in inner for s in split_commands(sub))
     for sub in inner:
-        out += classify_command(sub, cwd, root, depth + 1, trusted) if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
+        out += classify_command(sub, cwd, root, depth + 1, trusted, untrusted or sub_writes or any(writes)) \
+            if depth < 4 else [_finding("opaque", sub, reason="너무 깊은 치환")]
     initial_top = _top(cwd)
-    compound = len(split_commands(flat)) > 1
-    for seg in split_commands(flat):
+    compound = len(segments) > 1
+    for index, seg in enumerate(segments):
+        # content trust (patch file paths, tracked scripts) needs no other step on this line that writes files
+        distrust = untrusted or sub_writes or any(w for j, w in enumerate(writes) if j != index)
         m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", seg)
         if m:  # `python - <<EOF` judged where it runs (after any cd above it)
             head, body, python = stored[int(m.group(1))]
+            if python == "patch":
+                found = analyze(head, cwd, root, depth, script_stdin=True, patch_body=body)
+                out += _distrust_content(found, head) if distrust else found
+                continue
             if python is not None:
                 out += _check_script(body, head, cwd, root, python=python)
-            out += analyze(head, cwd, root, depth, script_stdin=True)
+            found = analyze(head, cwd, root, depth, script_stdin=True)
+            out += _distrust_content(found, head) if distrust else found
             continue
         words = _lead(tokens(seg))
         if compound and words and _word(words[0]) == "find" and any(
                 a in ("-exec", "-execdir", "-ok", "-okdir", "-delete", "-fprint", "-fprint0", "-fprintf", "-fls") for a in words[1:]):
             out.append(_finding("opaque", seg, reason="셸 조합의 find가 명령 실행·파일 쓰기를 포함함"))
         if words and _word(words[0]) in CD_WORDS:
-            target = _cd_target(words[1], cwd) if len(words) == 2 else None
-            if target is not None and _word(words[0]) == "cd" and _under(target, initial_top) and target.is_dir():
+            target = _cd_target(words[1], cwd) if len(words) == 2 and not any(
+                c in words[1] for c in ("$", SUBST, "%", "`")) else None
+            if target is not None and _word(words[0]) == "cd" and target.is_dir() and (
+                    _under(target, initial_top) or
+                    (os.path.isabs(words[1]) or words[1].startswith("~")) and _readonly_tail(segments[index + 1:])):
                 cwd = str(target)
             else:
                 out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경"))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
-        out += analyze(seg, cwd, root, depth, trusted=trusted)
+        found = analyze(seg, cwd, root, depth, trusted=trusted)
+        out += _distrust_content(found, seg) if distrust else found
     if depth == 0:
         out += tripwire(cmd, out)
     for f in out:
         f["seg"] = restore(f["seg"].replace(SUBST, "$(…)"))
     return out
+
+
+FILE_CHANGERS = {"rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink", "ln", "mklink", "new-item", "ni",
+                 "patch", "dd", "wget", "unzip", "7z", "shred", "chown", "chgrp"}
+GIT_CHANGES_FILES = GIT_REWRITES_FILES | {"merge", "pull", "rebase", "clean", "checkout-index", "read-tree", "worktree", "bisect"}
+LINE_WRAPPERS = {"sudo", "doas", "env", "nohup", "time", "nice", "ionice", "timeout", "stdbuf", "xargs", "command", "builtin", "exec"}
+
+
+def _git_writes_files(toks):
+    """git that changes work-tree files or writes an output file (diff --output, format-patch, archive -o, bundle create)."""
+    sub, sargs = _git_stdin_subcommand(toks)
+    if sub in GIT_CHANGES_FILES:
+        return not (sub in ("stash", "worktree") and sargs[:1] in (["list"], ["show"]))
+    opts = [a for a in sargs[:sargs.index("--")] if a.startswith("-")] if "--" in sargs else [a for a in sargs if a.startswith("-")]
+    if sub in GIT_DIFF_OUTPUT and any(a == "--output" or a.startswith("--output=") for a in opts):
+        return True
+    if sub == "format-patch":
+        return "--stdout" not in opts
+    if sub == "archive":
+        return any(a == "--output" or a.startswith("--output=") or re.fullmatch(r"-[^-]*o.*", a) for a in opts)
+    return sub == "bundle" and sargs[:1] == ["create"]
+
+
+def _segment_writes(seg):
+    """Does this simple command write or replace a file (redirect, cp/mv/ln/tee/sed -i, git checkout, git diff --output …)?"""
+    words = _lead(_drop_redirections(tokens(seg)))
+    while words and (re.match(r"^[A-Za-z_]\w*=", words[0]) or _word(words[0]) in LINE_WRAPPERS or words[0].startswith("-")
+                     or re.fullmatch(r"\d+(\.\d+)?[smhd]?", words[0])):
+        words = words[1:]
+    word, args = (_word(words[0]), words[1:]) if words else ("", [])
+    if word in ("mkdir", "md"):  # a new empty folder replaces no content; its redirections still count
+        word, args = "", []
+    if _write_targets(word, args, seg):
+        return True
+    if word in FILE_CHANGERS or word == "git" and _git_writes_files(words):
+        return True
+    if word in SCRIPTERS:  # code from stdin/heredoc or a code option (python -c, node -e) may write any file
+        script = next((a for a in args if not a.startswith("-")), None)
+        return script is None or script == "-" or any(
+            a in ("--eval", "--print") or a.startswith(("--eval=", "--print=")) or
+            re.fullmatch(r"-[A-Za-z]*[cep].*", a) and not a.startswith("--") for a in args)
+    if word in SHELLS:  # bash -c "cp a b": the inner command line
+        return any(_segment_writes(s) for s in split_commands(" ".join(args)))
+    if word == "curl":
+        return any(a in ("--output", "--remote-name", "--remote-name-all") or a.startswith("--output=")
+                   or re.fullmatch(r"-[a-zA-Z]*[oO].*", a) for a in args)
+    if word == "tar":
+        return any(a in ("--extract", "--get") or re.fullmatch(r"-?[a-zA-Z]*x[a-zA-Z]*", a) for a in args[:1] + [a for a in args if a.startswith("-")])
+    return False
+
+
+def _readonly_tail(segments):
+    """Only a narrow read grammar permits leaving the work tree; analyze still checks every option/gate."""
+    for seg in segments:
+        words = tokens(seg)
+        if not words:
+            continue
+        word, args = _word(words[0]), words[1:]
+        if _segment_writes(seg):
+            return False
+        if word in READ_ONLY or word == "cd":
+            continue
+        if word == "git" and args and args[0] in {
+                "status", "diff", "log", "show", "rev-parse", "ls-files", "ls-tree", "rev-list", "shortlog"}:
+            continue
+        if word == "orca" and args[:2] in (["orchestration", "check"], ["orchestration", "worker-show"]):
+            continue
+        return False
+    return True
 
 
 def _cd_target(path, cwd):
@@ -2316,7 +2587,7 @@ def tripwire(cmd, found):
     flat, _, _ = extract_substitutions(cmd)
     hits = []
     for seg in split_commands(flat):
-        if tags.get(seg):
+        if any(not t.startswith("trust:") for t in tags.get(seg, ())):  # trust:* marks content trust, not parsing
             continue
         text = tripwire_text(seg)
         for pat, _owners in TRIPWIRES:
@@ -2328,8 +2599,42 @@ def tripwire(cmd, found):
     return []
 
 
-def _patch_paths(text, cwd, root):
+def _patch_paths(text, cwd, root, git_strip=None, directory="", scope_cwd=None):
     out = []
+    if git_strip is not None:
+        paths = []
+        for line in text.splitlines():
+            if line.startswith(("--- ", "+++ ")):
+                paths.append((line[4:].split("\t", 1)[0], git_strip))
+            elif line.startswith(("rename from ", "rename to ", "copy from ", "copy to ")):
+                paths.append((line.split(" ", 2)[2], 0))
+            elif line.startswith("diff --git "):
+                paths.extend((p, git_strip) for p in tokens(line[11:]))
+        if not paths:
+            return [_finding("opaque", "patch", reason="패치 대상 경로를 찾을 수 없음")]
+        for raw, count in paths:
+            if "\\" in raw or "$" in raw or SUBST in raw:
+                out.append(_finding("opaque", "patch", reason="패치 경로의 이스케이프·치환을 확정할 수 없음"))
+                continue
+            try:
+                path = ast.literal_eval(raw) if raw.startswith('"') else raw
+            except (ValueError, SyntaxError):
+                out.append(_finding("opaque", "patch", reason="인용한 패치 경로를 해석할 수 없음"))
+                continue
+            if not isinstance(path, str):
+                out.append(_finding("opaque", "patch", reason="패치 경로가 문자열이 아님"))
+                continue
+            if path == "/dev/null":
+                continue
+            parts = path.split("/")
+            if count >= len(parts):
+                out.append(_finding("opaque", "patch", reason="패치 경로 제거 뒤 대상이 없음"))
+                continue
+            target = "/".join(parts[count:])
+            if directory:
+                target = directory.rstrip("/") + "/" + target
+            out += classify_file("Write", str(_abs(target, cwd)), scope_cwd or cwd, root, via="patch")
+        return out
     for m in re.finditer(r"^\*\*\* (?:Add|Update|Delete) File: (.+)$|^\*\*\* Move to: (.+)$|^\+\+\+ b/(.+)$", text, re.M):
         path = (m.group(1) or m.group(2) or m.group(3)).strip()
         out += classify_file("Write", path, cwd, root, via="patch")
@@ -2352,6 +2657,11 @@ def classify_file(tool, path, cwd, root=None, via=None):
             other_repo = _repo_top(anc)
             in_other_repo = bool(other_repo) and _norm(other_repo) != _norm(top)
             scratch = [tempfile.gettempdir(), Path.home() / ".claude", Path.home() / ".codex"]
+            # macOS Claude scratchpad is outside the per-user TMPDIR; don't open
+            # all /private/tmp or allow a symlink to another location.
+            real = Path(os.path.realpath(p)).as_posix()
+            if re.fullmatch(r"/private/tmp/claude-[^/]+/(?:[^/]+/)*scratchpad/.+", real):
+                scratch.append(Path(real).parent)
             if not _under(p, top) and (in_other_repo or not any(_under(p, a) for a in scratch)):
                 out.append(_finding("forbidden", label, reason=f"지금 작업 폴더({top}) 밖 파일 수정 — 관련 없는 프로젝트·매니저의 직접 코딩 금지"))
             elif ".git" in [part.lower() for part in (*p.parts, *Path(os.path.realpath(str(p))).parts)]:
