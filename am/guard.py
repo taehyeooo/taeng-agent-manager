@@ -69,6 +69,11 @@ CODE_STRING_FLAGS = {  # 이 인터프리터들은 다음 옵션 뒤 인수를 �
     "jrunscript": re.compile(r"-e"), "groovy": re.compile(r"-e"), "julia": re.compile(r"-e|-E|--eval|--print"),
 }
 CODE_SUBCOMMANDS = {"deno": {"eval"}}  # deno eval '<코드>'
+# 스크립트 뒤에 와도 어떤 인터프리터든 코드를 더 받을 수 있는 옵션(언어 구분 없이 보수적으로) — 하나라도 있으면 clean 아님.
+# -e/-E 코드, -f/--file 프로그램 파일, -c/-command 명령, -r/-R/-B/--run(php)·--require·-l(lua 모듈)·-M(perl)·--import
+CODE_INPUT_OPTION = re.compile(
+    r"(?i)^(?:-[efcrbmilp](?:$|.)|--?(?:eval|exec|source|file|require|expr|print|run|include|load|import|loader|"
+    r"command|encodedcommand|enc|ec)(?:$|=.*|:.*))", re.S)
 # 인터프리터 목록의 단일 기준. 직접 실행·래퍼·버전 이름(접미사 허용)·코드 옵션·표준입력 판정이 모두 이 상수를 쓴다.
 # 추적·미수정 스크립트 파일 하나를 실행하는 형태(_script_run_verdict == clean)일 때만 clean_script, 그 밖은 확인.
 AWKS = {"awk", "gawk", "mawk", "nawk"}
@@ -1725,16 +1730,24 @@ def _plain_script_run(word, args, toks, cwd, piped):
     또는 '작업 폴더 안 원격 main과 같은(추적·미수정) 스크립트 파일 하나 실행'. 그 밖은 모두 False(확인)."""
     if args in (["--version"], ["-v"], ["-V"], ["version"]):
         return True
+    script_form = bool(args) and not args[0].startswith(("-", "+"))
+    if script_form and any(CODE_INPUT_OPTION.match(a) for a in args[1:]):
+        return False  # 스크립트 뒤에 코드를 더 받는 옵션 — 허용 목록 스크립트라도 확인
     if word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or _build_allowed(toks, cwd):
         return True
-    if word in ("awk", "gawk", "mawk", "nawk"):  # awk -f <프로그램 파일> [입력 파일…]
-        return len(args) >= 2 and args[0] == "-f" and _clean_script(args[1], cwd, None)
+    if word in AWKS:  # awk -f <프로그램 파일> [-f <프로그램 파일>…] [입력 파일…] — 모든 -f 파일이 깨끗해야 함
+        files, i = [], 0
+        while i + 1 < len(args) and args[i] == "-f":
+            files.append(args[i + 1])
+            i += 2
+        return bool(files) and not any(CODE_INPUT_OPTION.match(a) for a in args[i:]) \
+            and all(f not in STDIN_PATHS and _clean_script(f, cwd, None) for f in files)
     if word in ("pwsh", "powershell") and args[:1] and args[0].lower() in ("-file", "-f"):
         args = args[1:]
     elif word in ("deno", "bun") and args[:1] == ["run"]:
         args = args[1:]
     return bool(args) and not args[0].startswith(("-", "+")) and args[0] not in STDIN_PATHS \
-        and _clean_script(args[0], cwd, None)
+        and not any(CODE_INPUT_OPTION.match(a) for a in args[1:]) and _clean_script(args[0], cwd, None)
 
 
 def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None, piped=False):
@@ -1876,7 +1889,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 return out + script_findings
     
         # 셸 스크립트도 같은 단일 판정: 허용 목록 스크립트라도 source로 읽힐 셸 소스가 바뀌었으면 확인
-        if args and _build_allowed(toks, cwd) and (word not in POSIX_SHELLS or _lang_tree_clean(word, cwd)):
+        extra_code = bool(args) and not args[0].startswith("-") and any(CODE_INPUT_OPTION.match(a) for a in args[1:])
+        if args and not extra_code and _build_allowed(toks, cwd) and (word not in POSIX_SHELLS or _lang_tree_clean(word, cwd)):
             return out + [_seen("build", seg)]
         if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
             return out + [_seen("build", seg)]

@@ -2266,6 +2266,9 @@ def clean_script_langs():
 CLEAN_SCRIPT_LANGS = clean_script_langs()
 SAME_LINE = ("cp replacement.txt {s} && {cmd}", "cp replacement.txt {h} && {cmd}", "cp replacement.txt {h}; {cmd}",
              "{cmd} && cp replacement.txt {h}")
+# 깨끗한 스크립트 뒤에 코드를 더 받는 옵션(코드 문자열·추적 안 된 프로그램 파일·= 형태·명령 옵션) — 모든 언어에서 확인
+EXTRA_CODE = ("{cmd} -e 'BEGIN {{print 2}}'", "{cmd} -f tools/program.txt", "{cmd} --eval=1", "{cmd} -c x",
+              "{cmd} --require ./x")
 
 
 def clean_script_misuse_commands():
@@ -2278,6 +2281,8 @@ def clean_script_matrix(test, decide, names=None):
     """→ [(사례, 명령, 판정)]. 사례: clean(허용돼야 함) / same-line·modified-sibling·untracked-source(확인돼야 함)."""
     results = []
     (test.app / "replacement.txt").write_text("x\n", encoding="utf-8")
+    (test.app / "tools").mkdir(exist_ok=True)
+    (test.app / "tools" / "program.txt").write_text("BEGIN { system(\"git push --force origin main\") }\n", encoding="utf-8")
     for name, (script, helper, sbody, hbody, extra, forms) in CLEAN_SCRIPT_LANGS.items():
         if names and name not in names:
             continue
@@ -2289,6 +2294,7 @@ def clean_script_matrix(test, decide, names=None):
             results.append(("clean", cmd, decide(cmd)))
             results += [("same-line", line, decide(line))
                         for line in (t.format(s=script, h=helper, cmd=cmd) for t in SAME_LINE)]
+            results += [("extra-code", line, decide(line)) for line in (t.format(cmd=cmd) for t in EXTRA_CODE)]
         (test.app / helper).write_text(hbody + "\n", encoding="utf-8")  # 수정된 형제 소스
         results += [("modified-sibling", f.format(s=script), decide(f.format(s=script))) for f in forms]
         (test.app / helper).write_text(hbody, encoding="utf-8")
@@ -2306,10 +2312,19 @@ class CleanScriptMatrixTest(OpaqueReviewRegressionTest):
         self.assertEqual(set(CLEAN_SCRIPT_LANGS), set(G.SCRIPT_INTERPRETERS))
         self.assertTrue({"php", "lua", "sh", "awk", "pwsh", "rscript", "tclsh"} <= set(CLEAN_SCRIPT_LANGS))
         results = clean_script_matrix(self, lambda cmd: self.bash(cmd)[0])
-        self.assertEqual(len(results), len(CLEAN_SCRIPT_LANGS) * 4 * (1 + len(SAME_LINE) + 2))
+        self.assertEqual(len(results), len(CLEAN_SCRIPT_LANGS) * 4 * (1 + len(SAME_LINE) + len(EXTRA_CODE) + 2))
         for case, cmd, decision in results:
             with self.subTest(case=case, command=cmd):
                 self.assertEqual(decision, "allow" if case == "clean" else "ask")
+        # awk류는 -f가 여러 번 올 수 있다 — 모든 -f 파일이 원격 main과 같을 때만 허용
+        DefaultModeAllowlistTest.commit_on_main(self, "tools/awk/lib.awk", "# lib\n")
+        for cmd, want in (("awk -f tools/awk/check.awk -f tools/awk/lib.awk", "allow"),
+                          ("gawk -f tools/gawk/check.awk -e 'BEGIN {print 2}'", "ask"),
+                          ("awk -f tools/awk/check.awk -f tools/program.txt", "ask"),
+                          ("awk -f tools/awk/check.awk --source 'BEGIN {print 2}'", "ask"),
+                          ("python3 tools/python3/check.py --exec x", "ask")):
+            with self.subTest(command=cmd):
+                self.assertEqual(self.bash(cmd)[0], want)
         codex = clean_script_matrix(self, lambda cmd: self.bash(cmd, agent="codex")[0], names={"php", "lua"})
         for case, cmd, decision in codex:
             with self.subTest(agent="codex", case=case, command=cmd):
