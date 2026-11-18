@@ -851,6 +851,9 @@ LANG_SOURCES = {
     "php": (".php", ".inc"), "php-cgi": (".php", ".inc"), "lua": (".lua",), "luajit": (".lua",),
     "pwsh": (".ps1", ".psm1", ".psd1"), "powershell": (".ps1", ".psm1", ".psd1"), "tclsh": (".tcl",), "wish": (".tcl",),
     "rscript": (".r", ".R"), "r": (".r", ".R"), "julia": (".jl",), "groovy": (".groovy",),
+    "awk": (".awk",), "gawk": (".awk",), "mawk": (".awk",), "nawk": (".awk",),
+    # 셸(busybox sh tools/x.sh 등 래퍼 경로): source·. 로 함께 읽을 수 있는 셸 소스
+    "sh": (".sh", ".bash", ".zsh"), "bash": (".sh", ".bash"), "zsh": (".sh", ".zsh"), "dash": (".sh",),
 }
 
 
@@ -1674,25 +1677,43 @@ LAUNCHERS = {"uv", "uvx", "pnpm", "npm", "yarn", "npx", "pnpx", "bunx", "busybox
              } | set(WRAPPERS) | PREFIXES
 
 
-def _code_string_anywhere(toks, seg="", piped=False, cwd="."):
-    """래퍼(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs …) 뒤나 버전 붙은 이름(node22·php8.3)의 인터프리터·셸은
-    옵션을 해석하지 않고 형태로 고정한다: '이름 바로 다음 토큰이 원격 main과 같은 스크립트 경로'(그 뒤 인수는 자유)이고
-    파이프·< 표준입력이 없을 때만 안전 — 버전 확인·허용 목록 명령(python -m unittest·이 매니저의 am)도 그대로 둔다.
-    이름과 스크립트 사이에 옵션이 하나라도 있으면(-X, -o, --require, --rcfile, -m …) True(확인)."""
+def _wrapped_interpreter(toks, seg="", piped=False, cwd="."):
+    """래퍼(uv run·pnpm exec·npx·busybox·env·nice·timeout·xargs …) 뒤나 버전 붙은 이름(node22·php8.3)의 인터프리터·셸
+    → 'unsafe'(확인) | 'clean'(clean_script 사유) | None(해당 없음·허용 목록 명령).
+    옵션을 해석하지 않고 형태로 고정하고, 판정은 기본 인터프리터와 같은 _script_run_verdict 하나로 한다:
+    파이프·< 표준입력이 없고 '이름 바로 다음 토큰이 원격 main과 같은 스크립트 경로'이며 같은 언어 소스가 깨끗할 때만
+    clean. 이름과 스크립트 사이에 옵션이 하나라도 있으면(-X, -o, --require, --rcfile, -m …) unsafe."""
     if not toks:
-        return False
+        return None
     redirected = re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg)) is not None
     launched = _word(toks[0]) in LAUNCHERS
+    verdicts = []
     for i, tok in enumerate(toks):
         name = _interpreter_name(tok)
         # 맨 앞의 python·bash 같은 이름은 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
         if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS or i > 0 and not launched:
             continue
         rest = toks[i + 1:]
-        safe = not (piped or redirected) and _plain_script_run(name, rest, [name] + rest, cwd, False)
-        if not safe:
-            return True
-    return False
+        verdict = None if piped or redirected else _script_run_verdict(name, rest, [name] + rest, cwd)
+        if verdict is None:
+            return "unsafe"
+        verdicts.append(verdict)
+    return "clean" if "clean" in verdicts else None
+
+
+def _script_run_verdict(word, args, toks, cwd):
+    """인터프리터가 스크립트를 실행하는 모든 경로(직접·래퍼·버전 이름)의 단일 판정.
+    'build': 버전 확인·허용 목록 명령(python -m unittest·이 매니저의 am 등) — 사유 없이 기존 판정.
+    'clean': 원격 main과 같은 스크립트 파일 하나 실행이고 같은 레포의 그 언어 소스가 모두 깨끗함 — clean_script 사유.
+    None: 그 밖 — 확인."""
+    # 스크립트 파일 실행 형태는 허용 목록(_build_allowed)으로 건너뛰지 않고 반드시 clean 판정을 거친다
+    script_form = bool(args) and not args[0].startswith(("-", "+"))
+    if args in (["--version"], ["-v"], ["-V"], ["version"]) or \
+            word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or not script_form and _build_allowed(toks, cwd):
+        return "build"
+    if _plain_script_run(word, args, toks, cwd, False) and _lang_tree_clean(word, cwd):
+        return "clean"
+    return None
 
 
 def _plain_script_run(word, args, toks, cwd, piped):
@@ -1718,9 +1739,14 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     its program from there runs code nobody can see beforehand."""
     out, ctx = [], {}
     toks = _drop_redirections(tokens(seg))
-    if _code_string_anywhere(toks, seg, piped and not script_stdin, cwd):
+    wrapped = _wrapped_interpreter(toks, seg, piped and not script_stdin, cwd)
+    if wrapped == "unsafe":
         out.append(_finding("opaque", seg, confirm=True,
-                            reason="래퍼·버전 붙은 이름을 거쳐도 인터프리터·셸에 코드 문자열·표준입력 프로그램을 넘겨 실행 — 내용과 상관없이 확인"))
+                            reason="래퍼·버전 붙은 이름 뒤 인터프리터·셸이 '추적·미수정 스크립트 하나 실행' 형태가 아님 — 확인"))
+    elif wrapped == "clean":
+        # 기본 인터프리터와 같은 사유 — 같은 줄 쓰기가 있으면 _distrust_content가 떼어 확인으로 돌린다
+        out.append(_finding("opaque", seg, code="clean_script",
+                            reason="래퍼·버전 붙은 이름으로 원격 main과 같은 스크립트 실행"))
     if any(a in BYPASS_FLAGS for a in toks[1:]):
         out.append(_finding("forbidden", seg, reason="승인 우회 옵션"))
     toks = _strip_prefixes(toks, seg, out, cwd, trusted, ctx)
@@ -1930,8 +1956,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             # a heredoc program was read in full (_check_script), not trusted by a file's content
             out.append(_seen("stdin-script" if script_stdin and args in ([], ["-"]) else "build", seg))
         if not ok and (python or not trusted):
-            plain = ctx["plain_script"] and module is None and body is None and _lang_tree_clean(word, cwd)
-            out.append(_finding("opaque", seg, reason=reason, code="clean_script" if plain else None))
+            # 래퍼·버전 이름 경로와 같은 단일 판정(_script_run_verdict): build(버전 확인 등)는 사유 없음, clean만 clean_script
+            verdict = _script_run_verdict(word, args, toks, cwd) if module is None and body is None else None
+            if verdict != "build":
+                out.append(_finding("opaque", seg, reason=reason, code="clean_script" if verdict == "clean" else None))
 
     readonly = word in ("npm", "pnpm", "yarn", "bun") and _npm_readonly(args)  # before any git lookup
     allowed = not readonly and word in ("gradlew", "npm") and _build_allowed(toks, cwd)

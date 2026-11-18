@@ -2227,8 +2227,60 @@ class DefaultModeShadowTest(unittest.TestCase):
                 self.assertTrue(codes)
                 self.assertTrue(set(codes) <= G.LOW_RISK_CODES, codes)
         # 허용 목록 사유(clean_script·unknown_program·unlisted_build·outside_cd)가 붙을 만한 입력이라도 기본 모드에서 확인
-        misuse = {c for c in LowRiskCodeMisuseCases.COMMANDS}
+        misuse = set(LowRiskCodeMisuseCases.COMMANDS) | clean_script_misuse_commands()
+        self.assertEqual(len(clean_script_misuse_commands()), 2 * 4 * len(SAME_LINE))
         self.assertEqual([t for t, _, _ in flipped if t.get("command") in misuse], [])
+
+
+# clean_script 사례 × 실행 형태(래퍼 없음·버전 이름·uv run·timeout 60): 한 경로만 판정 함수를 빠뜨리는 일이 없게 곱해서 본다
+CLEAN_SCRIPT_LANGS = {  # 언어: (스크립트, 형제 소스, 스크립트 내용, 형제 내용, 추적 안 된 같은 언어 파일, 실행 형태들)
+    "node": ("tools/check.js", "tools/helper.js", "require('./helper')\n", "module.exports = 1\n", "extra.js",
+             ("node {s}", "node22 {s}", "uv run node {s}", "timeout 60 node {s}")),
+    "python": ("tools/check.py", "tools/helper.py", "import helper\n", "x = 1\n", "extra.py",
+               ("python3 {s}", "python3.12 {s}", "uv run python3 {s}", "timeout 60 python3 {s}")),
+}
+SAME_LINE = ("cp replacement.txt {s} && {cmd}", "cp replacement.txt {h} && {cmd}", "cp replacement.txt {h}; {cmd}",
+             "{cmd} && cp replacement.txt {h}")
+
+
+def clean_script_misuse_commands():
+    """같은 줄 쓰기가 붙은 명령 문자열(상태와 상관없이 항상 확인) — 그림자 검사가 기본 모드 허용이 아닌지 본다."""
+    return {t.format(s=s, h=h, cmd=v.format(s=s)) for s, h, _, _, _, forms in CLEAN_SCRIPT_LANGS.values()
+            for v in forms for t in SAME_LINE}
+
+
+def clean_script_matrix(test, decide):
+    """→ [(사례, 명령, 판정)]. 사례: clean(허용돼야 함) / same-line·modified-sibling·untracked-source(확인돼야 함)."""
+    results = []
+    (test.app / "replacement.txt").write_text("x\n", encoding="utf-8")
+    for script, helper, sbody, hbody, extra, forms in CLEAN_SCRIPT_LANGS.values():
+        DefaultModeAllowlistTest.commit_on_main(test, script, sbody)
+        DefaultModeAllowlistTest.commit_on_main(test, helper, hbody)
+        for form in forms:
+            cmd = form.format(s=script)
+            results.append(("clean", cmd, decide(cmd)))
+            results += [("same-line", line, decide(line))
+                        for line in (t.format(s=script, h=helper, cmd=cmd) for t in SAME_LINE)]
+        (test.app / helper).write_text(hbody + "# changed\n" if script.endswith(".py") else hbody + "// changed\n",
+                                       encoding="utf-8")
+        results += [("modified-sibling", f.format(s=script), decide(f.format(s=script))) for f in forms]
+        (test.app / helper).write_text(hbody, encoding="utf-8")
+        (test.app / extra).write_text(hbody, encoding="utf-8")
+        results += [("untracked-source", f.format(s=script), decide(f.format(s=script))) for f in forms]
+        (test.app / extra).unlink()
+    return results
+
+
+class CleanScriptMatrixTest(OpaqueReviewRegressionTest):
+    """기본(allow) 모드: 모든 실행 형태가 clean일 때만 허용, 나머지 사례는 확인(Codex 차단)."""
+
+    def test_every_form_goes_through_the_same_clean_script_check(self):
+        both = lambda cmd: tuple(self.bash(cmd, agent=a)[0] for a in ("claude", "codex"))  # noqa: E731
+        results = clean_script_matrix(self, both)
+        self.assertEqual(len(results), 2 * 4 * (1 + len(SAME_LINE) + 2))
+        for case, cmd, decision in results:
+            with self.subTest(case=case, command=cmd):
+                self.assertEqual(decision, ("allow", "allow") if case == "clean" else ("ask", "deny"))
 
 
 class LowRiskCodeMisuseCases(GuardTest):
@@ -2245,6 +2297,13 @@ class LowRiskCodeMisuseCases(GuardTest):
         for command in self.COMMANDS:
             with self.subTest(command=command):
                 self.assertNotEqual(self.bash(command)[0], "allow")
+
+    def test_clean_script_matrix_misuse(self):
+        # clean_script 사례 × 래퍼 없음·버전 이름·uv run·timeout 60 — 확인 설정에서 모두 허용 아님, 그림자 검사가 기본 모드도 본다
+        for case, cmd, decision in clean_script_matrix(self, lambda c: self.bash(c)[0]):
+            if case != "clean":
+                with self.subTest(case=case, command=cmd):
+                    self.assertNotEqual(decision, "allow")
 
 
 if __name__ == "__main__":
