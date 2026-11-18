@@ -17,6 +17,12 @@
       "ref": "trovapp.github.io-privacy-admob",
       "note": "사용자 승인(2026-11-18): 개인정보처리방침 AdMob 수정 게시(push·PR·머지)",
       "at": "2026-11-18T10:43:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#183",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, main 합쳐도 자동 배포 없음 확인",
+      "at": "2026-11-18T14:01:59+09:00"
     }
   ],
   "tasks": [
@@ -79,6 +85,26 @@
       "pr": null,
       "dispatch": null,
       "note": ""
+    },
+    {
+      "id": "T6",
+      "title": "QA 2차 지적 수정: 다크 입력 대비·큰 글씨 탭 잘림·버튼 대비·확대 줄바꿈·장소 정보 없음 안내 + #149 오류 원문 노출",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "taehyeooo/trova-app-qa-fixes",
+      "worktree": null,
+      "pr": "183",
+      "dispatch": null,
+      "note": "PR #183 머지. 사용자 반영은 OTA/v9 필요",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #183 재검증 pass(회귀 2건 해결), qa-accessibility·errors 9/9, 토큰 검사 통과, Windows test:web 257 통과. 낮음 2건(경고 로그 호스트명, 웹 accent 불일치)",
+        "at": "2026-11-18T14:01:59+09:00"
+      }
     }
   ],
   "history": [
@@ -133,8 +159,32 @@
     {
       "at": "2026-11-18T10:43:16+09:00",
       "event": "승인 기록: push (trovapp.github.io-privacy-admob)"
+    },
+    {
+      "at": "2026-11-18T11:44:06+09:00",
+      "event": "작업 추가 T6 (codex): QA 2차 지적 수정: 다크 입력 대비·큰 글씨 탭 잘림·버튼 대비·확대 줄바꿈·장소 정보 없음 안내 + #149 오류 원문 노출"
+    },
+    {
+      "at": "2026-11-18T11:44:33+09:00",
+      "event": "작업 T6 변경: status=dispatched, note=Windows codex, PR까지"
+    },
+    {
+      "at": "2026-11-18T11:59:12+09:00",
+      "event": "작업 T6 변경: branch=taehyeooo/trova-app-qa-fixes, pr=183, note=Codex 구현 ebc1338(test:web 257·토큰 검사 통과), 캡처 후속. Claude 교차 검증 예정"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "작업 T6 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "승인 기록: merge_main (PR#183)"
+    },
+    {
+      "at": "2026-11-18T14:02:02+09:00",
+      "event": "작업 T6 변경: status=done, note=PR #183 머지. 사용자 반영은 OTA/v9 필요"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-18T10:43:16+09:00"
+  "updated_at": "2026-11-18T14:02:02+09:00"
 }

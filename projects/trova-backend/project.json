@@ -29,6 +29,24 @@
       "ref": "PR#459",
       "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): O1 교차 검증 통과, Java 변경 없음(경보 설정·문서), validate·단위 10개 통과",
       "at": "2026-11-18T11:39:04+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "grafana-alert-bg3yd8j9d5fr4a",
+      "note": "사용자 승인(2026-11-18 '승인'): O1 PR #459 내용을 Grafana Cloud 운영 경보 HighMemoryPressure에 runbook 7절대로 반영",
+      "at": "2026-11-18T11:43:38+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#460-memory-pressure-cloud-sync",
+      "note": "사용자 위임(2026-11-18): 검증 통과 PR",
+      "at": "2026-11-18T14:01:55+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#461",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 pass",
+      "at": "2026-11-18T14:01:55+09:00"
     }
   ],
   "tasks": [
@@ -42,7 +60,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
       "pr": "459",
       "dispatch": "ctx_cdc995d9eadf",
-      "note": "PR #459 머지. Grafana Cloud 반영은 별도 승인 대기",
+      "note": "PR #459 머지 + 2026-11-18 12:04 KST Grafana 운영 경보 반영(before/after.json Windows grafana-o1/). 후속: 저장본·문서 갱신(O4)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -179,6 +197,26 @@
       "pr": null,
       "dispatch": "ctx_bb1931c8e008",
       "note": "2차 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/), 높음1·중간3·낮음2, #149 재현"
+    },
+    {
+      "id": "T12",
+      "title": "O1 후속: Cloud export로 rules-trova-host.json 갱신, proposals 후보 삭제, validator·테스트·runbook 1~6절·ADR 0050 상태를 실제 반영에 맞추기 (runbook 7절 5단계)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "461",
+      "dispatch": null,
+      "note": "PR #461 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #461 교차 검증 pass(낮음 4건: 로컬 경로 표기 등), validate·단위 10개 통과, Java 변경 없음",
+        "at": "2026-11-18T14:01:55+09:00"
+      }
     }
   ],
   "history": [
@@ -337,10 +375,46 @@
     {
       "at": "2026-11-18T11:39:14+09:00",
       "event": "작업 Q2 변경: note=2차 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/), 높음1·중간3·낮음2, #149 재현"
+    },
+    {
+      "at": "2026-11-18T11:43:38+09:00",
+      "event": "승인 기록: deploy (grafana-alert-bg3yd8j9d5fr4a)"
+    },
+    {
+      "at": "2026-11-18T12:15:32+09:00",
+      "event": "작업 O1 변경: note=PR #459 머지 + 2026-11-18 12:04 KST Grafana 운영 경보 반영(before/after.json Windows grafana-o1/). 후속: 저장본·문서 갱신(O4)"
+    },
+    {
+      "at": "2026-11-18T12:15:32+09:00",
+      "event": "작업 추가 T12 (codex): O1 후속: Cloud export로 rules-trova-host.json 갱신, proposals 후보 삭제, validator·테스트·runbook 1~6절·ADR 0050 상태를 실제 반영에 맞추기 (runbook 7절 5단계)"
+    },
+    {
+      "at": "2026-11-18T12:15:55+09:00",
+      "event": "작업 T12 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T12:31:46+09:00",
+      "event": "작업 T12 변경: pr=461, note=Codex PR #461(검사 통과, Java 변경 없음). Claude 교차 검증 중. Windows gradle build는 환경 문제로 31개 실패(python3 별칭·nice) — 별도 확인 필요"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "승인 기록: push (fix/#460-memory-pressure-cloud-sync)"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "승인 기록: merge_main (PR#461)"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "작업 T12 변경: status=done, note=PR #461 머지"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-18T11:39:14+09:00",
+  "updated_at": "2026-11-18T14:01:59+09:00",
   "requests": [
     {
       "gate": "push",

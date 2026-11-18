@@ -290,7 +290,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T8",
       "pr": "11",
       "dispatch": "ctx_9404156b20e6",
-      "note": "Claude 수정 fae2cfd(315 OK), T7 최신 위로 rebase 중 → Codex 재검증 예정"
+      "note": "c48e124 push(403 OK), Codex 재검증 중"
     }
   ],
   "history": [
@@ -1309,10 +1309,74 @@
     {
       "at": "2026-11-18T11:39:14+09:00",
       "event": "승인된 작업 실행: push(work/state-trova)"
+    },
+    {
+      "at": "2026-11-18T11:39:40+09:00",
+      "event": "작업 T9 변경: note=Codex 재검증 FAIL 높음 3건 → Claude가 자동 허용을 허용 목록 사유 방식으로 재구성 중"
+    },
+    {
+      "at": "2026-11-18T11:45:50+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:46:17+09:00",
+      "event": "작업 T9 변경: note=Claude 구조 변경 db6e8e8(사유 코드 허용 목록, 353 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T11:50:32+09:00",
+      "event": "작업 T9 변경: note=Codex 재검증 FAIL(clean_script 형제 모듈, 래퍼 코드 실행, outside_cd 쓰기) → Claude 수정 중"
+    },
+    {
+      "at": "2026-11-18T11:56:05+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T11:56:31+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 0097dad(368 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T11:59:59+09:00",
+      "event": "작업 T9 변경: note=Codex 재검증 FAIL 2건(clean_script 같은 줄 쓰기, 래퍼 표준입력) → Claude 수정 중"
+    },
+    {
+      "at": "2026-11-18T12:01:50+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T12:02:14+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 009fc0f(370 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T12:08:03+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T12:08:29+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 b960193(371 OK), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T12:16:34+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T12:17:01+09:00",
+      "event": "작업 T9 변경: note=Claude 수정 c11a095(403 OK, 매트릭스 테스트), Codex 재검증 중"
+    },
+    {
+      "at": "2026-11-18T14:01:15+09:00",
+      "event": "승인된 작업 실행: push(fix/t8-opaque-allow)"
+    },
+    {
+      "at": "2026-11-18T14:02:30+09:00",
+      "event": "승인된 작업 실행: push(work/state-trova)"
+    },
+    {
+      "at": "2026-11-18T14:02:33+09:00",
+      "event": "작업 T9 변경: note=c48e124 push(403 OK), Codex 재검증 중"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-18T11:39:14+09:00",
+  "updated_at": "2026-11-18T14:02:33+09:00",
   "requests": [
     {
       "gate": "push",
