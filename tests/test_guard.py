@@ -1037,7 +1037,9 @@ class BuildAllowlistTest(GuardTest):
             self._not_allowed(cmd)
         # 추적 안 된 .py(pkg/__main__.py)가 있으면 원격 main과 같은 스크립트도 import로 바뀐 코드를 돌릴 수 있어 확인
         self._not_allowed("python scripts/check.py")
+        self._not_allowed("sh scripts/check.sh")  # 추적 안 된 x.sh — 셸도 같은 언어 소스 규칙
         shutil.rmtree(self.app / "pkg")
+        (self.app / "x.sh").unlink()
         for cmd in ("npm test", "npm run build", "gradlew test", "python scripts/check.py", "sh scripts/check.sh",
                     "python -m unittest discover -s tests", "ls -la", "cat package.json | grep test", "git status",
                     "gh pr view 3", "orca orchestration check", "mkdir -p out && echo x > out/a.txt"):
@@ -1308,7 +1310,6 @@ class T7FalsePositiveTest(GuardTest):
         safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
         (self.app / 'safe.patch').write_text(safe, encoding='utf-8')
         (self.app / 'evil.patch').write_text(safe.replace('safe.md', 'projects/x/project.json'), encoding='utf-8')
-        (self.app / 'evil.sh').write_text('git push --force origin main\n', encoding='utf-8')
         for command in ('git apply safe.patch', 'git am safe.patch', 'git apply --check safe.patch && git status',
                         'python scripts/check.py', 'sh scripts/check.sh', './scripts/check.sh',
                         'python scripts/check.py && git status', 'git status; sh scripts/check.sh',
@@ -1316,6 +1317,9 @@ class T7FalsePositiveTest(GuardTest):
                         'git add -A && git commit -m x'):
             with self.subTest(command=command):
                 self.assertEqual(self.bash(command)[0], 'allow')
+        # 추적 안 된 셸 소스가 생기면 원격 main과 같은 셸 스크립트도 source로 바뀐 코드를 읽을 수 있어 확인(모든 언어 공통)
+        (self.app / 'evil.sh').write_text('git push --force origin main\n', encoding='utf-8')
+        self.assertEqual(self.bash('sh scripts/check.sh')[0], 'ask')
         for command in ('cp evil.patch safe.patch && git apply safe.patch',
                         'cp evil.patch safe.patch; git am safe.patch',
                         'cp evil.patch safe.patch\ngit apply safe.patch',
@@ -2228,17 +2232,38 @@ class DefaultModeShadowTest(unittest.TestCase):
                 self.assertTrue(set(codes) <= G.LOW_RISK_CODES, codes)
         # 허용 목록 사유(clean_script·unknown_program·unlisted_build·outside_cd)가 붙을 만한 입력이라도 기본 모드에서 확인
         misuse = set(LowRiskCodeMisuseCases.COMMANDS) | clean_script_misuse_commands()
-        self.assertEqual(len(clean_script_misuse_commands()), 2 * 4 * len(SAME_LINE))
+        self.assertEqual(len(clean_script_misuse_commands()), len(G.SCRIPT_INTERPRETERS) * 4 * len(SAME_LINE))
         self.assertEqual([t for t, _, _ in flipped if t.get("command") in misuse], [])
 
 
 # clean_script 사례 × 실행 형태(래퍼 없음·버전 이름·uv run·timeout 60): 한 경로만 판정 함수를 빠뜨리는 일이 없게 곱해서 본다
-CLEAN_SCRIPT_LANGS = {  # 언어: (스크립트, 형제 소스, 스크립트 내용, 형제 내용, 추적 안 된 같은 언어 파일, 실행 형태들)
-    "node": ("tools/check.js", "tools/helper.js", "require('./helper')\n", "module.exports = 1\n", "extra.js",
-             ("node {s}", "node22 {s}", "uv run node {s}", "timeout 60 node {s}")),
-    "python": ("tools/check.py", "tools/helper.py", "import helper\n", "x = 1\n", "extra.py",
-               ("python3 {s}", "python3.12 {s}", "uv run python3 {s}", "timeout 60 python3 {s}")),
+# 언어별 import·require 예시(대표 확장자). 여기 없는 인터프리터는 그 언어의 첫 확장자로 자동 생성된다 —
+# 가드는 스크립트 내용을 실행하지 않으므로 형제 파일과 같은 언어 소스가 '있다·바뀌었다'는 상태만 중요하다.
+IMPORT_EXAMPLES = {
+    "python": ("import helper\n", "x = 1\n"), "node": ("require('./helper')\n", "module.exports = 1\n"),
+    "php": ("<?php require __DIR__ . '/helper.php';\n", "<?php $x = 1;\n"), "lua": ("require('helper')\n", "return 1\n"),
+    "ruby": ("require_relative 'helper'\n", "X = 1\n"), "perl": ("require './helper.pl';\n", "1;\n"),
+    "sh": (". ./helper.sh\n", "x=1\n"), "bash": ("source ./helper.sh\n", "x=1\n"), "tclsh": ("source helper.tcl\n", "set x 1\n"),
+    "rscript": ("source('helper.R')\n", "x <- 1\n"), "pwsh": (". ./helper.ps1\n", "$x = 1\n"),
 }
+FORM_PREFIX = {"deno": "run ", **{a: "-f " for a in G.AWKS}}  # 스크립트 앞에 꼭 필요한 하위 명령·옵션
+
+
+def clean_script_langs():
+    """가드의 단일 상수 SCRIPT_INTERPRETERS의 모든 이름 → (스크립트, 형제 소스, 내용, 형제 내용, 같은 언어 미추적 파일,
+    실행 형태: 래퍼 없음·버전 이름·uv run·timeout 60)."""
+    langs = {}
+    for name in sorted(G.SCRIPT_INTERPRETERS):
+        ext = G.LANG_SOURCES[name][0]
+        sbody, hbody = IMPORT_EXAMPLES.get(name, ("# check\n", "# helper\n"))
+        pre = FORM_PREFIX.get(name, "")
+        langs[name] = (f"tools/{name}/check{ext}", f"tools/{name}/helper{ext}", sbody, hbody, f"extra{ext}",
+                       tuple(f.format(n=name, p=pre) + "{s}" for f in
+                             ("{n} {p}", "{n}9 {p}", "uv run {n} {p}", "timeout 60 {n} {p}")))
+    return langs
+
+
+CLEAN_SCRIPT_LANGS = clean_script_langs()
 SAME_LINE = ("cp replacement.txt {s} && {cmd}", "cp replacement.txt {h} && {cmd}", "cp replacement.txt {h}; {cmd}",
              "{cmd} && cp replacement.txt {h}")
 
@@ -2249,20 +2274,22 @@ def clean_script_misuse_commands():
             for v in forms for t in SAME_LINE}
 
 
-def clean_script_matrix(test, decide):
+def clean_script_matrix(test, decide, names=None):
     """→ [(사례, 명령, 판정)]. 사례: clean(허용돼야 함) / same-line·modified-sibling·untracked-source(확인돼야 함)."""
     results = []
     (test.app / "replacement.txt").write_text("x\n", encoding="utf-8")
-    for script, helper, sbody, hbody, extra, forms in CLEAN_SCRIPT_LANGS.values():
-        DefaultModeAllowlistTest.commit_on_main(test, script, sbody)
-        DefaultModeAllowlistTest.commit_on_main(test, helper, hbody)
+    for name, (script, helper, sbody, hbody, extra, forms) in CLEAN_SCRIPT_LANGS.items():
+        if names and name not in names:
+            continue
+        for rel, text in ((script, sbody), (helper, hbody)):
+            if not (test.app / rel).exists():  # 같은 테스트에서 다시 돌 때는 이미 원격 main에 있다
+                DefaultModeAllowlistTest.commit_on_main(test, rel, text)
         for form in forms:
             cmd = form.format(s=script)
             results.append(("clean", cmd, decide(cmd)))
             results += [("same-line", line, decide(line))
                         for line in (t.format(s=script, h=helper, cmd=cmd) for t in SAME_LINE)]
-        (test.app / helper).write_text(hbody + "# changed\n" if script.endswith(".py") else hbody + "// changed\n",
-                                       encoding="utf-8")
+        (test.app / helper).write_text(hbody + "\n", encoding="utf-8")  # 수정된 형제 소스
         results += [("modified-sibling", f.format(s=script), decide(f.format(s=script))) for f in forms]
         (test.app / helper).write_text(hbody, encoding="utf-8")
         (test.app / extra).write_text(hbody, encoding="utf-8")
@@ -2274,13 +2301,19 @@ def clean_script_matrix(test, decide):
 class CleanScriptMatrixTest(OpaqueReviewRegressionTest):
     """기본(allow) 모드: 모든 실행 형태가 clean일 때만 허용, 나머지 사례는 확인(Codex 차단)."""
 
-    def test_every_form_goes_through_the_same_clean_script_check(self):
-        both = lambda cmd: tuple(self.bash(cmd, agent=a)[0] for a in ("claude", "codex"))  # noqa: E731
-        results = clean_script_matrix(self, both)
-        self.assertEqual(len(results), 2 * 4 * (1 + len(SAME_LINE) + 2))
+    def test_every_language_and_form_goes_through_the_same_clean_script_check(self):
+        # 가드 상수의 모든 인터프리터 × 실행 형태 4종 × 사례 7종. Codex는 같은 판정(확인→차단)이라 대표 언어만 함께 본다.
+        self.assertEqual(set(CLEAN_SCRIPT_LANGS), set(G.SCRIPT_INTERPRETERS))
+        self.assertTrue({"php", "lua", "sh", "awk", "pwsh", "rscript", "tclsh"} <= set(CLEAN_SCRIPT_LANGS))
+        results = clean_script_matrix(self, lambda cmd: self.bash(cmd)[0])
+        self.assertEqual(len(results), len(CLEAN_SCRIPT_LANGS) * 4 * (1 + len(SAME_LINE) + 2))
         for case, cmd, decision in results:
             with self.subTest(case=case, command=cmd):
-                self.assertEqual(decision, ("allow", "allow") if case == "clean" else ("ask", "deny"))
+                self.assertEqual(decision, "allow" if case == "clean" else "ask")
+        codex = clean_script_matrix(self, lambda cmd: self.bash(cmd, agent="codex")[0], names={"php", "lua"})
+        for case, cmd, decision in codex:
+            with self.subTest(agent="codex", case=case, command=cmd):
+                self.assertEqual(decision, "allow" if case == "clean" else "deny")
 
 
 class LowRiskCodeMisuseCases(GuardTest):
@@ -2300,7 +2333,9 @@ class LowRiskCodeMisuseCases(GuardTest):
 
     def test_clean_script_matrix_misuse(self):
         # clean_script 사례 × 래퍼 없음·버전 이름·uv run·timeout 60 — 확인 설정에서 모두 허용 아님, 그림자 검사가 기본 모드도 본다
-        for case, cmd, decision in clean_script_matrix(self, lambda c: self.bash(c)[0]):
+        # 대표 언어만(전 언어는 CleanScriptMatrixTest가 기본 모드에서 직접 본다)
+        for case, cmd, decision in clean_script_matrix(self, lambda c: self.bash(c)[0],
+                                                       names={"node", "python3", "php", "lua", "sh"}):
             if case != "clean":
                 with self.subTest(case=case, command=cmd):
                     self.assertNotEqual(decision, "allow")

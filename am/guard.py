@@ -69,12 +69,15 @@ CODE_STRING_FLAGS = {  # 이 인터프리터들은 다음 옵션 뒤 인수를 �
     "jrunscript": re.compile(r"-e"), "groovy": re.compile(r"-e"), "julia": re.compile(r"-e|-E|--eval|--print"),
 }
 CODE_SUBCOMMANDS = {"deno": {"eval"}}  # deno eval '<코드>'
-# 인터프리터: 추적·미수정 스크립트 파일 하나를 실행하는 형태일 때만 기존 판정, 그 밖은 내용과 상관없이 확인
-INTERPRETERS = {"python", "python3", "py", "node", "deno", "bun", "ruby", "perl", "php", "php-cgi", "lua", "luajit",
-                "osascript", "pwsh", "powershell", "tclsh", "wish", "rscript", "r", "awk", "gawk", "mawk", "nawk",
-                "julia", "groovy", "jrunscript"}
-# 스크립트 파일 없이 부르면 표준 입력을 프로그램으로 읽는 인터프리터(SCRIPTERS 외)
-STDIN_INTERPRETERS = {"php", "lua", "luajit", "tclsh", "wish", "osascript", "rscript", "r", "julia", "groovy", "jrunscript"}
+# 인터프리터 목록의 단일 기준. 직접 실행·래퍼·버전 이름(접미사 허용)·코드 옵션·표준입력 판정이 모두 이 상수를 쓴다.
+# 추적·미수정 스크립트 파일 하나를 실행하는 형태(_script_run_verdict == clean)일 때만 clean_script, 그 밖은 확인.
+AWKS = {"awk", "gawk", "mawk", "nawk"}
+INTERPRETERS = frozenset({"python", "python3", "py", "node", "deno", "bun", "ruby", "perl", "php", "php-cgi", "lua",
+                          "luajit", "osascript", "pwsh", "powershell", "tclsh", "wish", "rscript", "r", "julia", "groovy",
+                          "jrunscript"} | AWKS)
+SCRIPT_INTERPRETERS = INTERPRETERS | POSIX_SHELLS  # 스크립트 파일을 실행하는 모든 이름(셸 포함)
+# 스크립트 파일 없이 부르면 표준 입력을 프로그램으로 읽는 인터프리터(SCRIPTERS·셸은 각자 규칙, awk는 프로그램 인수 필수)
+STDIN_INTERPRETERS = INTERPRETERS - SCRIPTERS - SHELLS - AWKS
 OPAQUE_WORDS = {"eval", "iex", "invoke-expression", "invoke-command", "source"}
 # wrappers that run the rest of the line as a command: word → (options that take a value, positionals before the command)
 WRAPPERS = {"timeout": ({"-s", "--signal", "-k", "--kill-after"}, 1), "nice": ({"-n", "--adjustment"}, 0),
@@ -851,6 +854,7 @@ LANG_SOURCES = {
     "php": (".php", ".inc"), "php-cgi": (".php", ".inc"), "lua": (".lua",), "luajit": (".lua",),
     "pwsh": (".ps1", ".psm1", ".psd1"), "powershell": (".ps1", ".psm1", ".psd1"), "tclsh": (".tcl",), "wish": (".tcl",),
     "rscript": (".r", ".R"), "r": (".r", ".R"), "julia": (".jl",), "groovy": (".groovy",),
+    "osascript": (".applescript", ".scpt", ".js"), "jrunscript": (".js",),
     "awk": (".awk",), "gawk": (".awk",), "mawk": (".awk",), "nawk": (".awk",),
     # 셸(busybox sh tools/x.sh 등 래퍼 경로): source·. 로 함께 읽을 수 있는 셸 소스
     "sh": (".sh", ".bash", ".zsh"), "bash": (".sh", ".bash"), "zsh": (".sh", ".zsh"), "dash": (".sh",),
@@ -1663,7 +1667,7 @@ def _interpreter_name(tok):
     """python3.12 → python, php8.3 → php, node22 → node, /usr/bin/bash → bash; 인터프리터·셸이 아니면 None."""
     name = _word(tok)
     for candidate in (name, re.sub(r"(?:[\d.]+|-\d[\w.]*)$", "", name)):
-        if candidate in INTERPRETERS or candidate in SHELLS:
+        if candidate in SCRIPT_INTERPRETERS or candidate in SHELLS:
             return candidate
     return None
 
@@ -1691,7 +1695,7 @@ def _wrapped_interpreter(toks, seg="", piped=False, cwd="."):
     for i, tok in enumerate(toks):
         name = _interpreter_name(tok)
         # 맨 앞의 python·bash 같은 이름은 직접 규칙이 해석한다(bash -c 안쪽 명령 검사 등). 버전 붙은 이름만 여기서.
-        if not name or i == 0 and _word(tok) in INTERPRETERS | SHELLS or i > 0 and not launched:
+        if not name or i == 0 and _word(tok) in SCRIPT_INTERPRETERS | SHELLS or i > 0 and not launched:
             continue
         rest = toks[i + 1:]
         verdict = None if piped or redirected else _script_run_verdict(name, rest, [name] + rest, cwd)
@@ -1806,10 +1810,13 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 re.search(r"(^|[;{}\n])\s*[\d,$!]*\s*[ewW]\b|/[gpIiMm\d]*[ewW]", s) for s in scripts):
             # GNU sed의 e 명령(1e)·s///e 플래그는 셸 명령 실행 → 명령 실행 옵션이므로 확인
             out.append(_finding("opaque", seg, confirm=True, reason="sed 스크립트가 명령을 실행하거나 파일을 쓸 수 있음"))
-    if word == "awk":
+    if word in AWKS:
         program = next((a for i, a in enumerate(args) if not a.startswith("-") and (i == 0 or args[i - 1] not in ("-v", "-F"))), "")
         # system()·파이프(print | "sh", "cmd" | getline)·파일 쓰기·확장 로드·프로그램 파일 → 확인(python os.*과 같은 기준)
-        if any(a == "-f" or a.startswith("--file") for a in args) or re.search(r"system|\||>|@load", program):
+        # 단 -f <원격 main과 같은 프로그램 파일>은 다른 인터프리터와 같은 clean_script 판정을 따른다
+        program_file = _script_run_verdict(word, args, toks, cwd) == "clean"
+        if any(a == "-f" or a.startswith("--file") for a in args) and not program_file or \
+                not program_file and re.search(r"system|\||>|@load", program):
             out.append(_finding("opaque", seg, confirm=True, reason="awk 프로그램이 명령을 실행하거나 파일을 쓸 수 있음"))
         elif re.search(r"getline|ENVIRON|close", program):
             out.append(_finding("opaque", seg, reason="awk 프로그램이 다른 입력·환경 변수를 읽음"))
@@ -1829,12 +1836,16 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
 
     remote = _remote_deploy(word, args, seg, cwd, root)
     out.extend(remote)
-    ctx["plain_script"] = word in INTERPRETERS and _plain_script_run(word, args, toks, cwd, piped)
-    if word in INTERPRETERS and not ctx["plain_script"]:
-        # 인터프리터는 '작업 폴더 안, 원격 main과 같은 스크립트 파일 하나 실행'으로 판명될 때만 아래 기존 판정.
-        # 코드 옵션(붙여 쓰기·= 형태 포함), 옵션 값 뒤 표준입력, 파일 인수 없음, 파이프 입력 등은 모두 확인.
+    verdict = _script_run_verdict(word, args, toks, cwd) if word in INTERPRETERS else None
+    if word in INTERPRETERS and verdict is None:
+        # 인터프리터는 '작업 폴더 안, 원격 main과 같은 스크립트 파일 하나 실행'(같은 언어 소스도 깨끗)으로 판명될 때만
+        # 아래 기존 판정. 코드 옵션, 옵션 값 뒤 표준입력, 파일 인수 없음, 파이프 입력, 바뀐 형제 소스 등은 모두 확인.
         out.append(_finding("opaque", seg, confirm=True,
                             reason="인터프리터 실행이 '추적·미수정 스크립트 파일 하나 실행' 형태가 아님 — 내용과 상관없이 확인"))
+    elif verdict == "clean" and word not in SCRIPTERS | SHELLS:
+        # php·lua·tclsh·Rscript·awk 등도 python·node와 같은 사유 — 같은 줄 쓰기가 있으면 _distrust_content가 뗀다
+        # (SCRIPTERS는 아래에서, pwsh는 셸 분기에서 같은 판정으로 붙인다)
+        out.append(_finding("opaque", seg, code="clean_script", reason="원격 main과 같은 스크립트 실행"))
     # wrappers → recurse into the inner command, decoding that shell's escapes
     if word in SHELLS:
         if word in ("pwsh", "powershell") and any(re.fullmatch(r"[-/](?:e|ec|en|enc|enco\w*)", a) for a in low):
@@ -1864,10 +1875,13 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             if script_findings:
                 return out + script_findings
     
-        if args and _build_allowed(toks, cwd):
+        # 셸 스크립트도 같은 단일 판정: 허용 목록 스크립트라도 source로 읽힐 셸 소스가 바뀌었으면 확인
+        if args and _build_allowed(toks, cwd) and (word not in POSIX_SHELLS or _lang_tree_clean(word, cwd)):
             return out + [_seen("build", seg)]
         if word in POSIX_SHELLS and i == 0 and args and _reviewflow_collect(args[0], args[1:], cwd):
             return out + [_seen("build", seg)]
+        if i == 0 and not command and not unsafe and _script_run_verdict(word, args, toks, cwd) == "clean":
+            return out + [_finding("opaque", seg, code="clean_script", reason="원격 main과 같은 셸 스크립트 실행")]
         reads_stdin = not args or i >= len(args) or args[i] in STDIN_PATHS or "-s" in args
         return out + [_finding("opaque", seg, confirm=reads_stdin,
                                reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
