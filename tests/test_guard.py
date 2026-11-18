@@ -1,5 +1,7 @@
 """Execution-time guard: real git repos in a temp dir, payloads shaped like Claude Code / Codex hooks."""
 import contextlib
+import base64
+import hashlib
 import io
 import json
 import os
@@ -8,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -1128,6 +1131,262 @@ class BuildAllowlistTest(GuardTest):
         (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
         (hooks / "pre-push").write_text("#!/bin/sh\n", encoding="utf-8")  # 새 훅
         self._not_allowed("git commit -m x")
+
+
+class T7FalsePositiveTest(GuardTest):
+    build = classmethod(BuildAllowlistTest.build.__func__)
+
+    def test_t7_git_am_encoded_mail_requires_confirmation(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        secret = '--- /dev/null\n+++ b/projects/x/project.json\n@@ -0,0 +1 @@\n+{}\n'
+        encoded = base64.b64encode(secret.encode()).decode()
+        cases = (
+            'Content-Transfer-Encoding: quoted-printable\n\n' + secret.replace('project.json', 'project=2Ejson'),
+            safe + '\nFrom second@example.com\nContent-Transfer-Encoding: base64\n\n' + encoded + '\n',
+            'Content-Type: multipart/mixed; boundary=X\n\n--X\n' + safe,
+            'cOnTeNt-TyPe:\n multipart/alternative; boundary=X\n\n' + safe,
+            'content-transfer-encoding:\n Base64\n\n' + safe,
+            'Content-Transfer-Encoding: binary\n\n' + safe,
+            safe + '\n' + encoded + '\n',
+            'Content-Transfer-Encoding: 7bit\n\n' + safe + '\n' + encoded + '\n',
+            safe + '\n' + '\n'.join(encoded[i:i + 8] for i in range(0, len(encoded), 8)) + '\n',
+        )
+        for body in cases:
+            with self.subTest(body=body):
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X')[0], 'ask')
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X', agent='codex')[0], 'deny')
+                (self.app / 'encoded.mbox').write_text(body, encoding='utf-8')
+                for command in ('git am encoded.mbox', 'git am -3 encoded.mbox'):
+                    self.assertEqual(self.bash(command)[0], 'ask')
+        for encoding in ('7bit', '8bit'):
+            self.assertEqual(self.bash("git am <<'X'\nContent-Transfer-Encoding: " + encoding + '\n\n' + safe + 'X')[0], 'allow')
+        self.assertEqual(self.bash('git am missing.mbox')[0], 'ask')
+
+    def test_t7_git_am_content_type_allowlist(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        # format=flowed; delsp=yes: git mailinfo joins "proj " + "ect.json" into project.json
+        flowed = '--- /dev/null\n+++ b/projects/x/proj \nect.json\n@@ -0,0 +1 @@\n+{}\n'
+        opaque = (
+            'Content-Type: text/plain; charset=UTF-8; format=flowed; delsp=yes\n\n' + flowed,
+            'Content-Type: text/plain; format=flowed\n\n' + safe,
+            'Content-Type: text/plain; charset=utf-8; x-unknown=1\n\n' + safe,
+            'Content-Type: text/plain; charset=iso-8859-1\n\n' + safe,
+            'Content-Type: text/plain; charset=utf-8; charset=utf-8\n\n' + safe,
+            'Content-Type: text/plain (comment)\n\n' + safe,
+            'Content-Type: text/html\n\n' + safe,
+            'Content-Type: application/octet-stream\n\n' + safe,
+            'Content-Type:\n text/plain;\n format=flowed\n\n' + safe,
+            'Content-Type: text/plain\n\n' + safe + '\nFrom second@example.com\n'
+            'Content-Type: text/plain; format=flowed; delsp=yes\n\n' + flowed,
+        )
+        for body in opaque:
+            with self.subTest(body=body):
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X')[0], 'ask')
+                self.assertEqual(self.bash("git am <<'X'\n" + body + 'X', agent='codex')[0], 'deny')
+                (self.app / 'flowed.mbox').write_text(body, encoding='utf-8')
+                for command in ('git am flowed.mbox', 'git am -3 flowed.mbox'):
+                    self.assertEqual(self.bash(command)[0], 'ask')
+        plain = (
+            'Content-Type: text/plain\n\n',
+            'Content-Type: text/plain; charset=UTF-8\n\n',
+            'content-type: TEXT/PLAIN ; Charset = "us-ascii"\n\n',
+            'Content-Type: text/plain;\n charset="utf-8"\nContent-Transfer-Encoding: 8bit\n\n',
+        )
+        for head in plain:
+            with self.subTest(head=head):
+                self.assertEqual(self.bash("git am <<'X'\n" + head + safe + 'X')[0], 'allow')
+                (self.app / 'plain.mbox').write_text(head + safe, encoding='utf-8')
+                self.assertEqual(self.bash('git am plain.mbox')[0], 'allow')
+                secret = '--- /dev/null\n+++ b/projects/x/project.json\n@@ -0,0 +1 @@\n+{}\n'
+                self.assertEqual(self.bash("git am <<'X'\n" + head + secret + 'X')[0], 'deny')
+
+    def test_t7_git_patch_inputs_protect_paths(self):
+        for command in ('git apply', 'git apply --cached', 'git am', 'git am -3',
+                        'git -c user.name=test apply', 'git apply -p0',
+                        'git apply --directory=.am', 'git apply --directory .am'):
+            for name in ('projects/x/project.json', '.am/local.json', '../other/main.py'):
+                path = name if '-p0' in command else 'b/' + name
+                if '--directory' in command:
+                    path = 'b/local.json'
+                body = f'--- /dev/null\n+++ {path}\n@@ -0,0 +1 @@\n+{{}}\n'
+                with self.subTest(command=command, name=name):
+                    self.assertEqual(self.bash(command + " <<'X'\n" + body + 'X')[0], 'deny')
+
+    def test_t7_git_patch_files_and_safe_messages(self):
+        patchfile = self.app / 'change.patch'
+        for command in ('git apply change.patch', 'git apply --cached change.patch', 'git am -3 change.patch'):
+            patchfile.write_text('--- /dev/null\n+++ b/.am/local.json\n@@ -0,0 +1 @@\n+{}\n', encoding='utf-8')
+            self.assertEqual(self.bash(command)[0], 'deny', command)
+        for command in ('git apply', 'git apply --cached', 'git am -3'):
+            self.assertEqual(self.bash(command + " <<'X'\n--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\nX")[0], 'allow')
+        body = '+++ b/.am/local.json\nssh production\n'
+        for command in ('git commit -F -', 'git notes add --file=-', 'git tag -F - v1'):
+            self.assertEqual(self.bash(command + " <<'X'\n" + body + 'X')[0], 'allow')
+        self.assertNotEqual(self.bash('git apply missing.patch')[0], 'allow')
+
+    def test_t7_git_patch_path_variants(self):
+        bodies = ('--- a/.am/local.json\n+++ /dev/null\n',
+                  'diff --git a/.am/local.json b/safe.md\nrename from .am/local.json\nrename to safe.md\n',
+                  '--- /dev/null\n+++ "b/.am/local.json"\n',
+                  '--- /dev/null\n+++ b/../other/main.py\n')
+        for body in bodies:
+            self.assertEqual(self.bash("git apply <<'X'\n" + body + 'X')[0], 'deny', body)
+        self.assertEqual(self.bash(f'git -C "{self.other.as_posix()}" apply' + " <<'X'\n+++ b/main.py\nX")[0], 'deny')
+        self.assertEqual(self.bash("git apply -p0 <<'X'\n+++ .am/local.json\nX")[0], 'deny')
+        for command in ('git apply --unknown', 'git apply --directory="$DIR"', 'git status'):
+            self.assertNotEqual(self.bash(command + " <<'X'\n+++ b/safe.md\nX")[0], 'allow')
+
+    def test_t7_reviewflow_collect_pin(self):
+        home = self.app.parent / 'home'
+        script = home / '.claude/plugins/cache/taeng-marketplace/reviewflow/0.1.0/scripts/review.sh'
+        script.parent.mkdir(parents=True)
+        content = b'#!/bin/bash\n# pinned collect fixture\n'
+        script.write_bytes(content)
+        command_path = script.as_posix()
+        with patch.object(Path, 'home', return_value=home), patch.object(
+                G, 'REVIEWFLOW_COLLECT_SHA256', hashlib.sha256(content).hexdigest(), create=True):
+            for prefix in ('bash ', ''):
+                self.assertEqual(self.bash(f'{prefix}"{command_path}" collect 123')[0], 'allow')
+            for args in ('record', 'comment', 'collect --upload', 'collect main extra'):
+                self.assertEqual(self.bash(f'bash "{command_path}" {args}')[0], 'ask')
+            script.write_bytes(content + b'# modified\n')
+            self.assertEqual(self.bash(f'bash "{command_path}" collect')[0], 'ask')
+
+    def test_t7_external_cd_readonly(self):
+        other, app = self.other.as_posix(), self.app.as_posix()
+        for command in (f'cd "{other}" && git status',
+                        f'cd "{other}"; grep hello README.md | head -3',
+                        'cd ~; orca orchestration check',
+                        f'cd "{other}"; cd "{app}"; pwd'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+        for command in (f'cd "{other}"; touch x', f'cd "{other}"; git commit -m x',
+                        f'cd "{other}"; git push origin main', f'cd "{other}"; bash scripts/deploy.sh',
+                        f'cd "{other}"; rm -rf src', f'cd "{other}"; echo x > out',
+                        f'cd "{other}"; git status --output=out', f'cd "{other}"; rg --pre bash x',
+                        f'cd "{other}"; sqlite3 db "DROP TABLE users"',
+                        'cd "$HOME"; pwd', 'cd "$(pwd)"; pwd', 'cd /missing-t7-path; pwd', 'cd ..; pwd'):
+            self.assertNotEqual(self.bash(command)[0], 'allow', command)
+
+    def test_t7_git_output_options_are_writes(self):
+        other, app = self.other.as_posix(), self.app.as_posix()
+        keep = (self.other / 'keep.txt')
+        keep.write_text('data\n', encoding='utf-8')
+        target = keep.as_posix()
+        for command in (f'cd "{other}" && git diff --output="{target}"',
+                        f'cd "{other}" && git diff --output "{target}"',
+                        f'cd "{other}"; git log -1 --output={target}',
+                        f'cd "{other}"; git show HEAD --output={target}',
+                        f'git -C "{other}" diff --output={target}'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'deny')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+        for command in (f'cd "{other}" && git diff --output=keep.txt',
+                        f'cd "{other}" && git log --output keep.txt',
+                        f'cd "{other}" && git format-patch -o out HEAD~1'):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], 'allow')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+        for command in (f'cd "{other}" && git diff --stat', f'cd "{other}"; git log --oneline -3',
+                        f'cd "{other}"; git show --stat HEAD', f'cd "{app}"; git diff --output=out.diff'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+
+    def test_t7_same_line_write_breaks_content_trust(self):
+        safe = '--- /dev/null\n+++ b/safe.md\n@@ -0,0 +1 @@\n+ok\n'
+        (self.app / 'safe.patch').write_text(safe, encoding='utf-8')
+        (self.app / 'evil.patch').write_text(safe.replace('safe.md', 'projects/x/project.json'), encoding='utf-8')
+        (self.app / 'evil.sh').write_text('git push --force origin main\n', encoding='utf-8')
+        for command in ('git apply safe.patch', 'git am safe.patch', 'git apply --check safe.patch && git status',
+                        'python scripts/check.py', 'sh scripts/check.sh', './scripts/check.sh',
+                        'python scripts/check.py && git status', 'git status; sh scripts/check.sh',
+                        'sh scripts/check.sh > out.txt; cat out.txt',
+                        'git add -A && git commit -m x'):
+            with self.subTest(command=command):
+                self.assertEqual(self.bash(command)[0], 'allow')
+        for command in ('cp evil.patch safe.patch && git apply safe.patch',
+                        'cp evil.patch safe.patch; git am safe.patch',
+                        'cp evil.patch safe.patch\ngit apply safe.patch',
+                        'mv evil.patch safe.patch || git apply safe.patch',
+                        'echo x > safe.patch && git apply safe.patch',
+                        'cat evil.patch | tee safe.patch | git apply safe.patch',
+                        'sed -i s/safe/x/ safe.patch && git apply safe.patch',
+                        'ln -sf evil.patch safe.patch && git apply safe.patch',
+                        'git checkout HEAD~1 -- safe.patch && git apply safe.patch',
+                        'cp evil.sh scripts/check.sh && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh; ./scripts/check.sh',
+                        'cp evil.sh scripts/check.py && python scripts/check.py',
+                        'ln -sf ../evil.sh scripts/check.sh && bash scripts/check.sh',
+                        'echo x >> gradlew && ./gradlew test',
+                        'git restore --source=HEAD~1 scripts/check.sh && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh && bash -c "sh scripts/check.sh"',
+                        'bash -c "cp evil.sh scripts/check.sh" && sh scripts/check.sh',
+                        'cp evil.sh scripts/check.sh && echo $(sh scripts/check.sh)',
+                        "cat > scripts/check.sh <<'X'\ngit push origin main\nX\nsh scripts/check.sh",
+                        "python - <<'X'\nfrom pathlib import Path\nPath('scripts/check.sh').write_text('x')\nX\n"
+                        "sh scripts/check.sh",
+                        "python3 - <<'X' && git apply safe.patch\nfrom pathlib import Path\nPath('safe.patch').write_text('x')\nX",
+                        "node - <<'X'\nrequire('fs').writeFileSync('scripts/check.sh', 'x')\nX\nsh scripts/check.sh",
+                        "python -c \"print(1)\" && sh scripts/check.sh",
+                        "node -e \"1\"; python scripts/check.py",
+                        "echo x | python && git apply safe.patch",
+                        "cat x.py | python - ; ./scripts/check.sh"):
+            with self.subTest(command=command):
+                self.assertNotEqual(self.bash(command)[0], 'allow')
+                self.assertEqual(self.bash(command, agent='codex')[0], 'deny')
+
+    def test_t7_document_stdin(self):
+        body = 'ssh production\nvercel deploy\ngit push --force origin main\n'
+        for head in ('git commit -F -', 'git -c user.name=test commit --file=-',
+                     'orca orchestration check', 'orca orchestration send --body document'):
+            self.assertEqual(self.bash(head + " <<'DOC'\n" + body + 'DOC')[0], 'allow', head)
+        for head in ('bash', 'python scripts/check.py', 'ssh production', 'env bash'):
+            self.assertNotEqual(self.bash(head + " <<'DOC'\n" + body + 'DOC')[0], 'allow', head)
+        self.assertNotEqual(self.bash("orca orchestration check <<DOC\n$(git push origin main)\nDOC")[0], 'allow')
+        self.assertEqual(self.bash("orca orchestration check <<'DOC'\nx\nDOC\ngit push --force origin main")[0], 'deny')
+
+    def test_t7_script_launchers(self):
+        for command in ('bash scripts/check.sh', 'zsh scripts/check.sh', './scripts/check.sh', './scripts/check.py'):
+            self.assertEqual(self.bash(command)[0], 'allow', command)
+        (self.app / 'monitoring').mkdir()
+        script = self.app / 'monitoring/validate.py'
+        script.write_text('print("ok")\n', encoding='utf-8')
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'ask')
+        git(self.app, 'add', 'monitoring/validate.py')
+        git(self.app, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm', 'validation')
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'ask')
+        fetched_baseline(self.app)
+        self.assertEqual(self.bash('python3 monitoring/validate.py')[0], 'allow')
+        script.write_text('# changed\n', encoding='utf-8')
+        self.assertEqual(self.bash('./monitoring/validate.py')[0], 'ask')
+        (self.app / 'scripts/check.sh').write_text('# changed\n', encoding='utf-8')
+        for command in ('bash scripts/check.sh', './scripts/check.sh'):
+            self.assertEqual(self.bash(command)[0], 'ask', command)
+        git(self.app, 'add', 'scripts/check.sh')
+        self.assertEqual(self.bash('bash scripts/check.sh')[0], 'ask')
+        self.assertEqual(self.bash('bash scripts/deploy.sh')[0], 'deny')
+
+    def test_t7_specs_and_scratch_boundaries(self):
+        for path in ('.am/specs/T7.md', '.am/specs/repro/example.py'):
+            self.assertEqual(self.tool('Write', self.app / path)[0], 'allow', path)
+            self.assertEqual(self.bash(f"cat > {path} <<'DOC'\nssh production\nDOC")[0], 'allow', path)
+        for path in ('.am/local.json', '.am/approvals.json', '.am/specs/../local.json',
+                     '.am/specs', 'projects/app/project.json', '.am/specs/project.json'):
+            self.assertEqual(self.tool('Write', self.app / path)[0], 'deny', path)
+        specs = self.app / '.am/specs'
+        specs.mkdir(parents=True)
+        try:
+            (specs / 'escape').symlink_to(Path(self.root), target_is_directory=True)
+        except OSError:
+            pass
+        else:
+            self.assertEqual(self.tool('Write', specs / 'escape/.am/local.json')[0], 'deny')
+            (specs / 'document.md').write_text('data', encoding='utf-8')
+            (self.app / '.am/local.json').symlink_to(specs / 'document.md')
+            self.assertEqual(self.tool('Write', self.app / '.am/local.json')[0], 'deny')
+        if os.name != 'nt':
+            self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/scratchpad/spec.md')[0], 'allow')
+            self.assertEqual(self.tool('Write', '/private/tmp/claude-t7/session/other/spec.md')[0], 'deny')
 
 
 class TrustLayerStateTest(unittest.TestCase):
