@@ -709,6 +709,18 @@
       "pr": null,
       "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T24",
+      "title": "P8 성능(큰 문제): 대안 장소 API 운영 평균 19.2초·p95 30초 이상·요청당 SQL 67회(2026-11-19 23:38 표본 9건) — 외부 API(Google·임베딩) 시간과 DB N+1 분해 후 개선",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1695,10 +1707,14 @@
     {
       "at": "2026-11-19T23:17:02+09:00",
       "event": "작업 추가 T23 (codex, 자동): 대안 장소 운영 측정(응답 시간·요청당 SQL) — 개인화 코드 공유, 지금까지 운영 표본 0건"
+    },
+    {
+      "at": "2026-11-19T23:59:31+09:00",
+      "event": "작업 추가 T24 (codex, 자동): P8 성능(큰 문제): 대안 장소 API 운영 평균 19.2초·p95 30초 이상·요청당 SQL 67회(2026-11-19 23:38 표본 9건) — 외부 API(Google·임베딩) 시간과 DB N+1 분해 후 개선"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T23:17:02+09:00",
+  "updated_at": "2026-11-19T23:59:31+09:00",
   "requests": [
     {
       "gate": "push",
