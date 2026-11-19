@@ -281,6 +281,24 @@
       "ref": "PR#490",
       "note": "T22 채팅 NaN, Claude 리뷰 통과, 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T23:03:06+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "fix-nan-6dbfea3",
+      "note": "추천 NaN·NPE 수정(#488·#490) 운영 배포, 사용자 답 '승인' 2026-11-19",
+      "at": "2026-11-19T23:06:49+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#489-nan-deploy-record",
+      "note": "배포 기록, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T23:06:49+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#491",
+      "note": "배포 기록 문서, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T23:12:54+09:00"
     }
   ],
   "tasks": [
@@ -1629,10 +1647,42 @@
     {
       "at": "2026-11-19T23:03:12+09:00",
       "event": "작업 T22 변경: status=done, pr=490"
+    },
+    {
+      "at": "2026-11-19T23:06:49+09:00",
+      "event": "승인 기록: deploy (fix-nan-6dbfea3)"
+    },
+    {
+      "at": "2026-11-19T23:06:49+09:00",
+      "event": "승인 기록: push (docs/#489-nan-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T23:07:05+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-19T23:10:16+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-19T23:10:19+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-19T23:10:19+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.[가림]"
+    },
+    {
+      "at": "2026-11-19T23:10:33+09:00",
+      "event": "승인된 작업 실행: push(docs/#489-nan-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T23:12:54+09:00",
+      "event": "승인 기록: merge_main (PR#491)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T23:03:12+09:00",
+  "updated_at": "2026-11-19T23:12:54+09:00",
   "requests": [
     {
       "gate": "push",
