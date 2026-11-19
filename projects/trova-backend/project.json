@@ -404,6 +404,30 @@
         "docs/monitoring/2026-11-18-perf-phase1/README.md",
         "docs/experience-notes.md"
       ]
+    },
+    {
+      "id": "T18",
+      "title": "P5 성능: 여행 상세 SQL 5→2회(여행 전용 scalar DTO, 사용자·여행 중복 조회 제거) — T17 추천안. Claude 구현 이유: 맥 Codex git·Gradle 쓰기 차단, Windows Codex 읽기 전용 시작. T16 머지 뒤 시작(같은 테스트 파일)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": ""
+    },
+    {
+      "id": "T19",
+      "title": "P6 성능: 초안 상세(/api/trip-drafts/{id}, 461ms) — 최신 job을 작은 projection으로, 저장 장소 전체 엔티티 로딩 제거(SQL 5→3 목표) — T17 추천안. Claude 구현 이유: Codex 쓰기 환경 차단(T18과 같음)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_3d305011a659",
+      "note": ""
     }
   ],
   "history": [
@@ -806,10 +830,22 @@
     {
       "at": "2026-11-19T09:14:29+09:00",
       "event": "작업 T17 변경: status=done, pr=472"
+    },
+    {
+      "at": "2026-11-19T09:26:08+09:00",
+      "event": "작업 추가 T18 (claude): P5 성능: 여행 상세 SQL 5→2회(여행 전용 scalar DTO, 사용자·여행 중복 조회 제거) — T17 추천안. Claude 구현 이유: 맥 Codex git·Gradle 쓰기 차단, Windows Codex 읽기 전용 시작. T16 머지 뒤 시작(같은 테스트 파일)"
+    },
+    {
+      "at": "2026-11-19T09:29:11+09:00",
+      "event": "작업 추가 T19 (claude): P6 성능: 초안 상세(/api/trip-drafts/{id}, 461ms) — 최신 job을 작은 projection으로, 저장 장소 전체 엔티티 로딩 제거(SQL 5→3 목표) — T17 추천안. Claude 구현 이유: Codex 쓰기 환경 차단(T18과 같음)"
+    },
+    {
+      "at": "2026-11-19T09:29:24+09:00",
+      "event": "작업 T19 변경: status=dispatched, dispatch=ctx_3d305011a659"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T09:14:29+09:00",
+  "updated_at": "2026-11-19T09:29:24+09:00",
   "requests": [
     {
       "gate": "push",
