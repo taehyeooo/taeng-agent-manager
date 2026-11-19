@@ -1459,10 +1459,18 @@
     {
       "at": "2026-11-19T10:54:00+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_b62fc9e360b9 ctx_1771d3dd0bed; do orca orchestration worker-show --dispatch $d --json 2>&1 | grep -o '\"acti"
+    },
+    {
+      "at": "2026-11-19T13:01:20+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: orca orchestration check --run run_8835cf5602db 2>&1 | grep -v '^ payload' | head -20; for d in ctx_20107c47fcce ctx_177"
+    },
+    {
+      "at": "2026-11-19T14:00:29+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(brew); 명령: python3 -m am task set trova-backend T19 --dispatch ctx_0601d6bc594c 2>&1|tail -1; brew --version 2>&1|head -1; ls /opt/"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-19T10:54:00+09:00",
+  "updated_at": "2026-11-19T14:00:29+09:00",
   "requests": [
     {
       "gate": "push",
