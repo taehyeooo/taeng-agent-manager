@@ -137,6 +137,12 @@
       "ref": "PR#472",
       "note": "T17 분석 문서, 검증 후 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T09:12:53+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#474",
+      "note": "P4 측정, Codex·Claude 교차 검증 통과·새 실패 0, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T11:49:28+09:00"
     }
   ],
   "tasks": [
@@ -371,14 +377,26 @@
     {
       "id": "T16",
       "title": "P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험",
-      "agent": "codex",
+      "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
-      "branch": null,
+      "status": "done",
+      "branch": "feat/p4-db-query-metrics",
       "worktree": null,
-      "pr": null,
+      "pr": "474",
       "dispatch": "ctx_1ad8a659ed54",
-      "note": "Windows Codex가 연속 2번 읽기 전용으로 시작돼 맥 Codex로 옮김(2026-11-19)"
+      "note": "Windows Codex가 연속 2번 읽기 전용으로 시작돼 맥 Codex로 옮김(2026-11-19)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#474: Codex 교차 검증 낮음 3건 반영 후, Claude reviewflow 통과(낮음 5, 정확성·보안 0). 구현은 Codex 초안+Claude 컴파일·지적 수정이라 Claude로 기록하고 Codex 검증",
+        "at": "2026-11-19T11:47:35+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/config/RequestDbQueryMetrics.java",
+        "src/test/java/com/trova/backend/config/RequestDbQueryMetricsTest.java"
+      ]
     },
     {
       "id": "T17",
@@ -410,11 +428,11 @@
       "title": "P5 성능: 여행 상세 SQL 5→2회(여행 전용 scalar DTO, 사용자·여행 중복 조회 제거) — T17 추천안. Claude 구현 이유: 맥 Codex git·Gradle 쓰기 차단, Windows Codex 읽기 전용 시작. T16 머지 뒤 시작(같은 테스트 파일)",
       "agent": "claude",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_20107c47fcce",
       "note": ""
     },
     {
@@ -426,7 +444,7 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_3d305011a659",
+      "dispatch": "ctx_1771d3dd0bed",
       "note": ""
     }
   ],
@@ -842,10 +860,102 @@
     {
       "at": "2026-11-19T09:29:24+09:00",
       "event": "작업 T19 변경: status=dispatched, dispatch=ctx_3d305011a659"
+    },
+    {
+      "at": "2026-11-19T09:40:44+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_1771d3dd0bed"
+    },
+    {
+      "at": "2026-11-19T09:40:55+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:41:15+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.[가림]'"
+    },
+    {
+      "at": "2026-11-19T09:42:31+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:42:58+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest'"
+    },
+    {
+      "at": "2026-11-19T09:43:23+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:43:39+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*TripDetailQueryCountTest.여행_상세의_예열_후_SQL_다섯_회를_요청_지표로_기록하고_ID는_태그에_넣지"
+    },
+    {
+      "at": "2026-11-19T09:43:50+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*TripDetailQueryCountTest.여행_상세의_예열_후_SQL_다섯_회를_요청_지표로_기록하고_ID는_태그에_넣지"
+    },
+    {
+      "at": "2026-11-19T09:44:04+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T09:45:50+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew -p [가림] test --offline --console=plain --quiet"
+    },
+    {
+      "at": "2026-11-19T09:47:27+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T09:47:55+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T09:52:42+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:52:54+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest'"
+    },
+    {
+      "at": "2026-11-19T09:53:00+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T09:54:38+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T11:47:35+09:00",
+      "event": "작업 T16 변경: agent=claude"
+    },
+    {
+      "at": "2026-11-19T11:47:35+09:00",
+      "event": "작업 T16 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T11:47:53+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T11:48:23+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T11:49:28+09:00",
+      "event": "승인 기록: merge_main (PR#474)"
+    },
+    {
+      "at": "2026-11-19T11:49:41+09:00",
+      "event": "작업 T16 변경: status=done, branch=feat/p4-db-query-metrics, pr=474"
+    },
+    {
+      "at": "2026-11-19T11:49:49+09:00",
+      "event": "작업 T18 변경: status=dispatched, dispatch=ctx_20107c47fcce"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T09:29:24+09:00",
+  "updated_at": "2026-11-19T11:49:49+09:00",
   "requests": [
     {
       "gate": "push",
@@ -862,6 +972,14 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-18T21:39:43+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove --force /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T09:47:27+09:00"
     }
   ]
 }
