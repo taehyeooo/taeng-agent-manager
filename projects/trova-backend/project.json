@@ -697,6 +697,18 @@
       "files": [
         "src/main/java/com/trova/backend/conversation/ConversationToolExecutor.java"
       ]
+    },
+    {
+      "id": "T23",
+      "title": "대안 장소 운영 측정(응답 시간·요청당 SQL) — 개인화 코드 공유, 지금까지 운영 표본 0건",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1679,10 +1691,14 @@
     {
       "at": "2026-11-19T23:12:54+09:00",
       "event": "승인 기록: merge_main (PR#491)"
+    },
+    {
+      "at": "2026-11-19T23:17:02+09:00",
+      "event": "작업 추가 T23 (codex, 자동): 대안 장소 운영 측정(응답 시간·요청당 SQL) — 개인화 코드 공유, 지금까지 운영 표본 0건"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T23:12:54+09:00",
+  "updated_at": "2026-11-19T23:17:02+09:00",
   "requests": [
     {
       "gate": "push",
