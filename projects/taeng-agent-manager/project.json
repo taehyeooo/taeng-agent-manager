@@ -1475,10 +1475,18 @@
     {
       "at": "2026-11-19T18:28:05+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: python3 -m am task set trova-backend T20 --status done --pr 483 --branch \"perf/#482-gap-recommendations-queries\" 2>&1|ta"
+    },
+    {
+      "at": "2026-11-19T21:16:05+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_01a438b97cc6 ctx_86e4355b0264; do orca orchestration worker-show --dispatch $d --json 2>&1 | grep -o '\"acti"
+    },
+    {
+      "at": "2026-11-19T21:16:09+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_01a438b97cc6 ctx_86e4355b0264; do orca orchestration worker-show --dispatch $d --json 2>&1 | head -c 400; e"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-19T18:28:05+09:00",
+  "updated_at": "2026-11-19T21:16:09+09:00",
   "requests": [
     {
       "gate": "push",

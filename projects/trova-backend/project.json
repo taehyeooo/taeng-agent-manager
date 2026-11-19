@@ -257,6 +257,18 @@
       "ref": "PR#485",
       "note": "P7 운영 전후 기록·면접 노트(숫자 확인), 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T20:23:19+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#487-gap-nan-sort",
+      "note": "T21 — Windows Codex push(Windows 가드 미설치, 사후 기록), 사용자 위임 2026-11-19",
+      "at": "2026-11-19T21:37:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#488",
+      "note": "T21 NaN 정렬·NPE 수정, Claude 검증 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T21:42:56+09:00"
     }
   ],
   "tasks": [
@@ -612,13 +624,37 @@
     {
       "id": "T21",
       "title": "버그: 빈 시간 추천 개인화 점수가 0 벡터에서 NaN → NaN 후보가 유한 점수보다 앞에 정렬됨(기존 결함, PR#483 재검증에서 발견) + types 없는 Google 후보 NPE",
-      "agent": "claude",
+      "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "488",
+      "dispatch": "ctx_01a438b97cc6",
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#488 Claude reviewflow 통과(낮음 3), 맥 Docker pgvector 2건 실제 통과(70쌍), 유한 순서 보존·두 추천 경로 일관",
+        "at": "2026-11-19T21:42:55+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/recommendation/PersonalizationService.java",
+        "src/main/java/com/trova/backend/recommendation/GapRecommendationService.java"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "후속: 채팅 재정렬(ConversationToolExecutor:149·대안 107행)의 0 벡터 query 유사도 NaN 미처리(PR#488 리뷰 낮음)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_415a97abcb3e",
+      "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
@@ -1518,10 +1554,38 @@
     {
       "at": "2026-11-19T21:07:12+09:00",
       "event": "작업 T21 변경: status=dispatched, dispatch=ctx_415a97abcb3e"
+    },
+    {
+      "at": "2026-11-19T21:08:52+09:00",
+      "event": "작업 T21 변경: agent=codex, dispatch=ctx_01a438b97cc6"
+    },
+    {
+      "at": "2026-11-19T21:37:58+09:00",
+      "event": "승인 기록: push (fix/#487-gap-nan-sort)"
+    },
+    {
+      "at": "2026-11-19T21:38:11+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain --tests 'com.trova.backend.recommendation.[가림]'"
+    },
+    {
+      "at": "2026-11-19T21:42:55+09:00",
+      "event": "작업 T21 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T21:42:56+09:00",
+      "event": "승인 기록: merge_main (PR#488)"
+    },
+    {
+      "at": "2026-11-19T21:43:02+09:00",
+      "event": "작업 T21 변경: status=done, pr=488"
+    },
+    {
+      "at": "2026-11-19T21:43:02+09:00",
+      "event": "작업 추가 T22 (codex, 자동): 후속: 채팅 재정렬(ConversationToolExecutor:149·대안 107행)의 0 벡터 query 유사도 NaN 미처리(PR#488 리뷰 낮음)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T21:07:12+09:00",
+  "updated_at": "2026-11-19T21:43:02+09:00",
   "requests": [
     {
       "gate": "push",
