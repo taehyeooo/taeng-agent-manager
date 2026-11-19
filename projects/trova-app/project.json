@@ -268,6 +268,18 @@
         "src/screens/ProcessingScreen.tsx",
         "src/screens/PlacesListScreen.tsx"
       ]
+    },
+    {
+      "id": "T12",
+      "title": "디자인 개선 2차: 리서치 우선순위 4~5(홈 상태별 우선 배치, 여행 상세 빈 시간 조건 노출·'동선·날씨 더 보기' 펼침) — 전/후 캡처, 사용자 아침 확인용",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_6cd7a81b254a",
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -462,8 +474,16 @@
     {
       "at": "2026-11-19T23:57:47+09:00",
       "event": "작업 T11 변경: status=done, pr=189"
+    },
+    {
+      "at": "2026-11-20T00:17:32+09:00",
+      "event": "작업 추가 T12 (codex, 자동): 디자인 개선 2차: 리서치 우선순위 4~5(홈 상태별 우선 배치, 여행 상세 빈 시간 조건 노출·'동선·날씨 더 보기' 펼침) — 전/후 캡처, 사용자 아침 확인용"
+    },
+    {
+      "at": "2026-11-20T00:17:42+09:00",
+      "event": "작업 T12 변경: status=dispatched, dispatch=ctx_6cd7a81b254a"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-19T23:57:47+09:00"
+  "updated_at": "2026-11-20T00:17:42+09:00"
 }
