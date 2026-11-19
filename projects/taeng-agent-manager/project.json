@@ -1471,10 +1471,14 @@
     {
       "at": "2026-11-19T14:57:18+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음, 자동 허용 목록에 없는 프로그램·스크립트 실행(u), 자동 허용 목록에 없는 프로그램·스크립트 실행(..); 명령: orca worktree list --json 2>&1 | grep -o '\"\\(path\\|displayName\\)\": *\"[^\"]*\"' | paste - - | grep -E 'pr183|release-v8b|mu"
+    },
+    {
+      "at": "2026-11-19T18:28:05+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: python3 -m am task set trova-backend T20 --status done --pr 483 --branch \"perf/#482-gap-recommendations-queries\" 2>&1|ta"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-19T14:57:18+09:00",
+  "updated_at": "2026-11-19T18:28:05+09:00",
   "requests": [
     {
       "gate": "push",

@@ -215,6 +215,18 @@
       "ref": "PR#481",
       "note": "면접 노트 추가(숫자 근거 확인), 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T16:09:42+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#482-gap-recommendations-queries",
+      "note": "T20 빈 시간 추천 SQL 줄이기, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T16:42:25+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#483",
+      "note": "T20 빈 시간 추천 SQL 줄이기, Codex 재검증 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T18:27:53+09:00"
     }
   ],
   "tasks": [
@@ -548,11 +560,35 @@
       "title": "P7 성능: 빈 시간 추천(gap-recommendations) 요청당 SQL 20회 줄이기 — P4 운영 실측으로 발견(2026-11-19)",
       "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
+      "branch": "perf/#482-gap-recommendations-queries",
+      "worktree": null,
+      "pr": "483",
+      "dispatch": "ctx_9eaa34cd2d45",
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#483 Codex 1차 수정 필요(pgvector 미검증·H2 간섭·ADR) → 보완 후 재검증 통과. pgvector 70쌍 점수·순서 동일, 전체 1274 실패 0",
+        "at": "2026-11-19T18:27:53+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/recommendation/PersonalizationService.java",
+        "src/main/java/com/trova/backend/repository/UserPreferenceSignalRepository.java"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "버그: 빈 시간 추천 개인화 점수가 0 벡터에서 NaN → NaN 후보가 유한 점수보다 앞에 정렬됨(기존 결함, PR#483 재검증에서 발견) + types 없는 Google 후보 NPE",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_9eaa34cd2d45",
+      "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
@@ -1268,10 +1304,142 @@
     {
       "at": "2026-11-19T16:14:10+09:00",
       "event": "작업 T20 변경: status=dispatched, dispatch=ctx_9eaa34cd2d45"
+    },
+    {
+      "at": "2026-11-19T16:18:25+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T16:19:04+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest.임시_SQL_찍기 --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T16:22:22+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.recommenda"
+    },
+    {
+      "at": "2026-11-19T16:22:43+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.recommenda"
+    },
+    {
+      "at": "2026-11-19T16:23:09+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:30+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:42+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:55+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.recommendation.GapRecommendationServiceTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:24:07+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:25:58+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T16:26:22+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:28:32+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:30:29+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:33:13+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:36:16+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.controller"
+    },
+    {
+      "at": "2026-11-19T16:36:26+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:38:58+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.security.[가림] --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:41:04+09:00",
+      "event": "승인 요청: push (perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T16:42:25+09:00",
+      "event": "승인 기록: push (perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T16:42:28+09:00",
+      "event": "승인된 작업 실행: push(perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T18:09:33+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew dependencies --configuration testRuntimeClasspath --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:11:32+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:12:10+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain -q --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:12:25+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain -q --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:13:07+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:15:56+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:19:20+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:21:31+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew build --offline --console=plain -q -x test"
+    },
+    {
+      "at": "2026-11-19T18:21:46+09:00",
+      "event": "승인된 작업 실행: push(perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T18:27:53+09:00",
+      "event": "작업 T20 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T18:27:53+09:00",
+      "event": "승인 기록: merge_main (PR#483)"
+    },
+    {
+      "at": "2026-11-19T18:28:06+09:00",
+      "event": "작업 T20 변경: status=done, branch=perf/#482-gap-recommendations-queries, pr=483"
+    },
+    {
+      "at": "2026-11-19T18:28:06+09:00",
+      "event": "작업 추가 T21 (codex, 자동): 버그: 빈 시간 추천 개인화 점수가 0 벡터에서 NaN → NaN 후보가 유한 점수보다 앞에 정렬됨(기존 결함, PR#483 재검증에서 발견) + types 없는 Google 후보 NPE"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T16:14:10+09:00",
+  "updated_at": "2026-11-19T18:28:06+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1360,6 +1528,22 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-19T14:57:52+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T20/7fd623b2-a129-466f-9285-dd040e76383f/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T16:25:58+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#482-gap-recommendations-queries",
+      "cmd": "git push -u origin perf/#482-gap-recommendations-queries",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T16:41:04+09:00"
     }
   ]
 }

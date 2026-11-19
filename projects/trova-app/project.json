@@ -29,6 +29,18 @@
       "ref": "v8-play-production",
       "note": "사용자 승인(2026-11-18 '틈틈이 확인해서 v8 배포까지 완료해줘'): v8 재빌드(AdMob+PR #183) Play 프로덕션 제출·출시",
       "at": "2026-11-18T14:58:24+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/simplicity-research",
+      "note": "디자인 리서치 보고서, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T18:03:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#184",
+      "note": "디자인 리서치 보고서(문서만, 매니저가 내용 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T18:05:51+09:00"
     }
   ],
   "tasks": [
@@ -111,6 +123,29 @@
         "summary": "PR #183 재검증 pass(회귀 2건 해결), qa-accessibility·errors 9/9, 토큰 검사 통과, Windows test:web 257 통과. 낮음 2건(경고 로그 호스트명, 웹 accent 불일치)",
         "at": "2026-11-18T14:01:59+09:00"
       }
+    },
+    {
+      "id": "T7",
+      "title": "디자인 리서치: 복잡하지 않게 느끼도록 — 레퍼런스 앱·패턴 조사와 화면별 개선 제안(코드 수정 없음, 보고서만)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_8eee5ccb761f",
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "skip",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "보고서 문서만(코드 변경 없음, 테스트 대상 없음). 매니저(Claude)가 전체를 읽고 근거·과장 여부 확인",
+        "at": "2026-11-19T18:06:03+09:00"
+      },
+      "files": [
+        "docs/design/simplicity-research-2026-11-19.md"
+      ]
     }
   ],
   "history": [
@@ -209,8 +244,28 @@
     {
       "at": "2026-11-18T15:34:55+09:00",
       "event": "작업 T3 변경: note=2026-11-18 Play 프로덕션 v10(1.0.0, 커밋 af3b078, EAS 379054e5, AdMob+PR #183) 전체 출시로 Google 검토 제출. 출시 노트 작성. AD_ID 경고는 다른 활성 아티팩트 때문(v10엔 권한 있음 확인)이라 이번 출시에서 무시. 검토 결과 대기"
+    },
+    {
+      "at": "2026-11-19T16:42:04+09:00",
+      "event": "작업 추가 T7 (codex, 자동): 디자인 리서치: 복잡하지 않게 느끼도록 — 레퍼런스 앱·패턴 조사와 화면별 개선 제안(코드 수정 없음, 보고서만)"
+    },
+    {
+      "at": "2026-11-19T16:43:16+09:00",
+      "event": "작업 T7 변경: status=dispatched, dispatch=ctx_8eee5ccb761f"
+    },
+    {
+      "at": "2026-11-19T18:03:11+09:00",
+      "event": "승인 기록: push (docs/simplicity-research)"
+    },
+    {
+      "at": "2026-11-19T18:05:51+09:00",
+      "event": "승인 기록: merge_main (PR#184)"
+    },
+    {
+      "at": "2026-11-19T18:06:03+09:00",
+      "event": "작업 T7 검증(claude): tests=skip, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-18T15:34:55+09:00"
+  "updated_at": "2026-11-19T18:06:03+09:00"
 }
