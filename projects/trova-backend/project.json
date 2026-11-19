@@ -173,6 +173,36 @@
       "ref": "PR#478",
       "note": "T19 초안 상세 5→3, Codex 검증·보완 반영·새 실패 0, 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T14:50:22+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "perf-phase2-69b55fa",
+      "note": "P4·여행 상세 5→2·초안 상세 5→3 운영 배포, 사용자 답 '승인' 2026-11-19",
+      "at": "2026-11-19T14:54:19+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-deploy-record",
+      "note": "배포 기록 문서, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T14:58:42+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#479",
+      "note": "배포 기록 문서만, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T15:02:39+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-results",
+      "note": "성능 2단계 운영 전후 비교 기록, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T15:57:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#480",
+      "note": "성능 2단계 운영 전후 비교 문서·캡처(개인정보 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T16:00:03+09:00"
     }
   ],
   "tasks": [
@@ -500,6 +530,18 @@
         "src/main/java/com/trova/backend/service/TripPlannerService.java",
         "src/main/java/com/trova/backend/repository/SavedPlaceRepository.java"
       ]
+    },
+    {
+      "id": "T20",
+      "title": "P7 성능: 빈 시간 추천(gap-recommendations) 요청당 SQL 20회 줄이기 — P4 운영 실측으로 발견(2026-11-19)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1142,10 +1184,62 @@
     {
       "at": "2026-11-19T14:50:36+09:00",
       "event": "작업 T19 변경: status=done, branch=perf/#473-trip-draft-detail, pr=478"
+    },
+    {
+      "at": "2026-11-19T14:54:19+09:00",
+      "event": "승인 기록: deploy (perf-phase2-69b55fa)"
+    },
+    {
+      "at": "2026-11-19T14:54:31+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-19T14:57:31+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-19T14:57:33+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-19T14:57:34+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trip-drafts/1"
+    },
+    {
+      "at": "2026-11-19T14:57:52+09:00",
+      "event": "승인 요청: push (docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T14:58:42+09:00",
+      "event": "승인 기록: push (docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T14:58:46+09:00",
+      "event": "승인된 작업 실행: push(docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T15:02:39+09:00",
+      "event": "승인 기록: merge_main (PR#479)"
+    },
+    {
+      "at": "2026-11-19T15:57:07+09:00",
+      "event": "승인 기록: push (docs/#476-perf-phase2-results)"
+    },
+    {
+      "at": "2026-11-19T15:58:39+09:00",
+      "event": "승인된 작업 실행: push(docs/#476-perf-phase2-results)"
+    },
+    {
+      "at": "2026-11-19T16:00:03+09:00",
+      "event": "승인 기록: merge_main (PR#480)"
+    },
+    {
+      "at": "2026-11-19T16:00:12+09:00",
+      "event": "작업 추가 T20 (codex, 자동): P7 성능: 빈 시간 추천(gap-recommendations) 요청당 SQL 20회 줄이기 — P4 운영 실측으로 발견(2026-11-19)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-19T14:50:36+09:00",
+  "updated_at": "2026-11-19T16:00:12+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1226,6 +1320,14 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-19T14:06:24+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-deploy-record",
+      "cmd": "git push -u origin docs/#476-perf-phase2-deploy-record",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T14:57:52+09:00"
     }
   ]
 }
