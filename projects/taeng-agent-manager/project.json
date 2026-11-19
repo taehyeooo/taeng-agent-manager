@@ -1483,10 +1483,14 @@
     {
       "at": "2026-11-19T21:16:09+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_01a438b97cc6 ctx_86e4355b0264; do orca orchestration worker-show --dispatch $d --json 2>&1 | head -c 400; e"
+    },
+    {
+      "at": "2026-11-19T22:10:26+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(open); 명령: open /[가림].png /[가림].png /[가림].png /[가림].png"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-19T21:16:09+09:00",
+  "updated_at": "2026-11-19T22:10:26+09:00",
   "requests": [
     {
       "gate": "push",
