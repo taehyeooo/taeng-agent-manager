@@ -305,6 +305,12 @@
       "ref": "perf/#492-alternatives-rule-reason",
       "note": "T24 대안 장소, 사용자 위임(밤사이 승인 위임) 2026-11-20",
       "at": "2026-11-20T00:27:47+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#493",
+      "note": "T24 대안 장소 속도, 재검토 통과, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T11:13:47+09:00"
     }
   ],
   "tasks": [
@@ -721,24 +727,26 @@
       "title": "P8 성능(큰 문제): 대안 장소 API 운영 평균 19.2초·p95 30초 이상·요청당 SQL 67회(2026-11-19 23:38 표본 9건) — 외부 API(Google·임베딩) 시간과 DB N+1 분해 후 개선",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": "perf/#492-alternatives-rule-reason",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24",
       "pr": "493",
       "dispatch": "ctx_bb21b7c32b13",
-      "note": "리뷰 수정 3e0db35(테스트 1304·실패 0) → 재검토 ctx_69f46cdde697",
+      "note": "PR#493 머지 312dbf6(재검토 통과, main 커밋 메시지에 AI 서명 없음 확인). 운영 미배포 — 배포 후 운영 응답 시간 재측정 필요. 낮음 후속 4",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#493 1차 reviewflow 수정 필요: 중간 1(기본 모드 이유 문장 전체 고정 테스트 없음)·낮음 8. 플래그 복구 경로·후보 순서·외부 호출 수 불변 확인, 보안 0",
-        "at": "2026-11-20T10:40:56+09:00"
+        "summary": "PR#493 재검토: 1차 9건 해결. 새 높음 1(커밋 AI 서명 트레일러, 레포 규칙)은 squash 머지 메시지를 직접 지정해 main에 안 남김. 낮음 4 후속. 전체 테스트 1304·실패 0, pgvector 4 실행",
+        "at": "2026-11-20T11:12:48+09:00"
       },
       "files": [
         "src/main/java/com/trova/backend/recommendation/AlternativeReason.java",
         "src/main/java/com/trova/backend/recommendation/AlternativeFinderService.java",
-        "src/test/java/com/trova/backend/recommendation/AlternativeFinderServiceTest.java"
+        "src/main/java/com/trova/backend/repository/TripPlaceRepository.java",
+        "src/main/resources/application.yml",
+        "docs/adr/0052-alternative-rule-reasons.md"
       ]
     }
   ],
@@ -1774,10 +1782,26 @@
     {
       "at": "2026-11-20T11:04:48+09:00",
       "event": "승인된 작업 실행: push(perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T11:12:48+09:00",
+      "event": "작업 T24 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T11:13:47+09:00",
+      "event": "승인 기록: merge_main (PR#493)"
+    },
+    {
+      "at": "2026-11-20T11:13:49+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#493)"
+    },
+    {
+      "at": "2026-11-20T11:14:02+09:00",
+      "event": "작업 T24 변경: status=done, note=PR#493 머지 312dbf6(재검토 통과, main 커밋 메시지에 AI 서명 없음 확인). 운영 미배포 — 배포 후 운영 응답 시간 재측정 필요. 낮음 후속 4"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T11:04:48+09:00",
+  "updated_at": "2026-11-20T11:14:02+09:00",
   "requests": [
     {
       "gate": "push",
