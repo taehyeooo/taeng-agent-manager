@@ -357,7 +357,7 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_9edb66b38f96",
-      "note": "사용자 확정(2026-11-20): 바닥줄 ①절제형+③움직임형, 저장은 도장, 홈 탑승권 없음. 요청: 분석 중 애니메이션 여행 느낌. Claude ctx_9edb66b38f96(06-final 세부 + 07-analyzing-claude), Codex ctx_f77e4e271d8a(07-analyzing-codex)"
+      "note": "분석 애니메이션 Codex 시안 도착(PR#198 07-analyzing-codex: 1 비행 일지, 2 발견 여권). Claude 대기 ctx_9edb66b38f96"
     }
   ],
   "history": [
@@ -724,8 +724,12 @@
     {
       "at": "2026-11-20T21:19:29+09:00",
       "event": "작업 T14 변경: dispatch=ctx_9edb66b38f96, note=사용자 확정(2026-11-20): 바닥줄 ①절제형+③움직임형, 저장은 도장, 홈 탑승권 없음. 요청: 분석 중 애니메이션 여행 느낌. Claude ctx_9edb66b38f96(06-final 세부 + 07-analyzing-claude), Codex ctx_f77e4e271d8a(07-analyzing-codex)"
+    },
+    {
+      "at": "2026-11-20T21:24:00+09:00",
+      "event": "작업 T14 변경: note=분석 애니메이션 Codex 시안 도착(PR#198 07-analyzing-codex: 1 비행 일지, 2 발견 여권). Claude 대기 ctx_9edb66b38f96"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T21:19:29+09:00"
+  "updated_at": "2026-11-20T21:24:00+09:00"
 }
