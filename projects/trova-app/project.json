@@ -340,12 +340,24 @@
       "title": "디자인 3차: 보기 좋게 꾸미기(색·글꼴·아이콘·애니메이션) — 현황 점검 + 방향 시안 3개(사용자 선택) → 고른 방향 적용",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "blocked",
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
       "pr": "192",
       "dispatch": "ctx_3db4d590ee60",
-      "note": "티켓 고도화: Claude PR#193(추천 B2 탑승권), Codex PR#194(추천 B2 한 장의 여정+B3 도장). 비교 페이지 https://claude.ai/artifact/J8H47hmwgehLgz64ufxUvA. 사용자 선택 대기"
+      "note": "디자인 가이드 이전 방식이라 사용자 결정(2026-11-20)으로 중단 — 시안 PR#192·#193·#194는 참고 자료로. 새 작업 T14로 다시"
+    },
+    {
+      "id": "T14",
+      "title": "디자인 3차(다시): docs/design-guide.md 진행 순서대로 — 1단계 사용자 흐름 확인부터",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_cf6df1a068e8",
+      "note": "1단계 사용자 흐름 조사(Windows Codex), 결과 docs/design/2026-11-20-design3/"
     }
   ],
   "history": [
@@ -656,8 +668,20 @@
     {
       "at": "2026-11-20T17:17:55+09:00",
       "event": "작업 T13 변경: note=티켓 고도화: Claude PR#193(추천 B2 탑승권), Codex PR#194(추천 B2 한 장의 여정+B3 도장). 비교 페이지 https://claude.ai/artifact/J8H47hmwgehLgz64ufxUvA. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 T13 변경: status=blocked, note=디자인 가이드 이전 방식이라 사용자 결정(2026-11-20)으로 중단 — 시안 PR#192·#193·#194는 참고 자료로. 새 작업 T14로 다시"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 추가 T14 (codex, 자동): 디자인 3차(다시): docs/design-guide.md 진행 순서대로 — 1단계 사용자 흐름 확인부터"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 T14 변경: status=dispatched, dispatch=ctx_cf6df1a068e8, note=1단계 사용자 흐름 조사(Windows Codex), 결과 docs/design/2026-11-20-design3/"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T17:17:55+09:00"
+  "updated_at": "2026-11-20T18:22:55+09:00"
 }
