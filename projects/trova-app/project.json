@@ -377,11 +377,11 @@
       "agent": "codex",
       "kind": "design",
       "status": "dispatched",
-      "branch": null,
+      "branch": "feat/#200-passport-route",
       "worktree": null,
-      "pr": null,
+      "pr": "201",
       "dispatch": "ctx_b85380b060e7",
-      "note": "자동 배정: design → codex (config/agents.json 선호)"
+      "note": "Codex 구현 PR#201(테스트 288→292, 변형 3/3). 7단계 Claude 교차 검수 위임"
     }
   ],
   "history": [
@@ -792,8 +792,12 @@
     {
       "at": "2026-11-20T22:14:44+09:00",
       "event": "작업 T14 변경: note=사용자 선택: 분석 화면 Codex 여권 위의 항로(퍼센트 없음). 6단계 적용 A(T15)·B(T16) Windows Codex 위임"
+    },
+    {
+      "at": "2026-11-20T22:26:56+09:00",
+      "event": "작업 T16 변경: branch=feat/#200-passport-route, pr=201, note=Codex 구현 PR#201(테스트 288→292, 변형 3/3). 7단계 Claude 교차 검수 위임"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T22:14:44+09:00"
+  "updated_at": "2026-11-20T22:26:56+09:00"
 }
