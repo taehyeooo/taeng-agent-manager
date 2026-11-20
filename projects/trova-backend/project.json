@@ -329,6 +329,18 @@
       "ref": "T23-prod-bench-ssh",
       "note": "T23 운영 재측정에 기존 벤치 방식(ssh 키·user2 벤치 토큰, 값 출력 금지) 사용, 사용자 '승인' 2026-11-20",
       "at": "2026-11-20T12:14:34+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/t23-alternatives-prod-after",
+      "note": "T23 운영 재측정 기록 문서, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T12:32:26+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#494",
+      "note": "T23 운영 재측정 문서만, 비밀값 검사 통과, 사용자 위임(2026-11-18) 2026-11-20",
+      "at": "2026-11-20T12:32:42+09:00"
     }
   ],
   "tasks": [
@@ -738,7 +750,18 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T23",
       "pr": null,
       "dispatch": "ctx_715d48729793",
-      "note": "312dbf6 배포 후 운영 재측정: 시뮬레이터로 대안 10회+ → Grafana 전후 비교"
+      "note": "312dbf6 배포 후 운영 재측정: 시뮬레이터로 대안 10회+ → Grafana 전후 비교",
+      "verification": {
+        "tests": "skip",
+        "review": "skip",
+        "security": "pass",
+        "by": "claude",
+        "summary": "측정 작업(코드 변경 없음): 운영 312dbf6 후 12건 평균 2.049초(전 19.2초), SQL 26.67(전 67.4), Gemini 0. 문서 PR#494, 비밀값 검사 통과. 테스트·리뷰는 문서만이라 skip",
+        "at": "2026-11-20T12:32:53+09:00"
+      },
+      "files": [
+        "docs/monitoring/2026-11-20-alternatives/prod-after.md"
+      ]
     },
     {
       "id": "T24",
@@ -1836,10 +1859,22 @@
     {
       "at": "2026-11-20T12:14:34+09:00",
       "event": "승인 기록: credentials (T23-prod-bench-ssh)"
+    },
+    {
+      "at": "2026-11-20T12:32:26+09:00",
+      "event": "승인 기록: push (docs/t23-alternatives-prod-after)"
+    },
+    {
+      "at": "2026-11-20T12:32:42+09:00",
+      "event": "승인 기록: merge_main (PR#494)"
+    },
+    {
+      "at": "2026-11-20T12:32:53+09:00",
+      "event": "작업 T23 검증(claude): tests=skip, review=skip, security=pass"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T12:14:34+09:00",
+  "updated_at": "2026-11-20T12:32:53+09:00",
   "requests": [
     {
       "gate": "push",
