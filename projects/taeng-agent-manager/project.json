@@ -340,7 +340,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T10",
       "pr": "13",
       "dispatch": "ctx_79022a2c49bd",
-      "note": "설정 레포 밖(~/.config/agent-manager/guard.json)으로 설계 변경 f0528ca, 변형 53/53, 테스트 433 → Codex 3차 검토 ctx_7873dfcf8bad",
+      "note": "4차 수정 fe67cb1(PowerShell 별칭·링크 대상·home 없음 차단), 테스트 통과·변형 59/59 → Codex 최종 검토 ctx_78a34990fbbc(범위: 4차 해결·새 결함만, 이론적 우회는 알려진 한계)",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -1718,10 +1718,14 @@
     {
       "at": "2026-11-20T18:56:06+09:00",
       "event": "작업 T11 변경: note=플러그인 PR#22 사용자가 직접 머지(2026-11-20, intaeng 0.7.0 design 스킬이 main에). 기기 갱신은 안 함 — 나중에 쓸 때"
+    },
+    {
+      "at": "2026-11-20T19:05:36+09:00",
+      "event": "작업 T10 변경: note=4차 수정 fe67cb1(PowerShell 별칭·링크 대상·home 없음 차단), 테스트 통과·변형 59/59 → Codex 최종 검토 ctx_78a34990fbbc(범위: 4차 해결·새 결함만, 이론적 우회는 알려진 한계)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T18:56:06+09:00",
+  "updated_at": "2026-11-20T19:05:36+09:00",
   "requests": [
     {
       "gate": "push",
