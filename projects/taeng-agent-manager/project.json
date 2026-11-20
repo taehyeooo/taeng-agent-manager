@@ -364,7 +364,7 @@
       "worktree": null,
       "pr": "15",
       "dispatch": "ctx_6ca270dc58fd",
-      "note": "매니저 레포 PR#15(가이드), 플러그인 교체는 Windows Codex"
+      "note": "PR#15 머지(design-guide). 플러그인 taeng-marketplace PR#22(intaeng 0.7.0 design 스킬, CI 통과) → Claude 리뷰 ctx_9ee7d7469934"
     }
   ],
   "history": [
@@ -1683,10 +1683,14 @@
     {
       "at": "2026-11-20T18:16:53+09:00",
       "event": "승인 기록: merge_main (PR#15)"
+    },
+    {
+      "at": "2026-11-20T18:17:48+09:00",
+      "event": "작업 T11 변경: note=PR#15 머지(design-guide). 플러그인 taeng-marketplace PR#22(intaeng 0.7.0 design 스킬, CI 통과) → Claude 리뷰 ctx_9ee7d7469934"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T18:16:53+09:00",
+  "updated_at": "2026-11-20T18:17:48+09:00",
   "requests": [
     {
       "gate": "push",
