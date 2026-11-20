@@ -44,7 +44,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 
 | 기기·에이전트 | 쓸 수 있는 것 (2026-11-20 확인) |
 |---|---|
-| Mac · Claude Code | Anthropic Frontend Design(`frontend-design`), Expo 디자인 시스템·애니메이션·네이티브 UI(`expo:expo-design-system`·`expo-animation`·`expo-native-ui`), uiflow(`design-compare`·`design-qa`·`design-sweep`), 애플 가이드(`hig-components-layout`·`hig-patterns`) |
+| Mac · Claude Code | Anthropic Frontend Design(`frontend-design`), Expo 디자인 시스템·애니메이션·네이티브 UI(`expo:expo-design-system`·`expo-animation`·`expo-native-ui`), uiflow(`design-compare`·`design-qa`·`design-sweep`), 애플 가이드(`hig-components-layout`·`hig-patterns`). **2026-11-20 사용자 승인으로 설치**: UI UX Pro Max(플러그인 `ui-ux-pro-max@ui-ux-pro-max-skill`, MIT, 훅 없음 — 검색 스크립트는 쓸 때만 실행), Emil Kowalski Skills 20개(`~/.claude/skills/`에 복사, MIT, 문서만: `animate-expo`·`emil-design-eng`·`review-animations`·`gestures` 등), Impeccable(`~/.claude/skills/impeccable`, Apache-2.0, **스킬만 복사하고 플러그인의 자동 실행 훅은 설치 안 함** — 모든 프로젝트의 파일 편집마다 돌기 때문. 처음 쓸 때 체크섬 검증된 엔진을 내려받음) |
 | Mac · Codex | 디자인 도구 없음 |
 | Windows · Codex | 작업자 보고(2026-11-20) 기준 UI UX Pro Max, Emil Kowalski Skills, Frontend Design, web-design-guidelines, apple-design 사용. 정확한 목록은 다음 설치 작업 때 확인해 고친다 |
 
