@@ -435,7 +435,8 @@ class VerifierRound2Test(GuardTest):
             self.assertIn("deploy", self.bash(cmd)[1], cmd)
 
     def test_git_aliases(self):
-        self.assertEqual(self.bash("git -c alias.publish=push publish origin main")[0], "ask")
+        # 명령 안에서 정의한 별칭도 펼쳐서 실제 하위 명령으로 판정 — 저장 별칭과 같은 결과(PR #18 검토)
+        self.assertEqual(self.bash("git -c alias.publish=push publish origin main")[0], "deny")
         git(self.app, "config", "alias.publish", "push")
         self.assertEqual(self.bash("git publish origin main")[0], "deny")
         git(self.app, "config", "alias.sh", "!sh -c 'git push'")
@@ -2808,6 +2809,192 @@ class AutoGatesTest(GuardTest):
         self.assertIn("자동 승인 실행: merge_main(PR#7)", [h["event"] for h in p["history"]])
         S.set_phase(p, "spec_ready", self.root)
         self.assertEqual(p["phase"], "spec_ready")
+
+
+class CodeExecutionSettingTest(unittest.TestCase):
+    """~/.config/agent-manager/guard.json "code_execution": "allow" (사용자 지시 2026-11-21 "bash 승인 다 해"):
+    짧은 코드 실행 지점의 확인을 허용+기록으로. 금지·배포 신호·사용자 폴더·상태 파일은 그대로."""
+    build = GuardTest.build
+    setUp_base = GuardTest.setUp
+    tearDown = GuardTest.tearDown
+    bash = GuardTest.bash
+    config = AutoGatesTest.config
+    project = AutoGatesTest.project
+    ALL_BUT_DEPLOY = AutoGatesTest.ALL_BUT_DEPLOY
+    CODE = (
+        'python3 -c "print(1)"',
+        'python3 -c "import json, sys; print(json.dumps({\'a\': len(sys.argv)}))"',
+        'node -e "console.log(1 + 1)"',
+        "python3 - <<'EOF'\nimport sys\nfor a in sys.argv:\n    print(a)\nEOF",
+        'eval "ls -la"',
+        "$PAGER README.md",
+        "sed '1e date' package.json",
+        "git -c alias.hi='!echo hi' hi",
+        "git rebase --exec 'npm test' main",
+        "python3 scripts/untracked.py",
+        "bash ./untracked.sh",
+    )
+
+    def setUp(self):
+        self.setUp_base()
+        (Path(self.root) / "config/guard.json").unlink()  # 기본(opaque allow)
+        (self.app / "scripts").mkdir()
+        (self.app / "scripts/untracked.py").write_text("print(1)\n", encoding="utf-8")
+        (self.app / "untracked.sh").write_text("echo hi\n", encoding="utf-8")
+
+    def allow_code(self, **extra):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY, "code_execution": "allow", **extra})
+
+    def test_default_still_asks(self):
+        for value in (None, {"auto_gates": self.ALL_BUT_DEPLOY}, {"code_execution": "ask"}, {"code_execution": "yes"}):
+            if value is not None:
+                self.config(value)
+            for cmd in self.CODE:
+                for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                    with self.subTest(value=value, cmd=cmd, agent=agent):
+                        self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+        self.assertEqual(S.code_execution(self.root)[0], "ask")
+
+    def test_allow_runs_code_and_records(self):
+        self.allow_code()
+        self.assertEqual(S.code_execution(self.root), ("allow", []))
+        for cmd in self.CODE:
+            for agent in ("claude", "codex"):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
+        events = [h["event"] for h in self.project()["history"]]
+        self.assertTrue(any(e.startswith("자동 허용: 코드 실행 — 사용자 설정") for e in events), events)
+
+    def test_allow_keeps_deploy_and_risk_signals(self):
+        self.allow_code()
+        for cmd in ('python3 -c "import os; os.system(\'vercel --prod\')"',
+                    'node -e "require(\'child_process\').execSync(\'firebase deploy\')"',
+                    "python3 - <<'EOF'\nimport subprocess\nsubprocess.run(['netlify', 'deploy'])\nEOF",
+                    'eval "npm run deploy"', "git -c alias.d='!flyctl deploy' d",
+                    'python3 -c "import os; os.system(\'npm publish\')"',
+                    'echo cHJpbnQoMSk= | base64 -d | python3',
+                    'python3 -c "import base64; exec(base64.b64decode(\'cHJpbnQoMSk=\'))"'):
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+        # 코드 실행이 아닌 확인 사유는 그대로(인코딩된 PowerShell 명령)
+        self.assertEqual(self.bash("pwsh -EncodedCommand ZQBjAGgAbwA=", agent="codex")[0], "deny")
+
+    def test_allow_keeps_forbidden_user_folder_and_state_files(self):
+        self.allow_code()
+        for cmd in ('python3 -c "import os; print(os.environ)"', "claude --dangerously-skip-permissions",
+                    'node -e "console.log(process.env)"'):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny")
+        user = S.user_guard_file()
+        for cmd in ('python3 -c "import os; os.remove(os.path.expanduser(\'~/.config/agent-manager/guard.json\'))"',
+                    f'python3 -c "open(\'{user}\', \'w\').write(\'{{}}\')"',
+                    'python3 -c "import shutil, os; shutil.rmtree(os.path.expanduser(\'~/.config\'))"',
+                    "python3 - <<'EOF'\nimport pathlib\npathlib.Path.home().joinpath('.config', 'agent-manager').rename('x')\nEOF",
+                    'eval "rm -rf ~/.config/agent-manager"',
+                    "git -c alias.x='!rm ~/.config/agent-manager/guard.json' x"):
+            with self.subTest(cmd=cmd):  # Claude는 확인(또는 더 강한 차단), Codex는 차단
+                self.assertIn(self.bash(cmd)[0], ("ask", "deny"))
+                self.assertEqual(self.bash(cmd, agent="codex")[0], "deny")
+        for cmd in ('python3 -c "open(\'projects/app/project.json\', \'w\').write(\'{}\')"',
+                    'python3 -c "import os; os.remove(\'projects/app/project.json\')"',
+                    'node -e "require(\'fs\').writeFileSync(\'.am/local.json\', \'{}\')"'):
+            with self.subTest(cmd=cmd):
+                self.assertNotEqual(self.bash(cmd, cwd=self.root, agent="codex")[0], "allow")
+                self.assertEqual(self.bash(cmd, cwd=self.root, agent="codex")[0], "deny")
+
+    def test_opaque_ask_still_wins(self):
+        self.allow_code(opaque="ask")
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+
+    def test_repo_config_is_ignored(self):
+        (Path(self.root) / "config/guard.json").write_text(json.dumps({"code_execution": "allow"}), encoding="utf-8")
+        value, warnings = S.code_execution(self.root)
+        self.assertEqual(value, "ask")
+        self.assertTrue(any("레포 안" in w for w in warnings), warnings)
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+        self.config(None, "{broken")
+        self.assertEqual(S.code_execution(self.root)[0], "ask")
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+
+
+class CodeExecutionSameVerdictTest(CodeExecutionSettingTest):
+    """PR #18 Codex 검토: code_execution=allow에서도 같은 코드는 넣는 방법(인라인·heredoc·파이프·저장 별칭)과
+    상관없이 같은 판정이어야 한다 — 배포·금지·우회 신호는 어느 경로로 와도 확인/차단."""
+
+    @staticmethod
+    def forms(code_py, code_js=None):
+        """같은 코드를 넣는 여러 방법(변형 목록)."""
+        forms = [f"python3 -c '{code_py}'",
+                 f"python3 - <<'EOF'\n{code_py}\nEOF",
+                 f"python3 <<'EOF'\n{code_py}\nEOF",
+                 f"echo '{code_py}' | python3",
+                 f"echo '{code_py}' | python3 -",
+                 f"printf '%s' '{code_py}' | python3 /dev/stdin"]
+        if code_js:
+            forms += [f"node -e '{code_js}'",
+                      f"node - <<'EOF'\n{code_js}\nEOF",
+                      f"node <<'EOF'\n{code_js}\nEOF",
+                      f"echo '{code_js}' | node"]
+        return forms
+
+    def assert_all(self, cmds, claude, codex):
+        for cmd in cmds:
+            for agent, expected in (("claude", claude), ("codex", codex)):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+
+    def test_deploy_output_same_verdict_every_form(self):
+        # 1·2: heredoc 본문과 파이프로 넘기는 생산 단계도 인라인과 같은 위험 신호 검사
+        self.allow_code()
+        for py, js in (('print("vercel deploy")', 'console.log("vercel deploy")'),
+                       ('print("firebase deploy")', 'console.log("firebase deploy")'),
+                       ('print("npm publish")', 'console.log("npm publish")'),
+                       ('print("eas submit")', 'console.log("eas submit")')):
+            self.assert_all(self.forms(py, js), "ask", "deny")
+
+    def test_safe_code_allowed_every_form(self):
+        # 6: 보호 단어(eas)는 단어 경계로 — release·easy를 출력하는 정상 코드는 막지 않는다
+        self.allow_code()
+        for py, js in (('print(1)', 'console.log(1)'),
+                       ('print("release")', 'console.log("release")'),
+                       ('print("easy release notes")', 'console.log("easy")')):
+            self.assert_all(self.forms(py, js), "allow", "allow")
+
+    def test_protected_word_still_whole_word(self):
+        self.allow_code()
+        self.assert_all(self.forms('print("eas build")', 'console.log("eas build")'), "ask", "deny")
+
+    def test_bypass_flags_in_code_body(self):
+        # 5: 완화된 코드 본문에도 승인 우회 옵션(BYPASS_FLAGS) 신호
+        self.allow_code()
+        for flag in sorted(G.BYPASS_FLAGS):
+            py = f'import os; os.system("claude {flag}")'
+            js = f'require("child_process").execSync("codex {flag}")'
+            self.assert_all(self.forms(py, js), "ask", "deny")
+        self.assert_all([f"git -c alias.y='!claude {f}' y" for f in sorted(G.BYPASS_FLAGS)], "ask", "deny")
+
+    def test_stored_alias_body_checked_like_inline(self):
+        # 3: Git 설정에 저장된 셸 별칭 본문도 인라인 별칭과 같게 검사
+        self.allow_code()
+        git(self.app, "config", "alias.dep", "!vercel deploy --prod")
+        git(self.app, "config", "alias.yo", "!claude --yolo")
+        git(self.app, "config", "alias.rel", "!echo release")
+        self.assert_all(["git dep", "git -c alias.dep='!vercel deploy --prod' dep", "git yo"], "ask", "deny")
+        self.assert_all(["git rel", "git -c alias.rel='!echo release' rel"], "allow", "allow")
+
+    def test_inline_alias_does_not_skip_later_checks(self):
+        # 4: 별칭 정의를 만나도 뒤의 실제 하위 명령의 금지·승인 검사는 계속
+        self.allow_code()
+        for cmd in ("git -c alias.x='!true' commit --no-verify -m x",
+                    "git -c alias.x='!true' -c core.hooksPath=/tmp status",
+                    "git -c alias.x='!true' push --no-verify origin feat/x"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny")
+                self.assertEqual(self.bash(cmd, agent="codex")[0], "deny")
+        # 저장 별칭과 같은 정의를 명령 안에서 하면 그 본문으로 판정(일반 별칭은 펼쳐서 검사)
+        self.assertEqual(self.bash("git -c alias.c='commit --no-verify' c -m x", agent="codex")[0], "deny")
+        self.assertEqual(self.bash("git -c alias.x='!echo hi' status")[0], "allow")
 
 
 if __name__ == "__main__":
