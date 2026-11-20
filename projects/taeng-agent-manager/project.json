@@ -399,7 +399,18 @@
       "worktree": null,
       "pr": "18",
       "dispatch": "ctx_c3afae2d76d3",
-      "note": "PR#18(테스트 443, 변형 69/69) → Codex 교차 검토 ctx_f93c0fcddc43"
+      "note": "PR#18(테스트 443, 변형 69/69) → Codex 교차 검토 ctx_f93c0fcddc43",
+      "verification": {
+        "tests": "pass",
+        "review": "fail",
+        "security": "fail",
+        "by": "codex",
+        "summary": "PR#18 Codex 검토 수정 필요: allow 모드에서 heredoc·파이프·저장 git 별칭·별칭 뒤 하위 명령·BYPASS_FLAGS 경로로 배포·금지 신호를 놓침(높음 5), eas 부분 문자열 오차단(중간)",
+        "at": "2026-11-21T00:34:10+09:00"
+      },
+      "files": [
+        "am/guard.py"
+      ]
     }
   ],
   "history": [
@@ -1818,10 +1829,18 @@
     {
       "at": "2026-11-21T00:26:45+09:00",
       "event": "작업 T12 변경: pr=18, note=PR#18(테스트 443, 변형 69/69) → Codex 교차 검토 ctx_f93c0fcddc43"
+    },
+    {
+      "at": "2026-11-21T00:29:59+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_3d2645d22a49 ctx_b049cb8d9d1b; do echo \"$d $(orca orchestration worker-show --dispatch $d --json 2>&1 | gre"
+    },
+    {
+      "at": "2026-11-21T00:34:10+09:00",
+      "event": "작업 T12 검증(codex): tests=pass, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-21T00:26:45+09:00",
+  "updated_at": "2026-11-21T00:34:10+09:00",
   "requests": [
     {
       "gate": "push",

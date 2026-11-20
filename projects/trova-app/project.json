@@ -448,8 +448,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_3d2645d22a49",
-      "note": "Codex 시안 PR#204(선회 항로·신호 도장, % 있는 곳: PlaceReviewModal:182·AlternativeFinderSheet:417·TripReplanScreen:189). Claude 대기 ctx_3d2645d22a49"
+      "dispatch": "ctx_337badd15f0a",
+      "note": "Claude 시안 Windows로 재시작 ctx_337badd15f0a. Codex PR#204 완료. 페이지 https://claude.ai/artifact/8M9AuUdWynCFo9Sv8vKGDT"
     },
     {
       "id": "T19",
@@ -460,8 +460,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_b049cb8d9d1b",
-      "note": "시안 Claude ctx_b049cb8d9d1b / Codex ctx_0f66d677a184. '색 전면 교체 금지' 해제(사용자 요청)"
+      "dispatch": "ctx_d3fed96e3960",
+      "note": "사용자 지시 '작업은 윈도우에서': Claude 시안을 Windows로 옮김(ctx_d3fed96e3960), Codex Windows ctx_0f66d677a184"
     }
   ],
   "history": [
@@ -984,8 +984,16 @@
     {
       "at": "2026-11-21T00:26:46+09:00",
       "event": "작업 T18 변경: note=Codex 시안 PR#204(선회 항로·신호 도장, % 있는 곳: PlaceReviewModal:182·AlternativeFinderSheet:417·TripReplanScreen:189). Claude 대기 ctx_3d2645d22a49"
+    },
+    {
+      "at": "2026-11-21T00:34:10+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_d3fed96e3960, note=사용자 지시 '작업은 윈도우에서': Claude 시안을 Windows로 옮김(ctx_d3fed96e3960), Codex Windows ctx_0f66d677a184"
+    },
+    {
+      "at": "2026-11-21T00:34:10+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_337badd15f0a, note=Claude 시안 Windows로 재시작 ctx_337badd15f0a. Codex PR#204 완료. 페이지 https://claude.ai/artifact/8M9AuUdWynCFo9Sv8vKGDT"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T00:26:46+09:00"
+  "updated_at": "2026-11-21T00:34:10+09:00"
 }
