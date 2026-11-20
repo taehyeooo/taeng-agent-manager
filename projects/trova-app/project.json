@@ -356,8 +356,8 @@
       "branch": null,
       "worktree": null,
       "pr": "195",
-      "dispatch": "ctx_5b836ce9bd3c",
-      "note": "3단계: Codex 시안(PR#196)이 카드 조각만 그려 사용자 '별로' → 실제 휴대폰 화면 기준으로 다시 그리기 ctx_c9b772b838cc(gpt-6.2-astra high). Claude 시안 ctx_5b836ce9bd3c에도 같은 기준 전달. 가이드 3단계에 목업 기준 추가 예정"
+      "dispatch": "ctx_c9b772b838cc",
+      "note": "Codex 시안 다시 그리기: 첫 작업자가 메시지를 받아 d00ee9b(전체 화면 60장) 올림 + 6.2 high 작업자 ctx_c9b772b838cc가 같은 폴더에서 다시 그리는 중(겹침) → high 결과를 최종으로. Claude 시안 ctx_5b836ce9bd3c 진행 중"
     }
   ],
   "history": [
@@ -700,8 +700,12 @@
     {
       "at": "2026-11-20T20:18:08+09:00",
       "event": "작업 T14 변경: note=3단계: Codex 시안(PR#196)이 카드 조각만 그려 사용자 '별로' → 실제 휴대폰 화면 기준으로 다시 그리기 ctx_c9b772b838cc(gpt-6.2-astra high). Claude 시안 ctx_5b836ce9bd3c에도 같은 기준 전달. 가이드 3단계에 목업 기준 추가 예정"
+    },
+    {
+      "at": "2026-11-20T20:21:32+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_c9b772b838cc, note=Codex 시안 다시 그리기: 첫 작업자가 메시지를 받아 d00ee9b(전체 화면 60장) 올림 + 6.2 high 작업자 ctx_c9b772b838cc가 같은 폴더에서 다시 그리는 중(겹침) → high 결과를 최종으로. Claude 시안 ctx_5b836ce9bd3c 진행 중"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T20:18:08+09:00"
+  "updated_at": "2026-11-20T20:21:32+09:00"
 }
