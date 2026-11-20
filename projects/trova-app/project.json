@@ -449,7 +449,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_280a9ca2c5c0",
-      "note": "Claude 디자인 스킬 재작업 완료 PR #207(머지 안 함, 시안 A 선회 추천). 아티팩트 https://claude.ai/artifact/7rkGG4hCbjCnkyfgf9dZ3d — 사용자 선택 대기"
+      "note": "사용자: C 창밖 순항 선택(위빙 조금 더), 리뷰 요약 대기는 새 시안 3개 → 같은 워커 ctx_280a9ca2c5c0"
     },
     {
       "id": "T19",
@@ -1004,8 +1004,12 @@
     {
       "at": "2026-11-21T00:55:00+09:00",
       "event": "작업 T18 변경: note=Claude 디자인 스킬 재작업 완료 PR #207(머지 안 함, 시안 A 선회 추천). 아티팩트 https://claude.ai/artifact/7rkGG4hCbjCnkyfgf9dZ3d — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T00:58:04+09:00",
+      "event": "작업 T18 변경: note=사용자: C 창밖 순항 선택(위빙 조금 더), 리뷰 요약 대기는 새 시안 3개 → 같은 워커 ctx_280a9ca2c5c0"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T00:55:00+09:00"
+  "updated_at": "2026-11-21T00:58:04+09:00"
 }
