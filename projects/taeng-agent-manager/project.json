@@ -344,14 +344,13 @@
       "verification": {
         "tests": "pass",
         "review": "fail",
-        "security": "fail",
+        "security": "pass",
         "by": "codex",
-        "summary": "PR#13 4차 수정 필요: PowerShell ni 별칭 쓰기 누락, New-Item HardLink -Target 미검사, home 없을 때 아무 레포의 am/guard.py를 신뢰",
-        "at": "2026-11-20T16:31:44+09:00"
+        "summary": "PR#13 최종 검토: 4차 3건 해결·알려진 한계 확인, 새 P2 1건(PowerShell 내용 인수를 경로로 오인해 정상 쓰기 차단)",
+        "at": "2026-11-20T19:07:44+09:00"
       },
       "files": [
-        "am/guard.py",
-        "am/cli.py"
+        "am/guard.py"
       ]
     },
     {
@@ -1722,10 +1721,14 @@
     {
       "at": "2026-11-20T19:05:36+09:00",
       "event": "작업 T10 변경: note=4차 수정 fe67cb1(PowerShell 별칭·링크 대상·home 없음 차단), 테스트 통과·변형 59/59 → Codex 최종 검토 ctx_78a34990fbbc(범위: 4차 해결·새 결함만, 이론적 우회는 알려진 한계)"
+    },
+    {
+      "at": "2026-11-20T19:07:44+09:00",
+      "event": "작업 T10 검증(codex): tests=pass, review=fail, security=pass"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T19:05:36+09:00",
+  "updated_at": "2026-11-20T19:07:44+09:00",
   "requests": [
     {
       "gate": "push",
