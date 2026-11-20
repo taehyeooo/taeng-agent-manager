@@ -344,8 +344,8 @@
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
       "pr": "192",
-      "dispatch": "ctx_17b45ab54174",
-      "note": "1단계 시안 3개 완료 PR#192(문서·목업만): A 따뜻한 여백(추천)·B 여행 티켓·C 또렷한 여정. 비교 페이지 https://claude.ai/artifact/YaNn113qbHBR9qWmabrwVT. 사용자 선택 대기"
+      "dispatch": "ctx_3db4d590ee60",
+      "note": "사용자 피드백: 왼쪽 초록 선 싫음, B 티켓 고도화. Claude-only 디자인 스킬(frontend-design·expo-design-system·expo-animation·design-compare) 필요해 Claude 워커로(B1~B3 시안)"
     }
   ],
   "history": [
@@ -644,8 +644,12 @@
     {
       "at": "2026-11-20T16:28:30+09:00",
       "event": "작업 T13 변경: pr=192, note=1단계 시안 3개 완료 PR#192(문서·목업만): A 따뜻한 여백(추천)·B 여행 티켓·C 또렷한 여정. 비교 페이지 https://claude.ai/artifact/YaNn113qbHBR9qWmabrwVT. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T16:31:27+09:00",
+      "event": "작업 T13 변경: dispatch=ctx_3db4d590ee60, note=사용자 피드백: 왼쪽 초록 선 싫음, B 티켓 고도화. Claude-only 디자인 스킬(frontend-design·expo-design-system·expo-animation·design-compare) 필요해 Claude 워커로(B1~B3 시안)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:28:30+09:00"
+  "updated_at": "2026-11-20T16:31:27+09:00"
 }
