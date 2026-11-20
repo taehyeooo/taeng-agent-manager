@@ -16,6 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from am import cli, guard as G, report, state as S  # noqa: E402
 
+# 이 기기의 실제 사용자 설정(~/.config/agent-manager/guard.json)이 결과를 바꾸지 않게 — 테스트마다 따로(GuardTest.setUp)
+_NO_USER_GUARD = Path(tempfile.mkdtemp()) / "agent-manager" / "guard.json"
+S.USER_GUARD_FILE = _NO_USER_GUARD
+
 
 def git(cwd, *args):
     subprocess.run(["git", "-C", str(cwd), *args], check=True, capture_output=True)
@@ -58,6 +62,9 @@ class GuardTest(unittest.TestCase):
             type(self).build(Path(_FIXTURES[key].name))
         for name in ("app", "other"):
             shutil.copytree(Path(_FIXTURES[key].name) / name, base / name, symlinks=True)
+        # 사용자 전용 설정(레포 밖)은 테스트마다 임시 home 아래 — 실제 ~/.config는 건드리지 않는다
+        self.home = base / "home"
+        S.USER_GUARD_FILE = self.home / ".config" / "agent-manager" / "guard.json"
         # 기존 회귀 검사는 ask 스위치에서도 예전 보호 동작이 유지되는지 확인한다.
         config = Path(self.root) / "config"
         config.mkdir(parents=True)
@@ -68,6 +75,7 @@ class GuardTest(unittest.TestCase):
         S.save_local(cfg, self.root)
 
     def tearDown(self):
+        S.USER_GUARD_FILE = _NO_USER_GUARD
         self.tmp.cleanup()
 
     def bash(self, cmd, cwd=None, agent="claude"):
@@ -727,6 +735,10 @@ class BuildAllowlistTest(GuardTest):
             body = "require('child_process').execSync('git push --force origin main')" if interpreter.startswith("node") else "import subprocess\nsubprocess.run(['git', 'push', '--force', 'origin', 'main'])"
             self.assertNotEqual(self.bash(interpreter + " <<'EOF'\n" + body + "\nEOF")[0], "allow", interpreter)
         self.assertEqual(self.bash("unknown-runtime <<'EOF'\nanything\nEOF")[0], "ask")
+        # 표준입력 프로그램은 어차피 확인 창(ask)이므로, 본문을 읽었다는 증거는 상태 파일 쓰기의 차단(deny)
+        for interpreter in ("python3.12 -", "python3 -", "py -3", "pypy3 -"):
+            command = interpreter + " <<'EOF'\nopen('projects/app/project.json','w')\nEOF"
+            self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", interpreter)
 
     def test_review_python_writes_and_flow(self):
         bodies = [
@@ -751,7 +763,8 @@ class BuildAllowlistTest(GuardTest):
     def test_review_heredoc_exact_terminator(self):
         for ending in ("EOF ", "EOF\t"):
             command = "python - <<'EOF'\nprint('ok')\n" + ending + "\nopen('projects/app/project.json','w')\nEOF"
-            self.assertNotEqual(self.bash(command, cwd=self.root)[0], "allow")
+            # 표준입력 프로그램은 어차피 확인 창 — 'EOF ' 뒤 줄까지 본문으로 읽었으면 상태 파일 쓰기로 차단(deny)
+            self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", repr(ending))
             # 뒤 줄이 모두 아는 명령이어도: 진짜 본문은 Python으로 해석되지 않는 줄까지 포함한다
             command = "python - <<'EOF'\nprint('ok')\n" + ending + "\necho x\ncat <<'EOF'\nEOF"
             self.assertNotEqual(self.bash(command)[0], "allow")
@@ -835,6 +848,18 @@ class BuildAllowlistTest(GuardTest):
         # 인터프리터는 추적·미수정 스크립트 파일 실행만 기존 판정 — 파일 인수 없는 heredoc 프로그램은 확인
         self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "ask")
 
+    def test_heredoc_to_a_clean_tracked_script_is_not_a_stdin_program(self):
+        # 깨끗한 작업 폴더의 추적·미수정 스크립트 단독 실행은 허용(build). 그런데 `python scripts/check.py <<EOF`는
+        # 본문이 프로그램인 형태(`python -`·`python`·`py -3 -`·`node`)가 아니다 — 본문을 Python으로 검사해 통과시키면
+        # 안 되고, 무엇을 읽어 무엇을 할지 모르는 heredoc 입력으로 사람이 본다(Claude 확인, Codex 차단).
+        self.assertEqual(self.bash("python scripts/check.py")[0], "allow")
+        for body in ("print(1)", "pass"):
+            command = f"python scripts/check.py <<'EOF'\n{body}\nEOF"
+            with self.subTest(body=body):
+                self.assertEqual(self.bash(command)[0], "ask")
+                self.assertEqual(self.bash(command, agent="codex")[0], "deny")
+        # 본문이 프로그램인 형태는 본문을 읽어 판단한다
+        self.assertEqual(self.bash("python - <<'EOF'\nopen('projects/app/project.json','w')\nEOF", cwd=self.root)[0], "deny")
     def test_reverify_b_baseline_ref_commands_need_a_person(self):
         for cmd in ("git update-ref refs/remotes/origin/main HEAD",
                     "git update-ref -m 'fetch origin: fast-forward' refs/remotes/origin/main HEAD",
@@ -947,6 +972,10 @@ class BuildAllowlistTest(GuardTest):
                     "python -m unittest tests.test_guard", "python -m unittest"):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
         (self.app / "scripts/json.py").write_text("print('shadow')\n", encoding="utf-8")  # imported before the stdlib
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+        # git이 무시하는 형제 .py도 먼저 import된다 — git status(--ignored=no)에는 안 보이므로 형제 검사만 잡는다
+        with open(self.app / ".git/info/exclude", "a", encoding="utf-8") as f:
+            f.write("scripts/json.py\n")
         self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
 
     def test_build_invocations(self):
@@ -1453,7 +1482,9 @@ class TrustLayerStateTest(unittest.TestCase):
         self.assertEqual(cli.install_guard(repo)[1], "current")
         cfg = json.loads(f.read_text(encoding="utf-8"))
         self.assertEqual(len(cfg["hooks"]["PreToolUse"]), 1)
-        self.assertIn("am/guard.py\" claude", cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"])
+        command = cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+        self.assertIn("/am/guard.py\"", command)
+        self.assertTrue(command.endswith("\"$p\" \"$g\" claude"), command)
 
 
 class RemoteDeployTest(unittest.TestCase):
@@ -2362,6 +2393,421 @@ class LowRiskCodeMisuseCases(GuardTest):
             if case != "clean":
                 with self.subTest(case=case, command=cmd):
                     self.assertNotEqual(decision, "allow")
+
+
+class AutoGatesTest(GuardTest):
+    """~/.config/agent-manager/guard.json "auto_gates" (사용자 지시 2026-11-20: 운영 배포·비용 빼고 묻지 말고 진행,
+    기록은 남김). 레포 밖 파일만 인정 — git 명령으로는 바뀔 수 없다."""
+    ALL_BUT_DEPLOY = ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission",
+                      "architecture_policy", "repo_create", "spec"]
+
+    def config(self, value, raw=None):
+        f = S.user_guard_file()
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(raw if raw is not None else json.dumps(value), encoding="utf-8")
+
+    def project(self):
+        return S.load("app", self.root)
+
+    def test_default_without_file_or_key_or_with_empty_list_still_asks(self):
+        self.assertEqual(S.auto_gates(self.root), (set(), []))
+        self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+        for value in ({}, {"auto_gates": []}):
+            with self.subTest(value=value):
+                self.config(value)
+                self.assertEqual(S.auto_gates(self.root), (set(), []))
+                self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+                self.assertEqual(self.bash("python -m am approve app push")[0], "ask")
+                self.assertEqual(self.bash("python -m am approve app push", agent="codex")[0], "deny")
+
+    def test_unknown_names_and_bad_files_are_ignored_with_a_warning(self):
+        self.config({"auto_gates": ["nope", "push", 3]})
+        gates, warnings = S.auto_gates(self.root)
+        self.assertEqual(gates, {"push"})
+        self.assertTrue(any("nope" in w for w in warnings), warnings)
+        self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
+        for value, raw in (({"auto_gates": "push"}, None), (None, "{not json"), ([1], None)):
+            with self.subTest(raw=raw, value=value):
+                self.config(value, raw)
+                gates, warnings = S.auto_gates(self.root)
+                self.assertEqual(gates, set())
+                self.assertTrue(warnings)
+                self.assertEqual(self.bash("git push origin feat/y")[0], "deny")
+
+    def test_listed_gate_runs_and_is_recorded(self):
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "allow")
+        p = self.project()
+        auto = [a for a in p["approvals"] if a["gate"] == "push"]
+        self.assertEqual(len(auto), 1, auto)  # 같은 대상은 한 번만 기록
+        self.assertEqual((auto[0]["ref"], auto[0]["note"], auto[0].get("auto")), ("feat/x", S.AUTO_NOTE, True))
+        events = [h["event"] for h in p["history"]]
+        self.assertEqual(events.count("자동 승인 실행: push(feat/x)"), 2, events)
+        self.assertFalse(p.get("requests"))
+        # 설정에서 빼면 자동 기록은 더 이상 승인이 아니다
+        self.config({"auto_gates": []})
+        self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+
+    def test_unlisted_deploy_still_blocked(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        d, msg = self.bash("vercel --prod")
+        self.assertEqual(d, "deny")
+        self.assertIn("deploy", msg)
+        self.assertEqual(self.bash("vercel --prod", agent="codex")[0], "deny")
+        # 하나라도 묻는 작업이 섞이면 자동 작업도 실행·기록하지 않는다
+        self.assertEqual(self.bash("git push origin feat/x && vercel --prod")[0], "deny")
+        self.assertFalse(any(a["gate"] == "push" for a in self.project()["approvals"]))
+        for cmd, gate in (("rm -rf src", "destructive_delete"), ("cat .env", "credentials"),
+                          ("gh pr merge 3 --squash", "merge_main"), ("git push origin --delete feat/old", "destructive_delete")):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+                self.assertTrue(any(a["gate"] == gate and a.get("auto") for a in self.project()["approvals"]), gate)
+        # 승인 항목이 자동이어도 "무엇이 실행될지 모르는" 부분은 따로 사람이 본다(auto_gates와 무관)
+        d, msg = self.bash("npx prisma migrate reset")
+        self.assertEqual(d, "ask")
+        self.assertNotIn("db_change", msg)
+
+    def test_forbidden_stays_forbidden(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY + ["deploy", "paid_service"]})
+        for cmd in ("git push --force origin main", "git commit --no-verify -m x", "gh auth token",
+                    "claude --dangerously-skip-permissions", "printenv",
+                    f"echo x > {Path(self.root) / 'projects/app/project.json'}"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+        self.assertEqual(self.tool("Write", Path(self.root) / "projects/app/project.json")[0], "deny")
+
+    def test_auto_gates_only_from_the_file_outside_the_repo(self):
+        # 레포 안 config/guard.json의 auto_gates는 git 명령(reset·checkout·stash·merge …)으로 바뀔 수 있으므로 무시하고 경고
+        (Path(self.root) / "config/guard.json").write_text(json.dumps({"opaque": "ask", "auto_gates": ["push"]}),
+                                                          encoding="utf-8")
+        gates, warnings = S.auto_gates(self.root)
+        self.assertEqual(gates, set())
+        self.assertTrue(any("레포 안" in w for w in warnings), warnings)
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "deny")
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(S.auto_gates(self.root)[0], {"push"})
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "allow")
+
+    def test_opaque_setting_reads_the_user_file_first(self):
+        # 레포 안 opaque=ask(GuardTest 기본) → 사용자 파일에 opaque가 있으면 그것이 우선, 없으면 레포 값(하위 호환)
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+        self.config({"auto_gates": []})
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+        self.config({"opaque": "allow"})
+        self.assertEqual(G._opaque_policy(self.root), "allow")
+        self.config(None, "{broken")
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+
+    def test_windows_drive_paths_survive_bash_escapes(self):
+        # Bash 이스케이프는 C:\Users\RUNNER~1\…을 C:UsersRUNNER~1…(상대 경로)로 깨뜨린다 → / 표기로도 검사(모든 OS에서 문자열 단위)
+        short = r"C:\Users\RUNNER~1\AppData\Local\Temp\tmpx\home\.config\agent-manager\guard.json"
+        self.assertEqual(G.bash_escapes(f"rm {short}").split()[1][:12], "C:UsersRUNNE")
+        self.assertEqual(G.windows_drive_paths(f"echo x >> {short}"),
+                         "echo x >> C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json")
+        self.assertEqual(G.windows_drive_paths(rf'rm "{short}" && dd of=D:\a\b'),
+                         'rm "C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json" && dd of=D:/a/b')
+        for same in ("g\\it pu\\sh", "echo a\\b", "rm ./C:\\x", "printf 'ab:\\n'", "echo ~\\a", "ls"):
+            self.assertEqual(G.windows_drive_paths(same), same)
+        # decide는 깨진 표기와 / 표기를 둘 다 검사한다(뒤쪽이 C:/Users/RUNNER~1/… — Windows에서 realpath가 긴 이름으로)
+        seen = []
+        real = G.classify_command
+        with patch.object(G, "classify_command", side_effect=lambda c, *a, **k: seen.append(c) or real(c, *a, **k)):
+            G.decide({"tool_name": "Bash", "tool_input": {"command": f"rm {short}"}, "cwd": str(self.app)}, "codex", self.root)
+        self.assertIn("rm C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json", seen)
+
+    def test_agents_cannot_change_the_user_file(self):
+        # 모든 승인 항목을 자동으로 해도: 레포 밖 사용자 설정의 쓰기·삭제·이동·링크는 Claude 확인, Codex 차단
+        self.config({"auto_gates": list(S.GATES)})
+        user = S.user_guard_file()
+        folder = user.parent
+        alias = Path(self.tmp.name) / "home-alias"
+        try:
+            alias.symlink_to(self.home, target_is_directory=True)
+        except OSError:  # Windows without symlink privilege — alias spellings are skipped there
+            alias = self.home
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+        with patch.dict(os.environ, env):
+            for spelled in ("~/.config/agent-manager/guard.json", str(user), str(alias / ".config/agent-manager/guard.json"),
+                            "~/.config/agent-manager/../agent-manager/guard.json", "~/.config/Agent-Manager/GUARD.json"):
+                for tool in ("Write", "Edit", "MultiEdit"):
+                    with self.subTest(tool=tool, path=spelled):
+                        self.assertEqual(self.tool(tool, spelled)[0], "ask")
+                        self.assertEqual(G.decide({"tool_name": tool, "tool_input": {"file_path": spelled},
+                                                   "cwd": str(self.app)}, "codex", self.root)[0], "deny")
+            cmds = ["echo '{}' > ~/.config/agent-manager/guard.json", f"echo x >> {user}",
+                    "cp /tmp/x ~/.config/agent-manager/guard.json", "cp /tmp/x ~/.config/agent-manager/",
+                    "mv ~/.config/agent-manager/guard.json old.json", "mv /tmp/x ~/.config/agent-manager/guard.json",
+                    "rm ~/.config/agent-manager/guard.json", "rm -f ~/.config/agent-manager/guard.json",
+                    "rm -rf ~/.config/agent-manager", "rm -rf ~/.config/agent-manager/*", "rm -rf ~/.config",
+                    "ln -sf /tmp/x ~/.config/agent-manager/guard.json", "tee ~/.config/agent-manager/guard.json",
+                    "sed -i s/a/b/ ~/.config/agent-manager/guard.json", "truncate -s 0 ~/.config/agent-manager/guard.json",
+                    f"rm {alias / '.config/agent-manager/guard.json'}"]
+            for cmd in cmds:
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+            # 그 폴더 안에서 상대 경로로
+            for cmd in ("rm guard.json", "echo '{}' > guard.json", "mv guard.json x"):
+                with self.subTest(cwd=folder, cmd=cmd):
+                    self.assertEqual(self.bash(cmd, cwd=folder, agent="codex")[0], "deny", cmd)
+            # 읽기는 그대로
+            self.assertEqual(self.bash("cat ~/.config/agent-manager/guard.json", agent="codex")[0], "allow")
+        self.assertEqual(json.loads(user.read_text(encoding="utf-8")), {"auto_gates": list(S.GATES)})
+
+    def test_the_whole_user_folder_is_user_only(self):
+        # home(가드 위치 기록)이 지워지면 훅이 가드를 못 찾는다 → 폴더 전체를 사용자 전용으로 본다(auto와 무관)
+        # 기본 모드(opaque=allow): 모르는 프로그램(dd)도 원래는 허용 — 사용자 폴더 판정만이 막는다
+        self.config({"auto_gates": list(S.GATES), "opaque": "allow"})
+        folder = S.user_guard_file().parent
+        (folder / "home").write_text(str(self.root), encoding="utf-8")
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+        with patch.dict(os.environ, env):
+            cmds = ["rm ~/.config/agent-manager/home", "unlink ~/.config/agent-manager/home",
+                    "rm -f ~/.config/agent-manager/home", "mv ~/.config/agent-manager/home x",
+                    "rmdir ~/.config/agent-manager", "rm -rf ~/.config", "rm -rf ~", "rm -rf ~/.config/*",
+                    "echo /x > ~/.config/agent-manager/home", "cp x ~/.config/agent-manager/home",
+                    "tee ~/.config/agent-manager/home", "truncate -s 0 ~/.config/agent-manager/home",
+                    "shred ~/.config/agent-manager/home", "touch ~/.config/agent-manager/new.json",
+                    # dd of= 대상
+                    "dd if=/dev/null of=~/.config/agent-manager/home", f"dd if=x of={folder / 'guard.json'}",
+                    "dd if=x OF=~/.config/agent-manager/guard.json",
+                    # 링크의 원본 쪽이 사용자 폴더 — 링크를 거쳐 쓰면 그 파일이 바뀐다
+                    "ln -s ~/.config/agent-manager/guard.json g", "ln ~/.config/agent-manager/home h",
+                    "ln -sf ~/.config/agent-manager g && echo '{}' > g",
+                    # 글롭은 확정할 수 없으므로 보수적으로(글롭 앞 폴더까지)
+                    "rm ~/.config/agent-mana*/home", "rm ~/.config/agent-manager/ho?e", "rm ~/.config/[a]gent-manager/home",
+                    "ln -s ~/.config/agent-*/guard.json g", "dd if=x of=~/.config/agent-man*/home"]
+            for cmd in cmds:
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+            for tool in ("Write", "Edit"):
+                with self.subTest(tool=tool):
+                    self.assertEqual(self.tool(tool, "~/.config/agent-manager/home")[0], "ask")
+            # 이미 있는 링크를 거쳐 쓰기: 실제 경로로 풀어 비교
+            link = self.app / "cfg-link"
+            try:
+                link.symlink_to(folder / "home")
+            except OSError:
+                link = None
+            if link:
+                self.assertEqual(self.bash("echo /x > cfg-link", agent="codex")[0], "deny")
+                self.assertEqual(self.bash("dd if=x of=cfg-link", agent="codex")[0], "deny")
+            # 상관없는 경로는 그대로
+            for cmd in ("dd if=x of=out.bin", "ln -s README.md r", "cat ~/.config/agent-manager/home", "rm -f out.bin"):
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "allow", cmd)
+        self.assertEqual((folder / "home").read_text(encoding="utf-8"), str(self.root))
+
+    # 원칙 표: 사용자 전용 폴더(~/.config/agent-manager)에 닿는 쓰기·삭제·이동·링크는 auto와 무관하게 Claude 확인·Codex 차단
+    USER_FOLDER_TABLE = [
+        # (도구, 명령) — PowerShell 쓰기 cmdlet과 기본 별칭, -Path·-LiteralPath·-Destination·-Target·-Value·-Name:값·위치 인수
+        ("PowerShell", "New-Item -Path ~/.config/agent-manager/home -Force"),
+        ("PowerShell", "ni ~/.config/agent-manager/home -Force"),
+        ("PowerShell", "ni -Path:~/.config/agent-manager/guard.json"),
+        ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target ~/.config/agent-manager/guard.json"),
+        ("PowerShell", "New-Item -ItemType HardLink -Path link -Value ~/.config/agent-manager/home"),
+        ("PowerShell", "ni link -ItemType Junction -Target:~/.config/agent-manager"),
+        ("PowerShell", "New-Item -Type SymbolicLink link -Value ~/.config/agent-manager/home"),
+        ("PowerShell", "New-Item -ItemType:symboliclink -Path link -Value ~/.config/agent-manager"),
+        ("PowerShell", "New-Item -ItemType $t -Path link -Value ~/.config/agent-manager/home"),
+        ("PowerShell", "Set-Content -Path ~/.config/agent-manager/home -Value x"),
+        ("PowerShell", "sc ~/.config/agent-manager/home x"),
+        ("PowerShell", "ac -LiteralPath ~/.config/agent-manager/home x"),
+        ("PowerShell", "Out-File -FilePath ~/.config/agent-manager/guard.json"),
+        ("PowerShell", "Copy-Item x -Destination ~/.config/agent-manager/home"),
+        ("PowerShell", "cpi x ~/.config/agent-manager/home"),
+        ("PowerShell", "copy x -Destination:~/.config/agent-manager/guard.json"),
+        ("PowerShell", "Move-Item -Path ~/.config/agent-manager/home -Destination x"),
+        ("PowerShell", "mi ~/.config/agent-manager/home x"),
+        ("PowerShell", "Move-Item x -Destination ~/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item ~/.config/agent-manager/home"),
+        ("PowerShell", "ri -LiteralPath ~/.config/agent-manager/home"),
+        ("PowerShell", "del ~/.config/agent-manager/home"),
+        ("PowerShell", "erase ~/.config/agent-manager/home"),
+        ("PowerShell", "rd ~/.config/agent-manager -Recurse"),
+        ("PowerShell", "Remove-Item -Path:~/.config -Recurse"),
+        ("PowerShell", "Rename-Item ~/.config/agent-manager/home old"),
+        ("PowerShell", "rni -Path ~/.config/agent-manager/home -NewName old"),
+        ("PowerShell", "ren ~/.config/agent-manager/home old"),
+        ("PowerShell", "Clear-Content ~/.config/agent-manager/home"),
+        ("PowerShell", "clc -Path ~/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item $env:USERPROFILE/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item $HOME\\.config\\agent-manager\\home"),
+        # POSIX
+        ("Bash", "rm $HOME/.config/agent-manager/home"),
+        ("Bash", "rm ${HOME}/.config/agent-manager/home"),
+        ("Bash", "ln -s ~/.config/agent-manager/guard.json g"),
+        ("Bash", "dd if=x of=~/.config/agent-manager/home"),
+    ]
+
+    def test_user_folder_principle_table(self):
+        self.config({"auto_gates": list(S.GATES), "opaque": "allow"})
+        (S.user_guard_file().parent / "home").write_text(str(self.root), encoding="utf-8")
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+
+        def run(tool, cmd, agent):
+            return G.decide({"tool_name": tool, "tool_input": {"command": cmd}, "cwd": str(self.app)}, agent, self.root)[0]
+        with patch.dict(os.environ, env):
+            for tool, cmd in self.USER_FOLDER_TABLE:
+                with self.subTest(tool=tool, cmd=cmd):
+                    self.assertEqual(run(tool, cmd, "claude"), "ask")
+                    self.assertEqual(run(tool, cmd, "codex"), "deny")
+            # 사용자 폴더에 닿지 않는 같은 명령은 그대로(읽기·작업 폴더 안 쓰기)
+            for tool, cmd in (("PowerShell", "New-Item -ItemType File -Path notes.txt"),
+                              ("PowerShell", "Copy-Item ~/.config/agent-manager/guard.json backup.json"),
+                              ("PowerShell", "Set-Content -Path notes.txt -Value x"),
+                              # -Value·내용 위치 인수는 쓸 내용이지 경로가 아니다(링크 만들기만 예외)
+                              ("PowerShell", 'Add-Content -Path notes.txt -Value "~"'),
+                              ("PowerShell", 'Set-Content -Path notes.txt -Value "~/.config/agent-manager/home"'),
+                              ("PowerShell", "sc notes.txt ~/.config/agent-manager/home"),
+                              ("PowerShell", "Out-File notes.txt utf8"),
+                              ("PowerShell", "New-Item -ItemType File -Path notes.txt -Value ~/.config/agent-manager/home"),
+                              ("PowerShell", "New-Item -Path notes.txt -Value ~/.config/agent-manager/guard.json"),
+                              ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target README.md"),
+                              ("Bash", "cat $HOME/.config/agent-manager/home")):
+                with self.subTest(unrelated=cmd):
+                    self.assertEqual(run(tool, cmd, "codex"), "allow")
+            # PowerShell 쓰기 별칭(ni 등)의 대상도 일반 쓰기 검사(상태 파일 금지·작업 폴더 밖 금지)를 받는다
+            state = Path(self.root) / "projects/app/project.json"
+            for cmd in (f"ni {state} -Force", f"ni -Path:{state}", f"sc -Path {state} -Value x", f"clc {state}",
+                        "ni -Path:/etc/agent-manager-test.txt"):
+                with self.subTest(write=cmd):
+                    self.assertEqual(run("PowerShell", cmd, "claude"), "deny")
+
+    def test_agents_cannot_change_the_setting(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        root = Path(self.root)
+        cfg = root / "config" / "guard.json"
+        for tool in ("Write", "Edit", "MultiEdit"):
+            fs = G.classify_file(tool, cfg, root, root)
+            self.assertEqual([f["kind"] for f in fs], ["forbidden"], (tool, fs))
+        for cmd in ("echo '{}' > config/guard.json", "rm config/guard.json", "mv config/guard.json /tmp/x",
+                    "rm -rf config", "rm -rf projects", "rm -rf projects/app", "rm -rf config/*", "rm -rf .am",
+                    "cp /tmp/x config/guard.json", "sed -i s/a/b/ config/guard.json", "tee config/guard.json",
+                    "python -c \"open('config/guard.json','w').write('{}')\""):
+            with self.subTest(cmd=cmd):
+                fs = G.classify_command(cmd, str(root), str(root))
+                self.assertTrue(any(f["kind"] == "forbidden" for f in fs), (cmd, fs))
+        self.assertFalse(any(f["kind"] == "forbidden" for f in G.classify_command("cat config/guard.json", str(root), str(root))))
+        self.assertFalse(any(f["kind"] == "forbidden" for f in G.classify_command("rm -rf src", str(root), str(root))))
+
+    def test_am_approve_for_listed_gate_needs_no_prompt(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        mgr = S.ROOT  # python -m am은 이 매니저 레포의 am일 때만 (작업 폴더의 가짜 am 패키지는 안 됨)
+        for agent in ("claude", "codex"):
+            with self.subTest(agent=agent):
+                for cmd in ("python -m am approve app merge_main --ref PR#3 --note x",
+                            "python -m am approve --ref PR#3 app merge_main", "python3 -m am approve app push --ref=feat/x"):
+                    self.assertEqual(self.bash(cmd, cwd=mgr, agent=agent)[0], "allow", cmd)
+                for cmd in ("python -m am approve app deploy", "python -m am approve app paid_service",
+                            "python -m am approve app push && python -m am approve app deploy",
+                            "python -m am approve --weird app push", "python -m am approve app",
+                            # 모르는 옵션이 위치 인수 자리를 차지해도(--weird push → 2개) 사람 확인
+                            "python -m am approve --weird push", "python -m am approve --root=/tmp/x merge_main",
+                            "python -m am approve app push extra", "python -m am --root /tmp/x approve app push",
+                            "python am/cli.py approve app push"):
+                    self.assertEqual(self.bash(cmd, cwd=mgr, agent=agent)[0], "deny" if agent == "codex" else "ask", cmd)
+                self.assertEqual(self.bash("python -m am approve app push", agent=agent)[0],
+                                 "deny" if agent == "codex" else "ask")  # 작업 폴더(app)의 am
+        # 승인 명령에 다른 위험 명령을 붙여도 그 부분은 따로 검사한다
+        self.assertEqual(self.bash("python -m am approve app push; git push --force origin main", cwd=mgr)[0], "deny")
+        self.assertEqual(self.bash("python -m am approve app push; vercel --prod", cwd=mgr, agent="codex")[0], "deny")
+
+    def test_am_approve_cli_marks_auto_recorded_approvals(self):
+        self.config({"auto_gates": ["push"]})
+        with contextlib.redirect_stdout(io.StringIO()):
+            cli.main(["--root", self.root, "approve", "app", "push", "--ref", "feat/z"])
+            cli.main(["--root", self.root, "approve", "app", "deploy"])
+        p = self.project()
+        push = next(a for a in p["approvals"] if a["gate"] == "push")
+        deploy = next(a for a in p["approvals"] if a["gate"] == "deploy")
+        self.assertTrue(push.get("auto"))
+        self.assertIn(S.AUTO_NOTE, push["note"])
+        self.assertFalse(deploy.get("auto"))
+        self.config({})
+        self.assertFalse(S.has_approval(self.project(), "push", "feat/z"))
+        self.assertTrue(S.has_approval(self.project(), "deploy"))
+
+    def require(self, *args):
+        with contextlib.redirect_stdout(io.StringIO()):
+            try:
+                cli.main(["--root", self.root, "require", "app", *args])
+            except SystemExit as e:
+                return e.code
+        return 0
+
+    def test_am_require_passes_for_listed_gate_only(self):
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 1)
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 0)
+        self.assertEqual(self.require("deploy"), 1)
+        self.assertFalse(self.project()["approvals"])  # require는 확인만, 기록하지 않음
+        self.config({"auto_gates": []})
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 1)
+
+    def manager_repo(self):
+        """The manager repo itself as a git work tree with config/guard.json tracked."""
+        root = Path(self.root)
+        # 실제처럼 이 레포도 관리 프로젝트로 등록(projects/taeng-agent-manager) → 자동 승인 경로를 탄다
+        S.new_project("mgr", "mgr", "x", self.root)
+        cfg = S.load_local(self.root)
+        cfg["paths"]["mgr"] = str(root)
+        S.save_local(cfg, self.root)
+        git(root, "init", "-q", "-b", "main")
+        git(root, "add", "-A")
+        git(root, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init")
+        return root
+
+    def test_git_rewriting_the_manager_tree_is_never_automatic(self):
+        # P1: destructive_delete가 auto여도 매니저 레포 작업 트리를 되돌리면 사용자가 고친 config/guard.json도 되돌아간다
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        root = self.manager_repo()
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY, "opaque": "ask"})  # 사용자의 커밋 안 한 변경
+        for cmd in ("git reset --hard HEAD", "git reset --hard", "git clean -fdx", "git stash", "git stash push -u",
+                    "git stash -u", "git checkout -f main", "git switch --discard-changes main", "git reset --merge HEAD",
+                    "git checkout -- ."):
+            with self.subTest(cmd=cmd):
+                d, msg = self.bash(cmd, cwd=root)
+                self.assertNotEqual(d, "allow", (cmd, msg))
+                self.assertEqual(self.bash(cmd, cwd=root, agent="codex")[0], "deny", cmd)
+        mgr = lambda: S.load("mgr", self.root)  # noqa: E731
+        self.assertFalse(any(a["gate"] == "destructive_delete" for a in mgr()["approvals"]))
+        # 예전에 받은 전체 승인 기록이 있어도 매번 사람이 본다
+        p = mgr()
+        S.approve(p, "destructive_delete")
+        S.save(p, self.root)
+        self.assertEqual(self.bash("git reset --hard HEAD", cwd=root)[0], "ask")
+        self.assertEqual(self.bash("git reset --hard HEAD", cwd=root, agent="codex")[0], "deny")
+        # 읽기 쪽 stash는 지금처럼
+        for cmd in ("git stash list", "git stash show"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd, cwd=root, agent="codex")[0], "allow", cmd)
+
+    def test_git_rewriting_a_service_tree_stays_automatic(self):
+        # 설정·상태 파일이 없는 서비스 레포의 작업 트리는 그대로 auto_gates 대상
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        self.assertEqual(self.bash("git reset --hard HEAD", agent="codex")[0], "allow")
+        self.assertTrue(any(a["gate"] == "destructive_delete" and a.get("auto") for a in self.project()["approvals"]))
+        self.assertEqual(self.bash("git stash", agent="codex")[0], "allow")  # 서비스 레포의 stash는 예전처럼 관문 없음
+
+    def test_task_done_and_phases_use_auto_merge_and_spec(self):
+        p = self.project()
+        S.add_task(p, "API", "codex")
+        S.verify_task(p, "T1", "claude:reviewflow", "pass", "pass", "pass", root=self.root)
+        S.update_task(p, "T1", root=self.root, status="review", pr="7")
+        with self.assertRaises(S.StateError):
+            S.update_task(p, "T1", root=self.root, status="done")
+        with self.assertRaises(S.StateError):
+            S.set_phase(p, "spec_ready", self.root)
+        self.config({"auto_gates": ["merge_main", "spec"]})
+        S.update_task(p, "T1", root=self.root, status="done")
+        merge = [a for a in p["approvals"] if a["gate"] == "merge_main"]
+        self.assertEqual([(a["ref"], a.get("auto"), a["note"]) for a in merge], [("PR#7", True, S.AUTO_NOTE)])
+        self.assertIn("자동 승인 실행: merge_main(PR#7)", [h["event"] for h in p["history"]])
+        S.set_phase(p, "spec_ready", self.root)
+        self.assertEqual(p["phase"], "spec_ready")
 
 
 if __name__ == "__main__":

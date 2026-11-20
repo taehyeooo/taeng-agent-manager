@@ -56,21 +56,33 @@ def cmd_status(a):
     w = S.routing_warning(p, a.root)
     if w:
         print(f"⚠ {w}")
+    auto, warnings = S.auto_gates(a.root)
+    if auto:
+        print("묻지 않고 진행(auto_gates): " + ", ".join(g for g in S.GATES if g in auto))
+    for w in warnings:
+        print(f"⚠ {w}")
     print("다음:", S.next_action(p).replace("<slug>", p["slug"]))
 
 
 def cmd_phase(a):
     p = _p(a)
-    S.set_phase(p, a.phase)
+    S.set_phase(p, a.phase, a.root)
     S.save(p, a.root)
     print(f"{p['slug']}: phase={p['phase']}")
 
 
 def cmd_approve(a):
     p = _p(a)
-    S.approve(p, a.gate, a.ref, a.note)
+    auto, warnings = S.auto_gates(a.root)
+    for w in warnings:
+        print("경고: " + w, file=sys.stderr)
+    # auto_gates에 있는 항목은 가드가 확인 창 없이 이 명령을 통과시킨다 — 사용자 확인 없는 기록이므로 auto로 남겨
+    # 사용자가 설정에서 빼면 더 이상 승인으로 치지 않는다
+    is_auto = a.gate in auto
+    note = f"{a.note} ({S.AUTO_NOTE})".strip() if is_auto else a.note
+    S.approve(p, a.gate, a.ref, note, auto=is_auto)
     S.save(p, a.root)
-    print(f"승인 기록: {a.gate}" + (f" ({a.ref})" if a.ref else ""))
+    print(f"승인 기록: {a.gate}" + (f" ({a.ref})" if a.ref else "") + (" — auto_gates" if is_auto else ""))
 
 
 def cmd_require(a):
@@ -78,6 +90,9 @@ def cmd_require(a):
     p = _p(a)
     if S.has_approval(p, a.gate, a.ref):
         print(f"승인 있음: {a.gate}")
+        return
+    if a.gate in S.auto_gates(a.root)[0]:  # 확인만 한다 — 자동 승인 기록은 실제 작업이 가드를 지날 때 남는다
+        print(f"승인 있음: {a.gate} — auto_gates(사용자 설정)")
         return
     print(f"승인 없음: {a.gate}" + (f" ({a.ref})" if a.ref else "") + f" — {S.GATES.get(a.gate, '?')}. 사용자에게 물어보세요.")
     sys.exit(1)
@@ -177,8 +192,21 @@ POINTER = Path.home() / ".config" / "agent-manager" / "home"
 PYTHON_SELECT = ('if python3 -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python3; '
                  'elif python -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python; '
                  'else echo "agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다" >&2; exit 2; fi')
-HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then '
-            + PYTHON_SELECT + '; "$p" "$(cat "$f")/am/guard.py" {agent}; fi')
+# home(가드 위치 기록)이 없으면 조용히 통과하지 않는다(지우는 것만으로 가드가 꺼지지 않게). 지금 폴더의
+# am/guard.py도 믿지 않는다(위조 가드). 항상 막고(exit 2) setup을 안내하되, 새 기기 첫 설치를 위해
+# Bash의 `python -m am setup`(python3도) 정확히 그 한 명령만, 매니저 레포(am/cli.py가 있음) 루트에서일 때 통과시킨다.
+# 명령 일치는 JSON 문자열 그대로: 뒤에 다른 글자(\" && …, \n …, --install …)가 붙으면 일치하지 않는다.
+HOOK_SETUP_ONLY = ('t="$(git rev-parse --show-toplevel 2>/dev/null)"; '
+                   'if [ -n "$t" ] && [ -z "$(git rev-parse --show-prefix 2>/dev/null)" ] && [ -f "$t/am/cli.py" ]; then '
+                   'in="$(cat)"; '
+                   'if printf "%s" "$in" | grep -Eq \'"tool_name"[[:space:]]*:[[:space:]]*"Bash"\' && '
+                   'printf "%s" "$in" | grep -Eq \'"command"[[:space:]]*:[[:space:]]*"python3? -m am setup"[[:space:]]*[,}}]\'; '  # }}: .format 이스케이프
+                   'then exit 0; fi; fi; ')
+HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then g="$(cat "$f")/am/guard.py"; else '
+            + HOOK_SETUP_ONLY +
+            'echo "agent-manager: 가드 위치 기록(~/.config/agent-manager/home)이 없어 도구 실행을 막았습니다 — '
+            '매니저 레포 루트에서 python -m am setup 을 실행하세요" >&2; exit 2; fi; '
+            + PYTHON_SELECT + '; "$p" "$g" {agent}')
 HOOK_MATCHER = "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit"
 
 

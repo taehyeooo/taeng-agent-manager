@@ -21,13 +21,38 @@ def main():
          'and False:', 'test_t5_unsafe_combinations'),
         ("T5 compound find", 'if compound and words and _word(words[0]) == "find" and any(',
          'if False and any(', 'test_t5_unsafe_combinations'),
-        ("T5 cd containment", 'and _under(target, initial_top) and target.is_dir():',
-         'and target.is_dir():', 'test_t5_unsafe_combinations'),
+        ("T5 cd containment", "                    _under(target, initial_top) or\n",
+         "                    True or\n", 'test_t5_unsafe_combinations'),
         ("heredoc body", "out += _check_script(body, head, cwd, root, python=python)",
          "out += []", "test_review_heredoc_interpreter_variants"),
         ("exact terminator", r"(?P=tag)(?:\n|$)", r"(?P=tag)[ \t]*(?:\n|$)", "test_review_heredoc_exact_terminator"),
+        # 깨끗한 추적 스크립트에 heredoc을 주는 경우(`python scripts/check.py <<EOF`)를 프로그램으로 잘못 보면 허용된다
         ("heredoc stdin shape", 'return word in ("python", "py", "node") and args in ([], ["-"])',
-         'return word in ("python", "py", "node")', "test_reverify_a_heredoc_head_is_split_like_any_line"),
+         'return word in ("python", "py", "node")', "test_heredoc_to_a_clean_tracked_script_is_not_a_stdin_program"),
+        ("user guard file", "    return target == folder or target.startswith(folder + os.sep) or folder.startswith(target + os.sep)\n",
+         "    return False\n", "AutoGatesTest.test_agents_cannot_change_the_user_file"),
+        ("user folder scope", "    folder = _norm(S.user_guard_file().parent).casefold()",
+         "    folder = _norm(S.user_guard_file()).casefold()", "AutoGatesTest.test_the_whole_user_folder_is_user_only"),
+        ("dd of= target", '    elif word == "dd":  # dd of=FILE', '    elif False:  # dd of=FILE',
+         "AutoGatesTest.test_the_whole_user_folder_is_user_only"),
+        ("powershell changed paths", "    if any(_is_user_config(p, cwd) for p in _ps_changed_paths(word, args)):",
+         "    if False:", "AutoGatesTest.test_user_folder_principle_table"),
+        # -Value·내용 위치 인수를 경로로 보면 정상 쓰기(Set-Content -Value "~")가 막힌다
+        ("powershell content not path", "        paths = paths or positional[:1]\n",
+         "        paths = paths + positional\n", "AutoGatesTest.test_user_folder_principle_table"),
+        ("powershell link only", 'if cmdlet == "new-item" and any(t not in ("file", "directory") for t in types):',
+         'if True:', "AutoGatesTest.test_user_folder_principle_table"),
+        ("powershell link target", "            paths += named.get(\"-target\", []) + named.get(\"-value\", [])\n",
+         "            paths += []\n", "AutoGatesTest.test_user_folder_principle_table"),
+        ("powershell write targets",
+         '    cmdlet = PS_WRITE_CMDLETS.get(word)\n    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):',
+         '    cmdlet = None\n    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):',
+         "AutoGatesTest.test_user_folder_principle_table"),
+        ("home variables",
+         'path = re.sub(r"^(?:\\$\\{?HOME\\}?|\\$env:(?:USERPROFILE|HOME)|%USERPROFILE%|%HOME%)(?=/|$)", "~", path, flags=re.I)',
+         "path = path", "AutoGatesTest.test_user_folder_principle_table"),
+        ("ln source side", '"clc", "rmdir", "rd", "ln", "link", "shred"):', '"clc", "rmdir", "rd", "shred"):',
+         "AutoGatesTest.test_the_whole_user_folder_is_user_only"),
         ("baseline", "    base = _baseline(top)\n    rels = sorted(set(rels))",
          "    base = _git(top, \"rev-parse\", \"HEAD\")\n    rels = sorted(set(rels))",
          "test_review_committed_script_and_index_flags"),
@@ -67,7 +92,12 @@ def main():
         #  mutation only makes the guard stricter)
         # 4차: 기본 ask 구조
         ("default ask", "if not explained and not trusted:", "if False:", "test_r4_unlisted_programs_modules_and_scripts_ask"),
-        ("python -m other modules", 'reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"', "ok = True",
+        # 인터프리터 공통 판정(_script_run_verdict)도 python -m <다른 모듈>을 막는다 — 두 층을 함께 없애야 의미 있는 변형
+        ("python -m other modules",
+         ('reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"',
+          'word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or not script_form'),
+         ("ok = True",
+          'word == "python" and args[:1] == ["-m"] or not script_form'),
          "test_r4_unlisted_programs_modules_and_scripts_ask"),
         ("unknown git subcommand", 'if not re.fullmatch(r"-.*", sub):', "if False:", "test_r4_unlisted_programs_modules_and_scripts_ask"),
         ("gh groups", 'if pos and (pos[0] not in GH_GROUPS or pos[0] == "auth" and pos[1:2] != ["status"]):', "if False:",
@@ -96,15 +126,45 @@ def main():
         ("sibling explanation", 'if blockers:', 'if False:', 'test_t4_sibling_message'),
         ("stdin output tools", 'STDIN_ARGS_SAFE = READ_ONLY - {"sort", "uniq", "tree", "rg", "diff", "date", "file"}',
          'STDIN_ARGS_SAFE = READ_ONLY', 'test_t4_hooks_and_unknown_outputs'),
+        # T10 auto_gates — "Class.test" runs a test outside BuildAllowlistTest
+        ("auto_gates approve list", 'if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):',
+         'if any(f["kind"] == "approve" and False for f in findings):',
+         "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        # 이 매니저의 am인지는 인터프리터 공통 판정(_script_run_verdict)과 approve 분기 두 곳에서 본다 — 둘 다 없애야 의미 있는 변형
+        ("auto_gates approve own am",
+         ('ok, reason = gate is None or (python and _own_am(cwd)), ',
+          'word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or not script_form'),
+         ('ok, reason = True, ',
+          'word == "python" and args[:2] == ["-m", "am"] or not script_form'),
+         "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        ("auto_gates approve options", "            if a.startswith(\"-\"):\n                return None\n            pos.append(a)",
+         "            pos.append(a)", "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        ("auto_gates gate list", 'automatic = [f for f in missing if f["slug"] and f["gate"] in auto]',
+         'automatic = [f for f in missing if f["slug"]]', "AutoGatesTest.test_unlisted_deploy_still_blocked"),
+        ("auto_gates mixed commands", "    if not missing:  # 묻는 작업이", "    if True:  # 묻는 작업이",
+         "AutoGatesTest.test_unlisted_deploy_still_blocked"),
+        ("guard.json is a state file", "        if target == protected or protected.startswith(target + os.sep):\n            return True",
+         "        if False:\n            return True", "AutoGatesTest.test_agents_cannot_change_the_setting"),
+        ("auto_gates protected tree", "    if protected:\n        msg = \"[am guard] 상태 파일(승인 기록)",
+         "    if False:\n        msg = \"[am guard] 상태 파일(승인 기록)",
+         "AutoGatesTest.test_git_rewriting_the_manager_tree_is_never_automatic"),
+        ("folders holding state files", "_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args",
+         "_is_state_file(a, cwd, root) for a in args", "AutoGatesTest.test_agents_cannot_change_the_setting"),
     ]
     killed = 0
     for label, old, new, test in mutations:
-        if source.count(old) != 1:
-            raise RuntimeError("Mutation anchor changed: " + label)
+        # a tuple of anchors mutates every layer of a deliberately doubled check at once
+        pairs = list(zip(old, new)) if isinstance(old, tuple) else [(old, new)]
+        mutated = source
+        for o, n in pairs:
+            if source.count(o) != 1:
+                raise RuntimeError("Mutation anchor changed: " + label)
+            mutated = mutated.replace(o, n)
         try:
-            exec(compile(source.replace(old, new), str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
+            exec(compile(mutated, str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
+            cls, _, name = test.rpartition(".")
             result = unittest.TextTestRunner(stream=io.StringIO()).run(
-                unittest.TestSuite([cases.BuildAllowlistTest(test)]))
+                unittest.TestSuite([getattr(cases, cls or "BuildAllowlistTest")(name)]))
             caught = bool(result.failures) and not result.errors
             killed += caught
             print(label + (": killed" if caught else ": SURVIVED/ERROR"), flush=True)

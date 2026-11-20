@@ -8,7 +8,8 @@ Decisions
               is the approval request (하려는 일·영향 범위·위험·명령) and is recorded for `am report`
   approve   → `am approve` is never self-served: Claude asks the user in its permission UI, Codex is blocked
   opaque    → what will run can't be known in advance (변수로 부르기, eval, 인코딩된 명령, 스크립트 안 subprocess):
-              default allow + audit, unless visible risk signals or config/guard.json opaque=ask;
+              default allow + audit, unless visible risk signals or opaque=ask in ~/.config/agent-manager/guard.json
+              (fallback: the repo's config/guard.json);
               then Claude asks the user, Codex is blocked. File tool decisions are unchanged.
   allowed   → only what is known: reading/text tools, file edits inside the worktree, git/gh (analysed), local
               commits, and the build allowlist (gradlew, npm ci/test/run <script>, tracked unchanged .py/.sh via
@@ -389,9 +390,13 @@ def _finding(kind, seg, **kw):
     return {"kind": kind, "seg": seg, **kw}
 
 
-def _gated(gate, seg, ref=None, where=None, what=None, repo=None):
+def _gated(gate, seg, ref=None, where=None, what=None, repo=None, protected=False):
+    """protected: the action can roll back state files (approvals) → never passes under auto_gates."""
     impact, risk = IMPACT[what or gate]
-    return _finding("gated", seg, gate=gate, ref=ref, where=where, impact=impact, risk=risk, repo=repo)
+    f = _finding("gated", seg, gate=gate, ref=ref, where=where, impact=impact, risk=risk, repo=repo)
+    if protected:
+        f["protected"] = True
+    return f
 
 
 # ---------- lexing ----------
@@ -553,6 +558,16 @@ def _escapes(s, esc, in_double, single_quotes=True):
 
 def bash_escapes(s):
     return _escapes(s, "\\", '$`"\\\n')
+
+
+# Windows 드라이브 경로(C:\Users\RUNNER~1\…): Bash 이스케이프가 \U·\R을 글자로 풀면 C:UsersRUNNER~1…(작업 폴더 안
+# 상대 경로)이 되어 사용자 폴더·상태 파일 검사를 빠져나간다 → 역슬래시를 /로 바꾼 표기도 함께 검사(보수적으로)
+WIN_DRIVE_PATH = re.compile(r"(?<![\w\\/:.~$-])([A-Za-z]:\\[^\s|;&<>()]*)")
+
+
+def windows_drive_paths(s):
+    """C:\\a\\b 표기의 역슬래시를 /로(따옴표 안팎 모두). 드라이브 경로가 없으면 그대로."""
+    return WIN_DRIVE_PATH.sub(lambda m: m.group(1).replace("\\", "/"), s)
 
 
 def ps_escapes(s):
@@ -1007,7 +1022,7 @@ def _check_script(body, seg, cwd, root, python=False):
                     if call.startswith(("os.", "shutil.")) or call not in safe_calls and not (isinstance(node.func, ast.Attribute) and node.func.attr in safe_methods):
                         out.append(_finding("opaque", seg, confirm=True, reason="Python 호출의 부작용을 확정할 수 없음"))
             # Preserve the old safety net whenever the AST grammar is insufficient.
-            if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|\.am[/\\]", body):
+            if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|guard\.json|\.am[/\\]", body):
                 if writes or re.search(r"\b(shutil|os|pathlib)\b|\bopen\b", body):
                     out.append(_finding("forbidden", seg, reason="불명확한 Python 쓰기에서 상태 파일 경로 발견"))
             for path in _python_write_paths(body):
@@ -1033,6 +1048,69 @@ def _check_script(body, seg, cwd, root, python=False):
     return out
 
 
+# PowerShell 쓰기 cmdlet과 기본 별칭 → cmdlet (cp·mv·rm 등은 POSIX 명령과 이름이 같아 둘 다로 본다)
+PS_WRITE_CMDLETS = {
+    "new-item": "new-item", "ni": "new-item",
+    "set-content": "set-content", "sc": "set-content",
+    "add-content": "add-content", "ac": "add-content",
+    "out-file": "out-file",
+    "copy-item": "copy-item", "copy": "copy-item", "cpi": "copy-item", "cp": "copy-item",
+    "move-item": "move-item", "move": "move-item", "mi": "move-item", "mv": "move-item",
+    "remove-item": "remove-item", "ri": "remove-item", "del": "remove-item", "erase": "remove-item",
+    "rm": "remove-item", "rd": "remove-item", "rmdir": "remove-item",
+    "rename-item": "rename-item", "rni": "rename-item", "ren": "rename-item",
+    "clear-content": "clear-content", "clc": "clear-content",
+}
+# 경로를 받는 매개변수(-Value는 New-Item 링크의 -Target 별칭), 값을 받는 그 밖의 매개변수(값을 경로로 오해하지 않게)
+PS_PATH_PARAMS = {"-path", "-literalpath", "-lp", "-pspath", "-filepath", "-destination", "-target", "-value", "-newname"}
+PS_VALUE_PARAMS = {"-itemtype", "-type", "-encoding", "-name", "-filter", "-include", "-exclude", "-credential",
+                   "-width", "-delimiter", "-stream"}
+
+
+def _ps_args(args):
+    """PowerShell 인수 → ({매개변수: [값]}, [위치 인수]). -Name value와 -Name:value를 모두 읽는다."""
+    named, positional, i = {}, [], 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("-") and len(a) > 1 and not a[1:2].isdigit():
+            name, sep, val = a.partition(":")
+            name = name.lower()
+            if sep:
+                named.setdefault(name, []).append(val)
+            elif name in PS_PATH_PARAMS | PS_VALUE_PARAMS and i + 1 < len(args):
+                named.setdefault(name, []).append(args[i + 1])
+                i += 1
+        else:
+            positional.append(a)
+        i += 1
+    return named, positional
+
+
+def _ps_changed_paths(word, args):
+    """PowerShell 쓰기 cmdlet(별칭 포함)이 바꾸는 경로: 쓰기·삭제·이동 대상과 New-Item 링크의 원본(-Target/-Value).
+    Set-Content·Add-Content·Out-File·New-Item(링크 아님)의 -Value·내용 위치 인수는 쓸 내용이라 경로로 보지 않는다.
+    Copy-Item의 원본은 읽기라 빼고 대상(-Destination·두 번째 위치 인수)만."""
+    cmdlet = PS_WRITE_CMDLETS.get(word)
+    if not cmdlet:
+        return []
+    named, positional = _ps_args(args)
+    paths = [v for k in ("-path", "-literalpath", "-lp", "-pspath", "-filepath") for v in named.get(k, [])]
+    if cmdlet == "copy-item":
+        return named.get("-destination", []) + positional[1:]
+    if cmdlet in ("set-content", "add-content", "out-file", "clear-content", "new-item"):
+        # 경로는 -Path류, 없으면 첫 위치 인수뿐 — -Value와 나머지 위치 인수는 쓸 내용(Out-File은 -Encoding)
+        paths = paths or positional[:1]
+        types = [t.strip("'\"").lower() for k in ("-itemtype", "-type") for v in named.get(k, []) for t in v.split(",")]
+        if cmdlet == "new-item" and any(t not in ("file", "directory") for t in types):
+            # 링크 만들기(SymbolicLink·HardLink·Junction, 확정할 수 없는 값 포함): -Target/-Value가 링크 원본
+            paths += named.get("-target", []) + named.get("-value", [])
+        return paths
+    paths += named.get("-destination", []) + positional
+    if cmdlet == "rename-item":
+        paths += named.get("-newname", [])
+    return paths
+
+
 def _write_targets(word, args, seg):
     """Paths a shell command writes to (redirections only outside quotes)."""
     redirect = r"(?<![&<>])\d*>>?(?!&)\s*"  # >, >>, 2>, 1>> … but not 2>&1
@@ -1043,15 +1121,16 @@ def _write_targets(word, args, seg):
         if ">" in uq[m.start():m.start() + 4]:
             targets.append(m.group(1))
     plain = [a for a in args if not a.startswith("-")]
-    if word in ("set-content", "add-content", "out-file", "new-item", "sc", "ac"):
-        for i, a in enumerate(args):
-            if a.lower() in ("-path", "-filepath", "-literalpath") and i + 1 < len(args):
-                targets.append(args[i + 1])
-                break
-        else:
-            if plain:
-                targets.append(plain[0])
-    elif word in ("cp", "mv", "copy-item", "move-item", "copy", "move", "install", "rsync", "robocopy", "xcopy", "cpi", "mi") and plain:
+    cmdlet = PS_WRITE_CMDLETS.get(word)
+    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):
+        # PowerShell: -Path/-LiteralPath/-FilePath(-Name:값 형태 포함), 없으면 첫 위치 인수
+        named, positional = _ps_args(args)
+        given = [v for k in ("-path", "-literalpath", "-lp", "-pspath", "-filepath") for v in named.get(k, [])]
+        targets += given or positional[:1]
+    elif cmdlet in ("copy-item", "move-item") and any(a.lower().startswith("-destination") for a in args):
+        targets += _ps_args(args)[0].get("-destination", [])
+    elif word in ("cp", "mv", "copy-item", "move-item", "copy", "move", "install", "rsync", "robocopy", "xcopy", "cpi", "mi",
+                  "ln", "link") and plain:  # ln·link: 마지막 인수가 새로 만드는 링크
         targets.append(plain[-1])
         for i, a in enumerate(args):  # cp -t DIR src…, --target-directory=DIR
             if a in ("-t", "--target-directory") and i + 1 < len(args):
@@ -1064,6 +1143,8 @@ def _write_targets(word, args, seg):
         targets += plain if any(a in ("-e", "-f") or a.startswith(("--expression", "--file")) for a in args) else plain[1:]
     elif word in ("sort", "uniq", "tree"):
         targets += _output_operands(word, args)
+    elif word == "dd":  # dd of=FILE (대소문자 구분 없이 of=)
+        targets += [a.split("=", 1)[1] for a in args if a.lower().startswith("of=")]
     return [restore(t) for t in targets if t and t != "/dev/null" and t.lower() != "nul" and not t.startswith("&")]
 
 
@@ -1952,7 +2033,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 break
             if not a.startswith("-"):
                 if re.search(r"am[/\\](__main__|cli)\.py$", a) and "approve" in low:
-                    out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
+                    out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))  # 스크립트 경로 형태는 auto_gates도 사람 확인
                 script = a
                 break
             i += 1
@@ -1966,8 +2047,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             out.append(_seen(f"{_word(module)}:{(margs or [''])[0]}", seg))
         ok, reason = False, "자동 허용 목록 밖 스크립트 실행기"
         if module == "am" and "approve" in margs:
-            out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
-            ok = True  # the approve finding already stops it
+            gate = _approve_gate(margs)
+            out.append(_finding("approve", seg, reason="승인 기록은 사용자만", gate=gate))
+            # without a gate the approve finding already stops it; an auto_gates approve may run, so only our own am
+            ok, reason = gate is None or (python and _own_am(cwd)), "이 매니저 레포의 am이 아닌 am 모듈 실행"
         elif body is not None:
             out.append(_seen("script", seg))
             out += _check_script(body, seg, cwd, root, python=python)
@@ -2025,8 +2108,18 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     # removing or moving a state file is forging it too
     if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
                 "rename-item", "rni", "truncate", "clear-content", "clc"):
-        if any(_is_state_file(a, cwd, root) for a in args if not a.startswith("-")):
-            out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
+        if any(_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args if not a.startswith("-")):
+            out.append(_finding("forbidden", seg, reason="상태 파일·사용자 설정(config/guard.json)을 am 없이 지우거나 옮김(승인 위조 위험)"))
+    # 사용자 전용 폴더(~/.config/agent-manager)의 파일·폴더를 지우거나 옮기거나 링크 원본으로 쓰면 확인(Codex 차단)
+    # ln의 원본 쪽: 링크를 거쳐 나중에 쓰면 그 폴더 안 파일이 바뀐다(대상 쪽은 _write_targets가 본다)
+    if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
+                "rename-item", "rni", "truncate", "clear-content", "clc", "rmdir", "rd", "ln", "link", "shred"):
+        if any(_is_user_config(a, cwd) for a in args if not a.startswith("-")):
+            out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
+    # PowerShell 쓰기 cmdlet·기본 별칭: -Path·-LiteralPath·-Destination·-Target·-Value(-Name:값 포함)·위치 인수.
+    # New-Item -ItemType SymbolicLink/HardLink/Junction의 -Target(-Value)이 사용자 폴더면 ln 원본과 같은 원칙
+    if any(_is_user_config(p, cwd) for p in _ps_changed_paths(word, args)):
+        out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
 
     # deletes: recursive, or wildcard — single explicit files stay recoverable through git
     if word in ("rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink"):
@@ -2109,6 +2202,24 @@ def _cmd_variables(text, seg):
     return out
 
 
+def _approve_gate(margs):
+    """`am approve [--ref R] [--note N] <slug> <gate>` → gate; None for any other shape (then a person decides)."""
+    if not margs or margs[0] != "approve":
+        return None
+    pos, i = [], 1
+    while i < len(margs):
+        a = margs[i]
+        if a in ("--ref", "--note") and i + 1 < len(margs):
+            i += 2
+            continue
+        if not a.startswith(("--ref=", "--note=")):
+            if a.startswith("-"):
+                return None
+            pos.append(a)
+        i += 1
+    return pos[1] if len(pos) == 2 and pos[1] in S.GATES else None
+
+
 def _own_am(cwd):
     """python -m am runs ./am: allowed only when that is this manager's own package (the guard's code)."""
     return _norm(Path(cwd) / "am") == _norm(Path(S.__file__).resolve().parent)
@@ -2155,6 +2266,7 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
 
 
 def _is_state_file(path, cwd, root=None):
+    """projects/*/project.json, .am/ and the user's config/guard.json (auto_gates) — written only by am or the user."""
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
     top = Path(_top(cwd))
@@ -2184,6 +2296,61 @@ def _is_state_file(path, cwd, root=None):
             return False
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
+
+
+def _holds_state_file(path, cwd, root=None):
+    """A folder (or wildcard) whose removal takes a state file with it: rm -rf config, rm -rf projects/app, rm config/*."""
+    root = Path(root or S.ROOT)
+    wild = re.search(r"[*?\[]", path)
+    if wild:  # config/gu* → config, * → the current folder
+        path = path[:wild.start()]
+        path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
+    p = _abs(path or ".", cwd)
+    if any(_under(x, p) for x in (S.guard_config_file(root), root / ".am", root / "projects")):
+        return True
+    projects = root / "projects"
+    return _under(p, projects) and len(Path(_rel(p, projects)).parts) == 1  # projects/<slug>
+
+
+def _is_user_config(path, cwd):
+    """The user-only folder ~/.config/agent-manager (guard.json·home 가드 위치 기록·감사 로그): a path inside it, the
+    folder itself, or a folder (or wildcard) that holds it. ~·절대·상대·심볼릭 링크·..를 실제 경로로 정규화하고 대소문자
+    무시로 비교한다. 글롭(* ? [)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 본다."""
+    path = str(path).replace("\\", "/")  # PowerShell·cmd 구분자도 같은 경로로(보수적으로)
+    # home을 가리키는 변수 표기($HOME·${HOME}·$env:USERPROFILE·$env:HOME·%USERPROFILE%)는 ~로 본다
+    path = re.sub(r"^(?:\$\{?HOME\}?|\$env:(?:USERPROFILE|HOME)|%USERPROFILE%|%HOME%)(?=/|$)", "~", path, flags=re.I)
+    wild = re.search(r"[*?\[]", path)
+    if wild:  # ~/.config/agent-mana*/x → ~/.config (그 아래 어디든 될 수 있음)
+        path = path[:wild.start()]
+        path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
+    target = _norm(_abs(path or ".", cwd)).casefold()
+    folder = _norm(S.user_guard_file().parent).casefold()
+    return target == folder or target.startswith(folder + os.sep) or folder.startswith(target + os.sep)
+
+
+USER_CONFIG_REASON = ("사용자 전용 가드 폴더(~/.config/agent-manager — guard.json 설정·home 가드 위치)를 바꾸거나 지움"
+                      " — 지워지면 가드가 꺼질 수 있어 사용자만 직접")
+
+
+def _tree_holds_state(sub, where, cwd, root=None):
+    """The git work tree a working-tree-rewriting command acts on holds state files (projects/*/project.json,
+    .am/ — the manager repo). Such a command can roll back approvals, so auto_gates never covers it.
+    (The user's guard setting lives outside every repo, so git cannot touch it — this is not its protection.)"""
+    if sub in ("branch", "worktree", "update-ref"):
+        return False  # refs·다른 작업 폴더만 지운다 — 이 작업 트리의 파일은 그대로
+    top = _top(where)
+    return bool(top) and _holds_state_file(top, cwd, root)
+
+
+def _discards_tree(sub, sargs):
+    """git commands (not otherwise gated) that throw away uncommitted working-tree changes wholesale."""
+    if sub == "stash":
+        return not sargs or sargs[0] in ("push", "save", "create") or sargs[0].startswith("-")
+    if sub == "reset":
+        return any(a in ("--merge", "--keep") for a in sargs)
+    if sub in ("checkout", "switch"):
+        return any(a in ("-f", "--force", "--discard-changes") for a in sargs)
+    return False
 
 
 def _rewrites_refs(sub, sargs, gargs):
@@ -2407,7 +2574,10 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             or sub == "worktree" and sargs[:1] == ["remove"] \
             or sub == "checkout" and "--" in sargs and "." in sargs \
             or sub == "update-ref" and "-d" in sargs:
-        out.append(_gated("destructive_delete", seg, where=where))
+        out.append(_gated("destructive_delete", seg, where=where, protected=_tree_holds_state(sub, where, cwd, root)))
+    elif _discards_tree(sub, sargs) and _tree_holds_state(sub, where, cwd, root):
+        # git stash·checkout -f·switch --discard-changes·reset --merge/--keep: 커밋 안 한 상태 파일 변경(승인 기록)을 되돌린다
+        out.append(_gated("destructive_delete", seg, where=where, protected=True))
     elif sub == "config" and any(a in ("--global", "--system") for a in sargs) and not any(
             a in ("--get", "--list", "-l", "--get-all", "--get-regexp") for a in sargs):
         out.append(_gated("system_permission", seg))
@@ -2854,7 +3024,7 @@ TRIPWIRES = [
      ("cmd:vercel", "cmd:netlify", "cmd:firebase", "cmd:wrangler", "cmd:railway", "cmd:flyctl", "cmd:kubectl", "cmd:eas")),
     (r"(environ|printenv|process\.env)", ("script", "cmd:printenv")),
     (r"auth\s+token", ("gh:auth.token",)),
-    (r"(project\.json|local\.json)", ("cmd:", "git:")),
+    (r"(project\.json|local\.json|guard\.json)", ("cmd:", "git:")),
     (r"(no-verify|hookspath)", ("git:",)),
     (r"(drop\s+(table|database)|truncate\s+table|migrate\s+(reset|deploy)|db\s+(push|reset))",
      ("cmd:psql", "cmd:mysql", "cmd:sqlite3", "cmd:sqlcmd", "cmd:supabase", "cmd:prisma")),
@@ -2884,8 +3054,8 @@ def tripwire(cmd, found):
     """Per command segment: a risky word in a segment that no parser explained → opaque.
     A segment is explained by a parser's tag (git:…, gh:…, known, build, script, shell-parsed) or a gate — then its
     remaining words are data (git log --grep push, rg merge, echo push). A bare "cmd:<word>" tag explains nothing."""
-    if any(f["kind"] in ("forbidden", "opaque", "approve") for f in found):
-        return []  # already stopped
+    if any(f["kind"] in ("forbidden", "opaque") or f["kind"] == "approve" and not f.get("gate") for f in found):
+        return []  # already stopped (an approve with a gate may pass under auto_gates, so the rest is still checked)
     tags = {}
     for f in found:
         if f["kind"] == "seen" and not f["tag"].startswith("cmd:"):
@@ -2955,7 +3125,10 @@ def classify_file(tool, path, cwd, root=None, via=None):
     p = _abs(path, cwd)
     label = via or f"{tool} {p}"
     if tool in WRITE_TOOLS:
-        if _is_state_file(str(p), cwd, root):
+        if _is_user_config(str(p), cwd):
+            # 레포 밖 사용자 설정 — auto_gates와 무관하게 Claude 확인 창, Codex 차단(decide의 confirm opaque)
+            out.append(_finding("opaque", label, confirm=True, reason=USER_CONFIG_REASON))
+        elif _is_state_file(str(p), cwd, root):
             out.append(_finding("forbidden", label, reason="상태 파일을 am 없이 직접 수정(승인 위조 위험)"))
         elif re.search(r"[/\\]knowledge-base[/\\]decisions[/\\](?!readme)", str(p), re.I):
             out.append(_gated("architecture_policy", label, ref=p.name))
@@ -3024,13 +3197,11 @@ OPAQUE_RISK_SIGNALS = (
 
 
 def _opaque_policy(root):
-    try:
-        config = json.loads((Path(root or S.ROOT) / "config/guard.json").read_text(encoding="utf-8"))
-        return "allow" if config.get("opaque", "allow") == "allow" else "ask"
-    except FileNotFoundError:
-        return "allow"
-    except (OSError, ValueError, AttributeError):
+    """사용자 설정(~/.config/agent-manager/guard.json) → 없으면 레포 안 config/guard.json(하위 호환) → 기본 allow."""
+    value, broken = S.guard_setting("opaque", root)
+    if broken:
         return "ask"  # 손상된 설정은 기존 확인 동작으로 되돌린다.
+    return "allow" if value in (None, "allow") else "ask"
 
 
 # 기본(allow) 모드에서 확인 없이 허용하는 opaque 사유 코드 — 여기 없는 opaque는 모두 확인(Claude 확인 창, Codex 차단)
@@ -3149,9 +3320,12 @@ def decide(payload, agent="claude", root=None):
     if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
         cmd = ps_escapes(cmd)
     elif cmd and tool == "Bash":  # Claude Code's Bash tool: g\it pu\sh is git push; \" is a quote character, not a quote
+        drive = windows_drive_paths(cmd)
         cmd = bash_escapes(cmd)
     if cmd:
         findings += classify_command(cmd, cwd, root)
+    if cmd and tool == "Bash" and drive != original_command:  # C:\…도 이스케이프로 깨지기 전 경로로 한 번 더(합친다)
+        findings += [f for f in classify_command(bash_escapes(drive), cwd, root) if f not in findings]
     if path:
         findings += classify_file(tool, path, cwd, root)
     if patch:
@@ -3190,11 +3364,24 @@ def decide(payload, agent="claude", root=None):
     if forb:
         return "deny", "[am guard] 금지된 작업 — 승인으로도 풀 수 없습니다\n" + "\n".join(f"- {f['reason']}: {f['seg']}" for f in forb)
 
-    if any(f["kind"] == "approve" for f in findings):
+    # auto_gates (레포 밖 ~/.config/agent-manager/guard.json, 사용자만 고침): 이 승인 항목은 묻지 않고 진행하고 기록만 남긴다
+    auto, _warnings = S.auto_gates(root)
+    if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):
         msg = "[am guard] 승인 기록은 사용자가 직접 확인해야 합니다. 사용자가 이 대화에서 명시적으로 승인한 게 맞을 때만 허용하세요."
         if agent == "codex":
             return "deny", msg + "\n사용자에게 이 명령을 직접 실행해 달라고 요청하세요: " + (cmd or "")
         return "ask", msg
+    findings = [f for f in findings if f["kind"] != "approve"]  # 남은 승인 기록은 모두 auto_gates 항목
+
+    # 상태 파일(projects/*/project.json·.am/)을 담은 작업 트리(매니저 레포)를 통째로 되돌리는 git 명령(reset --hard·stash 등)은
+    # 승인 기록을 되돌릴 수 있다 → auto_gates·예전 승인 기록과 상관없이 매번 사람이 직접 본다(Codex 차단).
+    # 사용자 가드 설정은 레포 밖(~/.config/agent-manager/guard.json)이라 git이 건드리지 못한다 — 이 분기에 기대지 않는다.
+    protected = [f for f in findings if f["kind"] == "gated" and f.get("protected")]
+    if protected:
+        msg = "[am guard] 상태 파일(승인 기록)까지 되돌릴 수 있는 명령입니다 — 매번 사람이 직접 확인합니다\n" + \
+              "\n".join(f"- {S.GATES[f['gate']]}: {f['seg']}" for f in protected) + \
+              "\n필요하면 파일을 지정해서(예: git checkout -- src/x.py) 범위를 좁히세요."
+        return ("deny" if agent == "codex" else "ask"), msg
 
     opaque = [f for f in findings if f["kind"] == "opaque"]
     missing, granted = [], []
@@ -3210,6 +3397,12 @@ def decide(payload, agent="claude", root=None):
                 slug, p = owner  # 예정이 없으면 지금 작업 폴더 프로젝트 기준 그대로 → 차단 + 승인 요청
         f["slug"] = slug
         (granted if p and S.has_approval(p, f["gate"], f.get("ref")) else missing).append(f)
+    # 관리 중인 프로젝트에만 기록할 수 있다 — 관리 대상이 아닌 저장소는 auto_gates여도 지금처럼 사람이 판단
+    automatic = [f for f in missing if f["slug"] and f["gate"] in auto]
+    missing = [f for f in missing if f not in automatic]
+    if not missing:  # 묻는 작업이 하나라도 섞이면 자동 작업도 실행하지 않으므로 기록하지 않는다
+        for f in automatic:
+            S.auto_approve(projects[f["slug"]], f["gate"], f.get("ref"))
     for f in granted:
         S.event(projects[f["slug"]], f"승인된 작업 실행: {f['gate']}" + (f"({f['ref']})" if f.get("ref") else ""))
     if not missing:
