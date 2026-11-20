@@ -1513,10 +1513,18 @@
     {
       "at": "2026-11-20T11:48:01+09:00",
       "event": "승인 기록: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-20T12:16:17+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-20T12:16:17+09:00",
+      "event": "승인 요청: destructive_delete"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T11:48:01+09:00",
+  "updated_at": "2026-11-20T12:16:17+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1581,6 +1589,22 @@
       "impact": "서비스가 실제로 바뀐다",
       "risk": "실제 사용자에게 바로 영향이 가고, 비용이 생길 수 있다",
       "at": "2026-11-20T11:35:32+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove --force /private/tmp/claude-501/-Users-gimtaehyeong-orca-taeng-agent-manager/cd29815e-de20-430f-943e-0e5bf0c8a5f7/scratchpad/am-allow-bash",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-20T12:16:17+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git branch -D chore/allow-bash >/dev/null",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-20T12:16:17+09:00"
     }
   ]
 }
