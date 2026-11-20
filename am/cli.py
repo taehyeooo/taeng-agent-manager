@@ -91,6 +91,9 @@ def cmd_require(a):
     if S.has_approval(p, a.gate, a.ref):
         print(f"승인 있음: {a.gate}")
         return
+    if a.gate in S.auto_gates(a.root)[0]:  # 확인만 한다 — 자동 승인 기록은 실제 작업이 가드를 지날 때 남는다
+        print(f"승인 있음: {a.gate} — auto_gates(사용자 설정)")
+        return
     print(f"승인 없음: {a.gate}" + (f" ({a.ref})" if a.ref else "") + f" — {S.GATES.get(a.gate, '?')}. 사용자에게 물어보세요.")
     sys.exit(1)
 

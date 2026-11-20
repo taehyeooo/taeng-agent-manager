@@ -2497,6 +2497,68 @@ class AutoGatesTest(GuardTest):
         self.assertFalse(S.has_approval(self.project(), "push", "feat/z"))
         self.assertTrue(S.has_approval(self.project(), "deploy"))
 
+    def require(self, *args):
+        with contextlib.redirect_stdout(io.StringIO()):
+            try:
+                cli.main(["--root", self.root, "require", "app", *args])
+            except SystemExit as e:
+                return e.code
+        return 0
+
+    def test_am_require_passes_for_listed_gate_only(self):
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 1)
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 0)
+        self.assertEqual(self.require("deploy"), 1)
+        self.assertFalse(self.project()["approvals"])  # require는 확인만, 기록하지 않음
+        self.config({"auto_gates": []})
+        self.assertEqual(self.require("push", "--ref", "feat/x"), 1)
+
+    def manager_repo(self):
+        """The manager repo itself as a git work tree with config/guard.json tracked."""
+        root = Path(self.root)
+        # 실제처럼 이 레포도 관리 프로젝트로 등록(projects/taeng-agent-manager) → 자동 승인 경로를 탄다
+        S.new_project("mgr", "mgr", "x", self.root)
+        cfg = S.load_local(self.root)
+        cfg["paths"]["mgr"] = str(root)
+        S.save_local(cfg, self.root)
+        git(root, "init", "-q", "-b", "main")
+        git(root, "add", "-A")
+        git(root, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init")
+        return root
+
+    def test_git_rewriting_the_manager_tree_is_never_automatic(self):
+        # P1: destructive_delete가 auto여도 매니저 레포 작업 트리를 되돌리면 사용자가 고친 config/guard.json도 되돌아간다
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        root = self.manager_repo()
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY, "opaque": "ask"})  # 사용자의 커밋 안 한 변경
+        for cmd in ("git reset --hard HEAD", "git reset --hard", "git clean -fdx", "git stash", "git stash push -u",
+                    "git stash -u", "git checkout -f main", "git switch --discard-changes main", "git reset --merge HEAD",
+                    "git checkout -- ."):
+            with self.subTest(cmd=cmd):
+                d, msg = self.bash(cmd, cwd=root)
+                self.assertNotEqual(d, "allow", (cmd, msg))
+                self.assertEqual(self.bash(cmd, cwd=root, agent="codex")[0], "deny", cmd)
+        mgr = lambda: S.load("mgr", self.root)  # noqa: E731
+        self.assertFalse(any(a["gate"] == "destructive_delete" for a in mgr()["approvals"]))
+        # 예전에 받은 전체 승인 기록이 있어도 매번 사람이 본다
+        p = mgr()
+        S.approve(p, "destructive_delete")
+        S.save(p, self.root)
+        self.assertEqual(self.bash("git reset --hard HEAD", cwd=root)[0], "ask")
+        self.assertEqual(self.bash("git reset --hard HEAD", cwd=root, agent="codex")[0], "deny")
+        # 읽기 쪽 stash는 지금처럼
+        for cmd in ("git stash list", "git stash show"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd, cwd=root, agent="codex")[0], "allow", cmd)
+
+    def test_git_rewriting_a_service_tree_stays_automatic(self):
+        # 설정·상태 파일이 없는 서비스 레포의 작업 트리는 그대로 auto_gates 대상
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        self.assertEqual(self.bash("git reset --hard HEAD", agent="codex")[0], "allow")
+        self.assertTrue(any(a["gate"] == "destructive_delete" and a.get("auto") for a in self.project()["approvals"]))
+        self.assertEqual(self.bash("git stash", agent="codex")[0], "allow")  # 서비스 레포의 stash는 예전처럼 관문 없음
+
     def test_task_done_and_phases_use_auto_merge_and_spec(self):
         p = self.project()
         S.add_task(p, "API", "codex")

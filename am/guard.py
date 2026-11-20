@@ -389,9 +389,13 @@ def _finding(kind, seg, **kw):
     return {"kind": kind, "seg": seg, **kw}
 
 
-def _gated(gate, seg, ref=None, where=None, what=None, repo=None):
+def _gated(gate, seg, ref=None, where=None, what=None, repo=None, protected=False):
+    """protected: the action can rewrite config/guard.json or state files → never passes under auto_gates."""
     impact, risk = IMPACT[what or gate]
-    return _finding("gated", seg, gate=gate, ref=ref, where=where, impact=impact, risk=risk, repo=repo)
+    f = _finding("gated", seg, gate=gate, ref=ref, where=where, impact=impact, risk=risk, repo=repo)
+    if protected:
+        f["protected"] = True
+    return f
 
 
 # ---------- lexing ----------
@@ -2221,6 +2225,26 @@ def _holds_state_file(path, cwd, root=None):
     return _under(p, projects) and len(Path(_rel(p, projects)).parts) == 1  # projects/<slug>
 
 
+def _tree_holds_state(sub, where, cwd, root=None):
+    """The git work tree a working-tree-rewriting command acts on holds config/guard.json or state files
+    (the manager repo). Such a command can revert the user's own setting, so auto_gates never covers it."""
+    if sub in ("branch", "worktree", "update-ref"):
+        return False  # refs·다른 작업 폴더만 지운다 — 이 작업 트리의 파일은 그대로
+    top = _top(where)
+    return bool(top) and _holds_state_file(top, cwd, root)
+
+
+def _discards_tree(sub, sargs):
+    """git commands (not otherwise gated) that throw away uncommitted working-tree changes wholesale."""
+    if sub == "stash":
+        return not sargs or sargs[0] in ("push", "save", "create") or sargs[0].startswith("-")
+    if sub == "reset":
+        return any(a in ("--merge", "--keep") for a in sargs)
+    if sub in ("checkout", "switch"):
+        return any(a in ("-f", "--force", "--discard-changes") for a in sargs)
+    return False
+
+
 def _rewrites_refs(sub, sargs, gargs):
     """Commands that can move refs/remotes/origin/main or change what "origin" is — the build allowlist's baseline."""
     low = [a.lower() for a in sargs]
@@ -2442,7 +2466,10 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             or sub == "worktree" and sargs[:1] == ["remove"] \
             or sub == "checkout" and "--" in sargs and "." in sargs \
             or sub == "update-ref" and "-d" in sargs:
-        out.append(_gated("destructive_delete", seg, where=where))
+        out.append(_gated("destructive_delete", seg, where=where, protected=_tree_holds_state(sub, where, cwd, root)))
+    elif _discards_tree(sub, sargs) and _tree_holds_state(sub, where, cwd, root):
+        # git stash·checkout -f·switch --discard-changes·reset --merge/--keep: 사용자가 고친 config/guard.json을 되돌린다
+        out.append(_gated("destructive_delete", seg, where=where, protected=True))
     elif sub == "config" and any(a in ("--global", "--system") for a in sargs) and not any(
             a in ("--get", "--list", "-l", "--get-all", "--get-regexp") for a in sargs):
         out.append(_gated("system_permission", seg))
@@ -3233,6 +3260,15 @@ def decide(payload, agent="claude", root=None):
             return "deny", msg + "\n사용자에게 이 명령을 직접 실행해 달라고 요청하세요: " + (cmd or "")
         return "ask", msg
     findings = [f for f in findings if f["kind"] != "approve"]  # 남은 승인 기록은 모두 auto_gates 항목
+
+    # config/guard.json·상태 파일을 담은 작업 트리(매니저 레포)를 통째로 되돌리는 git 명령(reset --hard·stash 등)은
+    # 사용자가 고친 설정을 되돌릴 수 있다 → auto_gates·예전 승인 기록과 상관없이 매번 사람이 직접 본다(Codex 차단)
+    protected = [f for f in findings if f["kind"] == "gated" and f.get("protected")]
+    if protected:
+        msg = "[am guard] 사용자 설정(config/guard.json)·상태 파일까지 되돌릴 수 있는 명령입니다 — 매번 사람이 직접 확인합니다\n" + \
+              "\n".join(f"- {S.GATES[f['gate']]}: {f['seg']}" for f in protected) + \
+              "\n필요하면 파일을 지정해서(예: git checkout -- src/x.py) 범위를 좁히세요."
+        return ("deny" if agent == "codex" else "ask"), msg
 
     opaque = [f for f in findings if f["kind"] == "opaque"]
     missing, granted = [], []

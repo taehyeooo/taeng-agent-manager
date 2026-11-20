@@ -73,7 +73,9 @@
 {"auto_gates": ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission", "architecture_policy", "repo_create", "spec"]}
 ```
 - `opaque` 키와 함께 써도 된다(`{"opaque": "allow", "auto_gates": [...]}`).
-- `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다.
+- `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
+- **예외 — 설정을 되돌릴 수 있는 git 명령**: `config/guard.json`·상태 파일을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동.
+  - 왜 `.gitignore`로 빼지 않았나: 이 설정은 기기 사이에 git으로 공유돼야 하고(새 기기에서 `git pull`만으로 같은 규칙), 무시 목록에 넣어도 `git clean -fdx`로 지워지므로 보호가 되지 않는다. 그래서 파일은 추적하고, 되돌리는 명령 쪽을 막는다.
 
 ### 실행 시점 강제 — `am guard`
 프로젝트 레포와 이 레포의 `.claude/settings.json` PreToolUse 훅이 **도구가 실행되기 전에** `am/guard.py`를 부른다.
