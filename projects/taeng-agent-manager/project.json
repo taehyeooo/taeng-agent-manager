@@ -334,13 +334,11 @@
         "review": "fail",
         "security": "fail",
         "by": "codex",
-        "summary": "PR#13 Codex 검토 수정 필요: P1 destructive_delete 자동 시 git reset --hard 등 간접 변경으로 config/guard.json 되돌리기 가능, P2 am require가 auto 기록 미인정, P2 변형 검사 anchor 2개 깨짐(T5는 main부터). 테스트 426 통과",
-        "at": "2026-11-20T15:36:16+09:00"
+        "summary": "PR#13 재검토 수정 필요: git restore/checkout pathspec·stash pop·merge/rebase --abort·linked worktree·worktree remove로 config/guard.json 되돌리기 경로 잔존, heredoc 변형 제외 근거 부정확. 테스트 429 통과",
+        "at": "2026-11-20T16:01:24+09:00"
       },
       "files": [
         "am/guard.py",
-        "am/state.py",
-        "am/cli.py",
         "scripts/check_guard_mutations.py"
       ]
     }
@@ -1585,10 +1583,22 @@
     {
       "at": "2026-11-20T15:36:16+09:00",
       "event": "작업 T10 검증(codex): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-20T15:40:49+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T10)"
+    },
+    {
+      "at": "2026-11-20T15:51:58+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T10)"
+    },
+    {
+      "at": "2026-11-20T16:01:24+09:00",
+      "event": "작업 T10 검증(codex): tests=pass, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T15:36:16+09:00",
+  "updated_at": "2026-11-20T16:01:24+09:00",
   "requests": [
     {
       "gate": "push",
