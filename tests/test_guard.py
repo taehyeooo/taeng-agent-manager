@@ -2810,5 +2810,112 @@ class AutoGatesTest(GuardTest):
         self.assertEqual(p["phase"], "spec_ready")
 
 
+class CodeExecutionSettingTest(unittest.TestCase):
+    """~/.config/agent-manager/guard.json "code_execution": "allow" (사용자 지시 2026-11-21 "bash 승인 다 해"):
+    짧은 코드 실행 지점의 확인을 허용+기록으로. 금지·배포 신호·사용자 폴더·상태 파일은 그대로."""
+    build = GuardTest.build
+    setUp_base = GuardTest.setUp
+    tearDown = GuardTest.tearDown
+    bash = GuardTest.bash
+    config = AutoGatesTest.config
+    project = AutoGatesTest.project
+    ALL_BUT_DEPLOY = AutoGatesTest.ALL_BUT_DEPLOY
+    CODE = (
+        'python3 -c "print(1)"',
+        'python3 -c "import json, sys; print(json.dumps({\'a\': len(sys.argv)}))"',
+        'node -e "console.log(1 + 1)"',
+        "python3 - <<'EOF'\nimport sys\nfor a in sys.argv:\n    print(a)\nEOF",
+        'eval "ls -la"',
+        "$PAGER README.md",
+        "sed '1e date' package.json",
+        "git -c alias.hi='!echo hi' hi",
+        "git rebase --exec 'npm test' main",
+        "python3 scripts/untracked.py",
+        "bash ./untracked.sh",
+    )
+
+    def setUp(self):
+        self.setUp_base()
+        (Path(self.root) / "config/guard.json").unlink()  # 기본(opaque allow)
+        (self.app / "scripts").mkdir()
+        (self.app / "scripts/untracked.py").write_text("print(1)\n", encoding="utf-8")
+        (self.app / "untracked.sh").write_text("echo hi\n", encoding="utf-8")
+
+    def allow_code(self, **extra):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY, "code_execution": "allow", **extra})
+
+    def test_default_still_asks(self):
+        for value in (None, {"auto_gates": self.ALL_BUT_DEPLOY}, {"code_execution": "ask"}, {"code_execution": "yes"}):
+            if value is not None:
+                self.config(value)
+            for cmd in self.CODE:
+                for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                    with self.subTest(value=value, cmd=cmd, agent=agent):
+                        self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+        self.assertEqual(S.code_execution(self.root)[0], "ask")
+
+    def test_allow_runs_code_and_records(self):
+        self.allow_code()
+        self.assertEqual(S.code_execution(self.root), ("allow", []))
+        for cmd in self.CODE:
+            for agent in ("claude", "codex"):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], "allow")
+        events = [h["event"] for h in self.project()["history"]]
+        self.assertTrue(any(e.startswith("자동 허용: 코드 실행 — 사용자 설정") for e in events), events)
+
+    def test_allow_keeps_deploy_and_risk_signals(self):
+        self.allow_code()
+        for cmd in ('python3 -c "import os; os.system(\'vercel --prod\')"',
+                    'node -e "require(\'child_process\').execSync(\'firebase deploy\')"',
+                    "python3 - <<'EOF'\nimport subprocess\nsubprocess.run(['netlify', 'deploy'])\nEOF",
+                    'eval "npm run deploy"', "git -c alias.d='!flyctl deploy' d",
+                    'python3 -c "import os; os.system(\'npm publish\')"',
+                    'echo cHJpbnQoMSk= | base64 -d | python3',
+                    'python3 -c "import base64; exec(base64.b64decode(\'cHJpbnQoMSk=\'))"'):
+            for agent, expected in (("claude", "ask"), ("codex", "deny")):
+                with self.subTest(cmd=cmd, agent=agent):
+                    self.assertEqual(self.bash(cmd, agent=agent)[0], expected)
+        # 코드 실행이 아닌 확인 사유는 그대로(인코딩된 PowerShell 명령)
+        self.assertEqual(self.bash("pwsh -EncodedCommand ZQBjAGgAbwA=", agent="codex")[0], "deny")
+
+    def test_allow_keeps_forbidden_user_folder_and_state_files(self):
+        self.allow_code()
+        for cmd in ('python3 -c "import os; print(os.environ)"', "claude --dangerously-skip-permissions",
+                    'node -e "console.log(process.env)"'):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny")
+        user = S.user_guard_file()
+        for cmd in ('python3 -c "import os; os.remove(os.path.expanduser(\'~/.config/agent-manager/guard.json\'))"',
+                    f'python3 -c "open(\'{user}\', \'w\').write(\'{{}}\')"',
+                    'python3 -c "import shutil, os; shutil.rmtree(os.path.expanduser(\'~/.config\'))"',
+                    "python3 - <<'EOF'\nimport pathlib\npathlib.Path.home().joinpath('.config', 'agent-manager').rename('x')\nEOF",
+                    'eval "rm -rf ~/.config/agent-manager"',
+                    "git -c alias.x='!rm ~/.config/agent-manager/guard.json' x"):
+            with self.subTest(cmd=cmd):  # Claude는 확인(또는 더 강한 차단), Codex는 차단
+                self.assertIn(self.bash(cmd)[0], ("ask", "deny"))
+                self.assertEqual(self.bash(cmd, agent="codex")[0], "deny")
+        for cmd in ('python3 -c "open(\'projects/app/project.json\', \'w\').write(\'{}\')"',
+                    'python3 -c "import os; os.remove(\'projects/app/project.json\')"',
+                    'node -e "require(\'fs\').writeFileSync(\'.am/local.json\', \'{}\')"'):
+            with self.subTest(cmd=cmd):
+                self.assertNotEqual(self.bash(cmd, cwd=self.root, agent="codex")[0], "allow")
+                self.assertEqual(self.bash(cmd, cwd=self.root, agent="codex")[0], "deny")
+
+    def test_opaque_ask_still_wins(self):
+        self.allow_code(opaque="ask")
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+
+    def test_repo_config_is_ignored(self):
+        (Path(self.root) / "config/guard.json").write_text(json.dumps({"code_execution": "allow"}), encoding="utf-8")
+        value, warnings = S.code_execution(self.root)
+        self.assertEqual(value, "ask")
+        self.assertTrue(any("레포 안" in w for w in warnings), warnings)
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+        self.config(None, "{broken")
+        self.assertEqual(S.code_execution(self.root)[0], "ask")
+        self.assertEqual(self.bash('python3 -c "print(1)"', agent="codex")[0], "deny")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -150,6 +150,22 @@ def main():
          "AutoGatesTest.test_git_rewriting_the_manager_tree_is_never_automatic"),
         ("folders holding state files", "_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args",
          "_is_state_file(a, cwd, root) for a in args", "AutoGatesTest.test_agents_cannot_change_the_setting"),
+        # T12 code_execution — 사용자 설정이 allow일 때만, 글자 위험 신호·사용자 폴더·디코드는 그대로
+        ("code_execution default ask", '_code_execution_policy(root) == "allow"', "True",
+         "CodeExecutionSettingTest.test_default_still_asks"),
+        ("code_execution only when allowed", 'strict = [f for f in opaque if not (code_allow and f.get("code_exec"))]',
+         'strict = [f for f in opaque if not f.get("code_exec")]', "CodeExecutionSettingTest.test_default_still_asks"),
+        ("code_execution keeps risk signals", "or label not in RELAXED_SKIP and any(", "or False and any(",
+         "CodeExecutionSettingTest.test_allow_keeps_deploy_and_risk_signals"),
+        ("code_execution keeps decode", 'if re.search(CODE_EXEC_DECODE, command, re.I) or any(', "if False and any(",
+         "CodeExecutionSettingTest.test_allow_keeps_deploy_and_risk_signals"),
+        ("code_execution keeps user folder", "        risks += [label for label, pattern in CODE_EXEC_RISK_SIGNALS",
+         "        risks += [label for label, pattern in ()", "CodeExecutionSettingTest.test_allow_keeps_forbidden_user_folder_and_state_files"),
+        ("code_execution script findings", 'return _finding("opaque", seg, reason=reason, code_exec=True, body=body, **kw)',
+         'return _finding("opaque", seg, reason=reason, code_exec=False, body=body, **kw)',
+         "CodeExecutionSettingTest.test_allow_runs_code_and_records"),
+        ("code_execution rebase exec only", 'rebase_exec = sub == "rebase" and ', "rebase_exec = False and ",
+         "CodeExecutionSettingTest.test_allow_runs_code_and_records"),
     ]
     killed = 0
     for label, old, new, test in mutations:

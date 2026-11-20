@@ -75,7 +75,8 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 {"auto_gates": ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission", "architecture_policy", "repo_create", "spec"]}
 ```
 - `opaque` 키도 여기에 둔다(`{"opaque": "allow", "auto_gates": [...]}`). 이 파일에 `opaque`가 없으면 레포 안 `config/guard.json`의 `opaque`를 하위 호환으로 읽는다.
-- **레포 안 `config/guard.json`의 `auto_gates`는 무시**하고 `am status`에 경고한다.
+- `"code_execution": "allow"`(선택, 기본 `ask`)도 여기에 둔다 — 코드 실행 지점(아래 '위협 모델')의 확인을 허용+기록(`자동 허용: 코드 실행 — 사용자 설정`)으로 바꾼다. 금지·`auto_gates`에 없는 승인(`deploy`·`paid_service`)·글자 위험 신호(코드 문자열·heredoc 본문까지)·사용자 전용 폴더·상태 파일 보호는 그대로. 레포 안 값은 무시하고 경고.
+- **레포 안 `config/guard.json`의 `auto_gates`·`code_execution`은 무시**하고 `am status`에 경고한다.
   - 왜 레포 밖인가: 레포 안 파일은 `git reset`·`checkout`·`restore` 경로 지정·`stash pop`·`merge`/`rebase --abort`·연결된 작업 폴더 등 끝없는 git 간접 경로로 되돌릴 수 있어 하나씩 막을 수 없다. 레포 밖 파일은 git이 건드리지 못한다.
   - 기기마다 따로라서 새 기기에서는 사용자가 다시 만든다(그 기기에서는 만들기 전까지 전부 묻기 — 안전한 기본값).
 - **`~/.config/agent-manager` 폴더 전체가 사용자 전용**이다(`guard.json` 설정, `home` 가드 위치 기록, 감사 로그). 그 안 파일·폴더의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `unlink`, `rmdir`, `shred`, `ln`(링크 원본·대상 모두), `dd of=`, `tee`, `sed -i`, `truncate`, `touch`, Edit/Write)는 `auto_gates`와 상관없이 Claude 확인 창, Codex 차단. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 폴더를 담은 상위 폴더(`~/.config`, `~`)를 지우거나 옮기는 것도 같다. 글롭(`*`·`?`·`[ ]`)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 확인한다. 읽기는 그대로 허용.
@@ -90,6 +91,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - 다른 프로그램이 대신 쓰는 경우: 인터프리터 스크립트 파일 안의 쓰기(코드 문자열은 확인), 에디터·빌드 도구·사용자 정의 실행 파일.
 - 실행 전에 없던 링크·폴더를 같은 명령줄에서 만든 뒤 그 경로로 쓰는 다단계 조합(링크 원본이 사용자 폴더인 `ln`·`New-Item` 링크 자체는 확인).
 - `home`이 없을 때 통과시키는 `python -m am setup`은 지금 레포의 `am` 코드를 실행한다 — 매니저 레포로 보이게 꾸민 폴더에서 돌리면 그 레포를 가드 위치로 기록한다(사람이 새 기기에서 직접 돌리는 경우만 가정).
+- `code_execution: allow`일 때 코드 문자열·heredoc 본문은 글자로만 본다: 배포·삭제·승인 단어, 사용자 폴더·home 표기(`agent-manager`·`.config`·`expanduser`·`Path.home`·`$HOME`·`~/`), 디코드(`base64 -d`·`b64decode` 등)가 보이면 확인. 글자를 실행 중에 조립하거나(문자열 이어 붙이기·`chr()`) 다른 파일을 읽어 실행하는 코드, `shutil.rmtree` 같은 라이브러리 삭제(사용자 폴더 표기가 없으면)는 허용될 수 있다. 비용(`paid_service`) 신호는 가드가 따로 알아보지 않는다 — 유료 서비스 호출은 지시문·리뷰로 막는다.
 - 이런 우회의 뒤에는 Claude Code·Codex 자체 권한 검사가 있다.
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
@@ -104,6 +106,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - 매니저 세션이 지금 작업 폴더 밖(다른 프로젝트 레포) 파일을 고치면 차단 → 매니저는 위임만 한다.
 - 훅이 막으면 우회하지 말고, 메시지의 승인 요청을 그대로 사용자에게 보여 준다.
 - **위협 모델**: 가드는 협조적인 에이전트의 실수를 막는 장치다. 인터프리터 밖에서 문자열을 일부러 쪼개 위험 단어를 숨기는 적대적 우회까지 막지는 못한다(그 뒤에는 Claude Code 자체 권한 검사가 있다). 대신 코드 실행 지점 — 인터프리터 코드 문자열(`python -c`·`node -e`·`php -r`·`pwsh -c` 등), 셸·인터프리터의 표준입력 프로그램, `eval`, 명령 실행 옵션(`sed e`, `git -c alias.*='!…'`, `rebase --exec` 등) — 은 내용과 상관없이 확인한다(Claude 확인 창, Codex 차단).
+  - 사용자가 레포 밖 `~/.config/agent-manager/guard.json`에 `"code_execution": "allow"`를 두면(사용자 지시 2026-11-21) 위 코드 실행 지점과 변수·치환으로 정해지는 명령, 추적·미수정이 아닌 스크립트 실행도 글자 위험 신호가 없으면 허용하고 기록한다. 금지·배포 승인·사용자 폴더·상태 파일 검사는 설정과 무관하게 그대로다.
 
 ### 승인 요청 형식 (사용자에게) — 개발을 모르는 사람도 한 번 읽고 답할 수 있게
 제목 한 줄 + 표. **인용 블록(`>`)·기울임(`*…*`)·긴 문단을 쓰지 않는다** — 터미널에서 흐리거나 기울어져 읽기 어렵다(사용자 피드백 2026-11-10).

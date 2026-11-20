@@ -61,6 +61,11 @@ def cmd_status(a):
         print("묻지 않고 진행(auto_gates): " + ", ".join(g for g in S.GATES if g in auto))
     for w in warnings:
         print(f"⚠ {w}")
+    code, code_warnings = S.code_execution(a.root)
+    if code == "allow":
+        print("묻지 않고 진행(code_execution): 짧은 코드 실행(python -c·heredoc·eval 등) — 배포·금지·사용자 폴더·상태 파일은 그대로")
+    for w in code_warnings:
+        print(f"⚠ {w}")
     print("다음:", S.next_action(p).replace("<slug>", p["slug"]))
 
 
