@@ -382,13 +382,13 @@
         "review": "fail",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#202 교차 검수 수정 필요: 중간 7(교체 실패 안 보임 회귀, 되돌리기 실패 닫기 없음, 예전 실패 작업 반복 표시, 테스트 누락 4), 낮음 10(햅틱 중복, 대안 자동 조회=호출량, 되돌리기 불가 시 빈 스텁 등). 부품·토큰·도장·발권은 명세 일치",
-        "at": "2026-11-20T22:46:29+09:00"
+        "summary": "PR#202 재검수 수정 필요: 1차 대부분 해결·#201 충돌 없음. 새 중간 4(대안 검색 세대 cleanup 주석 안이라 미실행→잘못된 장소 교체 가능, 사라진 실패 작업 티켓 잔존, 바꾸기 초록=색 의미 위반, 버튼 줄 통합 미문서화)·테스트 공백",
+        "at": "2026-11-20T23:07:15+09:00"
       },
       "files": [
-        "src/screens/TripDetailScreen.tsx",
-        "src/lib/taskDock.ts",
-        "src/components/TaskDock.tsx"
+        "src/components/AlternativeFinderSheet.tsx",
+        "src/components/AnalysisDock.tsx",
+        "src/screens/TripDetailScreen.tsx"
       ]
     },
     {
@@ -866,8 +866,12 @@
     {
       "at": "2026-11-20T22:53:39+09:00",
       "event": "작업 T15 변경: note=검수 반영 9e2d77d(테스트 309, 변형 14/14, main 맞춤) → Claude 재검수"
+    },
+    {
+      "at": "2026-11-20T23:07:15+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=fail, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T22:53:39+09:00"
+  "updated_at": "2026-11-20T23:07:15+09:00"
 }
