@@ -26,8 +26,9 @@ def main():
         ("heredoc body", "out += _check_script(body, head, cwd, root, python=python)",
          "out += []", "test_review_heredoc_interpreter_variants"),
         ("exact terminator", r"(?P=tag)(?:\n|$)", r"(?P=tag)[ \t]*(?:\n|$)", "test_review_heredoc_exact_terminator"),
-        ("heredoc stdin shape", 'return word in ("python", "py", "node") and args in ([], ["-"])',
-         'return word in ("python", "py", "node")', "test_reverify_a_heredoc_head_is_split_like_any_line"),
+        # (heredoc stdin shape: removed in T10 — since #11 every interpreter run is judged by _script_run_verdict first
+        #  (a heredoc to `python evil.py`·`python -c` is confirmed whatever the body), so treating that body as the
+        #  program only adds a body check; no command became allowed in tests or by hand, i.e. an equivalent mutation)
         ("baseline", "    base = _baseline(top)\n    rels = sorted(set(rels))",
          "    base = _git(top, \"rev-parse\", \"HEAD\")\n    rels = sorted(set(rels))",
          "test_review_committed_script_and_index_flags"),
@@ -67,7 +68,12 @@ def main():
         #  mutation only makes the guard stricter)
         # 4차: 기본 ask 구조
         ("default ask", "if not explained and not trusted:", "if False:", "test_r4_unlisted_programs_modules_and_scripts_ask"),
-        ("python -m other modules", 'reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"', "ok = True",
+        # 인터프리터 공통 판정(_script_run_verdict)도 python -m <다른 모듈>을 막는다 — 두 층을 함께 없애야 의미 있는 변형
+        ("python -m other modules",
+         ('reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"',
+          'word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or not script_form'),
+         ("ok = True",
+          'word == "python" and args[:1] == ["-m"] or not script_form'),
          "test_r4_unlisted_programs_modules_and_scripts_ask"),
         ("unknown git subcommand", 'if not re.fullmatch(r"-.*", sub):', "if False:", "test_r4_unlisted_programs_modules_and_scripts_ask"),
         ("gh groups", 'if pos and (pos[0] not in GH_GROUPS or pos[0] == "auth" and pos[1:2] != ["status"]):', "if False:",
@@ -100,8 +106,13 @@ def main():
         ("auto_gates approve list", 'if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):',
          'if any(f["kind"] == "approve" and False for f in findings):',
          "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
-        ("auto_gates approve own am", 'ok, reason = gate is None or (python and _own_am(cwd)), ',
-         'ok, reason = True, ', "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        # 이 매니저의 am인지는 인터프리터 공통 판정(_script_run_verdict)과 approve 분기 두 곳에서 본다 — 둘 다 없애야 의미 있는 변형
+        ("auto_gates approve own am",
+         ('ok, reason = gate is None or (python and _own_am(cwd)), ',
+          'word == "python" and args[:2] == ["-m", "am"] and _own_am(cwd) or not script_form'),
+         ('ok, reason = True, ',
+          'word == "python" and args[:2] == ["-m", "am"] or not script_form'),
+         "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
         ("auto_gates approve options", "            if a.startswith(\"-\"):\n                return None\n            pos.append(a)",
          "            pos.append(a)", "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
         ("auto_gates gate list", 'automatic = [f for f in missing if f["slug"] and f["gate"] in auto]',
@@ -118,10 +129,15 @@ def main():
     ]
     killed = 0
     for label, old, new, test in mutations:
-        if source.count(old) != 1:
-            raise RuntimeError("Mutation anchor changed: " + label)
+        # a tuple of anchors mutates every layer of a deliberately doubled check at once
+        pairs = list(zip(old, new)) if isinstance(old, tuple) else [(old, new)]
+        mutated = source
+        for o, n in pairs:
+            if source.count(o) != 1:
+                raise RuntimeError("Mutation anchor changed: " + label)
+            mutated = mutated.replace(o, n)
         try:
-            exec(compile(source.replace(old, new), str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
+            exec(compile(mutated, str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
             cls, _, name = test.rpartition(".")
             result = unittest.TextTestRunner(stream=io.StringIO()).run(
                 unittest.TestSuite([getattr(cases, cls or "BuildAllowlistTest")(name)]))

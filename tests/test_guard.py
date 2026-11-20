@@ -727,6 +727,10 @@ class BuildAllowlistTest(GuardTest):
             body = "require('child_process').execSync('git push --force origin main')" if interpreter.startswith("node") else "import subprocess\nsubprocess.run(['git', 'push', '--force', 'origin', 'main'])"
             self.assertNotEqual(self.bash(interpreter + " <<'EOF'\n" + body + "\nEOF")[0], "allow", interpreter)
         self.assertEqual(self.bash("unknown-runtime <<'EOF'\nanything\nEOF")[0], "ask")
+        # 표준입력 프로그램은 어차피 확인 창(ask)이므로, 본문을 읽었다는 증거는 상태 파일 쓰기의 차단(deny)
+        for interpreter in ("python3.12 -", "python3 -", "py -3", "pypy3 -"):
+            command = interpreter + " <<'EOF'\nopen('projects/app/project.json','w')\nEOF"
+            self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", interpreter)
 
     def test_review_python_writes_and_flow(self):
         bodies = [
@@ -751,7 +755,8 @@ class BuildAllowlistTest(GuardTest):
     def test_review_heredoc_exact_terminator(self):
         for ending in ("EOF ", "EOF\t"):
             command = "python - <<'EOF'\nprint('ok')\n" + ending + "\nopen('projects/app/project.json','w')\nEOF"
-            self.assertNotEqual(self.bash(command, cwd=self.root)[0], "allow")
+            # 표준입력 프로그램은 어차피 확인 창 — 'EOF ' 뒤 줄까지 본문으로 읽었으면 상태 파일 쓰기로 차단(deny)
+            self.assertEqual(self.bash(command, cwd=self.root)[0], "deny", repr(ending))
             # 뒤 줄이 모두 아는 명령이어도: 진짜 본문은 Python으로 해석되지 않는 줄까지 포함한다
             command = "python - <<'EOF'\nprint('ok')\n" + ending + "\necho x\ncat <<'EOF'\nEOF"
             self.assertNotEqual(self.bash(command)[0], "allow")
@@ -834,7 +839,6 @@ class BuildAllowlistTest(GuardTest):
             self._not_allowed(cmd)
         # 인터프리터는 추적·미수정 스크립트 파일 실행만 기존 판정 — 파일 인수 없는 heredoc 프로그램은 확인
         self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "ask")
-
     def test_reverify_b_baseline_ref_commands_need_a_person(self):
         for cmd in ("git update-ref refs/remotes/origin/main HEAD",
                     "git update-ref -m 'fetch origin: fast-forward' refs/remotes/origin/main HEAD",
@@ -947,6 +951,10 @@ class BuildAllowlistTest(GuardTest):
                     "python -m unittest tests.test_guard", "python -m unittest"):
             self.assertEqual(self.bash(cmd)[0], "allow", cmd)
         (self.app / "scripts/json.py").write_text("print('shadow')\n", encoding="utf-8")  # imported before the stdlib
+        self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
+        # git이 무시하는 형제 .py도 먼저 import된다 — git status(--ignored=no)에는 안 보이므로 형제 검사만 잡는다
+        with open(self.app / ".git/info/exclude", "a", encoding="utf-8") as f:
+            f.write("scripts/json.py\n")
         self.assertEqual(self.bash("python scripts/check.py")[0], "ask")
 
     def test_build_invocations(self):
@@ -2473,6 +2481,8 @@ class AutoGatesTest(GuardTest):
                 for cmd in ("python -m am approve app deploy", "python -m am approve app paid_service",
                             "python -m am approve app push && python -m am approve app deploy",
                             "python -m am approve --weird app push", "python -m am approve app",
+                            # 모르는 옵션이 위치 인수 자리를 차지해도(--weird push → 2개) 사람 확인
+                            "python -m am approve --weird push", "python -m am approve --root=/tmp/x merge_main",
                             "python -m am approve app push extra", "python -m am --root /tmp/x approve app push",
                             "python am/cli.py approve app push"):
                     self.assertEqual(self.bash(cmd, cwd=mgr, agent=agent)[0], "deny" if agent == "codex" else "ask", cmd)
