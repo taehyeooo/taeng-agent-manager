@@ -37,6 +37,13 @@ def main():
          "AutoGatesTest.test_the_whole_user_folder_is_user_only"),
         ("powershell changed paths", "    if any(_is_user_config(p, cwd) for p in _ps_changed_paths(word, args)):",
          "    if False:", "AutoGatesTest.test_user_folder_principle_table"),
+        # -Value·내용 위치 인수를 경로로 보면 정상 쓰기(Set-Content -Value "~")가 막힌다
+        ("powershell content not path", "        paths = paths or positional[:1]\n",
+         "        paths = paths + positional\n", "AutoGatesTest.test_user_folder_principle_table"),
+        ("powershell link only", 'if cmdlet == "new-item" and any(t not in ("file", "directory") for t in types):',
+         'if True:', "AutoGatesTest.test_user_folder_principle_table"),
+        ("powershell link target", "            paths += named.get(\"-target\", []) + named.get(\"-value\", [])\n",
+         "            paths += []\n", "AutoGatesTest.test_user_folder_principle_table"),
         ("powershell write targets",
          '    cmdlet = PS_WRITE_CMDLETS.get(word)\n    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):',
          '    cmdlet = None\n    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):',

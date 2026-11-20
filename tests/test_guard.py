@@ -2592,6 +2592,9 @@ class AutoGatesTest(GuardTest):
         ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target ~/.config/agent-manager/guard.json"),
         ("PowerShell", "New-Item -ItemType HardLink -Path link -Value ~/.config/agent-manager/home"),
         ("PowerShell", "ni link -ItemType Junction -Target:~/.config/agent-manager"),
+        ("PowerShell", "New-Item -Type SymbolicLink link -Value ~/.config/agent-manager/home"),
+        ("PowerShell", "New-Item -ItemType:symboliclink -Path link -Value ~/.config/agent-manager"),
+        ("PowerShell", "New-Item -ItemType $t -Path link -Value ~/.config/agent-manager/home"),
         ("PowerShell", "Set-Content -Path ~/.config/agent-manager/home -Value x"),
         ("PowerShell", "sc ~/.config/agent-manager/home x"),
         ("PowerShell", "ac -LiteralPath ~/.config/agent-manager/home x"),
@@ -2638,6 +2641,13 @@ class AutoGatesTest(GuardTest):
             for tool, cmd in (("PowerShell", "New-Item -ItemType File -Path notes.txt"),
                               ("PowerShell", "Copy-Item ~/.config/agent-manager/guard.json backup.json"),
                               ("PowerShell", "Set-Content -Path notes.txt -Value x"),
+                              # -Value·내용 위치 인수는 쓸 내용이지 경로가 아니다(링크 만들기만 예외)
+                              ("PowerShell", 'Add-Content -Path notes.txt -Value "~"'),
+                              ("PowerShell", 'Set-Content -Path notes.txt -Value "~/.config/agent-manager/home"'),
+                              ("PowerShell", "sc notes.txt ~/.config/agent-manager/home"),
+                              ("PowerShell", "Out-File notes.txt utf8"),
+                              ("PowerShell", "New-Item -ItemType File -Path notes.txt -Value ~/.config/agent-manager/home"),
+                              ("PowerShell", "New-Item -Path notes.txt -Value ~/.config/agent-manager/guard.json"),
                               ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target README.md"),
                               ("Bash", "cat $HOME/.config/agent-manager/home")):
                 with self.subTest(unrelated=cmd):

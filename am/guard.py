@@ -1077,7 +1077,8 @@ def _ps_args(args):
 
 
 def _ps_changed_paths(word, args):
-    """PowerShell 쓰기 cmdlet(별칭 포함)이 바꾸는 경로: 쓰기·삭제·이동 대상과 링크의 원본(-Target/-Value).
+    """PowerShell 쓰기 cmdlet(별칭 포함)이 바꾸는 경로: 쓰기·삭제·이동 대상과 New-Item 링크의 원본(-Target/-Value).
+    Set-Content·Add-Content·Out-File·New-Item(링크 아님)의 -Value·내용 위치 인수는 쓸 내용이라 경로로 보지 않는다.
     Copy-Item의 원본은 읽기라 빼고 대상(-Destination·두 번째 위치 인수)만."""
     cmdlet = PS_WRITE_CMDLETS.get(word)
     if not cmdlet:
@@ -1086,7 +1087,15 @@ def _ps_changed_paths(word, args):
     paths = [v for k in ("-path", "-literalpath", "-lp", "-pspath", "-filepath") for v in named.get(k, [])]
     if cmdlet == "copy-item":
         return named.get("-destination", []) + positional[1:]
-    paths += named.get("-destination", []) + named.get("-target", []) + named.get("-value", []) + positional
+    if cmdlet in ("set-content", "add-content", "out-file", "clear-content", "new-item"):
+        # 경로는 -Path류, 없으면 첫 위치 인수뿐 — -Value와 나머지 위치 인수는 쓸 내용(Out-File은 -Encoding)
+        paths = paths or positional[:1]
+        types = [t.strip("'\"").lower() for k in ("-itemtype", "-type") for v in named.get(k, []) for t in v.split(",")]
+        if cmdlet == "new-item" and any(t not in ("file", "directory") for t in types):
+            # 링크 만들기(SymbolicLink·HardLink·Junction, 확정할 수 없는 값 포함): -Target/-Value가 링크 원본
+            paths += named.get("-target", []) + named.get("-value", [])
+        return paths
+    paths += named.get("-destination", []) + positional
     if cmdlet == "rename-item":
         paths += named.get("-newname", [])
     return paths
