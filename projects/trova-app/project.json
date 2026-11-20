@@ -102,7 +102,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trovapp.github.io/trova-privacy-admob",
       "pr": null,
       "dispatch": "ctx_1f9b0a9e2936",
-      "note": "수정안 d465669(로컬). 비맞춤형 광고만 요청·UMP 없음 확인. 게시 승인 대기"
+      "note": "개인정보처리방침 AdMob 반영 완료(trovapp.github.io PR#1 머지 2026-11-18). 작업자 종료"
     },
     {
       "id": "T2",
@@ -126,7 +126,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "2026-11-18 Play 프로덕션 v10(1.0.0, 커밋 af3b078, EAS 379054e5, AdMob+PR #183) 전체 출시로 Google 검토 제출. 출시 노트 작성. AD_ID 경고는 다른 활성 아티팩트 때문(v10엔 권한 있음 확인)이라 이번 출시에서 무시. 검토 결과 대기"
+      "note": "2026-11-20 Play Console 확인: Trova 프로덕션, 게시 대기 제출 0·정책 작업 0 → 11-18 v10 검토 통과·게시 완료로 판단. 계정 할 일: 2027-02까지 판매자 상태 선언(사용자)"
     },
     {
       "id": "T4",
@@ -182,7 +182,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_8eee5ccb761f",
-      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "note": "디자인 리서치 완료(PR#184) → 디자인 1차 #186·2차 #190으로 이어짐. 작업자 종료",
       "verification": {
         "tests": "skip",
         "review": "pass",
@@ -560,8 +560,20 @@
     {
       "at": "2026-11-20T11:12:07+09:00",
       "event": "작업 T12 변경: status=done, note=PR#190 머지 de260cd(재검토 통과). 낮음 후속: 요청 중 일차 전환 문구, PWA 음성 안내, 날씨 오류 초기화, 문서 수치. T10 출시 묶음에 포함"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T3 변경: note=2026-11-20 Play Console 확인: Trova 프로덕션, 게시 대기 제출 0·정책 작업 0 → 11-18 v10 검토 통과·게시 완료로 판단. 계정 할 일: 2027-02까지 판매자 상태 선언(사용자)"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T1 변경: note=개인정보처리방침 AdMob 반영 완료(trovapp.github.io PR#1 머지 2026-11-18). 작업자 종료"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T7 변경: note=디자인 리서치 완료(PR#184) → 디자인 1차 #186·2차 #190으로 이어짐. 작업자 종료"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T11:12:07+09:00"
+  "updated_at": "2026-11-20T16:04:45+09:00"
 }
