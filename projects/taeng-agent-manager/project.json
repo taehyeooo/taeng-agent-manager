@@ -119,6 +119,12 @@
       "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
       "note": "실제 대상: trova-backend 312dbf6(T24 PR#493) 운영 반영. 가드가 세션 폴더 기준으로 프로젝트를 잡아 이쪽에 기록. 사용자 '승인' 2026-11-20",
       "at": "2026-11-20T11:48:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#12",
+      "note": "Bash 허용 설정, 사용자 지시 2026-11-20 '아예 레포 자체를 bash command는 승인하게', 자동 검사 통과. 병합 완료(상태 파일 충돌로 기록 다시 남김)",
+      "at": "2026-11-20T12:28:59+09:00"
     }
   ],
   "tasks": [
@@ -1521,10 +1527,14 @@
     {
       "at": "2026-11-20T12:16:17+09:00",
       "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-20T12:28:59+09:00",
+      "event": "승인 기록: merge_main (PR#12)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T12:16:17+09:00",
+  "updated_at": "2026-11-20T12:28:59+09:00",
   "requests": [
     {
       "gate": "push",
