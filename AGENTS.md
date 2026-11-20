@@ -18,7 +18,7 @@
 **지금 선호: Codex 우선, 디자인 포함 — 2026-11-30까지**(사용자 지시 2026-11-09). 이후에는 Claude로 자동 전환.
 - `am task add <slug> "<제목>" --kind general|design|test|docs` — `--agent`를 생략하면 선호대로 배정되고 이유가 note에 남는다. 다른 쪽을 고르면 `--agent`와 `--note "이유"`.
 - Claude로 돌리는 경우는 이것만: 검증(교차 검증, reviewflow), Codex가 같은 작업에서 2번 실패, Claude에만 있는 스킬이 꼭 필요할 때.
-- 디자인을 Codex에 맡길 때: intaeng `design-flow`·`design-review`·`ux-writing-ko`는 Codex에도 설치해 쓴다(intaeng은 Codex 플러그인 형식 지원). 시안 고르기(1·2단계)는 여전히 사용자 몫.
+- 디자인 작업은 에이전트와 상관없이 [`docs/design-guide.md`](docs/design-guide.md)를 따른다(아래 '디자인'). 시안 고르기는 사용자 몫.
 - 기한이 3일 안으로 남으면 `am status`가 경고한다 — 큰 작업은 미리 맡기고, 기한이 지나면 Codex에 남은 작업을 Claude로 재배정한다(`am task set --agent claude`).
 - 사용 기간이 끝난 에이전트에는 배정할 수 없다(CLI가 막음). 다른 모델을 쓸 수 없을 때만 같은 모델의 다른 세션이 검증해도 된다.
 - 검증은 항상 구현한 모델의 반대쪽(교차 검증): codex 구현 → `claude:reviewflow`, claude 구현 → `codex:review`
@@ -40,7 +40,8 @@
 | developing | 작업마다 위임 → 검증 → 병합 승인 (아래) | Orca orchestration, intaeng `delegate-pr`, reviewflow, qaflow |
 | → done | 모든 작업 done → `am report <slug>` → `am phase <slug> done` | intaeng `spec-check` |
 
-화면이 있으면 기능 구현 전에 intaeng `design-flow`(구조 시안 3개 → 세부 시안 → 적용 → 고도화)를 Claude 워커에 맡긴다. 시안 고르기(1·2단계)는 사용자 몫이다.
+## 디자인
+UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 그래픽 요청을 받으면 **작업을 계획하기 전에 [`docs/design-guide.md`](docs/design-guide.md)를 처음부터 읽고 그대로 따른다**(사용자 지시 2026-11-20). 진행 순서(사용자 흐름 확인 → 도구 고르기 → 시안 3개 → 사용자 선택 → 세부 → 적용 → 검수 → 보고), 다른 레포 작업 때 지시문으로 전달하는 법, 승인 후 도구 설치, 보고 형식, 기기별 도구 표가 모두 그 문서에 있다. 디자인 규칙은 그 문서에서만 관리하고 여기에 복사하지 않는다.
 
 ## 위임
 - 지시문은 intaeng `delegate-pr` 템플릿(워크트리·먼저 읽기·맡은 파일·테스트 먼저·변형 검사·PR까지·머지 금지·보고 형식). 파일로 저장해 `--spec-file`로 넘긴다.
