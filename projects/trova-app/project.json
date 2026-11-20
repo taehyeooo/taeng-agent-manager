@@ -357,7 +357,7 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_9edb66b38f96",
-      "note": "사용자 요청(2026-11-20): 여권 위에 항로 + 끊김 없이 물 흐르듯. Claude ctx_eea0265f3d88(08-passport-route-claude), Codex ctx_7e5433ae01ac(08-passport-route-codex), 60fps 영상 포함"
+      "note": "여권 위의 항로: Claude bfea9e5(PR#197 08-passport-route-claude), Codex ce5a5ed(PR#198 08-passport-route-codex), 60fps 영상 비교 https://claude.ai/artifact/ 참고. 사용자 선택 대기"
     }
   ],
   "history": [
@@ -744,8 +744,12 @@
     {
       "at": "2026-11-20T21:57:05+09:00",
       "event": "작업 T14 변경: note=사용자 요청(2026-11-20): 여권 위에 항로 + 끊김 없이 물 흐르듯. Claude ctx_eea0265f3d88(08-passport-route-claude), Codex ctx_7e5433ae01ac(08-passport-route-codex), 60fps 영상 포함"
+    },
+    {
+      "at": "2026-11-20T22:11:13+09:00",
+      "event": "작업 T14 변경: note=여권 위의 항로: Claude bfea9e5(PR#197 08-passport-route-claude), Codex ce5a5ed(PR#198 08-passport-route-codex), 60fps 영상 비교 https://claude.ai/artifact/ 참고. 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T21:57:05+09:00"
+  "updated_at": "2026-11-20T22:11:13+09:00"
 }
