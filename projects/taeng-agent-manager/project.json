@@ -364,7 +364,7 @@
       "worktree": null,
       "pr": "15",
       "dispatch": "ctx_6ca270dc58fd",
-      "note": "매니저 레포 PR#15 머지 완료. 플러그인 PR#22(taeng-marketplace intaeng 0.7.0)는 리뷰 반영·CI 통과 상태로 열어 둠 — 사용자(2026-11-20): 매니저에서는 design-guide.md로 충분, 플러그인 불필요. 디자인 지시문에 '예전 intaeng 디자인 스킬 쓰지 말 것' 넣기",
+      "note": "플러그인 PR#22 사용자가 직접 머지(2026-11-20, intaeng 0.7.0 design 스킬이 main에). 기기 갱신은 안 함 — 나중에 쓸 때",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -1714,10 +1714,14 @@
     {
       "at": "2026-11-20T18:51:31+09:00",
       "event": "작업 T11 변경: status=blocked, note=매니저 레포 PR#15 머지 완료. 플러그인 PR#22(taeng-marketplace intaeng 0.7.0)는 리뷰 반영·CI 통과 상태로 열어 둠 — 사용자(2026-11-20): 매니저에서는 design-guide.md로 충분, 플러그인 불필요. 디자인 지시문에 '예전 intaeng 디자인 스킬 쓰지 말 것' 넣기"
+    },
+    {
+      "at": "2026-11-20T18:56:06+09:00",
+      "event": "작업 T11 변경: note=플러그인 PR#22 사용자가 직접 머지(2026-11-20, intaeng 0.7.0 design 스킬이 main에). 기기 갱신은 안 함 — 나중에 쓸 때"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T18:51:31+09:00",
+  "updated_at": "2026-11-20T18:56:06+09:00",
   "requests": [
     {
       "gate": "push",
