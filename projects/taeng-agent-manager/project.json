@@ -388,6 +388,18 @@
       "files": [
         "plugins/intaeng/tests/test_intaeng.py"
       ]
+    },
+    {
+      "id": "T12",
+      "title": "가드: code_execution 사용자 설정(짧은 코드 실행 확인도 끌 수 있게, 배포·비용·금지·사용자 폴더·상태 파일은 유지)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_c3afae2d76d3",
+      "note": "사용자 지시(2026-11-21) '2' — 가드 개선은 Claude(2026-11-20 지시), 검토는 Codex"
     }
   ],
   "history": [
@@ -1786,10 +1798,18 @@
     {
       "at": "2026-11-20T23:44:04+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(xcrun), 자동 허용 목록에 없는 프로그램·스크립트 실행(pgrep), 자동 허용 목록에 없는 프로그램·스크립트 실행(lsof); 명령: xcrun simctl list devices booted 2>&1 | head -8; pgrep -fl \"expo start|metro|8082|node.*expo\" | head -8; lsof -nP -iTCP:"
+    },
+    {
+      "at": "2026-11-21T00:09:02+09:00",
+      "event": "작업 추가 T12 (claude): 가드: code_execution 사용자 설정(짧은 코드 실행 확인도 끌 수 있게, 배포·비용·금지·사용자 폴더·상태 파일은 유지)"
+    },
+    {
+      "at": "2026-11-21T00:09:02+09:00",
+      "event": "작업 T12 변경: status=dispatched, dispatch=ctx_c3afae2d76d3, note=사용자 지시(2026-11-21) '2' — 가드 개선은 Claude(2026-11-20 지시), 검토는 Codex"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T23:44:04+09:00",
+  "updated_at": "2026-11-21T00:09:02+09:00",
   "requests": [
     {
       "gate": "push",
