@@ -92,7 +92,6 @@
     },
     {
       "gate": "merge_main",
-<<<<<<< Updated upstream
       "ref": "PR#7",
       "note": "사용자 승인(2026-11-18 아침): T6 가드 수정 머지, merge 9ff1a5f",
       "at": "2026-11-18T10:08:42+09:00"
@@ -120,11 +119,6 @@
       "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
       "note": "실제 대상: trova-backend 312dbf6(T24 PR#493) 운영 반영. 가드가 세션 폴더 기준으로 프로젝트를 잡아 이쪽에 기록. 사용자 '승인' 2026-11-20",
       "at": "2026-11-20T11:48:01+09:00"
-=======
-      "ref": "PR#12",
-      "note": "Bash 허용 설정, 사용자 지시 2026-11-20 '아예 레포 자체를 bash command는 승인하게', 자동 검사 통과",
-      "at": "2026-11-20T12:26:47+09:00"
->>>>>>> Stashed changes
     }
   ],
   "tasks": [
@@ -1121,7 +1115,6 @@
       "event": "승인 기록: merge_main (PR#6)"
     },
     {
-<<<<<<< Updated upstream
       "at": "2026-11-18T00:43:04+09:00",
       "event": "작업 추가 T6 (codex, 자동): 가드: Mac에서 훅이 python 없음으로 조용히 꺼지는 문제 수정 + ssh·scp·systemctl 운영 배포 명령을 배포 승인 대상으로"
     },
@@ -1532,26 +1525,6 @@
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
   "updated_at": "2026-11-20T12:16:17+09:00",
-=======
-      "at": "2026-11-20T12:16:58+09:00",
-      "event": "승인된 작업 실행: push(chore/repo-allow-bash)"
-    },
-    {
-      "at": "2026-11-20T12:25:52+09:00",
-      "event": "승인 요청: merge_main (PR#12)"
-    },
-    {
-      "at": "2026-11-20T12:26:47+09:00",
-      "event": "승인 기록: merge_main (PR#12)"
-    },
-    {
-      "at": "2026-11-20T12:26:47+09:00",
-      "event": "승인된 작업 실행: merge_main(PR#12)"
-    }
-  ],
-  "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T12:26:47+09:00",
->>>>>>> Stashed changes
   "requests": [
     {
       "gate": "push",
@@ -1562,7 +1535,6 @@
       "at": "2026-11-10T09:57:08+09:00"
     },
     {
-<<<<<<< Updated upstream
       "gate": "destructive_delete",
       "ref": null,
       "cmd": "rm -rf _rv",
@@ -1633,14 +1605,6 @@
       "impact": "파일이나 작업 기록이 지워진다",
       "risk": "되살리지 못할 수 있다",
       "at": "2026-11-20T12:16:17+09:00"
-=======
-      "gate": "merge_main",
-      "ref": "PR#12",
-      "cmd": "gh pr merge 12 -R taehyeooo/taeng-agent-manager --squash 2>&1",
-      "impact": "작업한 코드가 완성본(main)에 들어간다",
-      "risk": "문제가 있으면 완성본이 깨진다 (되돌리기는 가능하지만 번거롭다)",
-      "at": "2026-11-20T12:25:52+09:00"
->>>>>>> Stashed changes
     }
   ]
 }
