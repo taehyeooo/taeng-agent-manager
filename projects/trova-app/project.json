@@ -310,6 +310,18 @@
         "src/components/HomeFirstShare.tsx",
         "scripts/simplicity-v2.test.mjs"
       ]
+    },
+    {
+      "id": "T13",
+      "title": "디자인 3차: 보기 좋게 꾸미기(색·글꼴·아이콘·애니메이션) — 현황 점검 + 방향 시안 3개(사용자 선택) → 고른 방향 적용",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
+      "pr": null,
+      "dispatch": "ctx_17b45ab54174",
+      "note": "사용자 지시(2026-11-20): 디자인 3차 Windows Codex, 색·디자인·애니메이션 꾸미기. 1단계 시안 3개 → 사용자 선택"
     }
   ],
   "history": [
@@ -576,8 +588,16 @@
     {
       "at": "2026-11-20T16:07:06+09:00",
       "event": "작업 T5 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5, dispatch=ctx_75e51333f04e"
+    },
+    {
+      "at": "2026-11-20T16:09:21+09:00",
+      "event": "작업 추가 T13 (codex, 자동): 디자인 3차: 보기 좋게 꾸미기(색·글꼴·아이콘·애니메이션) — 현황 점검 + 방향 시안 3개(사용자 선택) → 고른 방향 적용"
+    },
+    {
+      "at": "2026-11-20T16:10:32+09:00",
+      "event": "작업 T13 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13, dispatch=ctx_17b45ab54174, note=사용자 지시(2026-11-20): 디자인 3차 Windows Codex, 색·디자인·애니메이션 꾸미기. 1단계 시안 3개 → 사용자 선택"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:07:06+09:00"
+  "updated_at": "2026-11-20T16:10:32+09:00"
 }

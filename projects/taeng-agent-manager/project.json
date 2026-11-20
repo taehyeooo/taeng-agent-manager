@@ -328,7 +328,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T10",
       "pr": "13",
       "dispatch": "ctx_79022a2c49bd",
-      "note": "1차 Claude 작업자 커밋 d77b525 후 변형 검사 단계에서 멈춤 → 마무리 작업자(최신 main rebase·PR)",
+      "note": "설정 레포 밖(~/.config/agent-manager/guard.json)으로 설계 변경 f0528ca, 변형 53/53, 테스트 433 → Codex 3차 검토 ctx_7873dfcf8bad",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -1607,10 +1607,22 @@
     {
       "at": "2026-11-20T16:06:54+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for w in /[가림] /[가림]; do git -C $w fetch -q origin main; echo \"$w HEAD=$(git -C $w rev-parse --short HEAD) origin/main=$"
+    },
+    {
+      "at": "2026-11-20T16:07:35+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for w in /[가림] /[가림]; do echo \"== $w\"; git -C $w status --short | head; done"
+    },
+    {
+      "at": "2026-11-20T16:09:02+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T10)"
+    },
+    {
+      "at": "2026-11-20T16:10:32+09:00",
+      "event": "작업 T10 변경: note=설정 레포 밖(~/.config/agent-manager/guard.json)으로 설계 변경 f0528ca, 변형 53/53, 테스트 433 → Codex 3차 검토 ctx_7873dfcf8bad"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T16:06:54+09:00",
+  "updated_at": "2026-11-20T16:10:32+09:00",
   "requests": [
     {
       "gate": "push",
