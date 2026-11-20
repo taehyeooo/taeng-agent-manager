@@ -95,6 +95,12 @@
       "ref": "fix/#149-151-152-qa-followup",
       "note": "T5 QA 후속(테스트·문서), 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
       "at": "2026-11-20T16:11:28+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#191",
+      "note": "T5 QA 후속, 리뷰 통과, 사용자 위임 2026-11-20",
+      "at": "2026-11-20T16:16:24+09:00"
     }
   ],
   "tasks": [
@@ -151,12 +157,24 @@
       "title": "버그 #151·#152·#149",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": "fix/#149-151-152-qa-followup",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5",
       "pr": "191",
       "dispatch": "ctx_75e51333f04e",
-      "note": "#149 PR#183에서 수정·닫음, #151·#152 서버 PR#447~451에서 수정 확인. 테스트 288. Claude 리뷰 ctx_a940e2a79089"
+      "note": "PR#191 머지. #149·#151·#152 닫음. 낮음 후속: 화면 연결 테스트·문서 줄번호",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#191 reviewflow 통과(낮음 7: #151·#152 테스트 일부 동어반복, 화면 연결 미고정, 문서 줄번호 오류). 서버 근거 #447~451 확인, #149 닫은 근거 맞음. 테스트 288",
+        "at": "2026-11-20T16:16:24+09:00"
+      },
+      "files": [
+        "scripts/qa-149-151-152.test.mjs",
+        "docs/reviews/qa-149-151-152-followup.md"
+      ]
     },
     {
       "id": "T6",
@@ -610,8 +628,20 @@
     {
       "at": "2026-11-20T16:12:31+09:00",
       "event": "작업 T5 변경: branch=fix/#149-151-152-qa-followup, pr=191, note=#149 PR#183에서 수정·닫음, #151·#152 서버 PR#447~451에서 수정 확인. 테스트 288. Claude 리뷰 ctx_a940e2a79089"
+    },
+    {
+      "at": "2026-11-20T16:16:24+09:00",
+      "event": "작업 T5 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T16:16:24+09:00",
+      "event": "승인 기록: merge_main (PR#191)"
+    },
+    {
+      "at": "2026-11-20T16:16:40+09:00",
+      "event": "작업 T5 변경: status=done, note=PR#191 머지. #149·#151·#152 닫음. 낮음 후속: 화면 연결 테스트·문서 줄번호"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:12:31+09:00"
+  "updated_at": "2026-11-20T16:16:40+09:00"
 }
