@@ -357,7 +357,7 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_9edb66b38f96",
-      "note": "분석 애니메이션 Claude(fcdf9fe, 항로 1순위)·Codex(83299d7, 비행 일지 1순위) 실제 화면 기준 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. 사용자 선택 대기. 확정안 세부 06-final 완료"
+      "note": "사용자 요청(2026-11-20): 여권 위에 항로 + 끊김 없이 물 흐르듯. Claude ctx_eea0265f3d88(08-passport-route-claude), Codex ctx_7e5433ae01ac(08-passport-route-codex), 60fps 영상 포함"
     }
   ],
   "history": [
@@ -740,8 +740,12 @@
     {
       "at": "2026-11-20T21:50:37+09:00",
       "event": "작업 T14 변경: note=분석 애니메이션 Claude(fcdf9fe, 항로 1순위)·Codex(83299d7, 비행 일지 1순위) 실제 화면 기준 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. 사용자 선택 대기. 확정안 세부 06-final 완료"
+    },
+    {
+      "at": "2026-11-20T21:57:05+09:00",
+      "event": "작업 T14 변경: note=사용자 요청(2026-11-20): 여권 위에 항로 + 끊김 없이 물 흐르듯. Claude ctx_eea0265f3d88(08-passport-route-claude), Codex ctx_7e5433ae01ac(08-passport-route-codex), 60fps 영상 포함"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T21:50:37+09:00"
+  "updated_at": "2026-11-20T21:57:05+09:00"
 }
