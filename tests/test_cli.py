@@ -10,6 +10,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from am import cli, state as S  # noqa: E402
 
+# 이 기기의 실제 사용자 설정(~/.config/agent-manager/guard.json, auto_gates)이 결과를 바꾸지 않게
+S.USER_GUARD_FILE = Path(tempfile.mkdtemp()) / "agent-manager" / "guard.json"
+
 
 class CliTest(unittest.TestCase):
     def setUp(self):
@@ -125,6 +128,11 @@ class HookCommandTest(unittest.TestCase):
                  if 'am/guard.py' in h.get('command', '')]
         self.assertEqual([h['command'] for h in hooks], [cli.HOOK_CMD.format(agent='claude')])
 
+    def test_repo_allows_bash_without_prompt(self):
+        # 사용자 지시(2026-11-20): 이 레포에서는 Bash 확인 창을 띄우지 않는다. 가드 훅은 그대로 먼저 돈다.
+        cfg = json.loads((Path(__file__).resolve().parent.parent / '.claude/settings.json').read_text(encoding='utf-8'))
+        self.assertIn('Bash', cfg['permissions']['allow'])
+
     def test_install_refreshes_matcher_and_deduplicates(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / '.claude/settings.json'
@@ -212,7 +220,56 @@ class HookCommandTest(unittest.TestCase):
             (home / 'python').unlink()
             self.assertEqual(run().returncode, 2)
             pointer.unlink()
-            self.assertEqual(run().returncode, 0)
+            # 가드 위치 기록(home)이 없으면 조용히 통과하지 않는다 — 지우는 것만으로 가드가 꺼지지 않게
+            self.assertEqual(run().returncode, 2)
+            self.assertIn('am setup', run().stderr)
+
+    def test_hook_without_pointer_blocks_all_but_first_setup_and_never_runs_a_local_guard(self):
+        import os
+        import shutil
+        import subprocess
+        shell = shutil.which('sh')
+        if os.name == 'nt' or not shell:
+            self.skipTest('POSIX shell fixture')
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            home, mgr, project = base / 'home', base / 'mgr', base / 'project'
+            for d in (home, mgr, project):
+                d.mkdir()
+            for repo in (mgr, project):
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+            (mgr / 'am').mkdir()
+            (mgr / 'am/cli.py').write_text('', encoding='utf-8')
+            (mgr / 'sub').mkdir()
+            # 위조 가드: 실행되면 표시를 남기고 모두 허용 — home이 없을 때 지금 폴더의 가드는 절대 실행하지 않는다
+            ran = base / 'forged-guard-ran'
+            for repo in (mgr, project):
+                (repo / 'am').mkdir(exist_ok=True)
+                (repo / 'am/guard.py').write_text(f'open({str(ran)!r}, "w").write("x")', encoding='utf-8')
+            env = dict(os.environ, HOME=str(home))
+            def run(cwd, command, tool='Bash', spaced=False):
+                sep = ': ' if spaced else ':'
+                payload = '{"tool_name"' + sep + json.dumps(tool) + ',"tool_input"' + sep + '{"command"' + sep \
+                    + json.dumps(command) + '},"cwd"' + sep + json.dumps(str(cwd)) + '}'
+                return subprocess.run([shell, '-c', cli.HOOK_CMD.format(agent='claude')], cwd=cwd, env=env,
+                                      input=payload, capture_output=True, text=True, encoding='utf-8')
+            # 통과: 매니저 레포 루트에서 정확히 `python -m am setup` / `python3 -m am setup` (JSON 공백 형식 무관)
+            for command, spaced in (('python -m am setup', False), ('python3 -m am setup', True)):
+                with self.subTest(allowed=command, spaced=spaced):
+                    self.assertEqual(run(mgr, command, spaced=spaced).returncode, 0)
+            # 그 밖은 모두 막고 setup 안내
+            cases = [(mgr, 'ls'), (mgr, 'python -m am setup --install ../project'), (mgr, 'python -m am setup && rm -rf ~'),
+                     (mgr, 'python -m am setup" && rm -rf ~ && echo "'), (mgr, 'python -m am setup\nrm -rf ~'),
+                     (mgr, 'python -m am setup; true'), (mgr, ' python -m am setup'),
+                     (mgr / 'sub', 'python -m am setup'), (project, 'python -m am setup'), (base, 'python -m am setup')]
+            for cwd, command in cases:
+                with self.subTest(cwd=cwd.name, command=command):
+                    r = run(cwd, command)
+                    self.assertEqual(r.returncode, 2)
+                    self.assertIn('am setup', r.stderr)
+            with self.subTest(tool='Write'):
+                self.assertEqual(run(mgr, 'python -m am setup', tool='Write').returncode, 2)
+            self.assertFalse(ran.exists(), '위조 가드가 실행됨')
 
 
 if __name__ == "__main__":
