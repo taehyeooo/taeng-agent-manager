@@ -400,7 +400,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2",
       "pr": "497",
       "dispatch": "ctx_bf29ad34e193",
-      "note": "1단계 결과: Slack→휴대폰 정상. 정책은 기본·critical·warning 모두 trova-slack-alerts로 감(정상). 그러나 이 연락처 실제 전달 기록 0. ProbeFailedExecutionsTooHigh(서버 다운 감지)는 'Grafana Synthetic Monitoring' 데이터소스 관리 규칙이라 Grafana 관리 정책·Slack 연락처를 안 탈 가능성(가설). Trova 규칙들은 Grafana 관리. 다음: 2단계 실제 중단 시험(10~15분) 승인 요청",
+      "note": "결론(2026-11-20): 사용자 Slack 기록 — 11-17 15:05 ProbeFailedExecutionsTooHigh FIRING→15:08 RESOLVED가 '1-모니터링-알림' 채널에 실제 도착(Synthetic 경보는 별도 통로라 Grafana 연락처 기록엔 안 남음). 11-13에는 경보가 아직 없었던 것으로 보임. 감지→Slack 정상, 2단계 서버 중단 시험 불필요(요청 취소). 남은 것: 휴대폰 Slack 채널 알림·데스크톱 활동 중 푸시·방해 금지 예외 설정 후 시험 알림 재확인",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1976,10 +1976,14 @@
     {
       "at": "2026-11-20T22:15:29+09:00",
       "event": "작업 O2 변경: note=1단계 결과: Slack→휴대폰 정상. 정책은 기본·critical·warning 모두 trova-slack-alerts로 감(정상). 그러나 이 연락처 실제 전달 기록 0. ProbeFailedExecutionsTooHigh(서버 다운 감지)는 'Grafana Synthetic Monitoring' 데이터소스 관리 규칙이라 Grafana 관리 정책·Slack 연락처를 안 탈 가능성(가설). Trova 규칙들은 Grafana 관리. 다음: 2단계 실제 중단 시험(10~15분) 승인 요청"
+    },
+    {
+      "at": "2026-11-20T22:17:13+09:00",
+      "event": "작업 O2 변경: note=결론(2026-11-20): 사용자 Slack 기록 — 11-17 15:05 ProbeFailedExecutionsTooHigh FIRING→15:08 RESOLVED가 '1-모니터링-알림' 채널에 실제 도착(Synthetic 경보는 별도 통로라 Grafana 연락처 기록엔 안 남음). 11-13에는 경보가 아직 없었던 것으로 보임. 감지→Slack 정상, 2단계 서버 중단 시험 불필요(요청 취소). 남은 것: 휴대폰 Slack 채널 알림·데스크톱 활동 중 푸시·방해 금지 예외 설정 후 시험 알림 재확인"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T22:15:29+09:00",
+  "updated_at": "2026-11-20T22:17:13+09:00",
   "requests": [
     {
       "gate": "push",
