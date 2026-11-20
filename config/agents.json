@@ -3,6 +3,8 @@
   "prefer": "codex",
   "prefer_until": "2026-11-30",
   "after": "claude",
+  "codex_model": "gpt-6.2-astra",
+  "_codex_model_설명": "사용자 지시(2026-11-20 '아스트라 6.2 사용해줘'): Codex 워커는 worker-start에 --model gpt-6.2-astra를 붙인다(그 전 2026-11-19엔 gpt-6-astra). 무거운 작업은 --on windows.",
   "kinds": {
     "general": "codex",
     "design": "codex",
