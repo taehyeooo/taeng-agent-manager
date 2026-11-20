@@ -2499,6 +2499,23 @@ class AutoGatesTest(GuardTest):
         self.config(None, "{broken")
         self.assertEqual(G._opaque_policy(self.root), "ask")
 
+    def test_windows_drive_paths_survive_bash_escapes(self):
+        # Bash 이스케이프는 C:\Users\RUNNER~1\…을 C:UsersRUNNER~1…(상대 경로)로 깨뜨린다 → / 표기로도 검사(모든 OS에서 문자열 단위)
+        short = r"C:\Users\RUNNER~1\AppData\Local\Temp\tmpx\home\.config\agent-manager\guard.json"
+        self.assertEqual(G.bash_escapes(f"rm {short}").split()[1][:12], "C:UsersRUNNE")
+        self.assertEqual(G.windows_drive_paths(f"echo x >> {short}"),
+                         "echo x >> C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json")
+        self.assertEqual(G.windows_drive_paths(rf'rm "{short}" && dd of=D:\a\b'),
+                         'rm "C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json" && dd of=D:/a/b')
+        for same in ("g\\it pu\\sh", "echo a\\b", "rm ./C:\\x", "printf 'ab:\\n'", "echo ~\\a", "ls"):
+            self.assertEqual(G.windows_drive_paths(same), same)
+        # decide는 깨진 표기와 / 표기를 둘 다 검사한다(뒤쪽이 C:/Users/RUNNER~1/… — Windows에서 realpath가 긴 이름으로)
+        seen = []
+        real = G.classify_command
+        with patch.object(G, "classify_command", side_effect=lambda c, *a, **k: seen.append(c) or real(c, *a, **k)):
+            G.decide({"tool_name": "Bash", "tool_input": {"command": f"rm {short}"}, "cwd": str(self.app)}, "codex", self.root)
+        self.assertIn("rm C:/Users/RUNNER~1/AppData/Local/Temp/tmpx/home/.config/agent-manager/guard.json", seen)
+
     def test_agents_cannot_change_the_user_file(self):
         # 모든 승인 항목을 자동으로 해도: 레포 밖 사용자 설정의 쓰기·삭제·이동·링크는 Claude 확인, Codex 차단
         self.config({"auto_gates": list(S.GATES)})

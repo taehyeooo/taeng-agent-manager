@@ -560,6 +560,16 @@ def bash_escapes(s):
     return _escapes(s, "\\", '$`"\\\n')
 
 
+# Windows 드라이브 경로(C:\Users\RUNNER~1\…): Bash 이스케이프가 \U·\R을 글자로 풀면 C:UsersRUNNER~1…(작업 폴더 안
+# 상대 경로)이 되어 사용자 폴더·상태 파일 검사를 빠져나간다 → 역슬래시를 /로 바꾼 표기도 함께 검사(보수적으로)
+WIN_DRIVE_PATH = re.compile(r"(?<![\w\\/:.~$-])([A-Za-z]:\\[^\s|;&<>()]*)")
+
+
+def windows_drive_paths(s):
+    """C:\\a\\b 표기의 역슬래시를 /로(따옴표 안팎 모두). 드라이브 경로가 없으면 그대로."""
+    return WIN_DRIVE_PATH.sub(lambda m: m.group(1).replace("\\", "/"), s)
+
+
 def ps_escapes(s):
     return _escapes(s, "`", "".join(map(chr, range(32, 127))) + "\n")
 
@@ -3310,9 +3320,12 @@ def decide(payload, agent="claude", root=None):
     if cmd and tool.lower() == "powershell":  # in PowerShell ` is an escape character, not a substitution
         cmd = ps_escapes(cmd)
     elif cmd and tool == "Bash":  # Claude Code's Bash tool: g\it pu\sh is git push; \" is a quote character, not a quote
+        drive = windows_drive_paths(cmd)
         cmd = bash_escapes(cmd)
     if cmd:
         findings += classify_command(cmd, cwd, root)
+    if cmd and tool == "Bash" and drive != original_command:  # C:\…도 이스케이프로 깨지기 전 경로로 한 번 더(합친다)
+        findings += [f for f in classify_command(bash_escapes(drive), cwd, root) if f not in findings]
     if path:
         findings += classify_file(tool, path, cwd, root)
     if patch:
