@@ -83,6 +83,12 @@
       "ref": "feat/simplicity-v2",
       "note": "T12 디자인 2차, 사용자 위임(밤사이 승인 위임) 2026-11-20",
       "at": "2026-11-20T10:28:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#190",
+      "note": "T12 디자인 2차, 재검토 통과, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T11:11:51+09:00"
     }
   ],
   "tasks": [
@@ -280,24 +286,28 @@
       "title": "디자인 개선 2차: 리서치 우선순위 4~5(홈 상태별 우선 배치, 여행 상세 빈 시간 조건 노출·'동선·날씨 더 보기' 펼침) — 전/후 캡처, 사용자 아침 확인용",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": "feat/simplicity-v2",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2",
       "pr": "190",
       "dispatch": "ctx_1b9bd1bbcf85",
-      "note": "리뷰 수정 200946f(테스트 285) → 재검토 ctx_9512ab126125",
+      "note": "PR#190 머지 de260cd(재검토 통과). 낮음 후속: 요청 중 일차 전환 문구, PWA 음성 안내, 날씨 오류 초기화, 문서 수치. T10 출시 묶음에 포함",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#190 1차 reviewflow 수정 필요: 중간 3(홈 빈 섹션, 지도 보내기 위치 하락, 빈 시간 분기 테스트 없음)·낮음 9. 보안 0. 테스트 279·tsc 통과",
-        "at": "2026-11-20T10:39:34+09:00"
+        "summary": "PR#190 재검토 통과: 1차 중간 3 해결, 새 지적 낮음 9(요청 중 일차 전환 문구, PWA 음성 안내, 문서 수치 등) 후속. 테스트 285·tsc·토큰 통과, 변형 17/17",
+        "at": "2026-11-20T11:04:58+09:00"
       },
       "files": [
         "src/screens/HomeScreen.tsx",
         "src/screens/TripDetailScreen.tsx",
+        "src/lib/homePriority.ts",
+        "src/lib/gapAvailability.ts",
+        "src/lib/tripCare.ts",
         "src/components/WeatherAlertBanner.tsx",
+        "src/components/HomeFirstShare.tsx",
         "scripts/simplicity-v2.test.mjs"
       ]
     }
@@ -534,8 +544,24 @@
     {
       "at": "2026-11-20T10:51:48+09:00",
       "event": "작업 T12 변경: note=리뷰 수정 200946f(테스트 285) → 재검토 ctx_9512ab126125"
+    },
+    {
+      "at": "2026-11-20T11:04:58+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T11:11:51+09:00",
+      "event": "승인 기록: merge_main (PR#190)"
+    },
+    {
+      "at": "2026-11-20T11:11:55+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#190)"
+    },
+    {
+      "at": "2026-11-20T11:12:07+09:00",
+      "event": "작업 T12 변경: status=done, note=PR#190 머지 de260cd(재검토 통과). 낮음 후속: 요청 중 일차 전환 문구, PWA 음성 안내, 날씨 오류 초기화, 문서 수치. T10 출시 묶음에 포함"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T10:51:48+09:00"
+  "updated_at": "2026-11-20T11:12:07+09:00"
 }
