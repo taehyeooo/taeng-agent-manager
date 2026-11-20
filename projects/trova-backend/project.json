@@ -341,6 +341,12 @@
       "ref": "PR#494",
       "note": "T23 운영 재측정 문서만, 비밀값 검사 통과, 사용자 위임(2026-11-18) 2026-11-20",
       "at": "2026-11-20T12:32:42+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/o2-alert-path",
+      "note": "O2 경보 경로 문서, 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
+      "at": "2026-11-20T16:12:20+09:00"
     }
   ],
   "tasks": [
@@ -378,11 +384,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": null,
+      "branch": "docs/o2-alert-path",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2",
-      "pr": null,
+      "pr": "495",
       "dispatch": "ctx_bf29ad34e193",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "경보 경로 문서 PR#495. 끊김 후보 정리, 11-13 원인 미확정, 야간 종단 시험·UptimeRobot 무료 보조 제안. 리뷰 대기(병렬 한도)"
     },
     {
       "id": "O3",
@@ -1887,10 +1893,18 @@
     {
       "at": "2026-11-20T16:07:06+09:00",
       "event": "작업 O2 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2, dispatch=ctx_bf29ad34e193"
+    },
+    {
+      "at": "2026-11-20T16:12:20+09:00",
+      "event": "승인 기록: push (docs/o2-alert-path)"
+    },
+    {
+      "at": "2026-11-20T16:12:31+09:00",
+      "event": "작업 O2 변경: branch=docs/o2-alert-path, pr=495, note=경보 경로 문서 PR#495. 끊김 후보 정리, 11-13 원인 미확정, 야간 종단 시험·UptimeRobot 무료 보조 제안. 리뷰 대기(병렬 한도)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T16:07:06+09:00",
+  "updated_at": "2026-11-20T16:12:31+09:00",
   "requests": [
     {
       "gate": "push",

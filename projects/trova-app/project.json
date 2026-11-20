@@ -89,6 +89,12 @@
       "ref": "PR#190",
       "note": "T12 디자인 2차, 재검토 통과, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
       "at": "2026-11-20T11:11:51+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#149-151-152-qa-followup",
+      "note": "T5 QA 후속(테스트·문서), 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
+      "at": "2026-11-20T16:11:28+09:00"
     }
   ],
   "tasks": [
@@ -146,11 +152,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": null,
+      "branch": "fix/#149-151-152-qa-followup",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5",
-      "pr": null,
+      "pr": "191",
       "dispatch": "ctx_75e51333f04e",
-      "note": ""
+      "note": "#149 PR#183에서 수정·닫음, #151·#152 서버 PR#447~451에서 수정 확인. 테스트 288. Claude 리뷰 ctx_a940e2a79089"
     },
     {
       "id": "T6",
@@ -596,8 +602,16 @@
     {
       "at": "2026-11-20T16:10:32+09:00",
       "event": "작업 T13 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13, dispatch=ctx_17b45ab54174, note=사용자 지시(2026-11-20): 디자인 3차 Windows Codex, 색·디자인·애니메이션 꾸미기. 1단계 시안 3개 → 사용자 선택"
+    },
+    {
+      "at": "2026-11-20T16:11:28+09:00",
+      "event": "승인 기록: push (fix/#149-151-152-qa-followup)"
+    },
+    {
+      "at": "2026-11-20T16:12:31+09:00",
+      "event": "작업 T5 변경: branch=fix/#149-151-152-qa-followup, pr=191, note=#149 PR#183에서 수정·닫음, #151·#152 서버 PR#447~451에서 수정 확인. 테스트 288. Claude 리뷰 ctx_a940e2a79089"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:10:32+09:00"
+  "updated_at": "2026-11-20T16:12:31+09:00"
 }
