@@ -1007,7 +1007,7 @@ def _check_script(body, seg, cwd, root, python=False):
                     if call.startswith(("os.", "shutil.")) or call not in safe_calls and not (isinstance(node.func, ast.Attribute) and node.func.attr in safe_methods):
                         out.append(_finding("opaque", seg, confirm=True, reason="Python 호출의 부작용을 확정할 수 없음"))
             # Preserve the old safety net whenever the AST grammar is insufficient.
-            if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|\.am[/\\]", body):
+            if any(f["kind"] == "opaque" for f in out) and re.search(r"project\.json|local\.json|guard\.json|\.am[/\\]", body):
                 if writes or re.search(r"\b(shutil|os|pathlib)\b|\bopen\b", body):
                     out.append(_finding("forbidden", seg, reason="불명확한 Python 쓰기에서 상태 파일 경로 발견"))
             for path in _python_write_paths(body):
@@ -1952,7 +1952,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 break
             if not a.startswith("-"):
                 if re.search(r"am[/\\](__main__|cli)\.py$", a) and "approve" in low:
-                    out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
+                    out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))  # 스크립트 경로 형태는 auto_gates도 사람 확인
                 script = a
                 break
             i += 1
@@ -1966,8 +1966,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             out.append(_seen(f"{_word(module)}:{(margs or [''])[0]}", seg))
         ok, reason = False, "자동 허용 목록 밖 스크립트 실행기"
         if module == "am" and "approve" in margs:
-            out.append(_finding("approve", seg, reason="승인 기록은 사용자만"))
-            ok = True  # the approve finding already stops it
+            gate = _approve_gate(margs)
+            out.append(_finding("approve", seg, reason="승인 기록은 사용자만", gate=gate))
+            # without a gate the approve finding already stops it; an auto_gates approve may run, so only our own am
+            ok, reason = gate is None or (python and _own_am(cwd)), "이 매니저 레포의 am이 아닌 am 모듈 실행"
         elif body is not None:
             out.append(_seen("script", seg))
             out += _check_script(body, seg, cwd, root, python=python)
@@ -2025,8 +2027,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     # removing or moving a state file is forging it too
     if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
                 "rename-item", "rni", "truncate", "clear-content", "clc"):
-        if any(_is_state_file(a, cwd, root) for a in args if not a.startswith("-")):
-            out.append(_finding("forbidden", seg, reason="상태 파일을 am 없이 지우거나 옮김(승인 위조 위험)"))
+        if any(_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args if not a.startswith("-")):
+            out.append(_finding("forbidden", seg, reason="상태 파일·사용자 설정(config/guard.json)을 am 없이 지우거나 옮김(승인 위조 위험)"))
 
     # deletes: recursive, or wildcard — single explicit files stay recoverable through git
     if word in ("rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink"):
@@ -2109,6 +2111,24 @@ def _cmd_variables(text, seg):
     return out
 
 
+def _approve_gate(margs):
+    """`am approve [--ref R] [--note N] <slug> <gate>` → gate; None for any other shape (then a person decides)."""
+    if not margs or margs[0] != "approve":
+        return None
+    pos, i = [], 1
+    while i < len(margs):
+        a = margs[i]
+        if a in ("--ref", "--note") and i + 1 < len(margs):
+            i += 2
+            continue
+        if not a.startswith(("--ref=", "--note=")):
+            if a.startswith("-"):
+                return None
+            pos.append(a)
+        i += 1
+    return pos[1] if len(pos) == 2 and pos[1] in S.GATES else None
+
+
 def _own_am(cwd):
     """python -m am runs ./am: allowed only when that is this manager's own package (the guard's code)."""
     return _norm(Path(cwd) / "am") == _norm(Path(S.__file__).resolve().parent)
@@ -2155,6 +2175,7 @@ def _analyze_find(args, seg, cwd, root, depth, trusted):
 
 
 def _is_state_file(path, cwd, root=None):
+    """projects/*/project.json, .am/ and the user's config/guard.json (auto_gates) — written only by am or the user."""
     root = Path(root or S.ROOT)
     p = _abs(path, cwd)
     top = Path(_top(cwd))
@@ -2184,6 +2205,20 @@ def _is_state_file(path, cwd, root=None):
             return False
     return _under(p, root) and (p.name.lower() == "project.json" and _under(p, root / "projects") or _under(p, root / ".am")) \
         or re.search(r"(^|[/\\])projects[/\\][^/\\]+[/\\]project\.json$|(^|[/\\])\.am[/\\]", str(p), re.I) is not None
+
+
+def _holds_state_file(path, cwd, root=None):
+    """A folder (or wildcard) whose removal takes a state file with it: rm -rf config, rm -rf projects/app, rm config/*."""
+    root = Path(root or S.ROOT)
+    wild = re.search(r"[*?\[]", path)
+    if wild:  # config/gu* → config, * → the current folder
+        path = path[:wild.start()]
+        path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
+    p = _abs(path or ".", cwd)
+    if any(_under(x, p) for x in (S.guard_config_file(root), root / ".am", root / "projects")):
+        return True
+    projects = root / "projects"
+    return _under(p, projects) and len(Path(_rel(p, projects)).parts) == 1  # projects/<slug>
 
 
 def _rewrites_refs(sub, sargs, gargs):
@@ -2854,7 +2889,7 @@ TRIPWIRES = [
      ("cmd:vercel", "cmd:netlify", "cmd:firebase", "cmd:wrangler", "cmd:railway", "cmd:flyctl", "cmd:kubectl", "cmd:eas")),
     (r"(environ|printenv|process\.env)", ("script", "cmd:printenv")),
     (r"auth\s+token", ("gh:auth.token",)),
-    (r"(project\.json|local\.json)", ("cmd:", "git:")),
+    (r"(project\.json|local\.json|guard\.json)", ("cmd:", "git:")),
     (r"(no-verify|hookspath)", ("git:",)),
     (r"(drop\s+(table|database)|truncate\s+table|migrate\s+(reset|deploy)|db\s+(push|reset))",
      ("cmd:psql", "cmd:mysql", "cmd:sqlite3", "cmd:sqlcmd", "cmd:supabase", "cmd:prisma")),
@@ -2884,8 +2919,8 @@ def tripwire(cmd, found):
     """Per command segment: a risky word in a segment that no parser explained → opaque.
     A segment is explained by a parser's tag (git:…, gh:…, known, build, script, shell-parsed) or a gate — then its
     remaining words are data (git log --grep push, rg merge, echo push). A bare "cmd:<word>" tag explains nothing."""
-    if any(f["kind"] in ("forbidden", "opaque", "approve") for f in found):
-        return []  # already stopped
+    if any(f["kind"] in ("forbidden", "opaque") or f["kind"] == "approve" and not f.get("gate") for f in found):
+        return []  # already stopped (an approve with a gate may pass under auto_gates, so the rest is still checked)
     tags = {}
     for f in found:
         if f["kind"] == "seen" and not f["tag"].startswith("cmd:"):
@@ -3190,11 +3225,14 @@ def decide(payload, agent="claude", root=None):
     if forb:
         return "deny", "[am guard] 금지된 작업 — 승인으로도 풀 수 없습니다\n" + "\n".join(f"- {f['reason']}: {f['seg']}" for f in forb)
 
-    if any(f["kind"] == "approve" for f in findings):
+    # auto_gates (config/guard.json, 사용자만 고침): 이 승인 항목은 묻지 않고 진행하고 기록만 남긴다
+    auto, _warnings = S.auto_gates(root)
+    if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):
         msg = "[am guard] 승인 기록은 사용자가 직접 확인해야 합니다. 사용자가 이 대화에서 명시적으로 승인한 게 맞을 때만 허용하세요."
         if agent == "codex":
             return "deny", msg + "\n사용자에게 이 명령을 직접 실행해 달라고 요청하세요: " + (cmd or "")
         return "ask", msg
+    findings = [f for f in findings if f["kind"] != "approve"]  # 남은 승인 기록은 모두 auto_gates 항목
 
     opaque = [f for f in findings if f["kind"] == "opaque"]
     missing, granted = [], []
@@ -3210,6 +3248,12 @@ def decide(payload, agent="claude", root=None):
                 slug, p = owner  # 예정이 없으면 지금 작업 폴더 프로젝트 기준 그대로 → 차단 + 승인 요청
         f["slug"] = slug
         (granted if p and S.has_approval(p, f["gate"], f.get("ref")) else missing).append(f)
+    # 관리 중인 프로젝트에만 기록할 수 있다 — 관리 대상이 아닌 저장소는 auto_gates여도 지금처럼 사람이 판단
+    automatic = [f for f in missing if f["slug"] and f["gate"] in auto]
+    missing = [f for f in missing if f not in automatic]
+    if not missing:  # 묻는 작업이 하나라도 섞이면 자동 작업도 실행하지 않으므로 기록하지 않는다
+        for f in automatic:
+            S.auto_approve(projects[f["slug"]], f["gate"], f.get("ref"))
     for f in granted:
         S.event(projects[f["slug"]], f"승인된 작업 실행: {f['gate']}" + (f"({f['ref']})" if f.get("ref") else ""))
     if not missing:

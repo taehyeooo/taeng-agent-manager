@@ -56,21 +56,33 @@ def cmd_status(a):
     w = S.routing_warning(p, a.root)
     if w:
         print(f"⚠ {w}")
+    auto, warnings = S.auto_gates(a.root)
+    if auto:
+        print("묻지 않고 진행(auto_gates): " + ", ".join(g for g in S.GATES if g in auto))
+    for w in warnings:
+        print(f"⚠ {w}")
     print("다음:", S.next_action(p).replace("<slug>", p["slug"]))
 
 
 def cmd_phase(a):
     p = _p(a)
-    S.set_phase(p, a.phase)
+    S.set_phase(p, a.phase, a.root)
     S.save(p, a.root)
     print(f"{p['slug']}: phase={p['phase']}")
 
 
 def cmd_approve(a):
     p = _p(a)
-    S.approve(p, a.gate, a.ref, a.note)
+    auto, warnings = S.auto_gates(a.root)
+    for w in warnings:
+        print("경고: " + w, file=sys.stderr)
+    # auto_gates에 있는 항목은 가드가 확인 창 없이 이 명령을 통과시킨다 — 사용자 확인 없는 기록이므로 auto로 남겨
+    # 사용자가 설정에서 빼면 더 이상 승인으로 치지 않는다
+    is_auto = a.gate in auto
+    note = f"{a.note} ({S.AUTO_NOTE})".strip() if is_auto else a.note
+    S.approve(p, a.gate, a.ref, note, auto=is_auto)
     S.save(p, a.root)
-    print(f"승인 기록: {a.gate}" + (f" ({a.ref})" if a.ref else ""))
+    print(f"승인 기록: {a.gate}" + (f" ({a.ref})" if a.ref else "") + (" — auto_gates" if is_auto else ""))
 
 
 def cmd_require(a):

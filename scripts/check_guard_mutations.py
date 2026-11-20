@@ -96,6 +96,22 @@ def main():
         ("sibling explanation", 'if blockers:', 'if False:', 'test_t4_sibling_message'),
         ("stdin output tools", 'STDIN_ARGS_SAFE = READ_ONLY - {"sort", "uniq", "tree", "rg", "diff", "date", "file"}',
          'STDIN_ARGS_SAFE = READ_ONLY', 'test_t4_hooks_and_unknown_outputs'),
+        # T10 auto_gates — "Class.test" runs a test outside BuildAllowlistTest
+        ("auto_gates approve list", 'if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):',
+         'if any(f["kind"] == "approve" and False for f in findings):',
+         "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        ("auto_gates approve own am", 'ok, reason = gate is None or (python and _own_am(cwd)), ',
+         'ok, reason = True, ', "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        ("auto_gates approve options", "            if a.startswith(\"-\"):\n                return None\n            pos.append(a)",
+         "            pos.append(a)", "AutoGatesTest.test_am_approve_for_listed_gate_needs_no_prompt"),
+        ("auto_gates gate list", 'automatic = [f for f in missing if f["slug"] and f["gate"] in auto]',
+         'automatic = [f for f in missing if f["slug"]]', "AutoGatesTest.test_unlisted_deploy_still_blocked"),
+        ("auto_gates mixed commands", "    if not missing:  # 묻는 작업이", "    if True:  # 묻는 작업이",
+         "AutoGatesTest.test_unlisted_deploy_still_blocked"),
+        ("guard.json is a state file", "\n                                or _norm(p) == _norm(S.guard_config_file(root))) \\",
+         ") \\", "AutoGatesTest.test_agents_cannot_change_the_setting"),
+        ("folders holding state files", "_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args",
+         "_is_state_file(a, cwd, root) for a in args", "AutoGatesTest.test_agents_cannot_change_the_setting"),
     ]
     killed = 0
     for label, old, new, test in mutations:
@@ -103,8 +119,9 @@ def main():
             raise RuntimeError("Mutation anchor changed: " + label)
         try:
             exec(compile(source.replace(old, new), str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
+            cls, _, name = test.rpartition(".")
             result = unittest.TextTestRunner(stream=io.StringIO()).run(
-                unittest.TestSuite([cases.BuildAllowlistTest(test)]))
+                unittest.TestSuite([getattr(cases, cls or "BuildAllowlistTest")(name)]))
             caught = bool(result.failures) and not result.errors
             killed += caught
             print(label + (": killed" if caught else ": SURVIVED/ERROR"), flush=True)

@@ -2364,5 +2364,156 @@ class LowRiskCodeMisuseCases(GuardTest):
                     self.assertNotEqual(decision, "allow")
 
 
+class AutoGatesTest(GuardTest):
+    """config/guard.json "auto_gates" (사용자 지시 2026-11-20: 운영 배포·비용 빼고 묻지 말고 진행, 기록은 남김)."""
+    ALL_BUT_DEPLOY = ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission",
+                      "architecture_policy", "repo_create", "spec"]
+
+    def config(self, value, raw=None):
+        f = Path(self.root) / "config" / "guard.json"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(raw if raw is not None else json.dumps(value), encoding="utf-8")
+
+    def project(self):
+        return S.load("app", self.root)
+
+    def test_default_without_file_or_key_or_with_empty_list_still_asks(self):
+        self.assertEqual(S.auto_gates(self.root), (set(), []))
+        self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+        for value in ({}, {"auto_gates": []}):
+            with self.subTest(value=value):
+                self.config(value)
+                self.assertEqual(S.auto_gates(self.root), (set(), []))
+                self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+                self.assertEqual(self.bash("python -m am approve app push")[0], "ask")
+                self.assertEqual(self.bash("python -m am approve app push", agent="codex")[0], "deny")
+
+    def test_unknown_names_and_bad_files_are_ignored_with_a_warning(self):
+        self.config({"auto_gates": ["nope", "push", 3]})
+        gates, warnings = S.auto_gates(self.root)
+        self.assertEqual(gates, {"push"})
+        self.assertTrue(any("nope" in w for w in warnings), warnings)
+        self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
+        for value, raw in (({"auto_gates": "push"}, None), (None, "{not json"), ([1], None)):
+            with self.subTest(raw=raw, value=value):
+                self.config(value, raw)
+                gates, warnings = S.auto_gates(self.root)
+                self.assertEqual(gates, set())
+                self.assertTrue(warnings)
+                self.assertEqual(self.bash("git push origin feat/y")[0], "deny")
+
+    def test_listed_gate_runs_and_is_recorded(self):
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(self.bash("git push origin feat/x")[0], "allow")
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "allow")
+        p = self.project()
+        auto = [a for a in p["approvals"] if a["gate"] == "push"]
+        self.assertEqual(len(auto), 1, auto)  # 같은 대상은 한 번만 기록
+        self.assertEqual((auto[0]["ref"], auto[0]["note"], auto[0].get("auto")), ("feat/x", S.AUTO_NOTE, True))
+        events = [h["event"] for h in p["history"]]
+        self.assertEqual(events.count("자동 승인 실행: push(feat/x)"), 2, events)
+        self.assertFalse(p.get("requests"))
+        # 설정에서 빼면 자동 기록은 더 이상 승인이 아니다
+        self.config({"auto_gates": []})
+        self.assertEqual(self.bash("git push origin feat/x")[0], "deny")
+
+    def test_unlisted_deploy_still_blocked(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        d, msg = self.bash("vercel --prod")
+        self.assertEqual(d, "deny")
+        self.assertIn("deploy", msg)
+        self.assertEqual(self.bash("vercel --prod", agent="codex")[0], "deny")
+        # 하나라도 묻는 작업이 섞이면 자동 작업도 실행·기록하지 않는다
+        self.assertEqual(self.bash("git push origin feat/x && vercel --prod")[0], "deny")
+        self.assertFalse(any(a["gate"] == "push" for a in self.project()["approvals"]))
+        for cmd, gate in (("rm -rf src", "destructive_delete"), ("cat .env", "credentials"),
+                          ("gh pr merge 3 --squash", "merge_main"), ("git push origin --delete feat/old", "destructive_delete")):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "allow", cmd)
+                self.assertTrue(any(a["gate"] == gate and a.get("auto") for a in self.project()["approvals"]), gate)
+        # 승인 항목이 자동이어도 "무엇이 실행될지 모르는" 부분은 따로 사람이 본다(auto_gates와 무관)
+        d, msg = self.bash("npx prisma migrate reset")
+        self.assertEqual(d, "ask")
+        self.assertNotIn("db_change", msg)
+
+    def test_forbidden_stays_forbidden(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY + ["deploy", "paid_service"]})
+        for cmd in ("git push --force origin main", "git commit --no-verify -m x", "gh auth token",
+                    "claude --dangerously-skip-permissions", "printenv",
+                    f"echo x > {Path(self.root) / 'projects/app/project.json'}"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.bash(cmd)[0], "deny", cmd)
+        self.assertEqual(self.tool("Write", Path(self.root) / "projects/app/project.json")[0], "deny")
+
+    def test_agents_cannot_change_the_setting(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        root = Path(self.root)
+        cfg = root / "config" / "guard.json"
+        for tool in ("Write", "Edit", "MultiEdit"):
+            fs = G.classify_file(tool, cfg, root, root)
+            self.assertEqual([f["kind"] for f in fs], ["forbidden"], (tool, fs))
+        for cmd in ("echo '{}' > config/guard.json", "rm config/guard.json", "mv config/guard.json /tmp/x",
+                    "rm -rf config", "rm -rf projects", "rm -rf projects/app", "rm -rf config/*", "rm -rf .am",
+                    "cp /tmp/x config/guard.json", "sed -i s/a/b/ config/guard.json", "tee config/guard.json",
+                    "python -c \"open('config/guard.json','w').write('{}')\""):
+            with self.subTest(cmd=cmd):
+                fs = G.classify_command(cmd, str(root), str(root))
+                self.assertTrue(any(f["kind"] == "forbidden" for f in fs), (cmd, fs))
+        self.assertFalse(any(f["kind"] == "forbidden" for f in G.classify_command("cat config/guard.json", str(root), str(root))))
+        self.assertFalse(any(f["kind"] == "forbidden" for f in G.classify_command("rm -rf src", str(root), str(root))))
+
+    def test_am_approve_for_listed_gate_needs_no_prompt(self):
+        self.config({"auto_gates": self.ALL_BUT_DEPLOY})
+        mgr = S.ROOT  # python -m am은 이 매니저 레포의 am일 때만 (작업 폴더의 가짜 am 패키지는 안 됨)
+        for agent in ("claude", "codex"):
+            with self.subTest(agent=agent):
+                for cmd in ("python -m am approve app merge_main --ref PR#3 --note x",
+                            "python -m am approve --ref PR#3 app merge_main", "python3 -m am approve app push --ref=feat/x"):
+                    self.assertEqual(self.bash(cmd, cwd=mgr, agent=agent)[0], "allow", cmd)
+                for cmd in ("python -m am approve app deploy", "python -m am approve app paid_service",
+                            "python -m am approve app push && python -m am approve app deploy",
+                            "python -m am approve --weird app push", "python -m am approve app",
+                            "python -m am approve app push extra", "python -m am --root /tmp/x approve app push",
+                            "python am/cli.py approve app push"):
+                    self.assertEqual(self.bash(cmd, cwd=mgr, agent=agent)[0], "deny" if agent == "codex" else "ask", cmd)
+                self.assertEqual(self.bash("python -m am approve app push", agent=agent)[0],
+                                 "deny" if agent == "codex" else "ask")  # 작업 폴더(app)의 am
+        # 승인 명령에 다른 위험 명령을 붙여도 그 부분은 따로 검사한다
+        self.assertEqual(self.bash("python -m am approve app push; git push --force origin main", cwd=mgr)[0], "deny")
+        self.assertEqual(self.bash("python -m am approve app push; vercel --prod", cwd=mgr, agent="codex")[0], "deny")
+
+    def test_am_approve_cli_marks_auto_recorded_approvals(self):
+        self.config({"auto_gates": ["push"]})
+        with contextlib.redirect_stdout(io.StringIO()):
+            cli.main(["--root", self.root, "approve", "app", "push", "--ref", "feat/z"])
+            cli.main(["--root", self.root, "approve", "app", "deploy"])
+        p = self.project()
+        push = next(a for a in p["approvals"] if a["gate"] == "push")
+        deploy = next(a for a in p["approvals"] if a["gate"] == "deploy")
+        self.assertTrue(push.get("auto"))
+        self.assertIn(S.AUTO_NOTE, push["note"])
+        self.assertFalse(deploy.get("auto"))
+        self.config({})
+        self.assertFalse(S.has_approval(self.project(), "push", "feat/z"))
+        self.assertTrue(S.has_approval(self.project(), "deploy"))
+
+    def test_task_done_and_phases_use_auto_merge_and_spec(self):
+        p = self.project()
+        S.add_task(p, "API", "codex")
+        S.verify_task(p, "T1", "claude:reviewflow", "pass", "pass", "pass", root=self.root)
+        S.update_task(p, "T1", root=self.root, status="review", pr="7")
+        with self.assertRaises(S.StateError):
+            S.update_task(p, "T1", root=self.root, status="done")
+        with self.assertRaises(S.StateError):
+            S.set_phase(p, "spec_ready", self.root)
+        self.config({"auto_gates": ["merge_main", "spec"]})
+        S.update_task(p, "T1", root=self.root, status="done")
+        merge = [a for a in p["approvals"] if a["gate"] == "merge_main"]
+        self.assertEqual([(a["ref"], a.get("auto"), a["note"]) for a in merge], [("PR#7", True, S.AUTO_NOTE)])
+        self.assertIn("자동 승인 실행: merge_main(PR#7)", [h["event"] for h in p["history"]])
+        S.set_phase(p, "spec_ready", self.root)
+        self.assertEqual(p["phase"], "spec_ready")
+
+
 if __name__ == "__main__":
     unittest.main()

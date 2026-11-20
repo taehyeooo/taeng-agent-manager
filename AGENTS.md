@@ -65,7 +65,15 @@
 |---|---|
 | **자동 진행** | 코드 읽기·분석, 승인된 작업 범위 안 코드 수정, 격리된 워크트리에서 개발, 테스트·린트·빌드, 코드 리뷰·오류 수정, 로컬 커밋 |
 | **사용자 승인** (gate) | `repo_create` 레포 생성·공개 설정 · `push` 원격 push · `merge_main` main 병합 · `deploy` 배포 · `destructive_delete` 파괴적 삭제 · `db_change` 운영 DB 변경 · `credentials` 인증정보 접근 · `system_permission` 시스템 권한·전역 설치 · `paid_service` 유료 서비스 · `architecture_policy` 주요 아키텍처·서비스 정책 변경(ADR) · `spec` 요구사항 확정 |
-| **금지** (승인으로도 불가) | 승인 우회 옵션(`--dangerously-skip-permissions`, `--dangerously-bypass-approvals-and-sandbox`, `--yolo`, `--no-verify`, main 강제 push), 인증정보 노출(`gh auth token`, 비밀값 출력), 관련 없는 프로젝트 무단 수정, 상태 파일 직접 수정, 검증 단계 의도적 생략 |
+| **자동 승인** (`auto_gates`, 선택) | 사용자가 `config/guard.json`의 `"auto_gates"`에 적은 gate는 묻지 않고 진행하고, `project.json`에 자동 승인(`auto: true`, note "auto_gates 사용자 설정")과 "자동 승인 실행: <gate>(<ref>)" 이벤트를 남긴다. 파일·키가 없거나 빈 목록이면 전부 묻는다(기본). 알 수 없는 이름은 무시하고 경고(`am status <slug>`에 표시, 적용 중인 목록도 함께). 목록에서 빼면 자동 기록 승인은 더 이상 승인으로 치지 않는다 |
+| **금지** (승인으로도 불가) | 승인 우회 옵션(`--dangerously-skip-permissions`, `--dangerously-bypass-approvals-and-sandbox`, `--yolo`, `--no-verify`, main 강제 push), 인증정보 노출(`gh auth token`, 비밀값 출력), 관련 없는 프로젝트 무단 수정, 상태 파일 직접 수정, 검증 단계 의도적 생략 — `auto_gates`와 상관없이 금지 |
+
+`config/guard.json` 예시(사용자 지시 2026-11-20 "운영 배포·비용 빼고 묻지 말고 진행" — `deploy`·`paid_service`만 계속 묻는다). 이 파일은 사용자만 직접 만든다/고친다(에이전트의 쓰기·삭제·이동은 가드가 막음):
+```json
+{"auto_gates": ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission", "architecture_policy", "repo_create", "spec"]}
+```
+- `opaque` 키와 함께 써도 된다(`{"opaque": "allow", "auto_gates": [...]}`).
+- `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다.
 
 ### 실행 시점 강제 — `am guard`
 프로젝트 레포와 이 레포의 `.claude/settings.json` PreToolUse 훅이 **도구가 실행되기 전에** `am/guard.py`를 부른다.
@@ -73,6 +81,7 @@
 - 금지 → 차단. 승인 필요 → `project.json`에 맞는 승인(`--ref`까지)이 없으면 차단하고, 승인 요청(명령·영향 범위·위험)을 기록한다.
 - 실행 내용을 미리 다 알 수 없는 명령(opaque)은 **위험 신호가 없으면 확인 창 없이 허용하고 기록**한다(사용자 지시 2026-11-18). 명령에 배포·삭제·외부 전송·비밀값 파일·승인 조작 등 위험 신호가 보이거나, 실행할 명령이 변수·동적 코드로 정해지거나 셸이 표준입력을 실행하면 Claude는 확인 창, Codex는 차단을 유지한다. `config/guard.json`의 `"opaque": "ask"`로 예전 확인 방식으로 되돌릴 수 있다(파일이 없으면 `allow`). 금지·미승인 작업·승인 기록·파일 편집 검사는 그대로다. 이 설정 파일은 에이전트가 수정·삭제할 수 없고 사용자만 직접 바꾼다.
 - `am approve`는 에이전트가 스스로 기록할 수 없다 — Claude는 권한 창에서 사용자가 직접 확인, Codex는 차단(사용자가 `! python -m am approve ...`).
+  예외: `auto_gates`에 있는 gate는 승인 관문이 차단·확인 대신 허용되고(자동 승인 기록을 남김), 그 gate의 `python -m am approve`(이 매니저 레포의 am)도 확인 창 없이 기록된다(`auto` 표시). 목록에 없는 gate(예: `deploy`·`paid_service`)는 지금처럼 사용자 확인. 금지 항목과 그 밖의 위험 신호 검사는 그대로다.
 - 매니저 세션이 지금 작업 폴더 밖(다른 프로젝트 레포) 파일을 고치면 차단 → 매니저는 위임만 한다.
 - 훅이 막으면 우회하지 말고, 메시지의 승인 요청을 그대로 사용자에게 보여 준다.
 - **위협 모델**: 가드는 협조적인 에이전트의 실수를 막는 장치다. 인터프리터 밖에서 문자열을 일부러 쪼개 위험 단어를 숨기는 적대적 우회까지 막지는 못한다(그 뒤에는 Claude Code 자체 권한 검사가 있다). 대신 코드 실행 지점 — 인터프리터 코드 문자열(`python -c`·`node -e`·`php -r`·`pwsh -c` 등), 셸·인터프리터의 표준입력 프로그램, `eval`, 명령 실행 옵션(`sed e`, `git -c alias.*='!…'`, `rebase --exec` 등) — 은 내용과 상관없이 확인한다(Claude 확인 창, Codex 차단).

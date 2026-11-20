@@ -103,15 +103,70 @@ def _ref_covers(approved, ref, gate):
 def has_approval(p, gate, ref=None):
     """An approval without ref covers every instance of the gate; one with ref covers only that ref.
     An action whose target is unknown (ref=None) needs a ref-less (blanket) approval.
-    ref "work-branches" (push only) covers every branch except main/master — never API changes or unknown targets."""
-    return any(a["gate"] == gate and _ref_covers(a.get("ref"), ref, gate) for a in p["approvals"])
+    ref "work-branches" (push only) covers every branch except main/master — never API changes or unknown targets.
+    Approvals recorded under auto_gates ("auto": true) are only a log: while the gate is listed it passes anyway
+    (allow_gate), and once the user takes it out of config/guard.json they must not keep approving it."""
+    return any(a["gate"] == gate and not a.get("auto") and _ref_covers(a.get("ref"), ref, gate) for a in p["approvals"])
 
 
-def approve(p, gate, ref=None, note=""):
+def approve(p, gate, ref=None, note="", auto=False):
     if gate not in GATES:
         raise StateError(f"알 수 없는 승인 항목: {gate} (가능: {', '.join(GATES)})")
-    p["approvals"].append({"gate": gate, "ref": ref, "note": note, "at": now()})
-    event(p, f"승인 기록: {gate}" + (f" ({ref})" if ref else ""))
+    rec = {"gate": gate, "ref": ref, "note": note, "at": now()}
+    if auto:
+        rec["auto"] = True
+    p["approvals"].append(rec)
+    event(p, f"승인 기록: {gate}" + (f" ({ref})" if ref else "") + (" — auto_gates" if auto else ""))
+
+
+# ---- auto_gates: config/guard.json (사용자만 고친다 — 가드가 에이전트의 쓰기·삭제를 막음) ----
+# {"auto_gates": ["push", "merge_main", ...]} → 그 승인 항목은 묻지 않고 진행하고 기록만 남긴다.
+# 파일이나 키가 없으면 지금처럼 전부 묻는다. 알 수 없는 이름은 무시하고 경고한다.
+AUTO_NOTE = "auto_gates 사용자 설정"
+
+
+def guard_config_file(root=None):
+    return Path(root or ROOT) / "config" / "guard.json"
+
+
+def auto_gates(root=None):
+    """→ (set of gate names that run without asking, warnings). Anything unreadable falls back to 'ask for all'."""
+    f = guard_config_file(root)
+    if not f.exists():
+        return set(), []
+    try:
+        cfg = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return set(), [f"config/guard.json을 읽지 못해 무시합니다(전부 묻기): {type(e).__name__}"]
+    if not isinstance(cfg, dict):
+        return set(), ["config/guard.json은 JSON 객체여야 합니다 — 무시합니다(전부 묻기)"]
+    names = cfg.get("auto_gates", [])
+    if not isinstance(names, list):
+        return set(), ["config/guard.json의 auto_gates는 목록이어야 합니다 — 무시합니다(전부 묻기)"]
+    gates, warnings = set(), []
+    for n in names:
+        if isinstance(n, str) and n in GATES:
+            gates.add(n)
+        else:
+            warnings.append(f"config/guard.json auto_gates의 알 수 없는 이름 무시: {n!r} (가능: {', '.join(GATES)})")
+    return gates, warnings
+
+
+def auto_approve(p, gate, ref=None):
+    """Record that a gated action ran without asking because the user listed the gate in auto_gates."""
+    if not any(a["gate"] == gate and a.get("auto") and a.get("ref") == ref for a in p["approvals"]):
+        p["approvals"].append({"gate": gate, "ref": ref, "note": AUTO_NOTE, "at": now(), "auto": True})
+    event(p, f"자동 승인 실행: {gate}" + (f"({ref})" if ref else ""))
+
+
+def allow_gate(p, gate, ref=None, root=None):
+    """has_approval, or the gate is in auto_gates (then the automatic approval is recorded)."""
+    if has_approval(p, gate, ref):
+        return True
+    if gate in auto_gates(root)[0]:
+        auto_approve(p, gate, ref)
+        return True
+    return False
 
 
 def add_request(p, gate, ref=None, cmd="", impact="", risk="", project_scope=""):
@@ -127,16 +182,16 @@ def pending_requests(p):
     return [r for r in p.get("requests", []) if not has_approval(p, r["gate"], r.get("ref"))]
 
 
-def set_phase(p, phase):
+def set_phase(p, phase, root=None):
     if phase not in PHASES:
         raise StateError(f"알 수 없는 단계: {phase} (가능: {', '.join(PHASES)})")
     gate = PHASE_GATES.get(phase)
     # repo_create는 저장소 이름 단위로 승인한다 — 이 프로젝트의 저장소 이름으로 찾는다
     ref = (p.get("repo") or "").lower() or None if gate == "repo_create" else None
-    if gate and not has_approval(p, gate, ref):
-        raise StateError(f"'{phase}'로 가려면 먼저 사용자 승인 '{gate}'({GATES[gate]})이 기록돼야 합니다: am approve {p['slug']} {gate}")
     if phase == "repo_ready" and not p.get("repo"):
         raise StateError("repo_ready 전에 am set <slug> --repo owner/name 으로 레포를 기록하세요")
+    if gate and not allow_gate(p, gate, ref, root):
+        raise StateError(f"'{phase}'로 가려면 먼저 사용자 승인 '{gate}'({GATES[gate]})이 기록돼야 합니다: am approve {p['slug']} {gate}")
     old = p["phase"]
     p["phase"] = phase
     event(p, f"단계 {old} → {phase}")
@@ -178,7 +233,7 @@ def check_task_invariants(p, t, root=None):
     if st == "done":
         if not t.get("pr"):
             raise StateError(f"{t['id']}: PR 번호가 기록돼야 done으로 갈 수 있습니다 (am task set --pr <번호>)")
-        if not has_approval(p, "merge_main", pr_ref(t["pr"])):
+        if not allow_gate(p, "merge_main", pr_ref(t["pr"]), root):
             raise StateError(f"{t['id']}: {pr_ref(t['pr'])} main 병합 승인이 기록되지 않았습니다")
 
 
