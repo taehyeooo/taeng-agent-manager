@@ -119,36 +119,71 @@ def approve(p, gate, ref=None, note="", auto=False):
     event(p, f"승인 기록: {gate}" + (f" ({ref})" if ref else "") + (" — auto_gates" if auto else ""))
 
 
-# ---- auto_gates: config/guard.json (사용자만 고친다 — 가드가 에이전트의 쓰기·삭제를 막음) ----
-# {"auto_gates": ["push", "merge_main", ...]} → 그 승인 항목은 묻지 않고 진행하고 기록만 남긴다.
-# 파일이나 키가 없으면 지금처럼 전부 묻는다. 알 수 없는 이름은 무시하고 경고한다.
+# ---- 사용자 전용 가드 설정: ~/.config/agent-manager/guard.json (레포 밖, 기기마다 사용자가 직접 만든다) ----
+# {"auto_gates": ["push", "merge_main", ...], "opaque": "allow"|"ask"}
+# auto_gates → 그 승인 항목은 묻지 않고 진행하고 기록만 남긴다. 파일·키가 없으면 지금처럼 전부 묻는다.
+# 레포 밖에 두는 이유: 레포 안 파일은 git reset·checkout·stash·merge 등 끝없는 간접 경로로 되돌릴 수 있다.
+# 레포 밖 파일은 git이 건드리지 못하고, 직접 쓰기·삭제·이동은 가드가 확인(Claude)·차단(Codex)한다.
+# 레포 안 config/guard.json은 하위 호환으로 opaque만 읽는다(auto_gates는 무시하고 경고).
 AUTO_NOTE = "auto_gates 사용자 설정"
+USER_GUARD_FILE = Path.home() / ".config" / "agent-manager" / "guard.json"  # 테스트는 이 값을 임시 경로로 바꾼다
+USER_GUARD_LABEL = "~/.config/agent-manager/guard.json"
 
 
 def guard_config_file(root=None):
+    """레포 안 config/guard.json (하위 호환: opaque만)."""
     return Path(root or ROOT) / "config" / "guard.json"
 
 
-def auto_gates(root=None):
-    """→ (set of gate names that run without asking, warnings). Anything unreadable falls back to 'ask for all'."""
-    f = guard_config_file(root)
+def user_guard_file():
+    return Path(USER_GUARD_FILE)
+
+
+def _read_config(f, label):
+    """→ (dict or None, warnings). None when the file is missing or unusable."""
     if not f.exists():
-        return set(), []
+        return None, []
     try:
         cfg = json.loads(f.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
-        return set(), [f"config/guard.json을 읽지 못해 무시합니다(전부 묻기): {type(e).__name__}"]
+        return None, [f"{label}을 읽지 못해 무시합니다(전부 묻기): {type(e).__name__}"]
     if not isinstance(cfg, dict):
-        return set(), ["config/guard.json은 JSON 객체여야 합니다 — 무시합니다(전부 묻기)"]
+        return None, [f"{label}은 JSON 객체여야 합니다 — 무시합니다(전부 묻기)"]
+    return cfg, []
+
+
+def guard_setting(key, root=None):
+    """사용자 설정(레포 밖)을 먼저, 없으면 레포 안 config/guard.json(하위 호환). auto_gates는 쓰지 않는다.
+    → (value or None, broken) — broken: 값을 찾을 파일이 있었지만 읽지 못함."""
+    for f, label in ((user_guard_file(), USER_GUARD_LABEL), (guard_config_file(root), "config/guard.json")):
+        cfg, warnings = _read_config(f, label)
+        if warnings:
+            return None, True
+        if cfg is not None and key in cfg:
+            return cfg[key], False
+    return None, False
+
+
+def auto_gates(root=None):
+    """→ (set of gate names that run without asking, warnings). Only the user's file outside the repo counts;
+    anything unreadable falls back to 'ask for all'."""
+    warnings = []
+    repo_cfg, _ = _read_config(guard_config_file(root), "config/guard.json")
+    if repo_cfg is not None and "auto_gates" in repo_cfg:
+        warnings.append(f"config/guard.json(레포 안)의 auto_gates는 무시합니다 — {USER_GUARD_LABEL}에 두세요")
+    cfg, bad = _read_config(user_guard_file(), USER_GUARD_LABEL)
+    warnings += bad
+    if cfg is None:
+        return set(), warnings
     names = cfg.get("auto_gates", [])
     if not isinstance(names, list):
-        return set(), ["config/guard.json의 auto_gates는 목록이어야 합니다 — 무시합니다(전부 묻기)"]
-    gates, warnings = set(), []
+        return set(), warnings + [f"{USER_GUARD_LABEL}의 auto_gates는 목록이어야 합니다 — 무시합니다(전부 묻기)"]
+    gates = set()
     for n in names:
         if isinstance(n, str) and n in GATES:
             gates.add(n)
         else:
-            warnings.append(f"config/guard.json auto_gates의 알 수 없는 이름 무시: {n!r} (가능: {', '.join(GATES)})")
+            warnings.append(f"{USER_GUARD_LABEL} auto_gates의 알 수 없는 이름 무시: {n!r} (가능: {', '.join(GATES)})")
     return gates, warnings
 
 

@@ -16,6 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from am import cli, guard as G, report, state as S  # noqa: E402
 
+# 이 기기의 실제 사용자 설정(~/.config/agent-manager/guard.json)이 결과를 바꾸지 않게 — 테스트마다 따로(GuardTest.setUp)
+_NO_USER_GUARD = Path(tempfile.mkdtemp()) / "agent-manager" / "guard.json"
+S.USER_GUARD_FILE = _NO_USER_GUARD
+
 
 def git(cwd, *args):
     subprocess.run(["git", "-C", str(cwd), *args], check=True, capture_output=True)
@@ -58,6 +62,9 @@ class GuardTest(unittest.TestCase):
             type(self).build(Path(_FIXTURES[key].name))
         for name in ("app", "other"):
             shutil.copytree(Path(_FIXTURES[key].name) / name, base / name, symlinks=True)
+        # 사용자 전용 설정(레포 밖)은 테스트마다 임시 home 아래 — 실제 ~/.config는 건드리지 않는다
+        self.home = base / "home"
+        S.USER_GUARD_FILE = self.home / ".config" / "agent-manager" / "guard.json"
         # 기존 회귀 검사는 ask 스위치에서도 예전 보호 동작이 유지되는지 확인한다.
         config = Path(self.root) / "config"
         config.mkdir(parents=True)
@@ -68,6 +75,7 @@ class GuardTest(unittest.TestCase):
         S.save_local(cfg, self.root)
 
     def tearDown(self):
+        S.USER_GUARD_FILE = _NO_USER_GUARD
         self.tmp.cleanup()
 
     def bash(self, cmd, cwd=None, agent="claude"):
@@ -839,6 +847,19 @@ class BuildAllowlistTest(GuardTest):
             self._not_allowed(cmd)
         # 인터프리터는 추적·미수정 스크립트 파일 실행만 기존 판정 — 파일 인수 없는 heredoc 프로그램은 확인
         self.assertEqual(self.bash("python - <<'EOF'\nprint(1)\nEOF\npython - <<'EOF'\nprint(2)\nEOF")[0], "ask")
+
+    def test_heredoc_to_a_clean_tracked_script_is_not_a_stdin_program(self):
+        # 깨끗한 작업 폴더의 추적·미수정 스크립트 단독 실행은 허용(build). 그런데 `python scripts/check.py <<EOF`는
+        # 본문이 프로그램인 형태(`python -`·`python`·`py -3 -`·`node`)가 아니다 — 본문을 Python으로 검사해 통과시키면
+        # 안 되고, 무엇을 읽어 무엇을 할지 모르는 heredoc 입력으로 사람이 본다(Claude 확인, Codex 차단).
+        self.assertEqual(self.bash("python scripts/check.py")[0], "allow")
+        for body in ("print(1)", "pass"):
+            command = f"python scripts/check.py <<'EOF'\n{body}\nEOF"
+            with self.subTest(body=body):
+                self.assertEqual(self.bash(command)[0], "ask")
+                self.assertEqual(self.bash(command, agent="codex")[0], "deny")
+        # 본문이 프로그램인 형태는 본문을 읽어 판단한다
+        self.assertEqual(self.bash("python - <<'EOF'\nopen('projects/app/project.json','w')\nEOF", cwd=self.root)[0], "deny")
     def test_reverify_b_baseline_ref_commands_need_a_person(self):
         for cmd in ("git update-ref refs/remotes/origin/main HEAD",
                     "git update-ref -m 'fetch origin: fast-forward' refs/remotes/origin/main HEAD",
@@ -2373,12 +2394,13 @@ class LowRiskCodeMisuseCases(GuardTest):
 
 
 class AutoGatesTest(GuardTest):
-    """config/guard.json "auto_gates" (사용자 지시 2026-11-20: 운영 배포·비용 빼고 묻지 말고 진행, 기록은 남김)."""
+    """~/.config/agent-manager/guard.json "auto_gates" (사용자 지시 2026-11-20: 운영 배포·비용 빼고 묻지 말고 진행,
+    기록은 남김). 레포 밖 파일만 인정 — git 명령으로는 바뀔 수 없다."""
     ALL_BUT_DEPLOY = ["push", "merge_main", "destructive_delete", "db_change", "credentials", "system_permission",
                       "architecture_policy", "repo_create", "spec"]
 
     def config(self, value, raw=None):
-        f = Path(self.root) / "config" / "guard.json"
+        f = S.user_guard_file()
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text(raw if raw is not None else json.dumps(value), encoding="utf-8")
 
@@ -2452,6 +2474,67 @@ class AutoGatesTest(GuardTest):
             with self.subTest(cmd=cmd):
                 self.assertEqual(self.bash(cmd)[0], "deny", cmd)
         self.assertEqual(self.tool("Write", Path(self.root) / "projects/app/project.json")[0], "deny")
+
+    def test_auto_gates_only_from_the_file_outside_the_repo(self):
+        # 레포 안 config/guard.json의 auto_gates는 git 명령(reset·checkout·stash·merge …)으로 바뀔 수 있으므로 무시하고 경고
+        (Path(self.root) / "config/guard.json").write_text(json.dumps({"opaque": "ask", "auto_gates": ["push"]}),
+                                                          encoding="utf-8")
+        gates, warnings = S.auto_gates(self.root)
+        self.assertEqual(gates, set())
+        self.assertTrue(any("레포 안" in w for w in warnings), warnings)
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "deny")
+        self.config({"auto_gates": ["push"]})
+        self.assertEqual(S.auto_gates(self.root)[0], {"push"})
+        self.assertEqual(self.bash("git push origin feat/x", agent="codex")[0], "allow")
+
+    def test_opaque_setting_reads_the_user_file_first(self):
+        # 레포 안 opaque=ask(GuardTest 기본) → 사용자 파일에 opaque가 있으면 그것이 우선, 없으면 레포 값(하위 호환)
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+        self.config({"auto_gates": []})
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+        self.config({"opaque": "allow"})
+        self.assertEqual(G._opaque_policy(self.root), "allow")
+        self.config(None, "{broken")
+        self.assertEqual(G._opaque_policy(self.root), "ask")
+
+    def test_agents_cannot_change_the_user_file(self):
+        # 모든 승인 항목을 자동으로 해도: 레포 밖 사용자 설정의 쓰기·삭제·이동·링크는 Claude 확인, Codex 차단
+        self.config({"auto_gates": list(S.GATES)})
+        user = S.user_guard_file()
+        folder = user.parent
+        alias = Path(self.tmp.name) / "home-alias"
+        try:
+            alias.symlink_to(self.home, target_is_directory=True)
+        except OSError:  # Windows without symlink privilege — alias spellings are skipped there
+            alias = self.home
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+        with patch.dict(os.environ, env):
+            for spelled in ("~/.config/agent-manager/guard.json", str(user), str(alias / ".config/agent-manager/guard.json"),
+                            "~/.config/agent-manager/../agent-manager/guard.json", "~/.config/Agent-Manager/GUARD.json"):
+                for tool in ("Write", "Edit", "MultiEdit"):
+                    with self.subTest(tool=tool, path=spelled):
+                        self.assertEqual(self.tool(tool, spelled)[0], "ask")
+                        self.assertEqual(G.decide({"tool_name": tool, "tool_input": {"file_path": spelled},
+                                                   "cwd": str(self.app)}, "codex", self.root)[0], "deny")
+            cmds = ["echo '{}' > ~/.config/agent-manager/guard.json", f"echo x >> {user}",
+                    "cp /tmp/x ~/.config/agent-manager/guard.json", "cp /tmp/x ~/.config/agent-manager/",
+                    "mv ~/.config/agent-manager/guard.json old.json", "mv /tmp/x ~/.config/agent-manager/guard.json",
+                    "rm ~/.config/agent-manager/guard.json", "rm -f ~/.config/agent-manager/guard.json",
+                    "rm -rf ~/.config/agent-manager", "rm -rf ~/.config/agent-manager/*", "rm -rf ~/.config",
+                    "ln -sf /tmp/x ~/.config/agent-manager/guard.json", "tee ~/.config/agent-manager/guard.json",
+                    "sed -i s/a/b/ ~/.config/agent-manager/guard.json", "truncate -s 0 ~/.config/agent-manager/guard.json",
+                    f"rm {alias / '.config/agent-manager/guard.json'}"]
+            for cmd in cmds:
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+            # 그 폴더 안에서 상대 경로로
+            for cmd in ("rm guard.json", "echo '{}' > guard.json", "mv guard.json x"):
+                with self.subTest(cwd=folder, cmd=cmd):
+                    self.assertEqual(self.bash(cmd, cwd=folder, agent="codex")[0], "deny", cmd)
+            # 읽기는 그대로
+            self.assertEqual(self.bash("cat ~/.config/agent-manager/guard.json", agent="codex")[0], "allow")
+        self.assertEqual(json.loads(user.read_text(encoding="utf-8")), {"auto_gates": list(S.GATES)})
 
     def test_agents_cannot_change_the_setting(self):
         self.config({"auto_gates": self.ALL_BUT_DEPLOY})

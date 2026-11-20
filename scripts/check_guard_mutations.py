@@ -26,9 +26,11 @@ def main():
         ("heredoc body", "out += _check_script(body, head, cwd, root, python=python)",
          "out += []", "test_review_heredoc_interpreter_variants"),
         ("exact terminator", r"(?P=tag)(?:\n|$)", r"(?P=tag)[ \t]*(?:\n|$)", "test_review_heredoc_exact_terminator"),
-        # (heredoc stdin shape: removed in T10 — since #11 every interpreter run is judged by _script_run_verdict first
-        #  (a heredoc to `python evil.py`·`python -c` is confirmed whatever the body), so treating that body as the
-        #  program only adds a body check; no command became allowed in tests or by hand, i.e. an equivalent mutation)
+        # 깨끗한 추적 스크립트에 heredoc을 주는 경우(`python scripts/check.py <<EOF`)를 프로그램으로 잘못 보면 허용된다
+        ("heredoc stdin shape", 'return word in ("python", "py", "node") and args in ([], ["-"])',
+         'return word in ("python", "py", "node")', "test_heredoc_to_a_clean_tracked_script_is_not_a_stdin_program"),
+        ("user guard file", "    return target == protected or protected.startswith(target + os.sep)\n",
+         "    return False\n", "AutoGatesTest.test_agents_cannot_change_the_user_file"),
         ("baseline", "    base = _baseline(top)\n    rels = sorted(set(rels))",
          "    base = _git(top, \"rev-parse\", \"HEAD\")\n    rels = sorted(set(rels))",
          "test_review_committed_script_and_index_flags"),
@@ -121,8 +123,8 @@ def main():
          "AutoGatesTest.test_unlisted_deploy_still_blocked"),
         ("guard.json is a state file", "        if target == protected or protected.startswith(target + os.sep):\n            return True",
          "        if False:\n            return True", "AutoGatesTest.test_agents_cannot_change_the_setting"),
-        ("auto_gates protected tree", "    if protected:\n        msg = \"[am guard] 사용자 설정",
-         "    if False:\n        msg = \"[am guard] 사용자 설정",
+        ("auto_gates protected tree", "    if protected:\n        msg = \"[am guard] 상태 파일(승인 기록)",
+         "    if False:\n        msg = \"[am guard] 상태 파일(승인 기록)",
          "AutoGatesTest.test_git_rewriting_the_manager_tree_is_never_automatic"),
         ("folders holding state files", "_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args",
          "_is_state_file(a, cwd, root) for a in args", "AutoGatesTest.test_agents_cannot_change_the_setting"),

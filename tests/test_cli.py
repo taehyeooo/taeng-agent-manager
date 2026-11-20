@@ -10,6 +10,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from am import cli, state as S  # noqa: E402
 
+# 이 기기의 실제 사용자 설정(~/.config/agent-manager/guard.json, auto_gates)이 결과를 바꾸지 않게
+S.USER_GUARD_FILE = Path(tempfile.mkdtemp()) / "agent-manager" / "guard.json"
+
 
 class CliTest(unittest.TestCase):
     def setUp(self):

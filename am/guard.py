@@ -8,7 +8,8 @@ Decisions
               is the approval request (하려는 일·영향 범위·위험·명령) and is recorded for `am report`
   approve   → `am approve` is never self-served: Claude asks the user in its permission UI, Codex is blocked
   opaque    → what will run can't be known in advance (변수로 부르기, eval, 인코딩된 명령, 스크립트 안 subprocess):
-              default allow + audit, unless visible risk signals or config/guard.json opaque=ask;
+              default allow + audit, unless visible risk signals or opaque=ask in ~/.config/agent-manager/guard.json
+              (fallback: the repo's config/guard.json);
               then Claude asks the user, Codex is blocked. File tool decisions are unchanged.
   allowed   → only what is known: reading/text tools, file edits inside the worktree, git/gh (analysed), local
               commits, and the build allowlist (gradlew, npm ci/test/run <script>, tracked unchanged .py/.sh via
@@ -390,7 +391,7 @@ def _finding(kind, seg, **kw):
 
 
 def _gated(gate, seg, ref=None, where=None, what=None, repo=None, protected=False):
-    """protected: the action can rewrite config/guard.json or state files → never passes under auto_gates."""
+    """protected: the action can roll back state files (approvals) → never passes under auto_gates."""
     impact, risk = IMPACT[what or gate]
     f = _finding("gated", seg, gate=gate, ref=ref, where=where, impact=impact, risk=risk, repo=repo)
     if protected:
@@ -1055,7 +1056,8 @@ def _write_targets(word, args, seg):
         else:
             if plain:
                 targets.append(plain[0])
-    elif word in ("cp", "mv", "copy-item", "move-item", "copy", "move", "install", "rsync", "robocopy", "xcopy", "cpi", "mi") and plain:
+    elif word in ("cp", "mv", "copy-item", "move-item", "copy", "move", "install", "rsync", "robocopy", "xcopy", "cpi", "mi",
+                  "ln", "link") and plain:  # ln·link: 마지막 인수가 새로 만드는 링크
         targets.append(plain[-1])
         for i, a in enumerate(args):  # cp -t DIR src…, --target-directory=DIR
             if a in ("-t", "--target-directory") and i + 1 < len(args):
@@ -2033,6 +2035,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 "rename-item", "rni", "truncate", "clear-content", "clc"):
         if any(_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args if not a.startswith("-")):
             out.append(_finding("forbidden", seg, reason="상태 파일·사용자 설정(config/guard.json)을 am 없이 지우거나 옮김(승인 위조 위험)"))
+        if any(_is_user_config(a, cwd) for a in args if not a.startswith("-")):
+            out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
 
     # deletes: recursive, or wildcard — single explicit files stay recoverable through git
     if word in ("rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink"):
@@ -2225,9 +2229,26 @@ def _holds_state_file(path, cwd, root=None):
     return _under(p, projects) and len(Path(_rel(p, projects)).parts) == 1  # projects/<slug>
 
 
+def _is_user_config(path, cwd):
+    """~/.config/agent-manager/guard.json — the user's own guard setting outside every repo — or a folder (or
+    wildcard) that holds it. ~·절대·상대·심볼릭 링크 경로를 모두 실제 경로로 정규화하고 대소문자 무시로 비교한다."""
+    path = str(path)
+    wild = re.search(r"[*?\[]", path)
+    if wild:  # ~/.config/agent-manager/* → that folder
+        path = path[:wild.start()]
+        path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
+    target = _norm(_abs(path or ".", cwd)).casefold()
+    protected = _norm(S.user_guard_file()).casefold()
+    return target == protected or protected.startswith(target + os.sep)
+
+
+USER_CONFIG_REASON = "사용자 전용 가드 설정(~/.config/agent-manager/guard.json)을 바꾸거나 지움 — 사용자만 직접"
+
+
 def _tree_holds_state(sub, where, cwd, root=None):
-    """The git work tree a working-tree-rewriting command acts on holds config/guard.json or state files
-    (the manager repo). Such a command can revert the user's own setting, so auto_gates never covers it."""
+    """The git work tree a working-tree-rewriting command acts on holds state files (projects/*/project.json,
+    .am/ — the manager repo). Such a command can roll back approvals, so auto_gates never covers it.
+    (The user's guard setting lives outside every repo, so git cannot touch it — this is not its protection.)"""
     if sub in ("branch", "worktree", "update-ref"):
         return False  # refs·다른 작업 폴더만 지운다 — 이 작업 트리의 파일은 그대로
     top = _top(where)
@@ -2468,7 +2489,7 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
             or sub == "update-ref" and "-d" in sargs:
         out.append(_gated("destructive_delete", seg, where=where, protected=_tree_holds_state(sub, where, cwd, root)))
     elif _discards_tree(sub, sargs) and _tree_holds_state(sub, where, cwd, root):
-        # git stash·checkout -f·switch --discard-changes·reset --merge/--keep: 사용자가 고친 config/guard.json을 되돌린다
+        # git stash·checkout -f·switch --discard-changes·reset --merge/--keep: 커밋 안 한 상태 파일 변경(승인 기록)을 되돌린다
         out.append(_gated("destructive_delete", seg, where=where, protected=True))
     elif sub == "config" and any(a in ("--global", "--system") for a in sargs) and not any(
             a in ("--get", "--list", "-l", "--get-all", "--get-regexp") for a in sargs):
@@ -3017,7 +3038,10 @@ def classify_file(tool, path, cwd, root=None, via=None):
     p = _abs(path, cwd)
     label = via or f"{tool} {p}"
     if tool in WRITE_TOOLS:
-        if _is_state_file(str(p), cwd, root):
+        if _is_user_config(str(p), cwd):
+            # 레포 밖 사용자 설정 — auto_gates와 무관하게 Claude 확인 창, Codex 차단(decide의 confirm opaque)
+            out.append(_finding("opaque", label, confirm=True, reason=USER_CONFIG_REASON))
+        elif _is_state_file(str(p), cwd, root):
             out.append(_finding("forbidden", label, reason="상태 파일을 am 없이 직접 수정(승인 위조 위험)"))
         elif re.search(r"[/\\]knowledge-base[/\\]decisions[/\\](?!readme)", str(p), re.I):
             out.append(_gated("architecture_policy", label, ref=p.name))
@@ -3086,13 +3110,11 @@ OPAQUE_RISK_SIGNALS = (
 
 
 def _opaque_policy(root):
-    try:
-        config = json.loads((Path(root or S.ROOT) / "config/guard.json").read_text(encoding="utf-8"))
-        return "allow" if config.get("opaque", "allow") == "allow" else "ask"
-    except FileNotFoundError:
-        return "allow"
-    except (OSError, ValueError, AttributeError):
+    """사용자 설정(~/.config/agent-manager/guard.json) → 없으면 레포 안 config/guard.json(하위 호환) → 기본 allow."""
+    value, broken = S.guard_setting("opaque", root)
+    if broken:
         return "ask"  # 손상된 설정은 기존 확인 동작으로 되돌린다.
+    return "allow" if value in (None, "allow") else "ask"
 
 
 # 기본(allow) 모드에서 확인 없이 허용하는 opaque 사유 코드 — 여기 없는 opaque는 모두 확인(Claude 확인 창, Codex 차단)
@@ -3252,7 +3274,7 @@ def decide(payload, agent="claude", root=None):
     if forb:
         return "deny", "[am guard] 금지된 작업 — 승인으로도 풀 수 없습니다\n" + "\n".join(f"- {f['reason']}: {f['seg']}" for f in forb)
 
-    # auto_gates (config/guard.json, 사용자만 고침): 이 승인 항목은 묻지 않고 진행하고 기록만 남긴다
+    # auto_gates (레포 밖 ~/.config/agent-manager/guard.json, 사용자만 고침): 이 승인 항목은 묻지 않고 진행하고 기록만 남긴다
     auto, _warnings = S.auto_gates(root)
     if any(f["kind"] == "approve" and f.get("gate") not in auto for f in findings):
         msg = "[am guard] 승인 기록은 사용자가 직접 확인해야 합니다. 사용자가 이 대화에서 명시적으로 승인한 게 맞을 때만 허용하세요."
@@ -3261,11 +3283,12 @@ def decide(payload, agent="claude", root=None):
         return "ask", msg
     findings = [f for f in findings if f["kind"] != "approve"]  # 남은 승인 기록은 모두 auto_gates 항목
 
-    # config/guard.json·상태 파일을 담은 작업 트리(매니저 레포)를 통째로 되돌리는 git 명령(reset --hard·stash 등)은
-    # 사용자가 고친 설정을 되돌릴 수 있다 → auto_gates·예전 승인 기록과 상관없이 매번 사람이 직접 본다(Codex 차단)
+    # 상태 파일(projects/*/project.json·.am/)을 담은 작업 트리(매니저 레포)를 통째로 되돌리는 git 명령(reset --hard·stash 등)은
+    # 승인 기록을 되돌릴 수 있다 → auto_gates·예전 승인 기록과 상관없이 매번 사람이 직접 본다(Codex 차단).
+    # 사용자 가드 설정은 레포 밖(~/.config/agent-manager/guard.json)이라 git이 건드리지 못한다 — 이 분기에 기대지 않는다.
     protected = [f for f in findings if f["kind"] == "gated" and f.get("protected")]
     if protected:
-        msg = "[am guard] 사용자 설정(config/guard.json)·상태 파일까지 되돌릴 수 있는 명령입니다 — 매번 사람이 직접 확인합니다\n" + \
+        msg = "[am guard] 상태 파일(승인 기록)까지 되돌릴 수 있는 명령입니다 — 매번 사람이 직접 확인합니다\n" + \
               "\n".join(f"- {S.GATES[f['gate']]}: {f['seg']}" for f in protected) + \
               "\n필요하면 파일을 지정해서(예: git checkout -- src/x.py) 범위를 좁히세요."
         return ("deny" if agent == "codex" else "ask"), msg
