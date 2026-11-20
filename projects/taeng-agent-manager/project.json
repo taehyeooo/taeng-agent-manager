@@ -397,9 +397,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "18",
       "dispatch": "ctx_c3afae2d76d3",
-      "note": "사용자 지시(2026-11-21) '2' — 가드 개선은 Claude(2026-11-20 지시), 검토는 Codex"
+      "note": "PR#18(테스트 443, 변형 69/69) → Codex 교차 검토 ctx_f93c0fcddc43"
     }
   ],
   "history": [
@@ -1814,10 +1814,14 @@
     {
       "at": "2026-11-21T00:18:38+09:00",
       "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T12)"
+    },
+    {
+      "at": "2026-11-21T00:26:45+09:00",
+      "event": "작업 T12 변경: pr=18, note=PR#18(테스트 443, 변형 69/69) → Codex 교차 검토 ctx_f93c0fcddc43"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-21T00:18:38+09:00",
+  "updated_at": "2026-11-21T00:26:45+09:00",
   "requests": [
     {
       "gate": "push",
