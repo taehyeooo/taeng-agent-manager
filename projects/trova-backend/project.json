@@ -400,8 +400,8 @@
         "review": "fail",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#495 리뷰 수정 필요: 중간 2(브랜치명·Closes 이슈 연결 없음), 낮음 5(기존 Synthetic·스크레이프 경보 실제 발화 시험 단계 없음, 라우팅 문구 모호, 동기화 검증 단계 누락, 백업 복원 조건, 실제로 깨우는지). 내용은 정의와 일치, 비밀값 없음",
-        "at": "2026-11-20T16:17:29+09:00"
+        "summary": "PR#497 재검토: 1차 지적 모두 해결, 새 중간 1(시크릿 grep이 README 예시에 늘 걸림)·낮음 7",
+        "at": "2026-11-20T16:28:22+09:00"
       },
       "files": [
         "docs/monitoring/2026-11-20-alert-path/README.md"
@@ -1934,10 +1934,14 @@
     {
       "at": "2026-11-20T16:21:10+09:00",
       "event": "작업 O2 변경: branch=docs/#496-alert-path, pr=497, note=리뷰 반영본 PR#497(Closes #496), #495 닫음 → Claude 재검토"
+    },
+    {
+      "at": "2026-11-20T16:28:22+09:00",
+      "event": "작업 O2 검증(claude): tests=pass, review=fail, security=pass"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T16:21:10+09:00",
+  "updated_at": "2026-11-20T16:28:22+09:00",
   "requests": [
     {
       "gate": "push",
