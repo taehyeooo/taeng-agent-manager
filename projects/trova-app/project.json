@@ -77,6 +77,12 @@
       "ref": "PR#189",
       "note": "대기 장소 폴링 개선, Claude 재검토 통과, 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T23:57:40+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/simplicity-v2",
+      "note": "T12 디자인 2차, 사용자 위임(밤사이 승인 위임) 2026-11-20",
+      "at": "2026-11-20T10:28:16+09:00"
     }
   ],
   "tasks": [
@@ -275,9 +281,9 @@
       "agent": "codex",
       "kind": "design",
       "status": "dispatched",
-      "branch": null,
-      "worktree": null,
-      "pr": null,
+      "branch": "feat/simplicity-v2",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2",
+      "pr": "190",
       "dispatch": "ctx_6cd7a81b254a",
       "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
@@ -482,8 +488,16 @@
     {
       "at": "2026-11-20T00:17:42+09:00",
       "event": "작업 T12 변경: status=dispatched, dispatch=ctx_6cd7a81b254a"
+    },
+    {
+      "at": "2026-11-20T10:28:16+09:00",
+      "event": "승인 기록: push (feat/simplicity-v2)"
+    },
+    {
+      "at": "2026-11-20T10:28:56+09:00",
+      "event": "작업 T12 변경: branch=feat/simplicity-v2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2, pr=190"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T00:17:42+09:00"
+  "updated_at": "2026-11-20T10:28:56+09:00"
 }

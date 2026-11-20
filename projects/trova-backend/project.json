@@ -299,6 +299,12 @@
       "ref": "PR#491",
       "note": "배포 기록 문서, 사용자 위임 병합 2026-11-19",
       "at": "2026-11-19T23:12:54+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#492-alternatives-rule-reason",
+      "note": "T24 대안 장소, 사용자 위임(밤사이 승인 위임) 2026-11-20",
+      "at": "2026-11-20T00:27:47+09:00"
     }
   ],
   "tasks": [
@@ -716,9 +722,9 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": null,
-      "worktree": null,
-      "pr": null,
+      "branch": "perf/#492-alternatives-rule-reason",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24",
+      "pr": "493",
       "dispatch": "ctx_20ed96d4cb41",
       "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
@@ -1719,10 +1725,22 @@
     {
       "at": "2026-11-20T00:15:09+09:00",
       "event": "작업 T24 변경: dispatch=ctx_20ed96d4cb41"
+    },
+    {
+      "at": "2026-11-20T00:27:47+09:00",
+      "event": "승인 기록: push (perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T00:35:28+09:00",
+      "event": "승인된 작업 실행: push(perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T10:28:56+09:00",
+      "event": "작업 T24 변경: branch=perf/#492-alternatives-rule-reason, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24, pr=493"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T00:15:09+09:00",
+  "updated_at": "2026-11-20T10:28:56+09:00",
   "requests": [
     {
       "gate": "push",

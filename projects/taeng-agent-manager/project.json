@@ -1491,10 +1491,14 @@
     {
       "at": "2026-11-19T23:41:14+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for p in trova-alt-sample trova-app-pending-poll; do orca worktree rm --worktree \"path:/[가림]/$p\" --force >/dev/null 2>&1"
+    },
+    {
+      "at": "2026-11-20T10:26:59+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for d in ctx_6cd7a81b254a ctx_20ed96d4cb41; do echo \"=== $d\"; orca orchestration worker-read --dispatch $d 2>&1 | tail -"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-19T23:41:14+09:00",
+  "updated_at": "2026-11-20T10:26:59+09:00",
   "requests": [
     {
       "gate": "push",
