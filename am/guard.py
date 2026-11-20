@@ -1991,7 +1991,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         if i == 0 and not command and not unsafe and _script_run_verdict(word, args, toks, cwd) == "clean":
             return out + [_finding("opaque", seg, code="clean_script", reason="원격 main과 같은 셸 스크립트 실행")]
         reads_stdin = not args or i >= len(args) or args[i] in STDIN_PATHS or "-s" in args
-        return out + [_finding("opaque", seg, confirm=reads_stdin, code_exec=True,
+        return out + [_finding("opaque", seg, confirm=reads_stdin, code_exec=True, stdin_program=reads_stdin,
                                reason="추적·변경 여부를 확인하지 못한 셸 스크립트" if args else
                                "표준 입력으로 받은 셸 프로그램은 미리 알 수 없음")]
 
@@ -2002,7 +2002,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         out.append(_finding("opaque", seg, confirm=True, code_exec=True, reason="인터프리터에 코드 문자열을 넘겨 실행 — 내용과 상관없이 확인"))
     elif word in STDIN_INTERPRETERS and not script_stdin and (not positional or positional[0] in STDIN_PATHS) and (
             piped or positional[:1] and positional[0] != "-" or re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg))):
-        out.append(_finding("opaque", seg, confirm=True, code_exec=True, reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
+        out.append(_finding("opaque", seg, confirm=True, code_exec=True, stdin_program=True,
+                            reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
 
     if word in SCRIPTERS:
         i, module, body, script = 0, None, None, None
@@ -2045,7 +2046,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         # heredoc 본문(script_stdin)은 따로 검사하므로 제외한다.
         if module is None and body is None and (script is None or script in STDIN_PATHS) and not script_stdin and (
                 piped or script in STDIN_PATHS - {"-"} or re.search(r"(?<![<\d&])<(?![<(&])", unquoted(seg))):
-            out.append(_finding("opaque", seg, confirm=True, code_exec=True, reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
+            out.append(_finding("opaque", seg, confirm=True, code_exec=True, stdin_program=True,
+                                reason="표준 입력으로 받은 프로그램은 미리 알 수 없음"))
         if module:
             out.append(_seen(f"{_word(module)}:{(margs or [''])[0]}", seg))
         ok, reason = False, "자동 허용 목록 밖 스크립트 실행기"
@@ -2494,7 +2496,7 @@ def _git_external_program(sub, sargs):
 
 
 def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
-    out, where, rest = [], cwd, list(args)
+    out, where, rest, inline_aliases = [], cwd, list(args), {}
     while rest and rest[0].startswith("-"):
         opt = rest.pop(0)
         name, _, val = opt.partition("=")
@@ -2512,7 +2514,11 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
         if name in ("-c", "--config-env"):
             key = val.split("=", 1)[0].lower()
             if key.startswith("alias."):
-                return out + [_finding("opaque", seg, confirm=True, code_exec=True, reason="명령 안에서 git 별칭을 새로 정의")]
+                # 별칭 정의만으로 끝내지 않는다 — 뒤 옵션·실제 하위 명령의 금지·승인 검사를 계속한다(PR #18 검토)
+                body = val.split("=", 1)[1] if "=" in val else val
+                inline_aliases[key[len("alias."):]] = body
+                out.append(_finding("opaque", seg, confirm=True, code_exec=True, body=body, reason="명령 안에서 git 별칭을 새로 정의"))
+                continue
             if key in ("core.hookspath", "core.sshcommand", "core.fsmonitor", "core.editor", "core.pager", "credential.helper") \
                     or key.startswith(("filter.", "diff.", "merge.")) and key.endswith((".clean", ".smudge", ".textconv", ".driver", ".command")):
                 return out + [_finding("forbidden", seg, reason=f"git 설정({key})으로 훅·검사를 바꾸거나 명령을 끼워 넣음")]
@@ -2559,10 +2565,12 @@ def _analyze_git(args, seg, cwd, root, depth, patch_body=None):
     if SUBST in sub or sub.startswith("$"):
         return out + [_finding("opaque", seg, confirm=True, reason="git 하위 명령을 미리 알 수 없음")]
     if sub not in GIT_BUILTINS:
-        alias = _git(where, "config", "--get", f"alias.{sub}")
+        alias = inline_aliases.get(sub) or _git(where, "config", "--get", f"alias.{sub}")
         if alias:
             if alias.startswith("!") or depth >= 4:
-                return out + [_finding("opaque", seg, confirm=True, code_exec=True, reason=f"git 별칭 '{sub}'이 셸 명령을 실행")]
+                # 저장된 별칭 본문도 인라인 별칭처럼 위험 신호 검사에 넘긴다(PR #18 검토)
+                return out + [_finding("opaque", seg, confirm=True, code_exec=True, body=alias,
+                                       reason=f"git 별칭 '{sub}'이 셸 명령을 실행")]
             return out + classify_command("git " + alias + " " + " ".join(sargs), where, root, depth + 1)
         if not re.fullmatch(r"-.*", sub):  # git-<sub> on PATH: an unknown program
             return out + [_finding("opaque", seg, reason=f"알 수 없는 git 하위 명령({sub}) — 외부 프로그램일 수 있음")]
@@ -2909,6 +2917,7 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
                 continue
             if python is not None:
                 out += _check_script(body, head, cwd, root, python=python)
+                out.append(_finding("body", head, body=body))  # 인라인 코드 문자열과 같은 위험 신호 검사(decide)
             found = analyze(head, cwd, root, depth, script_stdin=True)
             out += _distrust_content(found, head) if distrust else found
             continue
@@ -2933,6 +2942,14 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
         found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index])
         out += _distrust_content(found, seg) if distrust else found
+        if piped[index] and any(f.get("stdin_program") for f in found):
+            # echo '…' | python3: 앞 단계가 만드는 글자가 곧 프로그램 — 인라인 코드 문자열과 같은 위험 신호 검사
+            j, producers = index, []
+            while j > 0 and piped[j]:
+                m = re.fullmatch(re.escape(HEREDOC_MARK) + r"(\d+)", segments[j - 1])
+                producers.insert(0, stored[int(m.group(1))][0] + "\n" + stored[int(m.group(1))][1] if m else segments[j - 1])
+                j -= 1
+            out.append(_finding("body", seg, body=restore("\n".join(producers))))
     if depth == 0:
         out += tripwire(cmd, out)
     for f in out:
@@ -3231,7 +3248,11 @@ def _code_execution_policy(root):
 CODE_EXEC_RISK_SIGNALS = (
     ("사용자 전용 가드 폴더·home", r"agent-manager|guard\.json|local\.json|\.config\b|\bexpanduser\b|\bPath\.home\b"
                              r"|\bhomedir\b|\$\{?HOME\b|USERPROFILE|['\"]~(?:['\"/\\]|$)|(?<![\w.~/-])~(?:/|$)"),
+    # 금지 목록의 승인 우회 옵션 — 코드 문자열 안의 claude/codex 실행도 같은 신호(PR #18 검토)
+    ("승인 우회 옵션", "|".join(re.escape(f) for f in sorted(BYPASS_FLAGS)) + r"|--permission-mode[=\s]+bypass"),
 )
+# 보호 단어(TRIPWIRES)는 단어 경계로 비교한다 — release·easy 안의 eas처럼 다른 단어의 일부는 신호가 아니다
+RISK_SIGNALS = list(OPAQUE_RISK_SIGNALS) + [("보호 단어: " + pattern, r"\b(?:" + pattern + r")\b") for pattern, _ in TRIPWIRES]
 # 명령줄 전체에서 보는 디코드 신호(echo … | base64 -d | python3 처럼 다른 단계에서 풀어 넘기는 경우)
 CODE_EXEC_DECODE = r"\bbase64\b[^\n;|]*\s-(?:[a-z]*[dD][a-z]*|-decode)\b|\bb64decode\b|\bfromhex\b|\batob\s*\(|\bfromCharCode\b" \
                    r"|\bcodecs\.decode\b|\bxxd\b[^\n;|]*\s-r\b"
@@ -3239,20 +3260,27 @@ CODE_EXEC_DECODE = r"\bbase64\b[^\n;|]*\s-(?:[a-z]*[dD][a-z]*|-decode)\b|\bb64de
 RELAXED_SKIP = {"디코드·동적 실행"}
 
 
+def _code_risks(text):
+    """코드로 실행될 글자(코드 문자열·heredoc 본문·파이프로 넘기는 프로그램·git 별칭 본문)의 위험 신호.
+    인라인·heredoc·파이프·저장 별칭 어느 경로로 와도 이 한 함수로 같은 판정을 한다."""
+    risks = [label for label, pattern in RISK_SIGNALS if label not in RELAXED_SKIP and re.search(pattern, text, re.I)]
+    risks += [label for label, pattern in CODE_EXEC_RISK_SIGNALS if re.search(pattern, text, re.I)]
+    if re.search(CODE_EXEC_DECODE, text, re.I):
+        risks.append("인코딩된 코드를 풀어 실행")
+    return risks
+
+
 def _opaque_risks(opaque, code_allow=False, command=""):
     """code_allow: 사용자 설정 code_execution=allow — code_exec 표시가 붙은 확인 사유(코드 실행 지점)는 '동적 실행'·
     '자동 허용 목록 밖' 사유로 막지 않고, 본문까지 포함한 글자 위험 신호(배포·삭제·승인·사용자 폴더 …)만 본다."""
     relaxed = [f for f in opaque if code_allow and f.get("code_exec")]
     strict = [f for f in opaque if not (code_allow and f.get("code_exec"))]
-    signals = list(OPAQUE_RISK_SIGNALS) + [("보호 단어: " + pattern, pattern) for pattern, _ in TRIPWIRES]
-    risks = [label for label, pattern in signals
-             if any(re.search(pattern, f["seg"], re.I) for f in strict)
-             or label not in RELAXED_SKIP and any(re.search(pattern, f["seg"] + "\n" + (f.get("body") or ""), re.I) for f in relaxed)]
-    if relaxed:
-        risks += [label for label, pattern in CODE_EXEC_RISK_SIGNALS
-                  if any(re.search(pattern, f["seg"] + "\n" + (f.get("body") or ""), re.I) for f in relaxed)]
-        if re.search(CODE_EXEC_DECODE, command, re.I) or any(re.search(CODE_EXEC_DECODE, f.get("body") or "", re.I) for f in relaxed):
-            risks.append("인코딩된 코드를 풀어 실행")
+    risks = [label for label, pattern in RISK_SIGNALS if any(re.search(pattern, f["seg"], re.I) for f in strict)]
+    for f in relaxed:
+        risks += _code_risks(f["seg"] + "\n" + (f.get("body") or ""))
+    if relaxed and re.search(CODE_EXEC_DECODE, command, re.I):
+        risks.append("인코딩된 코드를 풀어 실행")
+    risks = list(dict.fromkeys(risks))
     if any(f.get("confirm") for f in strict):
         risks.append("실행 내용이 동적으로 결정됨")
     # 허용 목록으로 뒤집기: 위험이 낮다고 명시한 사유 코드가 아닌 opaque는 모두 확인한다.
@@ -3366,6 +3394,10 @@ def decide(payload, agent="claude", root=None):
     if patch:
         findings += _patch_paths(patch, cwd, root)
     findings = [f for f in findings if f["kind"] != "seen"]
+    # 코드로 실행될 본문(인터프리터 heredoc·파이프로 넘기는 프로그램): 위험 신호가 보이면 설정과 상관없이 확인
+    findings = [f for f in findings if f["kind"] != "body"] + [
+        _finding("opaque", f["seg"], confirm=True, reason="실행할 프로그램 본문에 위험 신호(" + ", ".join(r) + ")")
+        for f in findings if f["kind"] == "body" and (r := _code_risks(f["body"]))]
     if not findings:
         return "allow", ""
 
