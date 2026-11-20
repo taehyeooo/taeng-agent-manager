@@ -327,8 +327,8 @@
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T10",
       "pr": null,
-      "dispatch": "ctx_45a66dd33e81",
-      "note": "사용자 지시(2026-11-20 '가드 개선은 클로드한테 맡겨')로 Codex→Claude. 검증은 반대쪽 codex:review"
+      "dispatch": "ctx_79022a2c49bd",
+      "note": "1차 Claude 작업자 커밋 d77b525 후 변형 검사 단계에서 멈춤 → 마무리 작업자(최신 main rebase·PR)"
     }
   ],
   "history": [
@@ -1551,10 +1551,18 @@
     {
       "at": "2026-11-20T12:36:56+09:00",
       "event": "작업 T10 변경: status=dispatched, agent=claude, worktree=/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/taeng-agent-manager-T10, dispatch=ctx_45a66dd33e81, note=사용자 지시(2026-11-20 '가드 개선은 클로드한테 맡겨')로 Codex→Claude. 검증은 반대쪽 codex:review"
+    },
+    {
+      "at": "2026-11-20T15:23:58+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(pgrep); 명령: pgrep -fl check_guard_mutations | head -3; echo ---; ps -o etime= -p [가림] -f check_guard_mutations | head -1) 2>/dev/nul"
+    },
+    {
+      "at": "2026-11-20T15:25:25+09:00",
+      "event": "작업 T10 변경: dispatch=ctx_79022a2c49bd, note=1차 Claude 작업자 커밋 d77b525 후 변형 검사 단계에서 멈춤 → 마무리 작업자(최신 main rebase·PR)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T12:36:56+09:00",
+  "updated_at": "2026-11-20T15:25:25+09:00",
   "requests": [
     {
       "gate": "push",
