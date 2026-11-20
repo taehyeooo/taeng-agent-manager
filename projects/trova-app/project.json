@@ -108,6 +108,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-20T22:48:37+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#202",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-20T23:40:05+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -364,31 +371,34 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_9edb66b38f96",
-      "note": "사용자 선택: 분석 화면 Codex 여권 위의 항로(퍼센트 없음). 6단계 적용 A(T15)·B(T16) Windows Codex 위임"
+      "note": "디자인 3차 6단계 적용 완료: PR#201(분석 여권 항로)·#202(바닥줄·발권·도장) 머지. 남은 것: 아이폰 시뮬레이터 실제 화면 확인·영상(8단계 보고 전), 시안 문서 PR #195~#198 정리"
     },
     {
       "id": "T15",
       "title": "디자인 3차 적용 A: 바닥줄·티켓 스텁·발권·저장 도장 (06-final 명세)",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": "feat/#199-task-dock",
       "worktree": null,
       "pr": "202",
       "dispatch": "ctx_0e54e6399ec3",
-      "note": "3차 검수 통과(낮음 11). 머지 전 4건 정리 위임(worklets 미선언 import, 후보별 주황 버튼→선택 후보만, 시트 전환 replacing, 토큰 하드코딩)",
+      "note": "PR#202 머지(2026-11-20). 후속 낮음: 홈 '장소 추출하기'·완료 '보기' 주황 동시, DONE 갈래 테스트, mutation.mjs test:web 등록, PR#201 후속 5건. 앱 출시는 T10 묶음",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#202 재검수 수정 필요: 1차 대부분 해결·#201 충돌 없음. 새 중간 4(대안 검색 세대 cleanup 주석 안이라 미실행→잘못된 장소 교체 가능, 사라진 실패 작업 티켓 잔존, 바꾸기 초록=색 의미 위반, 버튼 줄 통합 미문서화)·테스트 공백",
-        "at": "2026-11-20T23:07:15+09:00"
+        "summary": "PR#202 Claude 교차 검수 3회(3차 통과·낮음 11) + 머지 전 정리 36cbad4를 매니저가 직접 확인: worklets 직접 import 제거(reanimated runOnJS), 선택 후보만 주황 확정, 장소별 교체 상태, 토큰화. 테스트 317·tsc·토큰 213·변형 통과. 후속: 홈 주황 동시 노출, DONE 갈래 테스트, mutation test:web 등록",
+        "at": "2026-11-20T23:40:12+09:00"
       },
       "files": [
-        "src/components/AlternativeFinderSheet.tsx",
+        "src/components/TaskDock.tsx",
+        "src/components/Stamp.tsx",
         "src/components/AnalysisDock.tsx",
-        "src/screens/TripDetailScreen.tsx"
+        "src/components/AlternativeFinderSheet.tsx",
+        "src/screens/TripDetailScreen.tsx",
+        "src/screens/PlanTripScreen.tsx"
       ]
     },
     {
@@ -882,8 +892,28 @@
     {
       "at": "2026-11-20T23:35:31+09:00",
       "event": "작업 T15 변경: note=3차 검수 통과(낮음 11). 머지 전 4건 정리 위임(worklets 미선언 import, 후보별 주황 버튼→선택 후보만, 시트 전환 replacing, 토큰 하드코딩)"
+    },
+    {
+      "at": "2026-11-20T23:40:05+09:00",
+      "event": "자동 승인 실행: merge_main(PR#202)"
+    },
+    {
+      "at": "2026-11-20T23:40:12+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "자동 승인 실행: merge_main(PR#202)"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "작업 T15 변경: status=done, note=PR#202 머지(2026-11-20). 후속 낮음: 홈 '장소 추출하기'·완료 '보기' 주황 동시, DONE 갈래 테스트, mutation.mjs test:web 등록, PR#201 후속 5건. 앱 출시는 T10 묶음"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "작업 T14 변경: note=디자인 3차 6단계 적용 완료: PR#201(분석 여권 항로)·#202(바닥줄·발권·도장) 머지. 남은 것: 아이폰 시뮬레이터 실제 화면 확인·영상(8단계 보고 전), 시안 문서 PR #195~#198 정리"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T23:35:31+09:00"
+  "updated_at": "2026-11-20T23:40:25+09:00"
 }
