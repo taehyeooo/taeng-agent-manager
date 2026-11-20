@@ -345,7 +345,7 @@
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
       "pr": "192",
       "dispatch": "ctx_3db4d590ee60",
-      "note": "사용자 피드백: 왼쪽 초록 선 싫음, B 티켓 고도화. Claude-only 디자인 스킬(frontend-design·expo-design-system·expo-animation·design-compare) 필요해 Claude 워커로(B1~B3 시안)"
+      "note": "티켓 고도화 시안 Claude(ctx_3db4d590ee60, ticket-claude/, 디자인 스킬)와 Codex(Windows ctx_4483c5e3d995, ticket-codex/) 각각 독립 제작 — 사용자 지시 2026-11-20 '각각 따로 만들어서 알려줘'"
     }
   ],
   "history": [
@@ -648,8 +648,12 @@
     {
       "at": "2026-11-20T16:31:27+09:00",
       "event": "작업 T13 변경: dispatch=ctx_3db4d590ee60, note=사용자 피드백: 왼쪽 초록 선 싫음, B 티켓 고도화. Claude-only 디자인 스킬(frontend-design·expo-design-system·expo-animation·design-compare) 필요해 Claude 워커로(B1~B3 시안)"
+    },
+    {
+      "at": "2026-11-20T16:32:19+09:00",
+      "event": "작업 T13 변경: note=티켓 고도화 시안 Claude(ctx_3db4d590ee60, ticket-claude/, 디자인 스킬)와 Codex(Windows ctx_4483c5e3d995, ticket-codex/) 각각 독립 제작 — 사용자 지시 2026-11-20 '각각 따로 만들어서 알려줘'"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:31:27+09:00"
+  "updated_at": "2026-11-20T16:32:19+09:00"
 }
