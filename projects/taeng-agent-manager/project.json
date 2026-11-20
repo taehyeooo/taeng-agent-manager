@@ -113,6 +113,12 @@
       "ref": "PR#11",
       "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘', 정책 변경은 architecture_policy guard-opaque-allow로 승인됨): 교차 검증·CI 통과",
       "at": "2026-11-18T14:27:08+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
+      "note": "실제 대상: trova-backend 312dbf6(T24 PR#493) 운영 반영. 가드가 세션 폴더 기준으로 프로젝트를 잡아 이쪽에 기록. 사용자 '승인' 2026-11-20",
+      "at": "2026-11-20T11:48:01+09:00"
     }
   ],
   "tasks": [
@@ -1499,10 +1505,18 @@
     {
       "at": "2026-11-20T11:04:32+09:00",
       "event": "승인 요청: push (perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T11:35:32+09:00",
+      "event": "승인 요청: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-20T11:48:01+09:00",
+      "event": "승인 기록: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T11:13:49+09:00",
+  "updated_at": "2026-11-20T11:48:01+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1559,6 +1573,14 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-20T11:04:32+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
+      "cmd": "bash \"/Users/gimtaehyeong/.claude/plugins/cache/taeng-marketplace/devflow/0.5.3/scripts/deploy.sh\" 2>&1",
+      "impact": "서비스가 실제로 바뀐다",
+      "risk": "실제 사용자에게 바로 영향이 가고, 비용이 생길 수 있다",
+      "at": "2026-11-20T11:35:32+09:00"
     }
   ]
 }
