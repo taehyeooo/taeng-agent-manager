@@ -1,0 +1,68 @@
+{
+  "slug": "trovapp-site",
+  "name": "Trova 웹사이트",
+  "idea": "Trova 공개 웹사이트(GitHub Pages): 개인정보처리방침·약관·계정 삭제·app-ads.txt",
+  "phase": "developing",
+  "repo": "Trovapp/trovapp.github.io",
+  "test_cmd": null,
+  "approvals": [
+    {
+      "gate": "push",
+      "ref": "taehyeooo/trova-privacy-admob",
+      "note": "사용자 승인(2026-11-18 '승인'): 개인정보처리방침 AdMob 수정 게시",
+      "at": "2026-11-18T10:54:13+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#1",
+      "note": "사용자 승인(2026-11-18 '승인'): 개인정보처리방침 게시",
+      "at": "2026-11-18T10:54:39+09:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "개인정보처리방침 AdMob 반영 (trova-app T1과 같은 작업)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-18T10:54:13+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-18T10:54:13+09:00",
+      "event": "repo=Trovapp/trovapp.github.io"
+    },
+    {
+      "at": "2026-11-18T10:54:13+09:00",
+      "event": "단계 planning → developing"
+    },
+    {
+      "at": "2026-11-18T10:54:13+09:00",
+      "event": "승인 기록: push (taehyeooo/trova-privacy-admob)"
+    },
+    {
+      "at": "2026-11-18T10:54:16+09:00",
+      "event": "승인된 작업 실행: push(taehyeooo/trova-privacy-admob)"
+    },
+    {
+      "at": "2026-11-18T10:54:39+09:00",
+      "event": "승인 기록: merge_main (PR#1)"
+    },
+    {
+      "at": "2026-11-18T10:55:02+09:00",
+      "event": "작업 추가 T1 (codex): 개인정보처리방침 AdMob 반영 (trova-app T1과 같은 작업)"
+    }
+  ],
+  "created_at": "2026-11-18T10:54:13+09:00",
+  "updated_at": "2026-11-18T10:55:02+09:00"
+}
