@@ -726,7 +726,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24",
       "pr": "493",
       "dispatch": "ctx_20ed96d4cb41",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "Codex 완료(PR#493) → Claude reviewflow 검토 ctx_618883493d83"
     }
   ],
   "history": [
@@ -1737,10 +1737,14 @@
     {
       "at": "2026-11-20T10:28:56+09:00",
       "event": "작업 T24 변경: branch=perf/#492-alternatives-rule-reason, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24, pr=493"
+    },
+    {
+      "at": "2026-11-20T10:34:50+09:00",
+      "event": "작업 T24 변경: note=Codex 완료(PR#493) → Claude reviewflow 검토 ctx_618883493d83"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T10:28:56+09:00",
+  "updated_at": "2026-11-20T10:34:50+09:00",
   "requests": [
     {
       "gate": "push",

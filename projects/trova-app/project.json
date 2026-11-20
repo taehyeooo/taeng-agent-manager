@@ -285,7 +285,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2",
       "pr": "190",
       "dispatch": "ctx_6cd7a81b254a",
-      "note": "자동 배정: design → codex (config/agents.json 선호)"
+      "note": "Codex 완료, 매니저 커밋·PR#190 → Claude reviewflow 검토 ctx_740e37c091d0"
     }
   ],
   "history": [
@@ -496,8 +496,12 @@
     {
       "at": "2026-11-20T10:28:56+09:00",
       "event": "작업 T12 변경: branch=feat/simplicity-v2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2, pr=190"
+    },
+    {
+      "at": "2026-11-20T10:34:50+09:00",
+      "event": "작업 T12 변경: note=Codex 완료, 매니저 커밋·PR#190 → Claude reviewflow 검토 ctx_740e37c091d0"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T10:28:56+09:00"
+  "updated_at": "2026-11-20T10:34:50+09:00"
 }
