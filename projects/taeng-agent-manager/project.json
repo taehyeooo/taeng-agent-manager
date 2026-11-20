@@ -347,6 +347,18 @@
         "am/guard.py",
         "am/cli.py"
       ]
+    },
+    {
+      "id": "T11",
+      "title": "디자인 정리: docs/design-guide.md(PR#15) + taeng-marketplace intaeng 디자인 스킬 3개→새 design 스킬(Claude·Codex 둘 다)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "15",
+      "dispatch": "ctx_6ca270dc58fd",
+      "note": "매니저 레포 PR#15(가이드), 플러그인 교체는 Windows Codex"
     }
   ],
   "history": [
@@ -1653,10 +1665,18 @@
     {
       "at": "2026-11-20T17:26:27+09:00",
       "event": "승인 기록: merge_main (PR#14)"
+    },
+    {
+      "at": "2026-11-20T18:06:22+09:00",
+      "event": "작업 추가 T11 (codex, 자동): 디자인 정리: docs/design-guide.md(PR#15) + taeng-marketplace intaeng 디자인 스킬 3개→새 design 스킬(Claude·Codex 둘 다)"
+    },
+    {
+      "at": "2026-11-20T18:06:22+09:00",
+      "event": "작업 T11 변경: status=dispatched, pr=15, dispatch=ctx_6ca270dc58fd, note=매니저 레포 PR#15(가이드), 플러그인 교체는 Windows Codex"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T17:26:27+09:00",
+  "updated_at": "2026-11-20T18:06:22+09:00",
   "requests": [
     {
       "gate": "push",
