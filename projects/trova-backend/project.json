@@ -323,6 +323,12 @@
       "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
       "note": "312dbf6(T24 PR#493) 운영 반영, 사용자 '승인' 2026-11-20",
       "at": "2026-11-20T11:35:51+09:00"
+    },
+    {
+      "gate": "credentials",
+      "ref": "T23-prod-bench-ssh",
+      "note": "T23 운영 재측정에 기존 벤치 방식(ssh 키·user2 벤치 토큰, 값 출력 금지) 사용, 사용자 '승인' 2026-11-20",
+      "at": "2026-11-20T12:14:34+09:00"
     }
   ],
   "tasks": [
@@ -1826,10 +1832,14 @@
     {
       "at": "2026-11-20T12:06:46+09:00",
       "event": "작업 T23 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T23, dispatch=ctx_715d48729793, note=312dbf6 배포 후 운영 재측정: 시뮬레이터로 대안 10회+ → Grafana 전후 비교"
+    },
+    {
+      "at": "2026-11-20T12:14:34+09:00",
+      "event": "승인 기록: credentials (T23-prod-bench-ssh)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T12:06:46+09:00",
+  "updated_at": "2026-11-20T12:14:34+09:00",
   "requests": [
     {
       "gate": "push",
