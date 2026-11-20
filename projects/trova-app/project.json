@@ -356,8 +356,8 @@
       "branch": null,
       "worktree": null,
       "pr": "195",
-      "dispatch": "ctx_8e212c8244e1",
-      "note": "1단계 완료: 사용자 흐름 6개·상태 점검·디자인 결정 5개(PR#195, docs/design/2026-11-20-design3/). 우선 후보: 상세 목록·빈 시간 / 분석 이탈 후 결과 찾기 / 초안 확인→저장 / 오늘 여행→지도 / 빈 폴더 찜 넣기. 사용자 확인 대기"
+      "dispatch": "ctx_5b836ce9bd3c",
+      "note": "2단계 도구: 중심 UI UX Pro Max, 보완 Emil·Expo 디자인/애니메이션·Impeccable·design-compare. Mac Claude에 설치(사용자 승인 2026-11-20). 3단계 시안: Claude ctx_5b836ce9bd3c(03-drafts-claude), Codex Windows ctx_29a6ed272839(03-drafts-codex, gpt-6.2-astra). 흐름 D·B·C"
     }
   ],
   "history": [
@@ -688,8 +688,12 @@
     {
       "at": "2026-11-20T19:56:28+09:00",
       "event": "작업 T14 변경: pr=195, note=1단계 완료: 사용자 흐름 6개·상태 점검·디자인 결정 5개(PR#195, docs/design/2026-11-20-design3/). 우선 후보: 상세 목록·빈 시간 / 분석 이탈 후 결과 찾기 / 초안 확인→저장 / 오늘 여행→지도 / 빈 폴더 찜 넣기. 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-20T20:03:58+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_5b836ce9bd3c, note=2단계 도구: 중심 UI UX Pro Max, 보완 Emil·Expo 디자인/애니메이션·Impeccable·design-compare. Mac Claude에 설치(사용자 승인 2026-11-20). 3단계 시안: Claude ctx_5b836ce9bd3c(03-drafts-claude), Codex Windows ctx_29a6ed272839(03-drafts-codex, gpt-6.2-astra). 흐름 D·B·C"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T19:56:28+09:00"
+  "updated_at": "2026-11-20T20:03:58+09:00"
 }
