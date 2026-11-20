@@ -347,6 +347,12 @@
       "ref": "docs/o2-alert-path",
       "note": "O2 경보 경로 문서, 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
       "at": "2026-11-20T16:12:20+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#496-alert-path",
+      "note": "O2 경보 문서, 사용자 위임 2026-11-20",
+      "at": "2026-11-20T16:19:56+09:00"
     }
   ],
   "tasks": [
@@ -384,11 +390,11 @@
       "agent": "codex",
       "kind": "general",
       "status": "dispatched",
-      "branch": "docs/o2-alert-path",
+      "branch": "docs/#496-alert-path",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2",
-      "pr": "495",
+      "pr": "497",
       "dispatch": "ctx_bf29ad34e193",
-      "note": "PR#495 리뷰 수정 필요 → 이슈 #496 생성, Codex 문서 보완 중. 보완 후 docs/#496-alert-path 브랜치로 새 PR(Closes #496), #495 닫기",
+      "note": "리뷰 반영본 PR#497(Closes #496), #495 닫음 → Claude 재검토",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -1920,10 +1926,18 @@
     {
       "at": "2026-11-20T16:17:36+09:00",
       "event": "작업 O2 변경: note=PR#495 리뷰 수정 필요 → 이슈 #496 생성, Codex 문서 보완 중. 보완 후 docs/#496-alert-path 브랜치로 새 PR(Closes #496), #495 닫기"
+    },
+    {
+      "at": "2026-11-20T16:19:56+09:00",
+      "event": "승인 기록: push (docs/#496-alert-path)"
+    },
+    {
+      "at": "2026-11-20T16:21:10+09:00",
+      "event": "작업 O2 변경: branch=docs/#496-alert-path, pr=497, note=리뷰 반영본 PR#497(Closes #496), #495 닫음 → Claude 재검토"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T16:17:36+09:00",
+  "updated_at": "2026-11-20T16:21:10+09:00",
   "requests": [
     {
       "gate": "push",
