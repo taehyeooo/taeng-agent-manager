@@ -343,9 +343,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
-      "pr": null,
+      "pr": "192",
       "dispatch": "ctx_17b45ab54174",
-      "note": "사용자 지시(2026-11-20): 디자인 3차 Windows Codex, 색·디자인·애니메이션 꾸미기. 1단계 시안 3개 → 사용자 선택"
+      "note": "1단계 시안 3개 완료 PR#192(문서·목업만): A 따뜻한 여백(추천)·B 여행 티켓·C 또렷한 여정. 비교 페이지 https://claude.ai/artifact/YaNn113qbHBR9qWmabrwVT. 사용자 선택 대기"
     }
   ],
   "history": [
@@ -640,8 +640,12 @@
     {
       "at": "2026-11-20T16:16:40+09:00",
       "event": "작업 T5 변경: status=done, note=PR#191 머지. #149·#151·#152 닫음. 낮음 후속: 화면 연결 테스트·문서 줄번호"
+    },
+    {
+      "at": "2026-11-20T16:28:30+09:00",
+      "event": "작업 T13 변경: pr=192, note=1단계 시안 3개 완료 PR#192(문서·목업만): A 따뜻한 여백(추천)·B 여행 티켓·C 또렷한 여정. 비교 페이지 https://claude.ai/artifact/YaNn113qbHBR9qWmabrwVT. 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:16:40+09:00"
+  "updated_at": "2026-11-20T16:28:30+09:00"
 }
