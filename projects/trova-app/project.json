@@ -101,6 +101,13 @@
       "ref": "PR#191",
       "note": "T5 QA 후속, 리뷰 통과, 사용자 위임 2026-11-20",
       "at": "2026-11-20T16:16:24+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#201",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-20T22:48:37+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -389,24 +396,25 @@
       "title": "디자인 3차 적용 B: 분석 중 화면 여권 위의 항로(퍼센트 제거)",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": "feat/#200-passport-route",
       "worktree": null,
       "pr": "201",
       "dispatch": "ctx_b85380b060e7",
-      "note": "검수 반영 ae3c39a(테스트 295, 변형 7/7) → Claude 재검수",
+      "note": "PR#201 머지(2026-11-20). 낮음 후속 5건(낭독·잉크 width 성능·테스트 공백·경험 기록·PR 본문). 앱 출시는 T10 묶음",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "PR#201 교차 검수 수정 필요: 중간 3(새 테스트가 test:web 미등록, 완료 전환 조건·min 분기 테스트 없음), 낮음 7. 디자인 시안 일치·끊김 원인 없음. 시뮬레이터 미확인",
-        "at": "2026-11-20T22:36:17+09:00"
+        "summary": "PR#201 재검수 통과: 1차 10건 해결, 테스트 295 직접 실행 확인. 낮음 후속: 같은 단계 안 문구 변경 미낭독, 잉크 클립 width 매 프레임(실기기 성능 미측정), 화면 연결 테스트 공백, experience-notes 미기록, PR 본문 옛 경로",
+        "at": "2026-11-20T22:48:44+09:00"
       },
       "files": [
         "src/screens/ProcessingScreen.tsx",
+        "src/components/analysis/PassportRoute.tsx",
         "src/components/analysis/routeMotion.ts",
-        "src/components/analysis/PassportRoute.tsx"
+        "src/lib/processingRules.ts"
       ]
     }
   ],
@@ -838,8 +846,24 @@
     {
       "at": "2026-11-20T22:46:29+09:00",
       "event": "작업 T15 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:48:37+09:00",
+      "event": "자동 승인 실행: merge_main(PR#201)"
+    },
+    {
+      "at": "2026-11-20T22:48:44+09:00",
+      "event": "작업 T16 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:48:58+09:00",
+      "event": "자동 승인 실행: merge_main(PR#201)"
+    },
+    {
+      "at": "2026-11-20T22:48:58+09:00",
+      "event": "작업 T16 변경: status=done, note=PR#201 머지(2026-11-20). 낮음 후속 5건(낭독·잉크 width 성능·테스트 공백·경험 기록·PR 본문). 앱 출시는 T10 묶음"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T22:46:29+09:00"
+  "updated_at": "2026-11-20T22:48:58+09:00"
 }
