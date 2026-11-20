@@ -450,6 +450,18 @@
       "pr": null,
       "dispatch": "ctx_3d2645d22a49",
       "note": "시안 Claude ctx_3d2645d22a49 / Codex ctx_d524c7e89950. 시간 측정은 사용자 판단으로 생략"
+    },
+    {
+      "id": "T19",
+      "title": "여행 컨셉 전체 디자인 통일(모든 화면, 팔레트 조정 허용·주황=실행/초록=도움 유지) + 피그마식 프로토타입 판 + 찜한 장소 네이버지도 저장 패턴 참고·폴더 아이콘 — 사용자 요청 2026-11-21",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_b049cb8d9d1b",
+      "note": "시안 Claude ctx_b049cb8d9d1b / Codex ctx_0f66d677a184. '색 전면 교체 금지' 해제(사용자 요청)"
     }
   ],
   "history": [
@@ -956,8 +968,16 @@
     {
       "at": "2026-11-21T00:17:56+09:00",
       "event": "작업 T18 변경: status=dispatched, dispatch=ctx_3d2645d22a49, note=시안 Claude ctx_3d2645d22a49 / Codex ctx_d524c7e89950. 시간 측정은 사용자 판단으로 생략"
+    },
+    {
+      "at": "2026-11-21T00:25:16+09:00",
+      "event": "작업 추가 T19 (codex, 자동): 여행 컨셉 전체 디자인 통일(모든 화면, 팔레트 조정 허용·주황=실행/초록=도움 유지) + 피그마식 프로토타입 판 + 찜한 장소 네이버지도 저장 패턴 참고·폴더 아이콘 — 사용자 요청 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T00:25:16+09:00",
+      "event": "작업 T19 변경: status=dispatched, dispatch=ctx_b049cb8d9d1b, note=시안 Claude ctx_b049cb8d9d1b / Codex ctx_0f66d677a184. '색 전면 교체 금지' 해제(사용자 요청)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T00:17:56+09:00"
+  "updated_at": "2026-11-21T00:25:16+09:00"
 }
