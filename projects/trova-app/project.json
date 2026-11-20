@@ -376,7 +376,7 @@
       "worktree": null,
       "pr": "202",
       "dispatch": "ctx_0e54e6399ec3",
-      "note": "재검수 반영 07bd2d6(테스트 316, 변형 7/7, 버튼 줄 복구·decisions 기록) → Claude 3차 검수",
+      "note": "3차 검수 통과(낮음 11). 머지 전 4건 정리 위임(worklets 미선언 import, 후보별 주황 버튼→선택 후보만, 시트 전환 replacing, 토큰 하드코딩)",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -878,8 +878,12 @@
     {
       "at": "2026-11-20T23:19:32+09:00",
       "event": "작업 T15 변경: note=재검수 반영 07bd2d6(테스트 316, 변형 7/7, 버튼 줄 복구·decisions 기록) → Claude 3차 검수"
+    },
+    {
+      "at": "2026-11-20T23:35:31+09:00",
+      "event": "작업 T15 변경: note=3차 검수 통과(낮음 11). 머지 전 4건 정리 위임(worklets 미선언 import, 후보별 주황 버튼→선택 후보만, 시트 전환 replacing, 토큰 하드코딩)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T23:19:32+09:00"
+  "updated_at": "2026-11-20T23:35:31+09:00"
 }
