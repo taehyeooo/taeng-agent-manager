@@ -357,7 +357,7 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_040892764f42",
-      "note": "5단계 첫 작업 바닥줄 티켓 변형 3개를 Claude(ctx_040892764f42, 05-ticket-dock-claude)와 Codex(Windows 6.2 high ctx_f97f56047680, 05-ticket-dock-codex) 각각. 첫 Codex 시작은 지시문 생성 실패로 멈추고 재시작"
+      "note": "5단계 바닥줄 티켓 변형: Claude(PR#197 05-ticket-dock-claude, 추천 ①+③ 스텁 떨어짐) / Codex(PR#198, 추천 ③ 도장). 비교 https://claude.ai/artifact/R2fAu9A9z8LYHMBMp2xYau. 사용자 선택 대기"
     }
   ],
   "history": [
@@ -716,8 +716,12 @@
     {
       "at": "2026-11-20T21:01:50+09:00",
       "event": "작업 T14 변경: note=5단계 첫 작업 바닥줄 티켓 변형 3개를 Claude(ctx_040892764f42, 05-ticket-dock-claude)와 Codex(Windows 6.2 high ctx_f97f56047680, 05-ticket-dock-codex) 각각. 첫 Codex 시작은 지시문 생성 실패로 멈추고 재시작"
+    },
+    {
+      "at": "2026-11-20T21:09:25+09:00",
+      "event": "작업 T14 변경: note=5단계 바닥줄 티켓 변형: Claude(PR#197 05-ticket-dock-claude, 추천 ①+③ 스텁 떨어짐) / Codex(PR#198, 추천 ③ 도장). 비교 https://claude.ai/artifact/R2fAu9A9z8LYHMBMp2xYau. 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T21:01:50+09:00"
+  "updated_at": "2026-11-20T21:09:25+09:00"
 }
