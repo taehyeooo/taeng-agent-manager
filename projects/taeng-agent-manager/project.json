@@ -1806,10 +1806,14 @@
     {
       "at": "2026-11-21T00:09:02+09:00",
       "event": "작업 T12 변경: status=dispatched, dispatch=ctx_c3afae2d76d3, note=사용자 지시(2026-11-21) '2' — 가드 개선은 Claude(2026-11-20 지시), 검토는 Codex"
+    },
+    {
+      "at": "2026-11-21T00:10:24+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(open); 명령: open -a Simulator 2>&1; orca orchestration worker-read --dispatch ctx_a93de3188eb0 2>&1 | grep -v \"image omitted\\|Viewed"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-21T00:09:02+09:00",
+  "updated_at": "2026-11-21T00:10:24+09:00",
   "requests": [
     {
       "gate": "push",

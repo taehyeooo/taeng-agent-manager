@@ -438,6 +438,18 @@
       "pr": null,
       "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T18",
+      "title": "AI 대기 화면이 멈춰 보이지 않게(분석 여권 항로 선회·흐르는 문구·오래 걸림 안내·% 제거, 다른 AI 대기 화면 공통 부품) — 사용자 피드백 2026-11-21",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_3d2645d22a49",
+      "note": "시안 Claude ctx_3d2645d22a49 / Codex ctx_d524c7e89950. 시간 측정은 사용자 판단으로 생략"
     }
   ],
   "history": [
@@ -936,8 +948,16 @@
     {
       "at": "2026-11-21T00:08:04+09:00",
       "event": "작업 T14 변경: dispatch=ctx_a93de3188eb0, note=실제 앱 녹화 PR#203(흐름 1·2·3·5, 버그 8건 발견). 뮤지엄산 운영 DB 1줄 복구(2026-11-21, id 33784 — 좌표는 places 1372 근사, 카테고리 attraction 추정). 분석 화면 녹화 위임 ctx_a93de3188eb0(사용자 승인 '승인 다 해')"
+    },
+    {
+      "at": "2026-11-21T00:17:56+09:00",
+      "event": "작업 추가 T18 (codex, 자동): AI 대기 화면이 멈춰 보이지 않게(분석 여권 항로 선회·흐르는 문구·오래 걸림 안내·% 제거, 다른 AI 대기 화면 공통 부품) — 사용자 피드백 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T00:17:56+09:00",
+      "event": "작업 T18 변경: status=dispatched, dispatch=ctx_3d2645d22a49, note=시안 Claude ctx_3d2645d22a49 / Codex ctx_d524c7e89950. 시간 측정은 사용자 판단으로 생략"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T00:08:04+09:00"
+  "updated_at": "2026-11-21T00:17:56+09:00"
 }
