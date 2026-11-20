@@ -285,7 +285,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2",
       "pr": "190",
       "dispatch": "ctx_1b9bd1bbcf85",
-      "note": "Codex 완료, 매니저 커밋·PR#190 → Claude reviewflow 검토 ctx_740e37c091d0",
+      "note": "리뷰 수정 200946f(테스트 285) → 재검토 ctx_9512ab126125",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -526,8 +526,16 @@
     {
       "at": "2026-11-20T10:41:35+09:00",
       "event": "작업 T2 변경: note=2026-11-20 AdMob 확인: 앱 인증 확인됨, 앱 승인 상태 '준비 중'(검토 중), 계정 아직 미승인, 지급 프로필 완료(2/4). Play 신고 수정·검토 제출은 11-18 완료"
+    },
+    {
+      "at": "2026-11-20T10:49:30+09:00",
+      "event": "승인된 작업 실행: push(feat/simplicity-v2)"
+    },
+    {
+      "at": "2026-11-20T10:51:48+09:00",
+      "event": "작업 T12 변경: note=리뷰 수정 200946f(테스트 285) → 재검토 ctx_9512ab126125"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T10:41:35+09:00"
+  "updated_at": "2026-11-20T10:51:48+09:00"
 }
