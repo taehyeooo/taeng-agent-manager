@@ -448,8 +448,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_337badd15f0a",
-      "note": "Claude 시안 Windows로 재시작 ctx_337badd15f0a. Codex PR#204 완료. 페이지 https://claude.ai/artifact/8M9AuUdWynCFo9Sv8vKGDT"
+      "dispatch": "ctx_280a9ca2c5c0",
+      "note": "사용자 '시안 너무 별로, 디자인 스킬 써서' → Mac Claude(스킬 설치된 곳)로 재시작 ctx_280a9ca2c5c0, Windows Claude 중지"
     },
     {
       "id": "T19",
@@ -992,8 +992,12 @@
     {
       "at": "2026-11-21T00:34:10+09:00",
       "event": "작업 T18 변경: dispatch=ctx_337badd15f0a, note=Claude 시안 Windows로 재시작 ctx_337badd15f0a. Codex PR#204 완료. 페이지 https://claude.ai/artifact/8M9AuUdWynCFo9Sv8vKGDT"
+    },
+    {
+      "at": "2026-11-21T00:35:01+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_280a9ca2c5c0, note=사용자 '시안 너무 별로, 디자인 스킬 써서' → Mac Claude(스킬 설치된 곳)로 재시작 ctx_280a9ca2c5c0, Windows Claude 중지"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T00:34:10+09:00"
+  "updated_at": "2026-11-21T00:35:01+09:00"
 }
