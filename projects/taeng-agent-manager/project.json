@@ -370,11 +370,10 @@
         "review": "fail",
         "security": "pass",
         "by": "claude",
-        "summary": "taeng-marketplace PR#22 리뷰 수정 필요: 중간 1(DesignTest가 핵심 규칙 미고정), 낮음 8(기록 예시·UX 문서 항목 누락, CHANGELOG에 다른 레포 정보, ux-writing 구체 규칙 소실 등). Claude·Codex 인식 구조는 정상",
-        "at": "2026-11-20T18:24:38+09:00"
+        "summary": "PR#22 재검토: 1차 대부분 해결, 중간 1(R-14 규칙 테스트 미고정)·낮음 5 → 마지막 반영 요청",
+        "at": "2026-11-20T18:39:57+09:00"
       },
       "files": [
-        "plugins/intaeng/skills/design/SKILL.md",
         "plugins/intaeng/tests/test_intaeng.py"
       ]
     }
@@ -1703,10 +1702,18 @@
     {
       "at": "2026-11-20T18:24:38+09:00",
       "event": "작업 T11 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T18:33:13+09:00",
+      "event": "승인 요청: push (POST repos/taehyeooo/taeng-agent-manager/contents/docs/design-guide.md)"
+    },
+    {
+      "at": "2026-11-20T18:39:57+09:00",
+      "event": "작업 T11 검증(claude): tests=pass, review=fail, security=pass"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T18:24:38+09:00",
+  "updated_at": "2026-11-20T18:39:57+09:00",
   "requests": [
     {
       "gate": "push",
@@ -1795,6 +1802,14 @@
       "impact": "내 PC의 코드가 GitHub에 올라간다",
       "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
       "at": "2026-11-20T16:32:48+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "POST repos/taehyeooo/taeng-agent-manager/contents/docs/design-guide.md",
+      "cmd": "gh api repos/taehyeooo/taeng-agent-manager/contents/docs/design-guide.md -H \"Accept: application/vnd.github.raw\" --method GET -F ref=main",
+      "impact": "GitHub 저장소의 내용·설정이 바뀐다",
+      "risk": "어떤 변경인지에 따라 되돌리기 어렵다",
+      "at": "2026-11-20T18:33:13+09:00"
     }
   ]
 }
