@@ -357,7 +357,7 @@
       "worktree": null,
       "pr": "195",
       "dispatch": "ctx_9edb66b38f96",
-      "note": "Claude: 06-final 확정안 세부(21화면·구현 명세) 완료, 07-analyzing-claude(항로 1순위·출발 안내판·여권 비추천) — 사용자 '가짜 화면' 피드백으로 실제 ProcessingScreen 기준 수정 중 ctx_2bb74b02b6a5. Codex 분석 시안 다시 그리기 ctx_1b286ffde1df. 실기기 시험(시뮬레이터 녹화) 제안함"
+      "note": "Codex 분석 애니메이션 실제 화면 기준 재작업 83299d7(PR#198) 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. Claude 수정 대기 ctx_2bb74b02b6a5"
     }
   ],
   "history": [
@@ -732,8 +732,12 @@
     {
       "at": "2026-11-20T21:37:33+09:00",
       "event": "작업 T14 변경: note=Claude: 06-final 확정안 세부(21화면·구현 명세) 완료, 07-analyzing-claude(항로 1순위·출발 안내판·여권 비추천) — 사용자 '가짜 화면' 피드백으로 실제 ProcessingScreen 기준 수정 중 ctx_2bb74b02b6a5. Codex 분석 시안 다시 그리기 ctx_1b286ffde1df. 실기기 시험(시뮬레이터 녹화) 제안함"
+    },
+    {
+      "at": "2026-11-20T21:47:07+09:00",
+      "event": "작업 T14 변경: note=Codex 분석 애니메이션 실제 화면 기준 재작업 83299d7(PR#198) 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. Claude 수정 대기 ctx_2bb74b02b6a5"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T21:37:33+09:00"
+  "updated_at": "2026-11-20T21:47:07+09:00"
 }
