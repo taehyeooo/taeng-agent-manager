@@ -334,8 +334,8 @@
         "review": "fail",
         "security": "fail",
         "by": "codex",
-        "summary": "PR#13 3차 검토 수정 필요: rm/unlink ~/.config/agent-manager/home 허용 → 가드 전체 해제(기존 결함), dd of=·ln -s 글롭으로 링크 만들어 사용자 설정 덮어쓰기",
-        "at": "2026-11-20T16:13:03+09:00"
+        "summary": "PR#13 4차 수정 필요: PowerShell ni 별칭 쓰기 누락, New-Item HardLink -Target 미검사, home 없을 때 아무 레포의 am/guard.py를 신뢰",
+        "at": "2026-11-20T16:31:44+09:00"
       },
       "files": [
         "am/guard.py",
@@ -1631,10 +1631,14 @@
     {
       "at": "2026-11-20T16:22:12+09:00",
       "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T10)"
+    },
+    {
+      "at": "2026-11-20T16:31:44+09:00",
+      "event": "작업 T10 검증(codex): tests=pass, review=fail, security=fail"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T16:22:12+09:00",
+  "updated_at": "2026-11-20T16:31:44+09:00",
   "requests": [
     {
       "gate": "push",
