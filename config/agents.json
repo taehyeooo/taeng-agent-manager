@@ -11,6 +11,6 @@
   },
   "claude_only": {
     "review": "reviewflow 4관점 리뷰는 Claude 플러그인 — Codex 작업의 교차 검증을 Claude가 맡는다",
-    "design-polish": "ui-ux-pro-max·emil-design-eng 같은 디자인 보조 스킬은 Claude에만 설치돼 있다 — 필요할 때만"
+    "design-polish": "디자인 도구가 어느 기기·에이전트에 있는지는 docs/design-guide.md 5장 표를 따른다"
   }
 }
