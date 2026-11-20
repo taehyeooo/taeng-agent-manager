@@ -145,11 +145,11 @@
       "title": "버그 #151·#152·#149",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5",
       "pr": null,
-      "dispatch": null,
+      "dispatch": "ctx_75e51333f04e",
       "note": ""
     },
     {
@@ -572,8 +572,12 @@
     {
       "at": "2026-11-20T16:04:45+09:00",
       "event": "작업 T7 변경: note=디자인 리서치 완료(PR#184) → 디자인 1차 #186·2차 #190으로 이어짐. 작업자 종료"
+    },
+    {
+      "at": "2026-11-20T16:07:06+09:00",
+      "event": "작업 T5 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5, dispatch=ctx_75e51333f04e"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T16:04:45+09:00"
+  "updated_at": "2026-11-20T16:07:06+09:00"
 }

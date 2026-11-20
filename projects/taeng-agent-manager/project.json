@@ -1599,10 +1599,18 @@
     {
       "at": "2026-11-20T16:03:42+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: python3 -m am task set --help 2>&1 | grep -A2 -i status | head -5; for d in ctx_88f516bc2f9a ctx_bb1931c8e008 ctx_b142d3"
+    },
+    {
+      "at": "2026-11-20T16:04:53+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for n in 149 151 152; do gh issue view $n -R Trovapp/trova-app --json number,title,state -q '\"\\(.number) \\(.state) \\(.ti"
+    },
+    {
+      "at": "2026-11-20T16:06:54+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for w in /[가림] /[가림]; do git -C $w fetch -q origin main; echo \"$w HEAD=$(git -C $w rev-parse --short HEAD) origin/main=$"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-20T16:03:42+09:00",
+  "updated_at": "2026-11-20T16:06:54+09:00",
   "requests": [
     {
       "gate": "push",
