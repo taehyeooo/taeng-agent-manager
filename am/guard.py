@@ -1070,6 +1070,8 @@ def _write_targets(word, args, seg):
         targets += plain if any(a in ("-e", "-f") or a.startswith(("--expression", "--file")) for a in args) else plain[1:]
     elif word in ("sort", "uniq", "tree"):
         targets += _output_operands(word, args)
+    elif word == "dd":  # dd of=FILE (대소문자 구분 없이 of=)
+        targets += [a.split("=", 1)[1] for a in args if a.lower().startswith("of=")]
     return [restore(t) for t in targets if t and t != "/dev/null" and t.lower() != "nul" and not t.startswith("&")]
 
 
@@ -2035,6 +2037,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 "rename-item", "rni", "truncate", "clear-content", "clc"):
         if any(_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args if not a.startswith("-")):
             out.append(_finding("forbidden", seg, reason="상태 파일·사용자 설정(config/guard.json)을 am 없이 지우거나 옮김(승인 위조 위험)"))
+    # 사용자 전용 폴더(~/.config/agent-manager)의 파일·폴더를 지우거나 옮기거나 링크 원본으로 쓰면 확인(Codex 차단)
+    # ln의 원본 쪽: 링크를 거쳐 나중에 쓰면 그 폴더 안 파일이 바뀐다(대상 쪽은 _write_targets가 본다)
+    if word in ("rm", "remove-item", "ri", "del", "erase", "unlink", "mv", "move", "move-item", "mi", "ren", "rename",
+                "rename-item", "rni", "truncate", "clear-content", "clc", "rmdir", "rd", "ln", "link", "shred"):
         if any(_is_user_config(a, cwd) for a in args if not a.startswith("-")):
             out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
 
@@ -2230,19 +2236,21 @@ def _holds_state_file(path, cwd, root=None):
 
 
 def _is_user_config(path, cwd):
-    """~/.config/agent-manager/guard.json — the user's own guard setting outside every repo — or a folder (or
-    wildcard) that holds it. ~·절대·상대·심볼릭 링크 경로를 모두 실제 경로로 정규화하고 대소문자 무시로 비교한다."""
+    """The user-only folder ~/.config/agent-manager (guard.json·home 가드 위치 기록·감사 로그): a path inside it, the
+    folder itself, or a folder (or wildcard) that holds it. ~·절대·상대·심볼릭 링크·..를 실제 경로로 정규화하고 대소문자
+    무시로 비교한다. 글롭(* ? [)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 본다."""
     path = str(path)
     wild = re.search(r"[*?\[]", path)
-    if wild:  # ~/.config/agent-manager/* → that folder
+    if wild:  # ~/.config/agent-mana*/x → ~/.config (그 아래 어디든 될 수 있음)
         path = path[:wild.start()]
         path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
     target = _norm(_abs(path or ".", cwd)).casefold()
-    protected = _norm(S.user_guard_file()).casefold()
-    return target == protected or protected.startswith(target + os.sep)
+    folder = _norm(S.user_guard_file().parent).casefold()
+    return target == folder or target.startswith(folder + os.sep) or folder.startswith(target + os.sep)
 
 
-USER_CONFIG_REASON = "사용자 전용 가드 설정(~/.config/agent-manager/guard.json)을 바꾸거나 지움 — 사용자만 직접"
+USER_CONFIG_REASON = ("사용자 전용 가드 폴더(~/.config/agent-manager — guard.json 설정·home 가드 위치)를 바꾸거나 지움"
+                      " — 지워지면 가드가 꺼질 수 있어 사용자만 직접")
 
 
 def _tree_holds_state(sub, where, cwd, root=None):

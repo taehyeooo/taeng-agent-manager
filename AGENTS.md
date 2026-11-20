@@ -77,7 +77,10 @@
 - **레포 안 `config/guard.json`의 `auto_gates`는 무시**하고 `am status`에 경고한다.
   - 왜 레포 밖인가: 레포 안 파일은 `git reset`·`checkout`·`restore` 경로 지정·`stash pop`·`merge`/`rebase --abort`·연결된 작업 폴더 등 끝없는 git 간접 경로로 되돌릴 수 있어 하나씩 막을 수 없다. 레포 밖 파일은 git이 건드리지 못한다.
   - 기기마다 따로라서 새 기기에서는 사용자가 다시 만든다(그 기기에서는 만들기 전까지 전부 묻기 — 안전한 기본값).
-- 이 파일의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `ln`, `tee`, `sed -i`, `truncate`, Edit/Write)는 `auto_gates`와 상관없이 Claude 확인 창, Codex 차단. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 파일을 담은 폴더를 지우거나 옮기는 것도 같다. 읽기는 그대로 허용.
+- **`~/.config/agent-manager` 폴더 전체가 사용자 전용**이다(`guard.json` 설정, `home` 가드 위치 기록, 감사 로그). 그 안 파일·폴더의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `unlink`, `rmdir`, `shred`, `ln`(링크 원본·대상 모두), `dd of=`, `tee`, `sed -i`, `truncate`, `touch`, Edit/Write)는 `auto_gates`와 상관없이 Claude 확인 창, Codex 차단. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 폴더를 담은 상위 폴더(`~/.config`, `~`)를 지우거나 옮기는 것도 같다. 글롭(`*`·`?`·`[ ]`)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 확인한다. 읽기는 그대로 허용.
+- **가드 위치 기록(`home`)이 없을 때의 훅 동작**: 예전에는 조용히 통과했다(지우기만 하면 가드 전체가 꺼짐). 이제는 지금 레포가 매니저 레포(`am/guard.py`가 있음)면 그 레포의 가드로 판정하고, 그 밖의 레포·폴더면 도구 실행을 막고(`exit 2`) `python -m am setup`을 안내한다.
+  - 이유: 매니저 레포·등록된 프로젝트 레포에서 `home`이 없는 건 이상 상태라 막는 쪽이 안전하다. 새 기기 첫 설치는 매니저 레포에서 `python -m am setup`을 돌리므로, 매니저 레포 가드로 판정돼 막히지 않는다. 프로젝트 레포는 `am restore`로 매니저 레포에서 받아 오므로 그 전에 setup이 끝나 있다.
+  - 훅 명령이 바뀌었으므로 이미 설치한 프로젝트 레포는 `python -m am setup --install <경로>`로 갱신한다(이 레포의 `.claude/settings.json`은 갱신됨).
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
 

@@ -192,8 +192,14 @@ POINTER = Path.home() / ".config" / "agent-manager" / "home"
 PYTHON_SELECT = ('if python3 -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python3; '
                  'elif python -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python; '
                  'else echo "agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다" >&2; exit 2; fi')
-HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then '
-            + PYTHON_SELECT + '; "$p" "$(cat "$f")/am/guard.py" {agent}; fi')
+# home(가드 위치 기록)이 없으면 조용히 통과하지 않는다(지우는 것만으로 가드가 꺼지지 않게):
+# 지금 레포가 매니저 레포(am/guard.py가 있음)면 그 가드로 판정 — 새 기기 첫 `python -m am setup`도 이렇게 통과한다.
+# 그 밖의 레포(프로젝트 레포)면 도구 실행을 막고 setup 안내를 낸다(exit 2).
+HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then g="$(cat "$f")/am/guard.py"; '
+            'else t="$(git rev-parse --show-toplevel 2>/dev/null)"; g="$t/am/guard.py"; '
+            'if [ -z "$t" ] || [ ! -f "$g" ]; then echo "agent-manager: 가드 위치 기록(~/.config/agent-manager/home)이 없어 '
+            '도구 실행을 막았습니다 — 매니저 레포에서 python -m am setup 을 실행하세요" >&2; exit 2; fi; fi; '
+            + PYTHON_SELECT + '; "$p" "$g" {agent}')
 HOOK_MATCHER = "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit"
 
 

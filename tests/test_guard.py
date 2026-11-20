@@ -1482,7 +1482,9 @@ class TrustLayerStateTest(unittest.TestCase):
         self.assertEqual(cli.install_guard(repo)[1], "current")
         cfg = json.loads(f.read_text(encoding="utf-8"))
         self.assertEqual(len(cfg["hooks"]["PreToolUse"]), 1)
-        self.assertIn("am/guard.py\" claude", cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"])
+        command = cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+        self.assertIn("/am/guard.py\"", command)
+        self.assertTrue(command.endswith("\"$p\" \"$g\" claude"), command)
 
 
 class RemoteDeployTest(unittest.TestCase):
@@ -2535,6 +2537,51 @@ class AutoGatesTest(GuardTest):
             # 읽기는 그대로
             self.assertEqual(self.bash("cat ~/.config/agent-manager/guard.json", agent="codex")[0], "allow")
         self.assertEqual(json.loads(user.read_text(encoding="utf-8")), {"auto_gates": list(S.GATES)})
+
+    def test_the_whole_user_folder_is_user_only(self):
+        # home(가드 위치 기록)이 지워지면 훅이 가드를 못 찾는다 → 폴더 전체를 사용자 전용으로 본다(auto와 무관)
+        # 기본 모드(opaque=allow): 모르는 프로그램(dd)도 원래는 허용 — 사용자 폴더 판정만이 막는다
+        self.config({"auto_gates": list(S.GATES), "opaque": "allow"})
+        folder = S.user_guard_file().parent
+        (folder / "home").write_text(str(self.root), encoding="utf-8")
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+        with patch.dict(os.environ, env):
+            cmds = ["rm ~/.config/agent-manager/home", "unlink ~/.config/agent-manager/home",
+                    "rm -f ~/.config/agent-manager/home", "mv ~/.config/agent-manager/home x",
+                    "rmdir ~/.config/agent-manager", "rm -rf ~/.config", "rm -rf ~", "rm -rf ~/.config/*",
+                    "echo /x > ~/.config/agent-manager/home", "cp x ~/.config/agent-manager/home",
+                    "tee ~/.config/agent-manager/home", "truncate -s 0 ~/.config/agent-manager/home",
+                    "shred ~/.config/agent-manager/home", "touch ~/.config/agent-manager/new.json",
+                    # dd of= 대상
+                    "dd if=/dev/null of=~/.config/agent-manager/home", f"dd if=x of={folder / 'guard.json'}",
+                    "dd if=x OF=~/.config/agent-manager/guard.json",
+                    # 링크의 원본 쪽이 사용자 폴더 — 링크를 거쳐 쓰면 그 파일이 바뀐다
+                    "ln -s ~/.config/agent-manager/guard.json g", "ln ~/.config/agent-manager/home h",
+                    "ln -sf ~/.config/agent-manager g && echo '{}' > g",
+                    # 글롭은 확정할 수 없으므로 보수적으로(글롭 앞 폴더까지)
+                    "rm ~/.config/agent-mana*/home", "rm ~/.config/agent-manager/ho?e", "rm ~/.config/[a]gent-manager/home",
+                    "ln -s ~/.config/agent-*/guard.json g", "dd if=x of=~/.config/agent-man*/home"]
+            for cmd in cmds:
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd)[0], "ask", cmd)
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "deny", cmd)
+            for tool in ("Write", "Edit"):
+                with self.subTest(tool=tool):
+                    self.assertEqual(self.tool(tool, "~/.config/agent-manager/home")[0], "ask")
+            # 이미 있는 링크를 거쳐 쓰기: 실제 경로로 풀어 비교
+            link = self.app / "cfg-link"
+            try:
+                link.symlink_to(folder / "home")
+            except OSError:
+                link = None
+            if link:
+                self.assertEqual(self.bash("echo /x > cfg-link", agent="codex")[0], "deny")
+                self.assertEqual(self.bash("dd if=x of=cfg-link", agent="codex")[0], "deny")
+            # 상관없는 경로는 그대로
+            for cmd in ("dd if=x of=out.bin", "ln -s README.md r", "cat ~/.config/agent-manager/home", "rm -f out.bin"):
+                with self.subTest(cmd=cmd):
+                    self.assertEqual(self.bash(cmd, agent="codex")[0], "allow", cmd)
+        self.assertEqual((folder / "home").read_text(encoding="utf-8"), str(self.root))
 
     def test_agents_cannot_change_the_setting(self):
         self.config({"auto_gates": self.ALL_BUT_DEPLOY})

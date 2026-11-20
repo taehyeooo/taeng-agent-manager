@@ -220,7 +220,39 @@ class HookCommandTest(unittest.TestCase):
             (home / 'python').unlink()
             self.assertEqual(run().returncode, 2)
             pointer.unlink()
-            self.assertEqual(run().returncode, 0)
+            # 가드 위치 기록(home)이 없으면 조용히 통과하지 않는다 — 지우는 것만으로 가드가 꺼지지 않게
+            self.assertEqual(run().returncode, 2)
+            self.assertIn('am setup', run().stderr)
+
+    def test_hook_without_pointer_uses_the_manager_repo_guard_or_blocks(self):
+        import os
+        import shutil
+        import subprocess
+        shell = shutil.which('sh')
+        if os.name == 'nt' or not shell:
+            self.skipTest('POSIX shell fixture')
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            home, mgr, project = base / 'home', base / 'mgr', base / 'project'
+            for d in (home, mgr, project):
+                d.mkdir()
+            for repo in (mgr, project):
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+            # 매니저 레포(am/guard.py가 있음): 새 기기 첫 `python -m am setup`이 이 가드로 판정돼 통과한다
+            (mgr / 'am').mkdir()
+            (mgr / 'am/guard.py').write_text('import sys; print("mgr guard"); sys.exit(0)', encoding='utf-8')
+            env = dict(os.environ, HOME=str(home))
+            def run(cwd):
+                return subprocess.run([shell, '-c', cli.HOOK_CMD.format(agent='claude')], cwd=cwd, env=env,
+                                      capture_output=True, text=True, encoding='utf-8')
+            r = run(mgr)
+            self.assertEqual((r.returncode, r.stdout.strip()), (0, 'mgr guard'))
+            # 프로젝트 레포·레포 밖: 막고 setup을 안내한다
+            for cwd in (project, base):
+                with self.subTest(cwd=cwd.name):
+                    r = run(cwd)
+                    self.assertEqual(r.returncode, 2)
+                    self.assertIn('am setup', r.stderr)
 
 
 if __name__ == "__main__":
