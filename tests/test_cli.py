@@ -125,6 +125,11 @@ class HookCommandTest(unittest.TestCase):
                  if 'am/guard.py' in h.get('command', '')]
         self.assertEqual([h['command'] for h in hooks], [cli.HOOK_CMD.format(agent='claude')])
 
+    def test_repo_allows_bash_without_prompt(self):
+        # 사용자 지시(2026-11-20): 이 레포에서는 Bash 확인 창을 띄우지 않는다. 가드 훅은 그대로 먼저 돈다.
+        cfg = json.loads((Path(__file__).resolve().parent.parent / '.claude/settings.json').read_text(encoding='utf-8'))
+        self.assertIn('Bash', cfg['permissions']['allow'])
+
     def test_install_refreshes_matcher_and_deduplicates(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / '.claude/settings.json'
