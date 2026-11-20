@@ -192,13 +192,20 @@ POINTER = Path.home() / ".config" / "agent-manager" / "home"
 PYTHON_SELECT = ('if python3 -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python3; '
                  'elif python -c "import sys; sys.exit(sys.version_info < (3, 10))" </dev/null >/dev/null 2>&1; then p=python; '
                  'else echo "agent-manager: 실행 가능한 Python이 없어 가드를 실행할 수 없습니다" >&2; exit 2; fi')
-# home(가드 위치 기록)이 없으면 조용히 통과하지 않는다(지우는 것만으로 가드가 꺼지지 않게):
-# 지금 레포가 매니저 레포(am/guard.py가 있음)면 그 가드로 판정 — 새 기기 첫 `python -m am setup`도 이렇게 통과한다.
-# 그 밖의 레포(프로젝트 레포)면 도구 실행을 막고 setup 안내를 낸다(exit 2).
-HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then g="$(cat "$f")/am/guard.py"; '
-            'else t="$(git rev-parse --show-toplevel 2>/dev/null)"; g="$t/am/guard.py"; '
-            'if [ -z "$t" ] || [ ! -f "$g" ]; then echo "agent-manager: 가드 위치 기록(~/.config/agent-manager/home)이 없어 '
-            '도구 실행을 막았습니다 — 매니저 레포에서 python -m am setup 을 실행하세요" >&2; exit 2; fi; fi; '
+# home(가드 위치 기록)이 없으면 조용히 통과하지 않는다(지우는 것만으로 가드가 꺼지지 않게). 지금 폴더의
+# am/guard.py도 믿지 않는다(위조 가드). 항상 막고(exit 2) setup을 안내하되, 새 기기 첫 설치를 위해
+# Bash의 `python -m am setup`(python3도) 정확히 그 한 명령만, 매니저 레포(am/cli.py가 있음) 루트에서일 때 통과시킨다.
+# 명령 일치는 JSON 문자열 그대로: 뒤에 다른 글자(\" && …, \n …, --install …)가 붙으면 일치하지 않는다.
+HOOK_SETUP_ONLY = ('t="$(git rev-parse --show-toplevel 2>/dev/null)"; '
+                   'if [ -n "$t" ] && [ -z "$(git rev-parse --show-prefix 2>/dev/null)" ] && [ -f "$t/am/cli.py" ]; then '
+                   'in="$(cat)"; '
+                   'if printf "%s" "$in" | grep -Eq \'"tool_name"[[:space:]]*:[[:space:]]*"Bash"\' && '
+                   'printf "%s" "$in" | grep -Eq \'"command"[[:space:]]*:[[:space:]]*"python3? -m am setup"[[:space:]]*[,}}]\'; '  # }}: .format 이스케이프
+                   'then exit 0; fi; fi; ')
+HOOK_CMD = ('f="$HOME/.config/agent-manager/home"; if [ -f "$f" ]; then g="$(cat "$f")/am/guard.py"; else '
+            + HOOK_SETUP_ONLY +
+            'echo "agent-manager: 가드 위치 기록(~/.config/agent-manager/home)이 없어 도구 실행을 막았습니다 — '
+            '매니저 레포 루트에서 python -m am setup 을 실행하세요" >&2; exit 2; fi; '
             + PYTHON_SELECT + '; "$p" "$g" {agent}')
 HOOK_MATCHER = "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit"
 

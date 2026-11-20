@@ -1038,6 +1038,60 @@ def _check_script(body, seg, cwd, root, python=False):
     return out
 
 
+# PowerShell 쓰기 cmdlet과 기본 별칭 → cmdlet (cp·mv·rm 등은 POSIX 명령과 이름이 같아 둘 다로 본다)
+PS_WRITE_CMDLETS = {
+    "new-item": "new-item", "ni": "new-item",
+    "set-content": "set-content", "sc": "set-content",
+    "add-content": "add-content", "ac": "add-content",
+    "out-file": "out-file",
+    "copy-item": "copy-item", "copy": "copy-item", "cpi": "copy-item", "cp": "copy-item",
+    "move-item": "move-item", "move": "move-item", "mi": "move-item", "mv": "move-item",
+    "remove-item": "remove-item", "ri": "remove-item", "del": "remove-item", "erase": "remove-item",
+    "rm": "remove-item", "rd": "remove-item", "rmdir": "remove-item",
+    "rename-item": "rename-item", "rni": "rename-item", "ren": "rename-item",
+    "clear-content": "clear-content", "clc": "clear-content",
+}
+# 경로를 받는 매개변수(-Value는 New-Item 링크의 -Target 별칭), 값을 받는 그 밖의 매개변수(값을 경로로 오해하지 않게)
+PS_PATH_PARAMS = {"-path", "-literalpath", "-lp", "-pspath", "-filepath", "-destination", "-target", "-value", "-newname"}
+PS_VALUE_PARAMS = {"-itemtype", "-type", "-encoding", "-name", "-filter", "-include", "-exclude", "-credential",
+                   "-width", "-delimiter", "-stream"}
+
+
+def _ps_args(args):
+    """PowerShell 인수 → ({매개변수: [값]}, [위치 인수]). -Name value와 -Name:value를 모두 읽는다."""
+    named, positional, i = {}, [], 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("-") and len(a) > 1 and not a[1:2].isdigit():
+            name, sep, val = a.partition(":")
+            name = name.lower()
+            if sep:
+                named.setdefault(name, []).append(val)
+            elif name in PS_PATH_PARAMS | PS_VALUE_PARAMS and i + 1 < len(args):
+                named.setdefault(name, []).append(args[i + 1])
+                i += 1
+        else:
+            positional.append(a)
+        i += 1
+    return named, positional
+
+
+def _ps_changed_paths(word, args):
+    """PowerShell 쓰기 cmdlet(별칭 포함)이 바꾸는 경로: 쓰기·삭제·이동 대상과 링크의 원본(-Target/-Value).
+    Copy-Item의 원본은 읽기라 빼고 대상(-Destination·두 번째 위치 인수)만."""
+    cmdlet = PS_WRITE_CMDLETS.get(word)
+    if not cmdlet:
+        return []
+    named, positional = _ps_args(args)
+    paths = [v for k in ("-path", "-literalpath", "-lp", "-pspath", "-filepath") for v in named.get(k, [])]
+    if cmdlet == "copy-item":
+        return named.get("-destination", []) + positional[1:]
+    paths += named.get("-destination", []) + named.get("-target", []) + named.get("-value", []) + positional
+    if cmdlet == "rename-item":
+        paths += named.get("-newname", [])
+    return paths
+
+
 def _write_targets(word, args, seg):
     """Paths a shell command writes to (redirections only outside quotes)."""
     redirect = r"(?<![&<>])\d*>>?(?!&)\s*"  # >, >>, 2>, 1>> … but not 2>&1
@@ -1048,14 +1102,14 @@ def _write_targets(word, args, seg):
         if ">" in uq[m.start():m.start() + 4]:
             targets.append(m.group(1))
     plain = [a for a in args if not a.startswith("-")]
-    if word in ("set-content", "add-content", "out-file", "new-item", "sc", "ac"):
-        for i, a in enumerate(args):
-            if a.lower() in ("-path", "-filepath", "-literalpath") and i + 1 < len(args):
-                targets.append(args[i + 1])
-                break
-        else:
-            if plain:
-                targets.append(plain[0])
+    cmdlet = PS_WRITE_CMDLETS.get(word)
+    if cmdlet in ("set-content", "add-content", "out-file", "new-item", "clear-content"):
+        # PowerShell: -Path/-LiteralPath/-FilePath(-Name:값 형태 포함), 없으면 첫 위치 인수
+        named, positional = _ps_args(args)
+        given = [v for k in ("-path", "-literalpath", "-lp", "-pspath", "-filepath") for v in named.get(k, [])]
+        targets += given or positional[:1]
+    elif cmdlet in ("copy-item", "move-item") and any(a.lower().startswith("-destination") for a in args):
+        targets += _ps_args(args)[0].get("-destination", [])
     elif word in ("cp", "mv", "copy-item", "move-item", "copy", "move", "install", "rsync", "robocopy", "xcopy", "cpi", "mi",
                   "ln", "link") and plain:  # ln·link: 마지막 인수가 새로 만드는 링크
         targets.append(plain[-1])
@@ -2043,6 +2097,10 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
                 "rename-item", "rni", "truncate", "clear-content", "clc", "rmdir", "rd", "ln", "link", "shred"):
         if any(_is_user_config(a, cwd) for a in args if not a.startswith("-")):
             out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
+    # PowerShell 쓰기 cmdlet·기본 별칭: -Path·-LiteralPath·-Destination·-Target·-Value(-Name:값 포함)·위치 인수.
+    # New-Item -ItemType SymbolicLink/HardLink/Junction의 -Target(-Value)이 사용자 폴더면 ln 원본과 같은 원칙
+    if any(_is_user_config(p, cwd) for p in _ps_changed_paths(word, args)):
+        out.append(_finding("opaque", seg, confirm=True, reason=USER_CONFIG_REASON))
 
     # deletes: recursive, or wildcard — single explicit files stay recoverable through git
     if word in ("rm", "remove-item", "ri", "del", "erase", "rd", "rmdir", "unlink"):
@@ -2239,7 +2297,9 @@ def _is_user_config(path, cwd):
     """The user-only folder ~/.config/agent-manager (guard.json·home 가드 위치 기록·감사 로그): a path inside it, the
     folder itself, or a folder (or wildcard) that holds it. ~·절대·상대·심볼릭 링크·..를 실제 경로로 정규화하고 대소문자
     무시로 비교한다. 글롭(* ? [)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 본다."""
-    path = str(path)
+    path = str(path).replace("\\", "/")  # PowerShell·cmd 구분자도 같은 경로로(보수적으로)
+    # home을 가리키는 변수 표기($HOME·${HOME}·$env:USERPROFILE·$env:HOME·%USERPROFILE%)는 ~로 본다
+    path = re.sub(r"^(?:\$\{?HOME\}?|\$env:(?:USERPROFILE|HOME)|%USERPROFILE%|%HOME%)(?=/|$)", "~", path, flags=re.I)
     wild = re.search(r"[*?\[]", path)
     if wild:  # ~/.config/agent-mana*/x → ~/.config (그 아래 어디든 될 수 있음)
         path = path[:wild.start()]

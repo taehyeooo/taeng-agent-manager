@@ -2583,6 +2583,72 @@ class AutoGatesTest(GuardTest):
                     self.assertEqual(self.bash(cmd, agent="codex")[0], "allow", cmd)
         self.assertEqual((folder / "home").read_text(encoding="utf-8"), str(self.root))
 
+    # 원칙 표: 사용자 전용 폴더(~/.config/agent-manager)에 닿는 쓰기·삭제·이동·링크는 auto와 무관하게 Claude 확인·Codex 차단
+    USER_FOLDER_TABLE = [
+        # (도구, 명령) — PowerShell 쓰기 cmdlet과 기본 별칭, -Path·-LiteralPath·-Destination·-Target·-Value·-Name:값·위치 인수
+        ("PowerShell", "New-Item -Path ~/.config/agent-manager/home -Force"),
+        ("PowerShell", "ni ~/.config/agent-manager/home -Force"),
+        ("PowerShell", "ni -Path:~/.config/agent-manager/guard.json"),
+        ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target ~/.config/agent-manager/guard.json"),
+        ("PowerShell", "New-Item -ItemType HardLink -Path link -Value ~/.config/agent-manager/home"),
+        ("PowerShell", "ni link -ItemType Junction -Target:~/.config/agent-manager"),
+        ("PowerShell", "Set-Content -Path ~/.config/agent-manager/home -Value x"),
+        ("PowerShell", "sc ~/.config/agent-manager/home x"),
+        ("PowerShell", "ac -LiteralPath ~/.config/agent-manager/home x"),
+        ("PowerShell", "Out-File -FilePath ~/.config/agent-manager/guard.json"),
+        ("PowerShell", "Copy-Item x -Destination ~/.config/agent-manager/home"),
+        ("PowerShell", "cpi x ~/.config/agent-manager/home"),
+        ("PowerShell", "copy x -Destination:~/.config/agent-manager/guard.json"),
+        ("PowerShell", "Move-Item -Path ~/.config/agent-manager/home -Destination x"),
+        ("PowerShell", "mi ~/.config/agent-manager/home x"),
+        ("PowerShell", "Move-Item x -Destination ~/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item ~/.config/agent-manager/home"),
+        ("PowerShell", "ri -LiteralPath ~/.config/agent-manager/home"),
+        ("PowerShell", "del ~/.config/agent-manager/home"),
+        ("PowerShell", "erase ~/.config/agent-manager/home"),
+        ("PowerShell", "rd ~/.config/agent-manager -Recurse"),
+        ("PowerShell", "Remove-Item -Path:~/.config -Recurse"),
+        ("PowerShell", "Rename-Item ~/.config/agent-manager/home old"),
+        ("PowerShell", "rni -Path ~/.config/agent-manager/home -NewName old"),
+        ("PowerShell", "ren ~/.config/agent-manager/home old"),
+        ("PowerShell", "Clear-Content ~/.config/agent-manager/home"),
+        ("PowerShell", "clc -Path ~/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item $env:USERPROFILE/.config/agent-manager/home"),
+        ("PowerShell", "Remove-Item $HOME\\.config\\agent-manager\\home"),
+        # POSIX
+        ("Bash", "rm $HOME/.config/agent-manager/home"),
+        ("Bash", "rm ${HOME}/.config/agent-manager/home"),
+        ("Bash", "ln -s ~/.config/agent-manager/guard.json g"),
+        ("Bash", "dd if=x of=~/.config/agent-manager/home"),
+    ]
+
+    def test_user_folder_principle_table(self):
+        self.config({"auto_gates": list(S.GATES), "opaque": "allow"})
+        (S.user_guard_file().parent / "home").write_text(str(self.root), encoding="utf-8")
+        env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+
+        def run(tool, cmd, agent):
+            return G.decide({"tool_name": tool, "tool_input": {"command": cmd}, "cwd": str(self.app)}, agent, self.root)[0]
+        with patch.dict(os.environ, env):
+            for tool, cmd in self.USER_FOLDER_TABLE:
+                with self.subTest(tool=tool, cmd=cmd):
+                    self.assertEqual(run(tool, cmd, "claude"), "ask")
+                    self.assertEqual(run(tool, cmd, "codex"), "deny")
+            # 사용자 폴더에 닿지 않는 같은 명령은 그대로(읽기·작업 폴더 안 쓰기)
+            for tool, cmd in (("PowerShell", "New-Item -ItemType File -Path notes.txt"),
+                              ("PowerShell", "Copy-Item ~/.config/agent-manager/guard.json backup.json"),
+                              ("PowerShell", "Set-Content -Path notes.txt -Value x"),
+                              ("PowerShell", "New-Item -ItemType SymbolicLink -Path link -Target README.md"),
+                              ("Bash", "cat $HOME/.config/agent-manager/home")):
+                with self.subTest(unrelated=cmd):
+                    self.assertEqual(run(tool, cmd, "codex"), "allow")
+            # PowerShell 쓰기 별칭(ni 등)의 대상도 일반 쓰기 검사(상태 파일 금지·작업 폴더 밖 금지)를 받는다
+            state = Path(self.root) / "projects/app/project.json"
+            for cmd in (f"ni {state} -Force", f"ni -Path:{state}", f"sc -Path {state} -Value x", f"clc {state}",
+                        "ni -Path:/etc/agent-manager-test.txt"):
+                with self.subTest(write=cmd):
+                    self.assertEqual(run("PowerShell", cmd, "claude"), "deny")
+
     def test_agents_cannot_change_the_setting(self):
         self.config({"auto_gates": self.ALL_BUT_DEPLOY})
         root = Path(self.root)

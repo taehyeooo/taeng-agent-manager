@@ -78,9 +78,18 @@
   - 왜 레포 밖인가: 레포 안 파일은 `git reset`·`checkout`·`restore` 경로 지정·`stash pop`·`merge`/`rebase --abort`·연결된 작업 폴더 등 끝없는 git 간접 경로로 되돌릴 수 있어 하나씩 막을 수 없다. 레포 밖 파일은 git이 건드리지 못한다.
   - 기기마다 따로라서 새 기기에서는 사용자가 다시 만든다(그 기기에서는 만들기 전까지 전부 묻기 — 안전한 기본값).
 - **`~/.config/agent-manager` 폴더 전체가 사용자 전용**이다(`guard.json` 설정, `home` 가드 위치 기록, 감사 로그). 그 안 파일·폴더의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `unlink`, `rmdir`, `shred`, `ln`(링크 원본·대상 모두), `dd of=`, `tee`, `sed -i`, `truncate`, `touch`, Edit/Write)는 `auto_gates`와 상관없이 Claude 확인 창, Codex 차단. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 폴더를 담은 상위 폴더(`~/.config`, `~`)를 지우거나 옮기는 것도 같다. 글롭(`*`·`?`·`[ ]`)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 확인한다. 읽기는 그대로 허용.
-- **가드 위치 기록(`home`)이 없을 때의 훅 동작**: 예전에는 조용히 통과했다(지우기만 하면 가드 전체가 꺼짐). 이제는 지금 레포가 매니저 레포(`am/guard.py`가 있음)면 그 레포의 가드로 판정하고, 그 밖의 레포·폴더면 도구 실행을 막고(`exit 2`) `python -m am setup`을 안내한다.
-  - 이유: 매니저 레포·등록된 프로젝트 레포에서 `home`이 없는 건 이상 상태라 막는 쪽이 안전하다. 새 기기 첫 설치는 매니저 레포에서 `python -m am setup`을 돌리므로, 매니저 레포 가드로 판정돼 막히지 않는다. 프로젝트 레포는 `am restore`로 매니저 레포에서 받아 오므로 그 전에 setup이 끝나 있다.
+- PowerShell 쓰기 cmdlet과 기본 별칭(`New-Item`/`ni`, `Set-Content`/`sc`, `Add-Content`/`ac`, `Out-File`, `Copy-Item`/`cp`/`copy`/`cpi`, `Move-Item`/`mv`/`move`/`mi`, `Remove-Item`/`rm`/`del`/`ri`/`erase`/`rd`, `Rename-Item`/`ren`/`rni`, `Clear-Content`/`clc`)도 같은 원칙: `-Path`·`-LiteralPath`·`-FilePath`·`-Destination`·`-Target`·`-Value`(`-Name:값` 형태 포함)·위치 인수 중 하나라도 사용자 폴더에 닿으면 확인/차단. `New-Item -ItemType SymbolicLink/HardLink/Junction`의 `-Target`(`-Value`)이 사용자 폴더면 `ln` 원본과 같다. `$HOME`·`${HOME}`·`$env:USERPROFILE`·`%USERPROFILE%` 표기도 home으로 본다.
+- **가드 위치 기록(`home`)이 없을 때의 훅 동작**: 예전에는 조용히 통과했다(지우기만 하면 가드 전체가 꺼짐). 이제는 **항상 도구 실행을 막고**(`exit 2`) `python -m am setup`을 안내한다. 지금 폴더의 `am/guard.py`는 믿지 않는다(위조 가드가 될 수 있음).
+  - 단 하나의 예외: 매니저 레포(`am/cli.py`가 있음) 루트에서 Bash로 정확히 `python -m am setup`(또는 `python3 -m am setup`)만 통과한다 — 새 기기 첫 설치용. 뒤에 다른 글자(`--install …`, `&& …`, 줄바꿈 …)가 붙거나 하위 폴더·다른 레포면 막는다.
   - 훅 명령이 바뀌었으므로 이미 설치한 프로젝트 레포는 `python -m am setup --install <경로>`로 갱신한다(이 레포의 `.claude/settings.json`은 갱신됨).
+
+#### 알려진 한계 (위협 모델: 협조적 에이전트의 실수 방지 — 적대적 우회는 범위 밖)
+위 원칙(사용자 폴더에 닿는 쓰기·링크는 확인, `home`이 없으면 막음)은 `tests/test_guard.py`의 원칙 표(`USER_FOLDER_TABLE`)와 `tests/test_cli.py`의 훅 테스트로 고정한다. 그 밖에 이론적으로 남는 우회는 하나씩 막지 않고 여기에 적는다.
+- 경로를 실행 중에 만드는 경우: 셸 변수 조합(`d=~/.con; rm "${d}fig/…"`), 명령 치환, `find … -delete`·`xargs`로 넘긴 경로, 압축 해제·`git clone`·패키지 관리자의 쓰기 위치 — 변수·치환은 대체로 확인 쪽이지만 모든 조합을 보장하지 않는다.
+- 다른 프로그램이 대신 쓰는 경우: 인터프리터 스크립트 파일 안의 쓰기(코드 문자열은 확인), 에디터·빌드 도구·사용자 정의 실행 파일.
+- 실행 전에 없던 링크·폴더를 같은 명령줄에서 만든 뒤 그 경로로 쓰는 다단계 조합(링크 원본이 사용자 폴더인 `ln`·`New-Item` 링크 자체는 확인).
+- `home`이 없을 때 통과시키는 `python -m am setup`은 지금 레포의 `am` 코드를 실행한다 — 매니저 레포로 보이게 꾸민 폴더에서 돌리면 그 레포를 가드 위치로 기록한다(사람이 새 기기에서 직접 돌리는 경우만 가정).
+- 이런 우회의 뒤에는 Claude Code·Codex 자체 권한 검사가 있다.
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
 
