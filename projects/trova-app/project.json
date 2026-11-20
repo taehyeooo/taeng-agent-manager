@@ -365,11 +365,11 @@
       "agent": "codex",
       "kind": "design",
       "status": "dispatched",
-      "branch": null,
+      "branch": "feat/#199-task-dock",
       "worktree": null,
-      "pr": null,
+      "pr": "202",
       "dispatch": "ctx_0e54e6399ec3",
-      "note": "자동 배정: design → codex (config/agents.json 선호)"
+      "note": "Codex 구현 PR#202(테스트 288→293, 변형 5/5, 웹 캡처 11장). 7단계 Claude 교차 검수 위임"
     },
     {
       "id": "T16",
@@ -813,8 +813,12 @@
     {
       "at": "2026-11-20T22:36:17+09:00",
       "event": "작업 T16 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:38:12+09:00",
+      "event": "작업 T15 변경: branch=feat/#199-task-dock, pr=202, note=Codex 구현 PR#202(테스트 288→293, 변형 5/5, 웹 캡처 11장). 7단계 Claude 교차 검수 위임"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-20T22:36:17+09:00"
+  "updated_at": "2026-11-20T22:38:12+09:00"
 }
