@@ -115,6 +115,20 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-20T23:40:05+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#209",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T11:09:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#209",
+      "note": "auto_gates — 사용자 '적용하고 다음 디자인… 다 승인해주고'(2026-11-21), 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T11:09:54+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -452,19 +466,19 @@
       "note": "교차 검증 미통과(중간 5·시안 불일치) → 같은 Codex에 수정 요청 ctx_3750eea7a3a6",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "claude:reviewflow",
-        "summary": "PR #209: 테스트 319/319·tsc·토큰 통과, 보안 0건. 중간 5건(재시도 시 대기 시계 리셋, 큰 글자 compact 순환 문구, 캐시 테스트가 useQuery 미검증, 5초 경계 점 깜빡임, 도착 상태 안 보임, stale 캐시 Gemini 재요청)+시안 불일치(보조 문구 색, 구름 대비 1.1:1) → Codex 수정",
-        "at": "2026-11-21T02:20:05+09:00"
+        "summary": "PR #209 재검증 26c8169: 테스트 323/323·tsc·토큰 통과, 지적 6건·시안 불일치 해결. 낮음 1건(큰 글자에서 20초 안내 안 뜸)은 후속",
+        "at": "2026-11-21T11:09:42+09:00"
       },
       "files": [
         "src/lib/aiWaiting.ts",
-        "src/screens/ProcessingScreen.tsx",
-        "scripts/route-motion.test.mjs",
         "src/components/AiWaiting.tsx",
+        "src/screens/ProcessingScreen.tsx",
         "src/components/analysis/PassportRoute.tsx",
-        "src/components/SavedPlaceInfoSheet.tsx"
+        "src/components/SavedPlaceInfoSheet.tsx",
+        "src/components/PlaceReviewModal.tsx"
       ]
     },
     {
@@ -477,7 +491,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_36455becd813",
-      "note": "사용자 '지금 화면에 대해서 조금씩 디자인을 바꾸라는 거야 새로운 디자인이 아니라' → 최소 변경 버전 재위임: Claude ctx_36455becd813, Codex ctx_944297c16591. 지난 판 아티팩트 A 91wunHCefbKxVYkxYMXVMa, 여정 3doeDTNW2GetHm4xYxpjkq"
+      "note": "조금씩 버전 완료: Codex PR #211, Claude PR #212 — 비교 페이지 공개"
     }
   ],
   "history": [
@@ -1068,8 +1082,24 @@
     {
       "at": "2026-11-21T02:20:21+09:00",
       "event": "작업 T18 변경: dispatch=ctx_3750eea7a3a6, note=교차 검증 미통과(중간 5·시안 불일치) → 같은 Codex에 수정 요청 ctx_3750eea7a3a6"
+    },
+    {
+      "at": "2026-11-21T11:07:50+09:00",
+      "event": "작업 T19 변경: note=조금씩 버전 완료: Codex PR #211, Claude PR #212 — 비교 페이지 공개"
+    },
+    {
+      "at": "2026-11-21T11:09:42+09:00",
+      "event": "작업 T18 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T11:09:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#209)"
+    },
+    {
+      "at": "2026-11-21T11:09:54+09:00",
+      "event": "승인 기록: merge_main (PR#209) — auto_gates"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T02:20:21+09:00"
+  "updated_at": "2026-11-21T11:09:54+09:00"
 }
