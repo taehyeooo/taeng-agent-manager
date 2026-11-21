@@ -818,6 +818,30 @@
         "src/main/resources/application.yml",
         "docs/adr/0052-alternative-rule-reasons.md"
       ]
+    },
+    {
+      "id": "T25",
+      "title": "같이 고치기 1: 멤버·권한·참여/멤버 API·낙관적 잠금·변경 기록 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_4f1fc8f52719",
+      "note": "기획서 projects/trova-app/docs/specs/2026-11-21-trip-collab.md, API 계약 문서 먼저"
+    },
+    {
+      "id": "T26",
+      "title": "같이 고치기 2: 실시간 SSE·푸시 묶음 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1988,10 +2012,22 @@
     {
       "at": "2026-11-20T22:26:19+09:00",
       "event": "작업 O2 변경: status=done, note=완료(2026-11-20): 감지→Slack 정상(11-17 실제 기록), 휴대폰 Slack 알림 설정(채널 모든 메시지·데스크톱 활동 중 푸시·방해 금지 예외) 후 시험 알림 휴대폰 수신 확인. Grafana Cloud는 체험 후 무료로 전환(사용자 선택). 남은 선택: 무료 한도 확인, UptimeRobot 보조"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T25 (codex, 자동): 같이 고치기 1: 멤버·권한·참여/멤버 API·낙관적 잠금·변경 기록 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T26 (codex, 자동): 같이 고치기 2: 실시간 SSE·푸시 묶음 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T17:05:58+09:00",
+      "event": "작업 T25 변경: status=dispatched, dispatch=ctx_4f1fc8f52719, note=기획서 projects/trova-app/docs/specs/2026-11-21-trip-collab.md, API 계약 문서 먼저"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-20T22:26:19+09:00",
+  "updated_at": "2026-11-21T17:05:58+09:00",
   "requests": [
     {
       "gate": "push",

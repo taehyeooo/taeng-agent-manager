@@ -191,6 +191,13 @@
       "note": "auto_gates — 출시 기록 문서만 (auto_gates 사용자 설정)",
       "at": "2026-11-21T16:24:41+09:00",
       "auto": true
+    },
+    {
+      "gate": "spec",
+      "ref": "trip-collab",
+      "note": "사용자 정책 답(2026-11-21): 권한 동일·실시간(SSE, 0원)·링크 하나에 선택, '진행해' (auto_gates 사용자 설정)",
+      "at": "2026-11-21T16:44:52+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -647,6 +654,30 @@
       "pr": null,
       "dispatch": "ctx_66b8d0b6b179",
       "note": "trova-qa만, 테스트용 데이터만 만들고 정리, 코드 수정 없음, HTML 리포트"
+    },
+    {
+      "id": "T23",
+      "title": "같이 고치기 3: 참여/담기·함께 표시·멤버 관리·409 안내 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T24",
+      "title": "같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -1469,8 +1500,20 @@
     {
       "at": "2026-11-21T16:40:00+09:00",
       "event": "작업 T22 변경: status=dispatched, dispatch=ctx_66b8d0b6b179, note=trova-qa만, 테스트용 데이터만 만들고 정리, 코드 수정 없음, HTML 리포트"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "승인 기록: spec (trip-collab) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T23 (codex, 자동): 같이 고치기 3: 참여/담기·함께 표시·멤버 관리·409 안내 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T24 (codex, 자동): 같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T16:40:00+09:00"
+  "updated_at": "2026-11-21T16:44:52+09:00"
 }
