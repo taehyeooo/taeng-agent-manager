@@ -652,8 +652,8 @@
       "branch": null,
       "worktree": null,
       "pr": "219",
-      "dispatch": "ctx_66b8d0b6b179",
-      "note": "UX/UI QA 완료 PR #219(문서만): 높음1·중간4·낮음3. 페이지 GfZKXvKYp2rVcePjFnMK6N. 재분석으로 테스트 계정 강릉 영상 10→5곳(운영 기록 변화). 고칠 항목 사용자 판단 대기"
+      "dispatch": "ctx_689e4fd36400",
+      "note": "사용자 '모두 고쳐줘' → QA 8건 수정 위임(Windows Codex)"
     },
     {
       "id": "T23",
@@ -1528,8 +1528,12 @@
     {
       "at": "2026-11-21T18:46:39+09:00",
       "event": "작업 T23 변경: note=Claude 교차 검증 ctx_76a2467494d1"
+    },
+    {
+      "at": "2026-11-21T18:47:52+09:00",
+      "event": "작업 T22 변경: dispatch=ctx_689e4fd36400, note=사용자 '모두 고쳐줘' → QA 8건 수정 위임(Windows Codex)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T18:46:39+09:00"
+  "updated_at": "2026-11-21T18:47:52+09:00"
 }
