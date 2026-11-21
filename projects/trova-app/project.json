@@ -254,6 +254,20 @@
       "note": "auto_gates — 출시 기록 문서만 (auto_gates 사용자 설정)",
       "at": "2026-11-22T00:14:30+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#225",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T00:42:31+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#225",
+      "note": "auto_gates — 웹 배포 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:42:34+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -761,7 +775,7 @@
       "worktree": null,
       "pr": "222",
       "dispatch": "ctx_bc734e8d66c1",
-      "note": "웹(PWA)은 예전 번들이라 참여 버튼 없음(사용자 시뮬레이터에서 발견) → 웹 운영 배포 위임 ctx_0f09d618e124"
+      "note": "웹 운영 배포 완료 03e72b3, 공유 링크 참여 버튼 확인. 백업 /srv/trova-app/backup-before-03e72b3-6ryKbZKu"
     },
     {
       "id": "T25",
@@ -1744,8 +1758,20 @@
     {
       "at": "2026-11-22T00:36:09+09:00",
       "event": "작업 T24 변경: note=웹(PWA)은 예전 번들이라 참여 버튼 없음(사용자 시뮬레이터에서 발견) → 웹 운영 배포 위임 ctx_0f09d618e124"
+    },
+    {
+      "at": "2026-11-22T00:42:31+09:00",
+      "event": "자동 승인 실행: merge_main(PR#225)"
+    },
+    {
+      "at": "2026-11-22T00:42:34+09:00",
+      "event": "승인 기록: merge_main (PR#225) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:42:37+09:00",
+      "event": "작업 T24 변경: note=웹 운영 배포 완료 03e72b3, 공유 링크 참여 버튼 확인. 백업 /srv/trova-app/backup-before-03e72b3-6ryKbZKu"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-22T00:36:09+09:00"
+  "updated_at": "2026-11-22T00:42:37+09:00"
 }
