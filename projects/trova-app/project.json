@@ -240,6 +240,20 @@
       "note": "auto_gates + 사용자 '지금 바로 배포' — #222를 먼저 #220 브랜치에 합친 뒤 main으로 (auto_gates 사용자 설정)",
       "at": "2026-11-21T23:56:35+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#224",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T00:14:27+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#224",
+      "note": "auto_gates — 출시 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:14:30+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -747,7 +761,7 @@
       "worktree": null,
       "pr": "222",
       "dispatch": "ctx_bc734e8d66c1",
-      "note": "QA 수정 2817e7c: 삭제 안내·목록 이동(TRIP_DELETED/404/403), 웹 드래그→위/아래 버튼, 테스트 391. 서버 삭제 이벤트 필요 → #500에 요청"
+      "note": "OTA 출시 그룹 cff39447-bd59-445e-af02-28854b56305f(main fbb4f45), Play v10 수신 확인. 되돌리기: 2f14364f republish"
     },
     {
       "id": "T25",
@@ -1714,8 +1728,20 @@
     {
       "at": "2026-11-21T23:56:52+09:00",
       "event": "작업 T23 변경: note=main fbb4f45 머지(#222 포함), OTA는 서버 배포 뒤"
+    },
+    {
+      "at": "2026-11-22T00:14:27+09:00",
+      "event": "자동 승인 실행: merge_main(PR#224)"
+    },
+    {
+      "at": "2026-11-22T00:14:30+09:00",
+      "event": "승인 기록: merge_main (PR#224) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:14:35+09:00",
+      "event": "작업 T24 변경: note=OTA 출시 그룹 cff39447-bd59-445e-af02-28854b56305f(main fbb4f45), Play v10 수신 확인. 되돌리기: 2f14364f republish"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T23:56:52+09:00"
+  "updated_at": "2026-11-22T00:14:35+09:00"
 }
