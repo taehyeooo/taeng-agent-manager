@@ -219,6 +219,27 @@
       "note": "auto_gates — 작업 브랜치 push·PR(같이 고치기 실시간 앱) (auto_gates 사용자 설정)",
       "at": "2026-11-21T22:10:46+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#222",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T23:56:26+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#220",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T23:56:26+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#220",
+      "note": "auto_gates + 사용자 '지금 바로 배포' — #222를 먼저 #220 브랜치에 합친 뒤 main으로 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T23:56:35+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -700,7 +721,7 @@
       "worktree": null,
       "pr": "220",
       "dispatch": "ctx_2e55ee117947",
-      "note": "서버 계약 0fc6c20 반영 050c40f(X-Trip-Version 캐시 갱신, 오류 본문, 실행자별 설명), 테스트 377. 서버에 CORS 노출 헤더 요청(T26)",
+      "note": "main fbb4f45 머지(#222 포함), OTA는 서버 배포 뒤",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1677,8 +1698,24 @@
     {
       "at": "2026-11-21T23:51:10+09:00",
       "event": "작업 T25 변경: note=기준 2 재QA 통과: 추가 810ms·삭제 317ms·위/아래 ~310ms·시간 311ms·여행 삭제 전파 153ms. 기준 9/9 통과(Kafka·네이티브 SSE·개인화 양성 대조는 운영 후 확인)"
+    },
+    {
+      "at": "2026-11-21T23:56:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#222)"
+    },
+    {
+      "at": "2026-11-21T23:56:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#220)"
+    },
+    {
+      "at": "2026-11-21T23:56:35+09:00",
+      "event": "승인 기록: merge_main (PR#220) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T23:56:52+09:00",
+      "event": "작업 T23 변경: note=main fbb4f45 머지(#222 포함), OTA는 서버 배포 뒤"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T23:51:10+09:00"
+  "updated_at": "2026-11-21T23:56:52+09:00"
 }
