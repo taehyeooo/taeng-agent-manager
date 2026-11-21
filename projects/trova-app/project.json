@@ -572,9 +572,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": "216",
+      "pr": "217",
       "dispatch": "ctx_81d3a1ecf253",
-      "note": "사용자: S2 선택 → feat/thin-icons 적용 요청"
+      "note": "S2 적용 PR #217(495bfab, 테스트 343, 새 테스트 7개 먼저 실패→통과). Codex 교차 검증 ctx_e83534bd5517"
     }
   ],
   "history": [
@@ -1305,8 +1305,12 @@
     {
       "at": "2026-11-21T15:10:35+09:00",
       "event": "작업 T21 변경: note=사용자: S2 선택 → feat/thin-icons 적용 요청"
+    },
+    {
+      "at": "2026-11-21T15:18:10+09:00",
+      "event": "작업 T21 변경: pr=217, note=S2 적용 PR #217(495bfab, 테스트 343, 새 테스트 7개 먼저 실패→통과). Codex 교차 검증 ctx_e83534bd5517"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T15:10:35+09:00"
+  "updated_at": "2026-11-21T15:18:10+09:00"
 }
