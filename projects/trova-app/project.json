@@ -363,12 +363,12 @@
       "title": "앱 다음 출시 묶음(versionCode 11): 디자인 1차 #186 + 칩 #188 + 이후 앱 변경 — 사용자 결정 2026-11-19 '나중에 묶어서'",
       "agent": "claude",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "218",
       "dispatch": "ctx_74f444f8a02b",
-      "note": "Windows는 google-services.json(비밀 파일) 차이로 지문 불일치 → 원본 있는 Mac으로 인계(Claude). 기대 지문 692378b1…, 무료 사용량 4/15·MAU 19/1000",
+      "note": "무선 업데이트 출시 완료(그룹 2f14364f). 실기기 새 화면 확인 대기",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1433,8 +1433,16 @@
     {
       "at": "2026-11-21T16:26:57+09:00",
       "event": "작업 T10 검증(codex:review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T16:27:01+09:00",
+      "event": "자동 승인 실행: merge_main(PR#218)"
+    },
+    {
+      "at": "2026-11-21T16:27:01+09:00",
+      "event": "작업 T10 변경: status=done, pr=218, note=무선 업데이트 출시 완료(그룹 2f14364f). 실기기 새 화면 확인 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T16:26:57+09:00"
+  "updated_at": "2026-11-21T16:27:01+09:00"
 }
