@@ -349,12 +349,12 @@
       "title": "앱 다음 출시 묶음(versionCode 11): 디자인 1차 #186 + 칩 #188 + 이후 앱 변경 — 사용자 결정 2026-11-19 '나중에 묶어서'",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "todo",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_17c8d123a807",
-      "note": "사용자 배포 승인(2026-11-21 '진행해'). 네이티브 변경 없으면 무선 업데이트(production), 있으면 스토어 빌드 versionCode 11. QA 에뮬레이터 확인 후 출시"
+      "note": "Windows에 Expo 로그인 안 됨 → 출시 중단(테스트 349 통과, 네이티브 변경 없음 → 무선 업데이트 후보). 사용자 Expo 로그인 대기"
     },
     {
       "id": "T11",
@@ -1379,8 +1379,12 @@
     {
       "at": "2026-11-21T15:52:29+09:00",
       "event": "작업 T10 변경: status=dispatched, dispatch=ctx_17c8d123a807, note=사용자 배포 승인(2026-11-21 '진행해'). 네이티브 변경 없으면 무선 업데이트(production), 있으면 스토어 빌드 versionCode 11. QA 에뮬레이터 확인 후 출시"
+    },
+    {
+      "at": "2026-11-21T15:54:48+09:00",
+      "event": "작업 T10 변경: status=todo, note=Windows에 Expo 로그인 안 됨 → 출시 중단(테스트 349 통과, 네이티브 변경 없음 → 무선 업데이트 후보). 사용자 Expo 로그인 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T15:52:29+09:00"
+  "updated_at": "2026-11-21T15:54:48+09:00"
 }
