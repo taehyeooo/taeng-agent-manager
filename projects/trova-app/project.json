@@ -198,6 +198,20 @@
       "note": "사용자 정책 답(2026-11-21): 권한 동일·실시간(SSE, 0원)·링크 하나에 선택, '진행해' (auto_gates 사용자 설정)",
       "at": "2026-11-21T16:44:52+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#221",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T19:03:52+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#221",
+      "note": "auto_gates — 사용자 'QA 모두 고쳐줘', 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T19:04:00+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -648,12 +662,26 @@
       "title": "최신 화면 UX/UI QA(Windows 에뮬레이터) — 사용자 요청 2026-11-21",
       "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "221",
       "dispatch": "ctx_689e4fd36400",
-      "note": "QA 8건 수정 PR #221, 테스트 358, 캡처 32장, #220과 겹침 screen-rules.test 1개. 서버 후속: 재분석 이전 결과 이력 조회, 경포호 카탈로그 매칭 좌표·ID 검증"
+      "note": "PR #221 머지. 출시는 다음 OTA 묶음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "PR #221: test 358·tsc·토큰 통과, 8건 해결(주소는 출처 표시로 부분 해결), 재분석 안내 문구는 서버 동작과 일치, #220과 시험 병합 충돌 없음. 꼭 고칠 것 0. 후속: 저장 취소 문구 두 화면 통일, '(주)' 조사, bookmark.address null",
+        "at": "2026-11-21T19:03:45+09:00"
+      },
+      "files": [
+        "src/screens/HomeScreen.tsx",
+        "src/screens/SavedPlacesScreen.tsx",
+        "src/components/SavedPlaceInfoSheet.tsx",
+        "src/lib/korean.ts"
+      ]
     },
     {
       "id": "T23",
@@ -1555,8 +1583,28 @@
     {
       "at": "2026-11-21T18:58:56+09:00",
       "event": "작업 T22 변경: pr=221, note=QA 8건 수정 PR #221, 테스트 358, 캡처 32장, #220과 겹침 screen-rules.test 1개. 서버 후속: 재분석 이전 결과 이력 조회, 경포호 카탈로그 매칭 좌표·ID 검증"
+    },
+    {
+      "at": "2026-11-21T19:03:45+09:00",
+      "event": "작업 T22 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T19:03:52+09:00",
+      "event": "자동 승인 실행: merge_main(PR#221)"
+    },
+    {
+      "at": "2026-11-21T19:04:00+09:00",
+      "event": "승인 기록: merge_main (PR#221) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T19:04:04+09:00",
+      "event": "자동 승인 실행: merge_main(PR#221)"
+    },
+    {
+      "at": "2026-11-21T19:04:04+09:00",
+      "event": "작업 T22 변경: status=done, note=PR #221 머지. 출시는 다음 OTA 묶음"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T18:58:56+09:00"
+  "updated_at": "2026-11-21T19:04:04+09:00"
 }
