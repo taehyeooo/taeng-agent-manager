@@ -696,18 +696,17 @@
       "note": "Claude 교차 검증 ctx_76a2467494d1",
       "verification": {
         "tests": "pass",
-        "review": "fail",
-        "security": "fail",
+        "review": "pass",
+        "security": "pass",
         "by": "claude:reviewflow",
-        "summary": "PR #220: test 355·tsc·토큰 통과, 계약 대체로 일치. 꼭 고칠 것 5(중간): 낡은 캐시 버전 If-Match로 자기 편집 가짜 409, 멤버 내보내기 후 캐시 미갱신, 네이티브 딥링크로 확인 없이 자동 참여(보안), role을 멤버 조회에만 의존, 링크 안내 문구가 '보기만'",
-        "at": "2026-11-21T18:57:04+09:00"
+        "summary": "PR #220 재검증 1e6218d: test 361·tsc·토큰 통과, 꼭 고칠 것 5건 중 4건 해결·1건 부분(OWNER 첫 공유 시 편집 권한 안내 미노출), 보안(딥링크 자동 참여) 해결. main과 experience-notes 문서 충돌 1곳",
+        "at": "2026-11-21T19:06:03+09:00"
       },
       "files": [
         "src/lib/api/trips.ts",
         "src/components/TripShareSheet.tsx",
         "src/navigation/RootNavigator.tsx",
-        "src/screens/TripDetailScreen.tsx",
-        "src/screens/SharedTripScreen.tsx"
+        "src/screens/TripDetailScreen.tsx"
       ]
     },
     {
@@ -1603,8 +1602,12 @@
     {
       "at": "2026-11-21T19:04:04+09:00",
       "event": "작업 T22 변경: status=done, note=PR #221 머지. 출시는 다음 OTA 묶음"
+    },
+    {
+      "at": "2026-11-21T19:06:03+09:00",
+      "event": "작업 T23 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T19:04:04+09:00"
+  "updated_at": "2026-11-21T19:06:03+09:00"
 }
