@@ -660,12 +660,12 @@
       "title": "같이 고치기 3: 참여/담기·함께 표시·멤버 관리·409 안내 (spec trip-collab)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_2e55ee117947",
+      "note": "계약 docs/api/trip-collab.md(백엔드 #499), 가짜 응답으로 개발"
     },
     {
       "id": "T24",
@@ -1512,8 +1512,12 @@
     {
       "at": "2026-11-21T16:44:52+09:00",
       "event": "작업 추가 T24 (codex, 자동): 같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T18:31:42+09:00",
+      "event": "작업 T23 변경: status=dispatched, dispatch=ctx_2e55ee117947, note=계약 docs/api/trip-collab.md(백엔드 #499), 가짜 응답으로 개발"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T16:44:52+09:00"
+  "updated_at": "2026-11-21T18:31:42+09:00"
 }

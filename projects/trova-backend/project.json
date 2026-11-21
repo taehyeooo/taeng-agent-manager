@@ -834,9 +834,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "499",
       "dispatch": "ctx_4f1fc8f52719",
-      "note": "기획서 projects/trova-app/docs/specs/2026-11-21-trip-collab.md, API 계약 문서 먼저"
+      "note": "Claude 교차 검증 ctx_b7368f048ed7 (권한 누락 표 포함)"
     },
     {
       "id": "T26",
@@ -2035,10 +2035,22 @@
     {
       "at": "2026-11-21T18:29:11+09:00",
       "event": "승인 기록: push (feat/trip-collab-members) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T18:30:42+09:00",
+      "event": "작업 T25 변경: pr=499, note=PR #499: 멤버·권한(TripAccess)·join/members/rotate API·@Version 409·변경 기록, 계약 docs/api/trip-collab.md, ADR 0053. 테스트 1315 통과"
+    },
+    {
+      "at": "2026-11-21T18:31:21+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain > /[가림].log 2>&1; echo exit=$?"
+    },
+    {
+      "at": "2026-11-21T18:31:42+09:00",
+      "event": "작업 T25 변경: note=Claude 교차 검증 ctx_b7368f048ed7 (권한 누락 표 포함)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-21T18:29:11+09:00",
+  "updated_at": "2026-11-21T18:31:42+09:00",
   "requests": [
     {
       "gate": "push",
