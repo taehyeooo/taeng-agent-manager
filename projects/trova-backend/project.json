@@ -862,7 +862,7 @@
       "worktree": null,
       "pr": "500",
       "dispatch": "ctx_b8e692de7a6c",
-      "note": "PR #500(cbd8a61): SSE·ticket·Kafka/memory 넘기기·푸시 묶음·CORS, ADR 0054, Ubuntu 1332 통과. Codex 다른 세션 검증 중"
+      "note": "Codex 다른 세션 검증: 새 테스트 13 통과, 꼭 고칠 것 높음1(느린 연결이 스레드 막음)·보안 중간2(세션 폐기 미반영 ticket·전역 한도)·중간2(Kafka 경로 분리·푸시 큐) → 수정 요청"
     },
     {
       "id": "T27",
@@ -2109,10 +2109,14 @@
     {
       "at": "2026-11-21T22:02:18+09:00",
       "event": "작업 T26 변경: pr=500, note=PR #500(cbd8a61): SSE·ticket·Kafka/memory 넘기기·푸시 묶음·CORS, ADR 0054, Ubuntu 1332 통과. Codex 다른 세션 검증 중"
+    },
+    {
+      "at": "2026-11-21T22:07:12+09:00",
+      "event": "작업 T26 변경: note=Codex 다른 세션 검증: 새 테스트 13 통과, 꼭 고칠 것 높음1(느린 연결이 스레드 막음)·보안 중간2(세션 폐기 미반영 ticket·전역 한도)·중간2(Kafka 경로 분리·푸시 큐) → 수정 요청"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-21T22:02:18+09:00",
+  "updated_at": "2026-11-21T22:07:12+09:00",
   "requests": [
     {
       "gate": "push",
