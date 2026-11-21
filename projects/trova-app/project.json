@@ -572,9 +572,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "216",
       "dispatch": "ctx_81d3a1ecf253",
-      "note": "S1 선만 얇게 / S2 눈에 띄는 곳만 참고 그림체 시안, draft PR"
+      "note": "시안 완료 draft PR #216, 아이콘 183곳 목록, S1·S2, 추천 S2. 페이지 R8rSy7asFEhjBWyyVkz7ZM — 사용자 선택 대기"
     }
   ],
   "history": [
@@ -1297,8 +1297,12 @@
     {
       "at": "2026-11-21T14:45:44+09:00",
       "event": "작업 T21 변경: status=dispatched, dispatch=ctx_81d3a1ecf253, note=S1 선만 얇게 / S2 눈에 띄는 곳만 참고 그림체 시안, draft PR"
+    },
+    {
+      "at": "2026-11-21T15:03:53+09:00",
+      "event": "작업 T21 변경: pr=216, note=시안 완료 draft PR #216, 아이콘 183곳 목록, S1·S2, 추천 S2. 페이지 R8rSy7asFEhjBWyyVkz7ZM — 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T14:45:44+09:00"
+  "updated_at": "2026-11-21T15:03:54+09:00"
 }
