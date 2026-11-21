@@ -849,6 +849,18 @@
       "pr": null,
       "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T27",
+      "title": "QA 후속: 재분석 이전 결과 보관·조회, 저장 시 장소 매칭(경포호 주소 불일치) 검증 — PR #221 근거",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2047,10 +2059,14 @@
     {
       "at": "2026-11-21T18:31:42+09:00",
       "event": "작업 T25 변경: note=Claude 교차 검증 ctx_b7368f048ed7 (권한 누락 표 포함)"
+    },
+    {
+      "at": "2026-11-21T18:58:56+09:00",
+      "event": "작업 추가 T27 (codex, 자동): QA 후속: 재분석 이전 결과 보관·조회, 저장 시 장소 매칭(경포호 주소 불일치) 검증 — PR #221 근거"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-21T18:31:42+09:00",
+  "updated_at": "2026-11-21T18:58:56+09:00",
   "requests": [
     {
       "gate": "push",
