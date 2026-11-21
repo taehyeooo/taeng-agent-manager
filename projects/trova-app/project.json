@@ -157,6 +157,20 @@
       "note": "auto_gates — 사용자 '진행해'(2026-11-21), T1·얇은 핀·저장 문구 확정, 교차 검증 통과 (auto_gates 사용자 설정)",
       "at": "2026-11-21T14:45:09+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#217",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T15:29:51+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#217",
+      "note": "auto_gates — 사용자 'S2를 해줘'(2026-11-21), 교차 검증(Codex) 재검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T15:29:58+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -569,22 +583,25 @@
       "title": "앱 전체 아이콘 얇은 선 스타일 점검·시안 — 사용자 요청 2026-11-21",
       "agent": "claude",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "217",
       "dispatch": "ctx_81d3a1ecf253",
-      "note": "S2 적용 PR #217(495bfab, 테스트 343, 새 테스트 7개 먼저 실패→통과). Codex 교차 검증 ctx_e83534bd5517",
+      "note": "PR #217 squash 머지 692c142. draft PR #216(시안)은 열려 있음. 실기기 선명도·VoiceOver 미검증",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
         "by": "codex:review",
-        "summary": "PR #217 재검증 0b8b183: Windows 348/348 통과, 5건 중 4건 해결. Feather 래퍼 2건(Pressable 배치·터치 영역, 라벨 있는 그림의 accessible 기본값) 남음",
-        "at": "2026-11-21T15:27:18+09:00"
+        "summary": "PR #217 재검증 a5f8aa0: Windows 349/349·tsc·토큰 통과, 래퍼 2건 해결(Edge 실측 터치 영역 일치), 남은 필수 0. VoiceOver 실기기 미검증",
+        "at": "2026-11-21T15:29:41+09:00"
       },
       "files": [
-        "src/components/icons/Feather.tsx"
+        "src/components/icons/Feather.tsx",
+        "src/components/icons/ArtIcon.tsx",
+        "src/navigation/MainTabs.tsx",
+        "scripts/thin-icons.test.mjs"
       ]
     }
   ],
@@ -1328,8 +1345,28 @@
     {
       "at": "2026-11-21T15:27:18+09:00",
       "event": "작업 T21 검증(codex:review): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T15:29:41+09:00",
+      "event": "작업 T21 검증(codex:review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T15:29:51+09:00",
+      "event": "자동 승인 실행: merge_main(PR#217)"
+    },
+    {
+      "at": "2026-11-21T15:29:58+09:00",
+      "event": "승인 기록: merge_main (PR#217) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T15:30:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#217)"
+    },
+    {
+      "at": "2026-11-21T15:30:07+09:00",
+      "event": "작업 T21 변경: status=done, note=PR #217 squash 머지 692c142. draft PR #216(시안)은 열려 있음. 실기기 선명도·VoiceOver 미검증"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T15:27:18+09:00"
+  "updated_at": "2026-11-21T15:30:07+09:00"
 }
