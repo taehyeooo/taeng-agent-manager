@@ -458,12 +458,12 @@
       "title": "AI 대기 화면이 멈춰 보이지 않게(분석 여권 항로 선회·흐르는 문구·오래 걸림 안내·% 제거, 다른 AI 대기 화면 공통 부품) — 사용자 피드백 2026-11-21",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "209",
       "dispatch": "ctx_3750eea7a3a6",
-      "note": "교차 검증 미통과(중간 5·시안 불일치) → 같은 Codex에 수정 요청 ctx_3750eea7a3a6",
+      "note": "PR #209 squash 머지 ef9e419. 후속: 큰 글자에서 20초 안내 안 뜸(낮음), 대안 찾기 95%·다시 짜기 추정 % 공통 대기로. 앱 출시(배포)는 사용자 확인 필요",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1098,8 +1098,16 @@
     {
       "at": "2026-11-21T11:09:54+09:00",
       "event": "승인 기록: merge_main (PR#209) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T11:10:10+09:00",
+      "event": "자동 승인 실행: merge_main(PR#209)"
+    },
+    {
+      "at": "2026-11-21T11:10:10+09:00",
+      "event": "작업 T18 변경: status=done, pr=209, note=PR #209 squash 머지 ef9e419. 후속: 큰 글자에서 20초 안내 안 뜸(낮음), 대안 찾기 95%·다시 짜기 추정 % 공통 대기로. 앱 출시(배포)는 사용자 확인 필요"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T11:09:54+09:00"
+  "updated_at": "2026-11-21T11:10:10+09:00"
 }
