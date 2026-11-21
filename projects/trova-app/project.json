@@ -354,7 +354,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_17c8d123a807",
-      "note": "사용자 Expo 로그인 완료(Windows) → 출시 재개"
+      "note": "Windows Expo 계정 taeng527(프로젝트 소유, Google 로그인)로 재로그인 → 출시 재개"
     },
     {
       "id": "T11",
@@ -1387,8 +1387,12 @@
     {
       "at": "2026-11-21T16:03:30+09:00",
       "event": "작업 T10 변경: status=dispatched, note=사용자 Expo 로그인 완료(Windows) → 출시 재개"
+    },
+    {
+      "at": "2026-11-21T16:10:55+09:00",
+      "event": "작업 T10 변경: note=Windows Expo 계정 taeng527(프로젝트 소유, Google 로그인)로 재로그인 → 출시 재개"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T16:03:30+09:00"
+  "updated_at": "2026-11-21T16:10:55+09:00"
 }
