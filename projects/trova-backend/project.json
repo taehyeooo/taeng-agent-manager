@@ -386,6 +386,13 @@
       "note": "auto_gates + 사용자 '지금 바로 배포' — #500을 먼저 #499 브랜치에 합친 뒤 main으로 (auto_gates 사용자 설정)",
       "at": "2026-11-21T23:55:16+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#501",
+      "note": "auto_gates — 배포 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:06:47+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -882,7 +889,7 @@
       "worktree": null,
       "pr": "500",
       "dispatch": "ctx_83ce40b18cbb",
-      "note": "삭제 이벤트 40a3731(#499 2659575 병합), Ubuntu 1344·실패0"
+      "note": "운영 배포 완료 acfed70: 해시 일치, UP 146초, OWNER 누락 0, 이벤트 memory. 백업 app.jar.bak-20261121-235732. 남음: Caddy 무버퍼 실측, Aiven 토픽 후 Kafka 전환"
     },
     {
       "id": "T27",
@@ -2181,10 +2188,18 @@
     {
       "at": "2026-11-21T23:56:52+09:00",
       "event": "작업 T25 변경: pr=499, note=main acfed70 머지(#500 포함). 같은 모델 검증이라 verify 미기록 — 사용자 '지금 바로 배포' 판단으로 진행. 11/23 이후 Claude 사후 검증 예정"
+    },
+    {
+      "at": "2026-11-22T00:06:47+09:00",
+      "event": "승인 기록: merge_main (PR#501) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:06:51+09:00",
+      "event": "작업 T26 변경: note=운영 배포 완료 acfed70: 해시 일치, UP 146초, OWNER 누락 0, 이벤트 memory. 백업 app.jar.bak-20261121-235732. 남음: Caddy 무버퍼 실측, Aiven 토픽 후 Kafka 전환"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-21T23:56:52+09:00",
+  "updated_at": "2026-11-22T00:06:51+09:00",
   "requests": [
     {
       "gate": "push",
