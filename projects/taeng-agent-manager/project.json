@@ -1841,10 +1841,18 @@
     {
       "at": "2026-11-21T00:43:27+09:00",
       "event": "승인된 작업 실행: push(taehyeooo/taeng-agent-manager-T12)"
+    },
+    {
+      "at": "2026-11-21T18:32:33+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(tar); 명령: mkdir -p [가림] && gh api [가림] > /[가림].tar.gz && tar -tzf /[가림].tar.gz | grep \"docs/qa/2026-11-21-uxui/\" | head -3"
+    },
+    {
+      "at": "2026-11-21T18:32:44+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(tar); 명령: tar -xzf /[가림].tar.gz -C /[가림] --strip-components=4 \"[가림]\" && find /[가림] -type f | sed 's|.*/art-qa2/||' | sort | tr '\\n"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-21T16:24:32+09:00",
+  "updated_at": "2026-11-21T18:32:44+09:00",
   "requests": [
     {
       "gate": "push",
