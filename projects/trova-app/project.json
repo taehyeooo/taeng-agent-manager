@@ -521,6 +521,18 @@
         "src/components/ConversationSheet.tsx",
         "src/lib/theme.ts"
       ]
+    },
+    {
+      "id": "T20",
+      "title": "찜 폴더 아이콘 교체(배낭→우표/항공권) — 사용자 피드백 2026-11-21",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_54ed4bf6e08c",
+      "note": "시안 3개(A 우표, B 항공권, C 우표+소인) 실제 화면 캡처, draft PR"
     }
   ],
   "history": [
@@ -1175,8 +1187,16 @@
     {
       "at": "2026-11-21T13:00:09+09:00",
       "event": "작업 T19 변경: status=done, note=PR #213 squash 머지 899905f. 남은 낮음: AiWaiting 실제 렌더 5초·20초 테스트, 동작 줄이기 전달 테스트. 앱 출시는 사용자 확인 필요"
+    },
+    {
+      "at": "2026-11-21T13:19:00+09:00",
+      "event": "작업 추가 T20 (codex, 자동): 찜 폴더 아이콘 교체(배낭→우표/항공권) — 사용자 피드백 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T13:19:03+09:00",
+      "event": "작업 T20 변경: status=dispatched, dispatch=ctx_54ed4bf6e08c, note=시안 3개(A 우표, B 항공권, C 우표+소인) 실제 화면 캡처, draft PR"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T13:00:09+09:00"
+  "updated_at": "2026-11-21T13:19:03+09:00"
 }
