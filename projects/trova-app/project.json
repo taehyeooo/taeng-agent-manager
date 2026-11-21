@@ -171,6 +171,12 @@
       "note": "auto_gates — 사용자 'S2를 해줘'(2026-11-21), 교차 검증(Codex) 재검증 통과 (auto_gates 사용자 설정)",
       "at": "2026-11-21T15:29:58+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "release-2026-11-21",
+      "note": "사용자 '진행해'(2026-11-21) — AI 대기·여행 컨셉·저장 이름·얇은 선 아이콘 스토어/운영 출시 승인",
+      "at": "2026-11-21T15:40:11+09:00"
     }
   ],
   "tasks": [
@@ -343,12 +349,12 @@
       "title": "앱 다음 출시 묶음(versionCode 11): 디자인 1차 #186 + 칩 #188 + 이후 앱 변경 — 사용자 결정 2026-11-19 '나중에 묶어서'",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_17c8d123a807",
+      "note": "사용자 배포 승인(2026-11-21 '진행해'). 네이티브 변경 없으면 무선 업데이트(production), 있으면 스토어 빌드 versionCode 11. QA 에뮬레이터 확인 후 출시"
     },
     {
       "id": "T11",
@@ -1365,8 +1371,16 @@
     {
       "at": "2026-11-21T15:30:07+09:00",
       "event": "작업 T21 변경: status=done, note=PR #217 squash 머지 692c142. draft PR #216(시안)은 열려 있음. 실기기 선명도·VoiceOver 미검증"
+    },
+    {
+      "at": "2026-11-21T15:40:11+09:00",
+      "event": "승인 기록: deploy (release-2026-11-21)"
+    },
+    {
+      "at": "2026-11-21T15:52:29+09:00",
+      "event": "작업 T10 변경: status=dispatched, dispatch=ctx_17c8d123a807, note=사용자 배포 승인(2026-11-21 '진행해'). 네이티브 변경 없으면 무선 업데이트(production), 있으면 스토어 빌드 versionCode 11. QA 에뮬레이터 확인 후 출시"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T15:30:07+09:00"
+  "updated_at": "2026-11-21T15:52:29+09:00"
 }
