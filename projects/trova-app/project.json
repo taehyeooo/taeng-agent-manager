@@ -489,9 +489,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "213",
       "dispatch": "ctx_58b7f2f63c01",
-      "note": "사용자: 폴더 아이콘 배낭 확정"
+      "note": "Codex 적용 완료 PR #213(코드 16파일, 테스트 328 통과 보고) → Claude 교차 검증 ctx_e220c18cc053"
     }
   ],
   "history": [
@@ -1118,8 +1118,12 @@
     {
       "at": "2026-11-21T12:17:14+09:00",
       "event": "작업 T19 변경: note=사용자: 폴더 아이콘 배낭 확정"
+    },
+    {
+      "at": "2026-11-21T12:44:00+09:00",
+      "event": "작업 T19 변경: pr=213, note=Codex 적용 완료 PR #213(코드 16파일, 테스트 328 통과 보고) → Claude 교차 검증 ctx_e220c18cc053"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T12:17:14+09:00"
+  "updated_at": "2026-11-21T12:44:00+09:00"
 }
