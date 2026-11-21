@@ -836,7 +836,7 @@
       "worktree": null,
       "pr": "499",
       "dispatch": "ctx_4f1fc8f52719",
-      "note": "S1 사용자 결정: 기존 링크도 바로 참여 가능(실사용 없음) — ADR 0053에 기록",
+      "note": "수정 2ae5e61(재사용 여행 단위, X-Trip-Version 헤더, 테스트 4개, 백필 순서), 테스트 1318. 재검증 Codex 다른 세션 ctx_c5afa2833053(Claude 사용량 부족 예외)",
       "verification": {
         "tests": "pass",
         "review": "fail",
@@ -2085,10 +2085,14 @@
     {
       "at": "2026-11-21T20:05:54+09:00",
       "event": "작업 T25 변경: note=S1 사용자 결정: 기존 링크도 바로 참여 가능(실사용 없음) — ADR 0053에 기록"
+    },
+    {
+      "at": "2026-11-21T20:17:45+09:00",
+      "event": "작업 T25 변경: note=수정 2ae5e61(재사용 여행 단위, X-Trip-Version 헤더, 테스트 4개, 백필 순서), 테스트 1318. 재검증 Codex 다른 세션 ctx_c5afa2833053(Claude 사용량 부족 예외)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-21T20:05:54+09:00",
+  "updated_at": "2026-11-21T20:17:45+09:00",
   "requests": [
     {
       "gate": "push",
