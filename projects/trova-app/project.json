@@ -368,7 +368,19 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_74f444f8a02b",
-      "note": "Windows는 google-services.json(비밀 파일) 차이로 지문 불일치 → 원본 있는 Mac으로 인계(Claude). 기대 지문 692378b1…, 무료 사용량 4/15·MAU 19/1000"
+      "note": "Windows는 google-services.json(비밀 파일) 차이로 지문 불일치 → 원본 있는 Mac으로 인계(Claude). 기대 지문 692378b1…, 무료 사용량 4/15·MAU 19/1000",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:review",
+        "summary": "출시 교차 확인(Windows Codex): EAS production Android 그룹 2f14364f·지문 692378b1·커밋 692c142 일치, PR #218 비밀값 없음, test:web 349/349. Windows trova-qa는 재시작 전이라 아직 옛 화면 — 수신은 Mac 에뮬레이터 로그로만 확인, 실기기 확인은 사용자 몫",
+        "at": "2026-11-21T16:26:57+09:00"
+      },
+      "files": [
+        "docs/experience-notes.md",
+        "docs/release-checklist.md"
+      ]
     },
     {
       "id": "T11",
@@ -1417,8 +1429,12 @@
     {
       "at": "2026-11-21T16:24:41+09:00",
       "event": "승인 기록: merge_main (PR#218) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T16:26:57+09:00",
+      "event": "작업 T10 검증(codex:review): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T16:24:41+09:00"
+  "updated_at": "2026-11-21T16:26:57+09:00"
 }
