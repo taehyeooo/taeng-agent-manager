@@ -282,6 +282,20 @@
       "note": "auto_gates — 실기기 발견 수정, Codex 다른 세션 검증 통과 (auto_gates 사용자 설정)",
       "at": "2026-11-22T01:27:49+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#228",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T01:58:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#228",
+      "note": "auto_gates — 전체 QA 후속 수정, Codex 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T01:58:52+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -801,7 +815,7 @@
       "worktree": null,
       "pr": "223",
       "dispatch": "ctx_5c29eecf01da",
-      "note": "수정 PR #228(df8aef3, 테스트 395) → Codex 검증"
+      "note": "PR #228 머지. 운영 반영(OTA·웹)은 아침 사용자 확인 대기 — main에 #226·#228 대기"
     },
     {
       "id": "T26",
@@ -1832,8 +1846,20 @@
     {
       "at": "2026-11-22T01:56:52+09:00",
       "event": "작업 T25 변경: note=수정 PR #228(df8aef3, 테스트 395) → Codex 검증"
+    },
+    {
+      "at": "2026-11-22T01:58:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#228)"
+    },
+    {
+      "at": "2026-11-22T01:58:52+09:00",
+      "event": "승인 기록: merge_main (PR#228) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T01:58:56+09:00",
+      "event": "작업 T25 변경: note=PR #228 머지. 운영 반영(OTA·웹)은 아침 사용자 확인 대기 — main에 #226·#228 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-22T01:56:52+09:00"
+  "updated_at": "2026-11-22T01:58:56+09:00"
 }
