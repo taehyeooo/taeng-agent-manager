@@ -490,8 +490,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_36455becd813",
-      "note": "조금씩 버전 공개: Claude PR #212 4QToBbZUnpb98K7pUJxyDk, Codex PR #211 2vWs1bArPc4KDv3m3qgayK, 모음 8dxq9y5XWghW5eaRYenb67 — 사용자 선택 대기"
+      "dispatch": "ctx_58b7f2f63c01",
+      "note": "사용자 선택: Claude 조금씩 A 기준(흐름2·내 여행 절취선·찜 구성), 분석·일정 짜는 중·말로 바꾸기 대기는 창밖 순항, 폴더 아이콘 배낭(+캐리어·수하물 태그 비교 캡처). 적용 위임 Windows Codex ctx_58b7f2f63c01"
     }
   ],
   "history": [
@@ -1110,8 +1110,12 @@
     {
       "at": "2026-11-21T11:35:13+09:00",
       "event": "작업 T19 변경: note=조금씩 버전 공개: Claude PR #212 4QToBbZUnpb98K7pUJxyDk, Codex PR #211 2vWs1bArPc4KDv3m3qgayK, 모음 8dxq9y5XWghW5eaRYenb67 — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T12:15:31+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_58b7f2f63c01, note=사용자 선택: Claude 조금씩 A 기준(흐름2·내 여행 절취선·찜 구성), 분석·일정 짜는 중·말로 바꾸기 대기는 창밖 순항, 폴더 아이콘 배낭(+캐리어·수하물 태그 비교 캡처). 적용 위임 Windows Codex ctx_58b7f2f63c01"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T11:35:13+09:00"
+  "updated_at": "2026-11-21T12:15:31+09:00"
 }
