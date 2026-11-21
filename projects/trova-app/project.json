@@ -714,12 +714,12 @@
       "title": "같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_bc734e8d66c1",
+      "note": "#220 브랜치 위 feat/trip-collab-live, 순수 JS SSE"
     }
   ],
   "history": [
@@ -1614,8 +1614,12 @@
     {
       "at": "2026-11-21T20:49:08+09:00",
       "event": "작업 T23 변경: note=서버 계약 0fc6c20 반영 050c40f(X-Trip-Version 캐시 갱신, 오류 본문, 실행자별 설명), 테스트 377. 서버에 CORS 노출 헤더 요청(T26)"
+    },
+    {
+      "at": "2026-11-21T22:02:18+09:00",
+      "event": "작업 T24 변경: status=dispatched, dispatch=ctx_bc734e8d66c1, note=#220 브랜치 위 feat/trip-collab-live, 순수 JS SSE"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-21T20:49:08+09:00"
+  "updated_at": "2026-11-21T22:02:18+09:00"
 }
