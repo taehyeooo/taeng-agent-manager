@@ -949,6 +949,18 @@
       "pr": "503",
       "dispatch": "ctx_e8f19a440ab0",
       "note": "운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
+    },
+    {
+      "id": "T28",
+      "title": "빈 시간 추천 쓸데없는 곳(아파트·병원 등) 조사·정리 — 사용자 요청 2026-11-22",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2307,10 +2319,14 @@
     {
       "at": "2026-11-22T17:14:15+09:00",
       "event": "작업 T27 변경: note=운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
+    },
+    {
+      "at": "2026-11-22T23:27:16+09:00",
+      "event": "작업 추가 T28 (codex, 자동): 빈 시간 추천 쓸데없는 곳(아파트·병원 등) 조사·정리 — 사용자 요청 2026-11-22"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-22T17:14:15+09:00",
+  "updated_at": "2026-11-22T23:27:16+09:00",
   "requests": [
     {
       "gate": "push",
