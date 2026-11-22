@@ -393,6 +393,12 @@
       "note": "auto_gates — 배포 기록 문서만 (auto_gates 사용자 설정)",
       "at": "2026-11-22T00:06:47+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "trip-events-kafka",
+      "note": "사용자 '진행해'(2026-11-22) — 실시간 전달 Kafka 전환(운영 .env 설정 + 재시작). 토픽 trova.trip-events는 매니저가 Aiven 콘솔에서 생성(파티션 2, 복제 2)",
+      "at": "2026-11-22T11:22:34+09:00"
     }
   ],
   "tasks": [
@@ -2196,10 +2202,14 @@
     {
       "at": "2026-11-22T00:06:51+09:00",
       "event": "작업 T26 변경: note=운영 배포 완료 acfed70: 해시 일치, UP 146초, OWNER 누락 0, 이벤트 memory. 백업 app.jar.bak-20261121-235732. 남음: Caddy 무버퍼 실측, Aiven 토픽 후 Kafka 전환"
+    },
+    {
+      "at": "2026-11-22T11:22:34+09:00",
+      "event": "승인 기록: deploy (trip-events-kafka)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-22T00:06:51+09:00",
+  "updated_at": "2026-11-22T11:22:34+09:00",
   "requests": [
     {
       "gate": "push",
