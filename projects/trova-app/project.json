@@ -974,7 +974,7 @@
       "worktree": null,
       "pr": "240",
       "dispatch": "ctx_b75756d757a0",
-      "note": "PR #240 적용(테스트 411) → Codex 검증 중. 다른 화면 후보 8곳 조사 페이지 Uq911f4TyG2fyMGNRp6pz7"
+      "note": "사용자: 후보 8곳 시안 만들어 비교·선택 → 위임(prototype/apple-minimal-8)"
     }
   ],
   "history": [
@@ -2185,8 +2185,12 @@
     {
       "at": "2026-11-23T00:03:40+09:00",
       "event": "작업 T28 변경: pr=240, note=PR #240 적용(테스트 411) → Codex 검증 중. 다른 화면 후보 8곳 조사 페이지 Uq911f4TyG2fyMGNRp6pz7"
+    },
+    {
+      "at": "2026-11-23T00:04:54+09:00",
+      "event": "작업 T28 변경: note=사용자: 후보 8곳 시안 만들어 비교·선택 → 위임(prototype/apple-minimal-8)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T00:03:40+09:00"
+  "updated_at": "2026-11-23T00:04:54+09:00"
 }
