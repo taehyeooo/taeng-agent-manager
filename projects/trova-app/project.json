@@ -419,6 +419,33 @@
       "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
       "at": "2026-11-22T20:05:54+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "ios-scroll-apple-minimal",
+      "note": "사용자 '승인'(2026-11-23) — #238·#240 머지·OTA·웹",
+      "at": "2026-11-23T00:13:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#238",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:04+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#240",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:13:14+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#240",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:25+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -974,7 +1001,7 @@
       "worktree": null,
       "pr": "240",
       "dispatch": "ctx_b75756d757a0",
-      "note": "PR #240 재확인 PASS(테스트 413, 빈 시간 간격 17px, 카드 접근성 이름). 운영 반영 대기"
+      "note": "#240 main 9e474a5 머지(+#238), OTA·웹 위임. 8곳 시안 draft PR #241"
     }
   ],
   "history": [
@@ -2197,8 +2224,28 @@
     {
       "at": "2026-11-23T00:11:07+09:00",
       "event": "작업 T28 변경: note=PR #240 재확인 PASS(테스트 413, 빈 시간 간격 17px, 카드 접근성 이름). 운영 반영 대기"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: deploy (ios-scroll-apple-minimal)"
+    },
+    {
+      "at": "2026-11-23T00:13:04+09:00",
+      "event": "승인 기록: merge_main (PR#238) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:14+09:00",
+      "event": "자동 승인 실행: merge_main(PR#240)"
+    },
+    {
+      "at": "2026-11-23T00:13:25+09:00",
+      "event": "승인 기록: merge_main (PR#240) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:52+09:00",
+      "event": "작업 T28 변경: note=#240 main 9e474a5 머지(+#238), OTA·웹 위임. 8곳 시안 draft PR #241"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T00:11:07+09:00"
+  "updated_at": "2026-11-23T00:13:52+09:00"
 }

@@ -440,6 +440,19 @@
       "note": "auto_gates — 배포 기록 문서 (auto_gates 사용자 설정)",
       "at": "2026-11-22T17:14:11+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "gap-junk-filter",
+      "note": "사용자 '승인'(2026-11-23) — #505 머지·운영 배포",
+      "at": "2026-11-23T00:13:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#505",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:01+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -960,7 +973,7 @@
       "worktree": null,
       "pr": "505",
       "dispatch": null,
-      "note": "PR #505 Codex 마지막 재확인 PASS(관련 102, 남은 필수 0). 머지·배포 사용자 확인 대기"
+      "note": "main a6a1ca5 머지, 배포 위임"
     }
   ],
   "history": [
@@ -2347,10 +2360,22 @@
     {
       "at": "2026-11-23T00:05:25+09:00",
       "event": "작업 T28 변경: note=PR #505 Codex 마지막 재확인 PASS(관련 102, 남은 필수 0). 머지·배포 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: deploy (gap-junk-filter)"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: merge_main (PR#505) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:52+09:00",
+      "event": "작업 T28 변경: pr=505, note=main a6a1ca5 머지, 배포 위임"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T00:05:25+09:00",
+  "updated_at": "2026-11-23T00:13:52+09:00",
   "requests": [
     {
       "gate": "push",
