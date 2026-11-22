@@ -391,6 +391,20 @@
       "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
       "at": "2026-11-22T20:01:26+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#235",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T20:05:34+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#235",
+      "note": "auto_gates — 웹 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T20:05:37+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -934,7 +948,7 @@
       "worktree": null,
       "pr": "233",
       "dispatch": "ctx_6dda22dcaef5",
-      "note": "main 722067a 머지, OTA·웹 배포 위임"
+      "note": "웹 배포 완료 722067a(백업 backup-before-722067a-zW4yFr1B), 기록 #235 머지. OTA 대기"
     }
   ],
   "history": [
@@ -2085,8 +2099,20 @@
     {
       "at": "2026-11-22T20:01:59+09:00",
       "event": "작업 T27 변경: pr=233, note=main 722067a 머지, OTA·웹 배포 위임"
+    },
+    {
+      "at": "2026-11-22T20:05:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#235)"
+    },
+    {
+      "at": "2026-11-22T20:05:37+09:00",
+      "event": "승인 기록: merge_main (PR#235) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T20:05:40+09:00",
+      "event": "작업 T27 변경: note=웹 배포 완료 722067a(백업 backup-before-722067a-zW4yFr1B), 기록 #235 머지. OTA 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-22T20:01:59+09:00"
+  "updated_at": "2026-11-22T20:05:40+09:00"
 }
