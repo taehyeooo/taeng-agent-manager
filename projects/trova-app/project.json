@@ -659,12 +659,12 @@
       "title": "디자인 3차 실기기 발견 버그: 되돌리기 미표시(googlePlaceId null)+교체 시 메모 소실, 상세 목록 끝까지 안 내려감·빈 시간 이동 없음, 바닥줄 '빈 시간 1곳' 줄바꿈, '630분' 표기·1곳인데 장소 사이 문구, 여행 이름-지역 불일치, 대안 후보 품질, 시트 열 때 헤더 안 어두워짐, 큰 글자 제목 겹침 (PR #203 README)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_31e80c3a069d",
+      "note": "사용자 외출 중 진행: 디자인 3차 실기기 버그 8건 재현·수정. 머지·배포 금지"
     },
     {
       "id": "T18",
@@ -1924,8 +1924,12 @@
     {
       "at": "2026-11-22T11:04:34+09:00",
       "event": "자동 승인 실행: merge_main(PR#230)"
+    },
+    {
+      "at": "2026-11-22T12:07:26+09:00",
+      "event": "작업 T17 변경: status=dispatched, dispatch=ctx_31e80c3a069d, note=사용자 외출 중 진행: 디자인 3차 실기기 버그 8건 재현·수정. 머지·배포 금지"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-22T11:04:34+09:00"
+  "updated_at": "2026-11-22T12:07:26+09:00"
 }

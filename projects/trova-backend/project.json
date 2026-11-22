@@ -916,12 +916,12 @@
       "title": "QA 후속: 재분석 이전 결과 보관·조회, 저장 시 장소 매칭(경포호 주소 불일치) 검증 — PR #221 근거",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "dispatch": "ctx_e8f19a440ab0",
+      "note": "사용자 외출 중 진행: 재분석 이력 보관·조회 API, 장소 매칭 원인. 머지·배포 금지"
     }
   ],
   "history": [
@@ -2236,10 +2236,14 @@
     {
       "at": "2026-11-22T11:55:49+09:00",
       "event": "작업 T26 변경: note=Kafka 운영 왕복 확인 완료 2026-11-22 11:36~38: 발행 3·소비 3·fallback 0, 시뮬레이터 반영 3/3(2~3초). PDF /private/tmp/trova-kafka-live/trova-kafka-live-report.pdf"
+    },
+    {
+      "at": "2026-11-22T12:07:25+09:00",
+      "event": "작업 T27 변경: status=dispatched, dispatch=ctx_e8f19a440ab0, note=사용자 외출 중 진행: 재분석 이력 보관·조회 API, 장소 매칭 원인. 머지·배포 금지"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-22T11:55:49+09:00",
+  "updated_at": "2026-11-22T12:07:25+09:00",
   "requests": [
     {
       "gate": "push",
