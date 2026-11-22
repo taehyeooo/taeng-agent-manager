@@ -426,6 +426,20 @@
       "note": "auto_gates + 사용자 '진행해' (auto_gates 사용자 설정)",
       "at": "2026-11-22T17:06:50+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#504",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T17:14:07+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#504",
+      "note": "auto_gates — 배포 기록 문서 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:14:11+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -934,7 +948,7 @@
       "worktree": null,
       "pr": "503",
       "dispatch": "ctx_e8f19a440ab0",
-      "note": "main f6f4e6a 머지, 운영 배포 위임"
+      "note": "운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
     }
   ],
   "history": [
@@ -2281,10 +2295,22 @@
     {
       "at": "2026-11-22T17:07:59+09:00",
       "event": "작업 T27 변경: pr=503, note=main f6f4e6a 머지, 운영 배포 위임"
+    },
+    {
+      "at": "2026-11-22T17:14:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#504)"
+    },
+    {
+      "at": "2026-11-22T17:14:11+09:00",
+      "event": "승인 기록: merge_main (PR#504) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:14:15+09:00",
+      "event": "작업 T27 변경: note=운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-22T17:07:59+09:00",
+  "updated_at": "2026-11-22T17:14:15+09:00",
   "requests": [
     {
       "gate": "push",
