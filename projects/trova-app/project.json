@@ -1001,7 +1001,7 @@
       "worktree": null,
       "pr": "240",
       "dispatch": "ctx_b75756d757a0",
-      "note": "#240 main 9e474a5 머지(+#238), OTA·웹 위임. 8곳 시안 draft PR #241"
+      "note": "8곳 시안 비교 페이지 BdL8kuGbwmT4gV3hrzLVrX(draft PR #241). 8B는 왼쪽 3px 색 선 — 사용자 금지 규칙과 충돌 표시. 사용자 선택 대기"
     }
   ],
   "history": [
@@ -2244,8 +2244,12 @@
     {
       "at": "2026-11-23T00:13:52+09:00",
       "event": "작업 T28 변경: note=#240 main 9e474a5 머지(+#238), OTA·웹 위임. 8곳 시안 draft PR #241"
+    },
+    {
+      "at": "2026-11-23T00:14:35+09:00",
+      "event": "작업 T28 변경: note=8곳 시안 비교 페이지 BdL8kuGbwmT4gV3hrzLVrX(draft PR #241). 8B는 왼쪽 3px 색 선 — 사용자 금지 규칙과 충돌 표시. 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T00:13:52+09:00"
+  "updated_at": "2026-11-23T00:14:35+09:00"
 }
