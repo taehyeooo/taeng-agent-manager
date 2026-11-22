@@ -972,9 +972,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "239",
       "dispatch": "ctx_b75756d757a0",
-      "note": "디자인 가이드 3단계: 실제 앱 화면 시안 3개(애플 미니멀/반투명 칩/얇은 선), 사용자 선택 전 코드 반영 없음"
+      "note": "시안 3개 draft PR #239, 비교 페이지 YbqQHmtndXKa7Gmjnzoiwu, 추천 1안(애플 미니멀)→3안→2안. 사용자 선택 대기"
     }
   ],
   "history": [
@@ -2173,8 +2173,12 @@
     {
       "at": "2026-11-22T23:41:35+09:00",
       "event": "작업 T28 변경: status=dispatched, dispatch=ctx_b75756d757a0, note=디자인 가이드 3단계: 실제 앱 화면 시안 3개(애플 미니멀/반투명 칩/얇은 선), 사용자 선택 전 코드 반영 없음"
+    },
+    {
+      "at": "2026-11-22T23:49:43+09:00",
+      "event": "작업 T28 변경: pr=239, note=시안 3개 draft PR #239, 비교 페이지 YbqQHmtndXKa7Gmjnzoiwu, 추천 1안(애플 미니멀)→3안→2안. 사용자 선택 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-22T23:41:35+09:00"
+  "updated_at": "2026-11-22T23:49:43+09:00"
 }
