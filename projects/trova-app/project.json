@@ -474,6 +474,19 @@
       "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
       "at": "2026-11-23T00:21:48+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "apple-minimal-picks",
+      "note": "사용자 '승인'(2026-11-23) — #244 머지·OTA·웹",
+      "at": "2026-11-23T00:41:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#244",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:41:01+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1027,9 +1040,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": "240",
+      "pr": "244",
       "dispatch": "ctx_b75756d757a0",
-      "note": "PR #244 재확인 PASS(테스트 418). 캡처 1장 교체 후 운영 반영 사용자 확인"
+      "note": "#244 main d9aa536 머지, OTA·웹 위임"
     }
   ],
   "history": [
@@ -2308,8 +2321,20 @@
     {
       "at": "2026-11-23T00:40:32+09:00",
       "event": "작업 T28 변경: note=PR #244 재확인 PASS(테스트 418). 캡처 1장 교체 후 운영 반영 사용자 확인"
+    },
+    {
+      "at": "2026-11-23T00:41:01+09:00",
+      "event": "승인 기록: deploy (apple-minimal-picks)"
+    },
+    {
+      "at": "2026-11-23T00:41:01+09:00",
+      "event": "승인 기록: merge_main (PR#244) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:41:24+09:00",
+      "event": "작업 T28 변경: pr=244, note=#244 main d9aa536 머지, OTA·웹 위임"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T00:40:32+09:00"
+  "updated_at": "2026-11-23T00:41:24+09:00"
 }
