@@ -1973,10 +1973,14 @@
     {
       "at": "2026-11-22T00:35:12+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(xcrun); 명령: xcrun simctl openurl [가림] \"https://app.193-123-161-217.sslip.[가림]\" 2>&1 | tail -2; echo done"
+    },
+    {
+      "at": "2026-11-22T11:03:20+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for p in 229 230; do gh api repos/Trovapp/trova-app/pulls/$p/files -q '.[].filename' | tr '\\n' ' '; echo; done"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-22T01:58:47+09:00",
+  "updated_at": "2026-11-22T11:03:28+09:00",
   "requests": [
     {
       "gate": "push",
