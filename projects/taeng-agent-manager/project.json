@@ -2066,10 +2066,14 @@
     {
       "at": "2026-11-23T14:49:11+09:00",
       "event": "작업 T13 변경: status=done, note=PR #19 main 병합(사용자 승인 11/23)"
+    },
+    {
+      "at": "2026-11-23T15:12:55+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(open); 명령: open ~/Desktop/트루바-그라파나-설명서.pdf; python3 -m am task set trova-backend T30 --status done --note \"완료: ~/Desktop/트루바-그라파나-설"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T14:49:11+09:00",
+  "updated_at": "2026-11-23T15:12:55+09:00",
   "requests": [
     {
       "gate": "push",
