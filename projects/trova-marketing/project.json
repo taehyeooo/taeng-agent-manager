@@ -16,8 +16,8 @@
       "branch": "taehyeooo/trova-marketing-T1",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1",
       "pr": "14",
-      "dispatch": "ctx_f02d87ecdd6e",
-      "note": "완료: 이슈 #13·PR #14, 캐러셀 4장+스레드 원고, 슬랙 1회 발송 성공, lint·테스트 35 통과. 검증·병합 대기"
+      "dispatch": "ctx_5b65b1070720",
+      "note": "수정 요청(11/23): 리뷰 좋은 점·아쉬운 점 정리 기능 장 추가, 슬랙 수정본 1회"
     }
   ],
   "history": [
@@ -40,8 +40,12 @@
     {
       "at": "2026-11-23T10:41:30+09:00",
       "event": "작업 T1 변경: pr=14, note=완료: 이슈 #13·PR #14, 캐러셀 4장+스레드 원고, 슬랙 1회 발송 성공, lint·테스트 35 통과. 검증·병합 대기"
+    },
+    {
+      "at": "2026-11-23T10:43:44+09:00",
+      "event": "작업 T1 변경: status=dispatched, dispatch=ctx_5b65b1070720, note=수정 요청(11/23): 리뷰 좋은 점·아쉬운 점 정리 기능 장 추가, 슬랙 수정본 1회"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T10:41:30+09:00"
+  "updated_at": "2026-11-23T10:43:44+09:00"
 }
