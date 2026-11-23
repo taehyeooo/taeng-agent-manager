@@ -1033,8 +1033,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_44e58651d990",
-      "note": "자동 배정: docs → codex (config/agents.json 선호)",
+      "dispatch": "ctx_9dc30128c166",
+      "note": "사용자 피드백(11/23): 이해 어려움 → 앱 기능 중심(행동→그래프→느려지는 것) 새 PDF ~/Desktop/트루바-그라파나-쉬운설명.pdf",
       "verification": {
         "tests": "skip",
         "review": "pass",
@@ -2552,10 +2552,14 @@
     {
       "at": "2026-11-23T16:23:56+09:00",
       "event": "작업 T31 변경: status=dispatched, dispatch=ctx_e67b6f43c6ea, note=Windows Codex. 사후 검증(T25) 경미 지적 6항목. 머지·배포는 검증 후"
+    },
+    {
+      "at": "2026-11-23T16:43:48+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_9dc30128c166, note=사용자 피드백(11/23): 이해 어려움 → 앱 기능 중심(행동→그래프→느려지는 것) 새 PDF ~/Desktop/트루바-그라파나-쉬운설명.pdf"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T16:23:56+09:00",
+  "updated_at": "2026-11-23T16:43:48+09:00",
   "requests": [
     {
       "gate": "push",
