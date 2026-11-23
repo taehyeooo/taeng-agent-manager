@@ -138,6 +138,18 @@
         "video/mascot-reel",
         "posts/2026-11-25.json"
       ]
+    },
+    {
+      "id": "T5",
+      "title": "릴스 7편: Windows 에뮬레이터 실제 화면 녹화 + 레퍼런스(Ondefica·링크 하나) 스타일",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_98d7d5407384",
+      "note": "1단계 Windows 녹화(poomasi 금지, 새 분석 금지) → 2단계 Mac 편집·슬랙"
     }
   ],
   "history": [
@@ -284,8 +296,16 @@
     {
       "at": "2026-11-23T18:54:36+09:00",
       "event": "작업 T4 변경: note=6편 수정본도 사용자 '별로' → 레퍼런스 고르기부터 다시"
+    },
+    {
+      "at": "2026-11-23T18:57:58+09:00",
+      "event": "작업 추가 T5 (codex, 자동): 릴스 7편: Windows 에뮬레이터 실제 화면 녹화 + 레퍼런스(Ondefica·링크 하나) 스타일"
+    },
+    {
+      "at": "2026-11-23T18:58:11+09:00",
+      "event": "작업 T5 변경: status=dispatched, dispatch=ctx_98d7d5407384, note=1단계 Windows 녹화(poomasi 금지, 새 분석 금지) → 2단계 Mac 편집·슬랙"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T18:54:36+09:00"
+  "updated_at": "2026-11-23T18:58:11+09:00"
 }
