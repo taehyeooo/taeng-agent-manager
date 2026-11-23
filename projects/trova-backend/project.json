@@ -480,6 +480,12 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-23T12:45:31+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "511",
+      "note": "사용자 '승인' 2026-11-23: 공동 편집 개선 PR #511 머지·운영 배포",
+      "at": "2026-11-23T17:14:59+09:00"
     }
   ],
   "tasks": [
@@ -1071,6 +1077,18 @@
         "src/main/java/com/trova/backend/events/TripChangePush.java",
         "src/main/java/com/trova/backend/config/AsyncConfig.java"
       ]
+    },
+    {
+      "id": "T32",
+      "title": "공동 편집 개선 #511 머지·운영 배포",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "511",
+      "dispatch": "ctx_1bfb6885ae34",
+      "note": "사용자 승인 11/23"
     }
   ],
   "history": [
@@ -2585,10 +2603,22 @@
     {
       "at": "2026-11-23T17:11:51+09:00",
       "event": "작업 T30 변경: note=쉬운 설명서 완성: ~/Desktop/트루바-그라파나-쉬운설명.pdf 16쪽, 13개 기능 흐름도·실제 캡처 14장, 앞뒤 찾아보기 표. 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-23T17:14:59+09:00",
+      "event": "승인 기록: deploy (511)"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 추가 T32 (codex, 자동): 공동 편집 개선 #511 머지·운영 배포"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 T32 변경: status=dispatched, pr=511, dispatch=ctx_1bfb6885ae34, note=사용자 승인 11/23"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T17:11:51+09:00",
+  "updated_at": "2026-11-23T17:15:19+09:00",
   "requests": [
     {
       "gate": "push",

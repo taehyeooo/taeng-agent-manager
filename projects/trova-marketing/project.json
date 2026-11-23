@@ -107,6 +107,18 @@
         "video/real-reel",
         "video/ad-reel"
       ]
+    },
+    {
+      "id": "T4",
+      "title": "릴스: Hook→Problem→Solution→Demo→CTA 구조 새 릴스 + 11/25 게시물 슬랙 발송",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_b7647d7c69db",
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -217,8 +229,16 @@
     {
       "at": "2026-11-23T16:02:38+09:00",
       "event": "작업 T3 변경: status=done, pr=15, note=#8·#15 모두 main 병합"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 추가 T4 (codex, 자동): 릴스: Hook→Problem→Solution→Demo→CTA 구조 새 릴스 + 11/25 게시물 슬랙 발송"
+    },
+    {
+      "at": "2026-11-23T17:15:52+09:00",
+      "event": "작업 T4 변경: status=dispatched, dispatch=ctx_b7647d7c69db"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T16:02:38+09:00"
+  "updated_at": "2026-11-23T17:15:52+09:00"
 }
