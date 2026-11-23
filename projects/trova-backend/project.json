@@ -1012,7 +1012,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
       "pr": "508",
       "dispatch": "ctx_9bc69ae7ba42",
-      "note": "운영 적용 완료 11/23 12:18~12:44: #508·#249 머지, 백업 /var/backups/trova-domain-20261123-031940, 중단 약 199초, 새 링크 trova.duckdns.org/t/ 시뮬레이터 확인(테스트 여행 삭제), 웹 지도 OK, 옛 링크 301, OTA 9c0fc37e(지문 v10 일치), 기록 #509·#250. 남은 확인: 웹 로그인 복귀·실기기 OTA 수신",
+      "note": "사용자 확인 완료(11/23): 앱 업데이트 후 새 주소 링크·웹 로그인 정상",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2480,10 +2480,18 @@
     {
       "at": "2026-11-23T12:45:31+09:00",
       "event": "작업 T29 변경: status=done, note=운영 적용 완료 11/23 12:18~12:44: #508·#249 머지, 백업 /var/backups/trova-domain-20261123-031940, 중단 약 199초, 새 링크 trova.duckdns.org/t/ 시뮬레이터 확인(테스트 여행 삭제), 웹 지도 OK, 옛 링크 301, OTA 9c0fc37e(지문 v10 일치), 기록 #509·#250. 남은 확인: 웹 로그인 복귀·실기기 OTA 수신"
+    },
+    {
+      "at": "2026-11-23T14:02:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#508)"
+    },
+    {
+      "at": "2026-11-23T14:02:48+09:00",
+      "event": "작업 T29 변경: note=사용자 확인 완료(11/23): 앱 업데이트 후 새 주소 링크·웹 로그인 정상"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T12:45:31+09:00",
+  "updated_at": "2026-11-23T14:02:48+09:00",
   "requests": [
     {
       "gate": "push",
