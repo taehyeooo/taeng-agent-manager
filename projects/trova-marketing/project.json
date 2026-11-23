@@ -15,9 +15,9 @@
       "status": "dispatched",
       "branch": "taehyeooo/trova-marketing-T1",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1",
-      "pr": null,
+      "pr": "14",
       "dispatch": "ctx_f02d87ecdd6e",
-      "note": "레퍼런스: 토스뱅크 인스타 스타일(분위기만). 슬랙 발송 1회는 사용자 요청(11/23). 자동화 기획 답: Mac 자동 실행·매일 그날치·자동 검사 후 바로 발송·소재=앱 기능+여행 팁/코스 초안"
+      "note": "완료: 이슈 #13·PR #14, 캐러셀 4장+스레드 원고, 슬랙 1회 발송 성공, lint·테스트 35 통과. 검증·병합 대기"
     }
   ],
   "history": [
@@ -36,8 +36,12 @@
     {
       "at": "2026-11-23T10:36:36+09:00",
       "event": "작업 T1 변경: status=dispatched, branch=taehyeooo/trova-marketing-T1, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1, dispatch=ctx_f02d87ecdd6e, note=레퍼런스: 토스뱅크 인스타 스타일(분위기만). 슬랙 발송 1회는 사용자 요청(11/23). 자동화 기획 답: Mac 자동 실행·매일 그날치·자동 검사 후 바로 발송·소재=앱 기능+여행 팁/코스 초안"
+    },
+    {
+      "at": "2026-11-23T10:41:30+09:00",
+      "event": "작업 T1 변경: pr=14, note=완료: 이슈 #13·PR #14, 캐러셀 4장+스레드 원고, 슬랙 1회 발송 성공, lint·테스트 35 통과. 검증·병합 대기"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T10:36:36+09:00"
+  "updated_at": "2026-11-23T10:41:30+09:00"
 }
