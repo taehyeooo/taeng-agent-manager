@@ -988,6 +988,18 @@
       "pr": "505",
       "dispatch": null,
       "note": "운영 배포 완료 a6a1ca5(백업 app.jar.bak-20261123-001451), 기록 #506 머지"
+    },
+    {
+      "id": "T29",
+      "title": "공유 링크 주소 trova.duckdns.org 전환 — 조사·변경 준비(운영 반영 전)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
+      "pr": null,
+      "dispatch": "ctx_c8a528ff4612",
+      "note": "trova.duckdns.org 생성·193.123.161.217 연결(11/23, dig 확인). 조사·PR·Caddy 설정안까지, 운영 반영은 사용자 승인 후"
     }
   ],
   "history": [
@@ -2398,10 +2410,18 @@
     {
       "at": "2026-11-23T00:21:51+09:00",
       "event": "작업 T28 변경: note=운영 배포 완료 a6a1ca5(백업 app.jar.bak-20261123-001451), 기록 #506 머지"
+    },
+    {
+      "at": "2026-11-23T11:17:18+09:00",
+      "event": "작업 추가 T29 (codex, 자동): 공유 링크 주소 trova.duckdns.org 전환 — 조사·변경 준비(운영 반영 전)"
+    },
+    {
+      "at": "2026-11-23T11:18:01+09:00",
+      "event": "작업 T29 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain, dispatch=ctx_c8a528ff4612, note=trova.duckdns.org 생성·193.123.161.217 연결(11/23, dig 확인). 조사·PR·Caddy 설정안까지, 운영 반영은 사용자 승인 후"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T00:21:51+09:00",
+  "updated_at": "2026-11-23T11:18:01+09:00",
   "requests": [
     {
       "gate": "push",
