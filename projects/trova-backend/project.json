@@ -499,6 +499,13 @@
       "ref": "514",
       "note": "사용자 '그라파나 승인' 2026-11-23: PR #514 머지·운영 배포",
       "at": "2026-11-23T18:54:26+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#514",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T19:08:40+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1048,12 +1055,12 @@
       "title": "Grafana 대시보드 비전공자용 설명서 PDF",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "514",
       "dispatch": "ctx_5a75c8b2e2d0",
-      "note": "사용자 승인 → #514 머지·배포 위임",
+      "note": "#514 머지 3d15542·운영 배포 11/23 18:58(중단 약 210초), 백업 app.jar.bak-20261123-185657, Grafana 영상 분석 카드 0건 초록 확인, 기록 #515",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2662,10 +2669,18 @@
     {
       "at": "2026-11-23T18:54:36+09:00",
       "event": "작업 T30 변경: status=dispatched, pr=514, dispatch=ctx_5a75c8b2e2d0, note=사용자 승인 → #514 머지·배포 위임"
+    },
+    {
+      "at": "2026-11-23T19:08:40+09:00",
+      "event": "자동 승인 실행: merge_main(PR#514)"
+    },
+    {
+      "at": "2026-11-23T19:08:40+09:00",
+      "event": "작업 T30 변경: status=done, note=#514 머지 3d15542·운영 배포 11/23 18:58(중단 약 210초), 백업 app.jar.bak-20261123-185657, Grafana 영상 분석 카드 0건 초록 확인, 기록 #515"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T18:54:36+09:00",
+  "updated_at": "2026-11-23T19:08:40+09:00",
   "requests": [
     {
       "gate": "push",
