@@ -43,6 +43,10 @@
 ## 디자인
 UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 그래픽 요청을 받으면 **작업을 계획하기 전에 [`docs/design-guide.md`](docs/design-guide.md)를 처음부터 읽고 그대로 따른다**(사용자 지시 2026-11-20). 진행 순서(사용자 흐름 확인 → 도구 고르기 → 시안 3개 → 사용자 선택 → 세부 → 적용 → 검수 → 보고), 다른 레포 작업 때 지시문으로 전달하는 법, 승인 후 도구 설치, 보고 형식, 기기별 도구 표가 모두 그 문서에 있다. 디자인 규칙은 그 문서에서만 관리하고 여기에 복사하지 않는다.
 
+## 영상
+
+영상(릴스·쇼츠·홍보 영상·모션) 요청을 받으면 **작업을 계획하기 전에 [`docs/video-guide.md`](docs/video-guide.md)를 처음부터 읽고 그대로 따른다**(사용자 지시 2026-11-23). 영상 규칙은 그 문서에서만 관리한다.
+
 ## 위임
 - 지시문은 intaeng `delegate-pr` 템플릿(워크트리·먼저 읽기·맡은 파일·테스트 먼저·변형 검사·PR까지·머지 금지·보고 형식). 파일로 저장해 `--spec-file`로 넘긴다.
 - `orca orchestration worker-start --spec-file <지시문> --agent <claude|codex> --worktree new-top-level --repo path:<프로젝트 경로> --name <slug>-<작업id> --base-branch main --task-title "<slug> <작업id>" --json`
