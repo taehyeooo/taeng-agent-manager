@@ -535,6 +535,12 @@
       "ref": "share-domain",
       "note": "사용자 '승인' 2026-11-23: 공유 주소 전환 웹 배포·OTA",
       "at": "2026-11-23T12:16:50+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "store-applinks",
+      "note": "사용자 '지금 진행해줘' 2026-11-23: 새 공유 주소 앱 링크용 스토어 업데이트(Play)",
+      "at": "2026-11-23T14:44:33+09:00"
     }
   ],
   "tasks": [
@@ -1091,6 +1097,18 @@
       "pr": "244",
       "dispatch": "ctx_b75756d757a0",
       "note": "운영 반영 완료: OTA e43b15df(되돌리기 ddaeaa38)·웹 d9aa536(백업 backup-before-d9aa536-dJNRA2LS), 기록 #246·#247 머지"
+    },
+    {
+      "id": "T29",
+      "title": "스토어 업데이트: trova.duckdns.org 공유 링크를 앱으로 바로 열기(Android 앱 링크)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "blocked",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
     }
   ],
   "history": [
@@ -2413,8 +2431,20 @@
     {
       "at": "2026-11-23T12:16:50+09:00",
       "event": "승인 기록: deploy (share-domain)"
+    },
+    {
+      "at": "2026-11-23T14:44:33+09:00",
+      "event": "승인 기록: deploy (store-applinks)"
+    },
+    {
+      "at": "2026-11-23T14:44:33+09:00",
+      "event": "작업 추가 T29 (codex, 자동): 스토어 업데이트: trova.duckdns.org 공유 링크를 앱으로 바로 열기(Android 앱 링크)"
+    },
+    {
+      "at": "2026-11-23T14:44:52+09:00",
+      "event": "작업 T29 변경: status=blocked, note=사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T12:16:50+09:00"
+  "updated_at": "2026-11-23T14:44:52+09:00"
 }

@@ -2013,10 +2013,14 @@
     {
       "at": "2026-11-23T12:29:06+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(xcrun); 명령: xcrun simctl list devices 2>/dev/null | grep -E 'Booted|iPhone' | head -5; command -v idb axe 2>/dev/null"
+    },
+    {
+      "at": "2026-11-23T14:44:52+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: python3 -m am task set trova-app T29 --status blocked --note \"사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks "
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T12:29:06+09:00",
+  "updated_at": "2026-11-23T14:44:52+09:00",
   "requests": [
     {
       "gate": "push",
