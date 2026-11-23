@@ -2146,10 +2146,14 @@
     {
       "at": "2026-11-23T18:52:48+09:00",
       "event": "작업 T14 변경: status=done, note=PR #20 main 병합(사용자 승인 11/23)"
+    },
+    {
+      "at": "2026-11-23T18:54:03+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(open); 명령: open ~/Desktop/트루바-그라파나-한눈에.pdf; cd /[가림] && gh pr view 514 -R Trovapp/trova-backend --json additions,deletions,files,me"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T18:52:48+09:00",
+  "updated_at": "2026-11-23T18:54:03+09:00",
   "requests": [
     {
       "gate": "push",
