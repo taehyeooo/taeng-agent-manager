@@ -27,9 +27,9 @@
       "status": "dispatched",
       "branch": "taehyeooo/trova-marketing-T2",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2",
-      "pr": null,
+      "pr": "16",
       "dispatch": "ctx_c9f572aee419",
-      "note": "임시 폴더 코드 삭제 확인 → Codex 기록(~/.codex/sessions 11/17~18)에서 복원, 2편 비교 검증, 1편 앱 클립 재녹화, 11/24 게시물 슬랙 1회"
+      "note": "완료: 마스코트 5편·광고형 코드 복원(PR #16 Closes #12, PR #15 Closes #11), 2~5편 재렌더 해시 일치, 1편 앱 클립=운영 웹 데모 녹화(개인정보 없음, 매니저 프레임 확인), 11/24 게시물 슬랙 1회 발송. 광고형 전체 재제작 미검증"
     }
   ],
   "history": [
@@ -68,8 +68,12 @@
     {
       "at": "2026-11-23T11:14:33+09:00",
       "event": "작업 T2 변경: status=dispatched, branch=taehyeooo/trova-marketing-T2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2, dispatch=ctx_c9f572aee419, note=임시 폴더 코드 삭제 확인 → Codex 기록(~/.codex/sessions 11/17~18)에서 복원, 2편 비교 검증, 1편 앱 클립 재녹화, 11/24 게시물 슬랙 1회"
+    },
+    {
+      "at": "2026-11-23T11:28:37+09:00",
+      "event": "작업 T2 변경: pr=16, note=완료: 마스코트 5편·광고형 코드 복원(PR #16 Closes #12, PR #15 Closes #11), 2~5편 재렌더 해시 일치, 1편 앱 클립=운영 웹 데모 녹화(개인정보 없음, 매니저 프레임 확인), 11/24 게시물 슬랙 1회 발송. 광고형 전체 재제작 미검증"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T11:14:33+09:00"
+  "updated_at": "2026-11-23T11:28:37+09:00"
 }
