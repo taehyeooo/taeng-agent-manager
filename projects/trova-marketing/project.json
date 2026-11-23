@@ -26,6 +26,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-23T15:59:55+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#15",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T16:02:29+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -58,12 +65,12 @@
       "title": "마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송",
       "agent": "codex",
       "kind": "general",
-      "status": "review",
+      "status": "done",
       "branch": "taehyeooo/trova-marketing-T2",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2",
       "pr": "16",
       "dispatch": "ctx_c9f572aee419",
-      "note": "PR #16 머지 완료. #15(광고형)는 base feat/#7-real-reel — #7/#8 정리 후",
+      "note": "#16·#15 병합 완료",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -190,8 +197,20 @@
     {
       "at": "2026-11-23T16:00:25+09:00",
       "event": "작업 T3 변경: note=#8 머지 완료. #15 base→main 후 충돌, 같은 워커에 해결 요청"
+    },
+    {
+      "at": "2026-11-23T16:02:29+09:00",
+      "event": "자동 승인 실행: merge_main(PR#15)"
+    },
+    {
+      "at": "2026-11-23T16:02:35+09:00",
+      "event": "자동 승인 실행: merge_main(PR#16)"
+    },
+    {
+      "at": "2026-11-23T16:02:35+09:00",
+      "event": "작업 T2 변경: status=done, note=#16·#15 병합 완료"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T16:00:25+09:00"
+  "updated_at": "2026-11-23T16:02:35+09:00"
 }
