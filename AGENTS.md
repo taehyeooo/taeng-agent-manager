@@ -91,6 +91,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - 실행 전에 없던 링크·폴더를 같은 명령줄에서 만든 뒤 그 경로로 쓰는 다단계 조합(링크 원본이 사용자 폴더인 `ln`·`New-Item` 링크 자체는 확인).
 - `home`이 없을 때 통과시키는 `python -m am setup`은 지금 레포의 `am` 코드를 실행한다 — 매니저 레포로 보이게 꾸민 폴더에서 돌리면 그 레포를 가드 위치로 기록한다(사람이 새 기기에서 직접 돌리는 경우만 가정).
 - 이런 우회의 뒤에는 Claude Code·Codex 자체 권한 검사가 있다.
+- Bash 검증 줄의 모든 단계가 읽기 전용이면 작업 트리 밖의 reviewflow 결과도 확인 없이 읽고 `guard-allowed.log`에 기록한다. 같은 줄에서 대입한 경로 변수, `sed -n`과 `awk`의 단순 필터·집계, 끝의 `docker info >/dev/null 2>&1 && echo docker=yes`만 알아보며 동적 파일명의 실제 값과 복잡한 식은 확인할 수 없다.
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
 

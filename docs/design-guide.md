@@ -10,7 +10,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 |---|---|---|---|
 | 1. 사용자 흐름 확인 | 대상 사용자, 목표, 핵심 작업, 사용 환경. 사용자 목표 → 진입 화면 → 주요 행동 → 결과 확인 흐름과 막히는 지점. 로딩·오류·빈 화면·완료 상태와 복구 경로(아래 'UX 검토 체크리스트') | 매니저(필요하면 조사 작업자) | 흐름 한 장, 확인 못 한 것은 '가정' 표시 |
 | 2. 도구 고르기 | 아래 '빠른 선택표'와 도구별 UI·UX 활용 상황으로, 프로젝트 스택에 맞는 것만. 전체 방향은 하나를 중심으로, 나머지는 보완. 그 기기에 실제로 설치됐는지 확인(3장 규칙) | 매니저 | 고른 도구·이유·적용 범위 |
-| 3. 시안 3개 | 서로 다른 방향 3개. 각 시안: 콘셉트 한 줄, 바뀌는 화면 전/후 목업(밝은·어두운), 움직임, 바뀌는 디자인 값, 난이도·위험, 추천 순위. 사용자가 원하면 Claude와 Codex가 서로 결과를 보지 않고 각각 만든다 | 작업자 | 목업 파일·설명, 비교 페이지(매니저) |
+| 3. 시안 3개 | 서로 다른 방향 3개. 각 시안: 콘셉트 한 줄, 바뀌는 화면 전/후 목업(밝은·어두운 — **실제 휴대폰 화면 전체로**: 기기 프레임·상태 바·헤더·탭 바까지, 지금 앱 화면과 코드를 바탕으로 바뀌는 부분만 바꾸고, 카드나 일부만 잘라 그리지 않는다. 흐름마다 지금 화면 → 바뀐 화면을 나란히, 흐름 순서대로 화면 1~3장 — 사용자 피드백 2026-11-20), 움직임, 바뀌는 디자인 값, 난이도·위험, 추천 순위. 사용자가 원하면 Claude와 Codex가 서로 결과를 보지 않고 각각 만든다 | 작업자 | 목업 파일·설명, 비교 페이지(매니저) |
 | 4. 사용자 선택 | 시안 고르기는 **항상 사용자 몫**. 매니저는 한 화면에서 비교할 수 있게 보여 주고 추천만 한다. 섞어도 된다 | 사용자 | 고른 것과 사용자 말(그대로) |
 | 5. 세부 | 고른 방향을 나머지 화면·상태(로딩·오류·빈 화면·완료)·다크·큰 글자·동작 줄이기까지 구체화. 필요하면 다시 고르게 한다 | 작업자 → 사용자 확인 | 세부 시안 |
 | 6. 적용 | 실제 코드에 반영. 테스트 먼저, 기존 디자인 규칙(토큰) 안에서 | 작업자 | PR, 전/후 캡처 |
@@ -44,7 +44,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 
 | 기기·에이전트 | 쓸 수 있는 것 (2026-11-20 확인) |
 |---|---|
-| Mac · Claude Code | Anthropic Frontend Design(`frontend-design`), Expo 디자인 시스템·애니메이션·네이티브 UI(`expo:expo-design-system`·`expo-animation`·`expo-native-ui`), uiflow(`design-compare`·`design-qa`·`design-sweep`), 애플 가이드(`hig-components-layout`·`hig-patterns`) |
+| Mac · Claude Code | Anthropic Frontend Design(`frontend-design`), Expo 디자인 시스템·애니메이션·네이티브 UI(`expo:expo-design-system`·`expo-animation`·`expo-native-ui`), uiflow(`design-compare`·`design-qa`·`design-sweep`), 애플 가이드(`hig-components-layout`·`hig-patterns`). **2026-11-20 사용자 승인으로 설치**: UI UX Pro Max(플러그인 `ui-ux-pro-max@ui-ux-pro-max-skill`, MIT, 훅 없음 — 검색 스크립트는 쓸 때만 실행), Emil Kowalski Skills 20개(`~/.claude/skills/`에 복사, MIT, 문서만: `animate-expo`·`emil-design-eng`·`review-animations`·`gestures` 등), Impeccable(`~/.claude/skills/impeccable`, Apache-2.0, **스킬만 복사하고 플러그인의 자동 실행 훅은 설치 안 함** — 모든 프로젝트의 파일 편집마다 돌기 때문. 처음 쓸 때 체크섬 검증된 엔진을 내려받음) |
 | Mac · Codex | 디자인 도구 없음 |
 | Windows · Codex | 작업자 보고(2026-11-20) 기준 UI UX Pro Max, Emil Kowalski Skills, Frontend Design, web-design-guidelines, apple-design 사용. 정확한 목록은 다음 설치 작업 때 확인해 고친다 |
 

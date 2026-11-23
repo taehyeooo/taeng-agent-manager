@@ -3,8 +3,9 @@
   "prefer": "codex",
   "prefer_until": "2026-11-30",
   "after": "claude",
-  "codex_model": "gpt-6-astra",
-  "_codex_model_설명": "사용자 지시(2026-11-19): Codex 워커는 Astra 모델로. worker-start에 --model gpt-6-astra를 붙인다. 모든 작업은 Codex, Claude는 지시·검토만, 무거운 작업은 --on windows.",
+  "codex_model": "gpt-6.2-astra",
+  "codex_effort": "high",
+  "_codex_model_설명": "사용자 지시(2026-11-20 '아스트라 6.2 사용해줘', '코덱스 아스트라 6.2 높음 써줘'): Codex 워커는 worker-start에 --model gpt-6.2-astra --effort high를 붙인다(그 전 2026-11-19엔 gpt-6-astra). 무거운 작업은 --on windows.",
   "kinds": {
     "general": "codex",
     "design": "codex",
