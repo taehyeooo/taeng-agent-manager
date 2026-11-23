@@ -467,6 +467,12 @@
       "note": "auto_gates — 배포 기록 (auto_gates 사용자 설정)",
       "at": "2026-11-23T00:21:15+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "share-domain",
+      "note": "사용자 '승인' 2026-11-23: 공유 링크 주소 trova.duckdns.org 운영 적용(Caddy·.env·백엔드 재시작·웹 배포·OTA)",
+      "at": "2026-11-23T12:16:50+09:00"
     }
   ],
   "tasks": [
@@ -998,8 +1004,8 @@
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
       "pr": "508",
-      "dispatch": "ctx_c8a528ff4612",
-      "note": "Claude 직접 리뷰 통과(#508·#249). 두 레포 PR에 CI 없음 → Windows Codex ctx_ad88d2b3fc25가 테스트만 실행 중. 통과하면 tests pass로 재기록 후 운영 적용 승인 요청",
+      "dispatch": "ctx_9bc69ae7ba42",
+      "note": "운영 적용 위임(사용자 승인 11/23): 머지 #508·#249 → 백업 → Caddy 1단계 → .env → 백엔드 배포 → 웹 배포 → 확인 → 301 → OTA",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2451,10 +2457,18 @@
     {
       "at": "2026-11-23T12:14:52+09:00",
       "event": "작업 T29 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T12:16:50+09:00",
+      "event": "승인 기록: deploy (share-domain)"
+    },
+    {
+      "at": "2026-11-23T12:17:53+09:00",
+      "event": "작업 T29 변경: status=dispatched, dispatch=ctx_9bc69ae7ba42, note=운영 적용 위임(사용자 승인 11/23): 머지 #508·#249 → 백업 → Caddy 1단계 → .env → 백엔드 배포 → 웹 배포 → 확인 → 301 → OTA"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T12:14:52+09:00",
+  "updated_at": "2026-11-23T12:17:53+09:00",
   "requests": [
     {
       "gate": "push",
