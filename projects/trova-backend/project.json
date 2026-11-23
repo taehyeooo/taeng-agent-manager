@@ -473,6 +473,13 @@
       "ref": "share-domain",
       "note": "사용자 '승인' 2026-11-23: 공유 링크 주소 trova.duckdns.org 운영 적용(Caddy·.env·백엔드 재시작·웹 배포·OTA)",
       "at": "2026-11-23T12:16:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#508",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T12:45:31+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1000,12 +1007,12 @@
       "title": "공유 링크 주소 trova.duckdns.org 전환 — 조사·변경 준비(운영 반영 전)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
       "pr": "508",
       "dispatch": "ctx_9bc69ae7ba42",
-      "note": "운영 적용 위임(사용자 승인 11/23): 머지 #508·#249 → 백업 → Caddy 1단계 → .env → 백엔드 배포 → 웹 배포 → 확인 → 301 → OTA",
+      "note": "운영 적용 완료 11/23 12:18~12:44: #508·#249 머지, 백업 /var/backups/trova-domain-20261123-031940, 중단 약 199초, 새 링크 trova.duckdns.org/t/ 시뮬레이터 확인(테스트 여행 삭제), 웹 지도 OK, 옛 링크 301, OTA 9c0fc37e(지문 v10 일치), 기록 #509·#250. 남은 확인: 웹 로그인 복귀·실기기 OTA 수신",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2465,10 +2472,18 @@
     {
       "at": "2026-11-23T12:17:53+09:00",
       "event": "작업 T29 변경: status=dispatched, dispatch=ctx_9bc69ae7ba42, note=운영 적용 위임(사용자 승인 11/23): 머지 #508·#249 → 백업 → Caddy 1단계 → .env → 백엔드 배포 → 웹 배포 → 확인 → 301 → OTA"
+    },
+    {
+      "at": "2026-11-23T12:45:31+09:00",
+      "event": "자동 승인 실행: merge_main(PR#508)"
+    },
+    {
+      "at": "2026-11-23T12:45:31+09:00",
+      "event": "작업 T29 변경: status=done, note=운영 적용 완료 11/23 12:18~12:44: #508·#249 머지, 백업 /var/backups/trova-domain-20261123-031940, 중단 약 199초, 새 링크 trova.duckdns.org/t/ 시뮬레이터 확인(테스트 여행 삭제), 웹 지도 OK, 옛 링크 301, OTA 9c0fc37e(지문 v10 일치), 기록 #509·#250. 남은 확인: 웹 로그인 복귀·실기기 OTA 수신"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T12:17:53+09:00",
+  "updated_at": "2026-11-23T12:45:31+09:00",
   "requests": [
     {
       "gate": "push",
