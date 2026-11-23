@@ -43,9 +43,9 @@ from pathlib import Path
 
 if __package__ in (None, ""):  # run as a script from a hook
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from am import state as S
+    from am import state as S, verification
 else:
-    from . import state as S
+    from . import state as S, verification
 
 SHELLS = {"bash", "sh", "zsh", "dash", "pwsh", "powershell", "cmd"}
 POSIX_SHELLS = {"bash", "sh", "zsh", "dash"}
@@ -1402,7 +1402,7 @@ def _strip_prefixes(toks, seg, out, cwd, trusted=False, ctx=None):
             toks = toks[1:]
         elif re.match(r"^[A-Za-z_]\w*=", toks[0]) or toks[0].lower() in PREFIXES:
             if re.match(r"^[A-Za-z_]\w*=", toks[0]) and not trusted:
-                out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음"))
+                out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음", verification=True))
             toks = drop_opts(toks[1:], ("-p", "--package", "-c", "--call")) if w in ("npx", "pnpx", "bunx") else toks[1:]
         elif w == "env":
             if any(t in ("-C", "--chdir", "-S", "--split-string") or t.startswith(("--chdir=", "-C", "-S")) for t in toks[1:]):
@@ -1897,6 +1897,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             or word == "less" and any(a.startswith("+") and re.search(r"[!|]", a) for a in args):
         out.append(_finding("opaque", seg, confirm=True, reason=f"{word}의 이 옵션은 프로그램을 실행하거나 파일을 씀"))
     if word == "sed":
+        if any(a.startswith(("-i", "--in-place")) or re.match(r"^-[nrsuzE]+i", a) for a in args):
+            out.append(_finding("opaque", seg, reason="sed가 입력 파일을 직접 바꿈"))
         scripts = []
         for i, a in enumerate(args):
             # -e 식, -e식(붙여 쓰기), -ne 식, -ne식 — -i는 뒤 글자를 접미사로 먹으므로 묶음에서 제외
@@ -1921,7 +1923,8 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
         program_file = _script_run_verdict(word, args, toks, cwd) == "clean"
         if any(a == "-f" or a.startswith("--file") for a in args) and not program_file or \
                 not program_file and re.search(r"system|\||>|@load", program):
-            out.append(_finding("opaque", seg, confirm=True, reason="awk 프로그램이 명령을 실행하거나 파일을 쓸 수 있음"))
+            out.append(_finding("opaque", seg, confirm=True, reason="awk 프로그램이 명령을 실행하거나 파일을 쓸 수 있음",
+                                verification=True))
         elif re.search(r"getline|ENVIRON|close", program):
             out.append(_finding("opaque", seg, reason="awk 프로그램이 다른 입력·환경 변수를 읽음"))
     if word == "find":
@@ -1944,7 +1947,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     if word in INTERPRETERS and verdict is None:
         # 인터프리터는 '작업 폴더 안, 원격 main과 같은 스크립트 파일 하나 실행'(같은 언어 소스도 깨끗)으로 판명될 때만
         # 아래 기존 판정. 코드 옵션, 옵션 값 뒤 표준입력, 파일 인수 없음, 파이프 입력, 바뀐 형제 소스 등은 모두 확인.
-        out.append(_finding("opaque", seg, confirm=True,
+        out.append(_finding("opaque", seg, confirm=True, verification=word == "awk",
                             reason="인터프리터 실행이 '추적·미수정 스크립트 파일 하나 실행' 형태가 아님 — 내용과 상관없이 확인"))
     elif verdict == "clean" and word not in SCRIPTERS | SHELLS:
         # php·lua·tclsh·Rscript·awk 등도 python·node와 같은 사유 — 같은 줄 쓰기가 있으면 _distrust_content가 뗀다
@@ -2312,7 +2315,7 @@ def _holds_state_file(path, cwd, root=None):
     return _under(p, projects) and len(Path(_rel(p, projects)).parts) == 1  # projects/<slug>
 
 
-def _is_user_config(path, cwd):
+def _is_user_config(path, cwd, *, include_parents=True):
     """The user-only folder ~/.config/agent-manager (guard.json·home 가드 위치 기록·감사 로그): a path inside it, the
     folder itself, or a folder (or wildcard) that holds it. ~·절대·상대·심볼릭 링크·..를 실제 경로로 정규화하고 대소문자
     무시로 비교한다. 글롭(* ? [)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 본다."""
@@ -2325,6 +2328,8 @@ def _is_user_config(path, cwd):
         path = path if not path or path.endswith(("/", "\\")) else os.path.dirname(path)
     target = _norm(_abs(path or ".", cwd)).casefold()
     folder = _norm(S.user_guard_file().parent).casefold()
+    if not include_parents:
+        return target == folder or target.startswith(folder + os.sep)
     return target == folder or target.startswith(folder + os.sep) or folder.startswith(target + os.sep)
 
 
@@ -2913,6 +2918,8 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
             target = _cd_target(words[1], cwd) if len(words) == 2 and not any(
                 c in words[1] for c in ("$", SUBST, "%", "`")) else None
             readonly_after = _readonly_tail(segments[index + 1:])
+            if target is not None and _is_user_config(target, cwd, include_parents=False):
+                out.append(_finding("opaque", seg, reason="사용자 전용 가드 폴더로 이동"))
             if target is not None and _word(words[0]) == "cd" and target.is_dir() and (
                     _under(target, initial_top) or
                     (os.path.isabs(words[1]) or words[1].startswith("~")) and readonly_after):
@@ -2920,7 +2927,7 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
             else:
                 # 작업 트리 밖 이동의 자동 허용은 뒤 명령이 모두 읽기일 때만 — 뒤에 쓰기가 있으면 어디에 쓰는지
                 # 이 작업 트리 기준으로 확정할 수 없으므로 확인(Codex 차단). 쓰기 경로 판정은 원래 작업 폴더 기준 그대로.
-                out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경",
+                out.append(_finding("opaque", seg, reason="현재 작업 트리 밖 또는 불명확한 폴더 변경", verification=True,
                                     code="outside_cd" if readonly_after else None))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
@@ -3012,6 +3019,13 @@ def _cd_target(path, cwd):
             return None
         return target
     return _abs(path, cwd)
+
+
+def _verification_cd(path, cwd):
+    target = _cd_target(path, cwd)
+    if target is not None and target.is_dir() and not _is_user_config(target, cwd, include_parents=False):
+        return target
+    return None
 
 
 # ---------- second net: risky words the interpreter did not account for ----------
@@ -3331,6 +3345,23 @@ def decide(payload, agent="claude", root=None):
     if patch:
         findings += _patch_paths(patch, cwd, root)
     findings = [f for f in findings if f["kind"] != "seen"]
+    # Keep every gate, forbidden operation and independent opaque finding. Only these
+    # specific syntactic ambiguities can be resolved by the whole-line Bash grammar.
+    if (tool == "Bash" and original_command and not path and not patch
+            and all(f["kind"] == "opaque" and (f.get("verification") or f.get("code") == "variable_args"
+                    or f.get("code") == "unknown_program" and f["seg"] == "docker info >/dev/null 2>&1")
+                    for f in findings)
+            and not re.search(r"\.env\b|\.pem\b|id_rsa|credentials|auth\.json|env:", original_command, re.I)
+            and verification.readonly(original_command, cwd, _verification_cd)):
+        try:
+            # Concurrent reviewers append independent records without rewriting project state.
+            log = S.user_guard_file().with_name("guard-allowed.log")
+            log.parent.mkdir(parents=True, exist_ok=True)
+            with log.open("a", encoding="utf-8") as stream:
+                stream.write(S.now() + " 읽기 전용 검증: " + _audit_excerpt(original_command) + "\n")
+        except OSError:
+            pass
+        return "allow", ""
     if not findings:
         return "allow", ""
 

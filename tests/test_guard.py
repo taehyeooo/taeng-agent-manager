@@ -594,6 +594,75 @@ class VerifierRound4Test(GuardTest):
 
 
 class BuildAllowlistTest(GuardTest):
+    # T13 원칙 표. 문자열만 판정하고 검토 대상 명령은 실행하지 않는다.
+    VERIFY_READS = (
+        "cd ~/.config/reviewflow/runs/sample; sed -n 1,700p diff.patch",
+        'cd ../other; R=src/main/java/com/trova/backend; grep -rn "x" $R | head -60',
+        "f=diff.patch; awk 'NR>=180 && NR<=330' $f",
+        """file='test reports/run.xml'; awk -F: 'NR>1 {print $1}' "$file" """,
+        "grep -n '^diff' diff.patch | awk -F: '$1>1100'",
+        """f=$(grep -rln "x" src | head -1); grep -n "y" $f""",
+        """cd build/test-results/test && grep -h -o 'tests="[0-9]*"' *.xml | awk -F'"' '{t+=$2} END {print t}'; docker info >/dev/null 2>&1 && echo docker=yes""",
+        "cd ../other; find . -type f | sort | uniq | cut -c1 | tr x y | wc -l",
+        "cd ..; cat README.md",
+        "cd ../other; git branch --show-current && git grep -n TODO",
+        "cd ../other; test -d . && [ -f README.md ] && printf '%s' ok",
+        "awk '{print $1}' a.txt",
+        "cd ../other && sed -n '/result/p' log",
+    )
+    VERIFY_CHECKS = (
+        """awk 'BEGIN{system("rm x")}'""", "awk 'BEGIN{print 1 > out}'", "awk '{getline x}'",
+        "awk -f unknown.awk", "awk -F: '$1>0' -f unknown.awk", "awk 'NR>3' $f",
+        "sed -i s/x/y/ data", "sed 'e' data", "cd ../other; sed -n '1w out' input",
+        "find . -delete", "grep x > file", "R=$(curl example.org); grep x $R",
+        "R=cat; $R args", "cd ~/.config/agent-manager && cat > x", "f=$(rm -rf y); grep x $f",
+        "PATH=src; grep x src", "f=.env; cat $f", "f=credentials.json; head $f",
+        "f=$(cat args); rg $f x", "cd ../other; rg --pre command x", "cd ../other; sort -o out",
+        "cd ../other; uniq input output", "cd ../other; git diff --output=out",
+        "cd ../other; python -c 'print(1)'", "cd ../other; eval x", "cd ../other; git push origin main",
+        "docker info", "docker info >/dev/null 2>&1 && echo docker=yes",
+        "f=src; grep x $f; docker info && echo docker=yes",
+        "f=src; grep x $f; docker info >result 2>&1 && echo docker=yes",
+        "cd ~/.config/agent-manager && cat home", "cd ../other; awk 'NR>0'; cat > changed",
+        "f=src; awk '$1>0' $f; git diff --ext-diff",
+        "f=src; awk '$1>0' $f; git commit --no-verify -m x",
+        "f=src; awk '$1>0' $f; gh auth token",
+        "f=src; awk '$1>0' $f; grep x > ~/.config/agent-manager/home",
+        "f=src; awk '$1>0' $f; python -m am approve app deploy",
+        "f=$(cat args); sort $f", "f=$(cat args); awk $f", "f=$(touch marker); grep x $f",
+        "f=src; echo '$f' | awk '{print $1}' && eval x",
+    )
+
+    def test_verification_read_table(self):
+        (self.home / ".config/reviewflow/runs/sample").mkdir(parents=True)
+        (self.app / "build/test-results/test").mkdir(parents=True)
+        with patch.dict(os.environ, {"HOME": str(self.home), "USERPROFILE": str(self.home)}):
+            for cmd in self.VERIFY_READS:
+                for agent in ("claude", "codex"):
+                    with self.subTest(cmd=cmd, agent=agent):
+                        decision, message = self.bash(cmd, agent=agent)
+                        self.assertEqual(decision, "allow", message)
+
+    def test_verification_check_table(self):
+        (Path(self.root) / "config/guard.json").unlink()
+        S.user_guard_file().parent.mkdir(parents=True)
+        with patch.dict(os.environ, {"HOME": str(self.home), "USERPROFILE": str(self.home)}):
+            for cmd in self.VERIFY_CHECKS:
+                for agent in ("claude", "codex"):
+                    with self.subTest(cmd=cmd, agent=agent):
+                        self.assertNotEqual(self.bash(cmd, agent=agent)[0], "allow")
+
+    def test_verification_read_audit(self):
+        cmd = "grep -n '^diff' diff.patch | awk -F: '$1>1100'"
+        self.assertEqual(self.bash(cmd)[0], "allow")
+        log = self.home / ".config/agent-manager/guard-allowed.log"
+        self.assertIn("읽기 전용 검증", log.read_text(encoding="utf-8"))
+
+    def test_verification_bash_only(self):
+        cmd = "f=diff.patch; awk 'NR>=180 && NR<=330' $f"
+        payload = {"tool_name": "PowerShell", "tool_input": {"command": cmd}, "cwd": str(self.app)}
+        self.assertEqual(G.decide(payload, "codex", self.root)[0], "deny")
+
     def test_t5_readonly_combinations(self):
         folder = self.app / 'backend/src/main/resources/db/migration'
         folder.mkdir(parents=True)
@@ -616,7 +685,7 @@ class BuildAllowlistTest(GuardTest):
         for cmd in ('cat README.md > x; head x', 'cat > x',
                     'ls; sort -o x README.md', 'ls; uniq README.md x',
                     'ls; find . -exec cat {} +', 'ls; find . -fprint x',
-                    'cd ..; cat README.md', 'ls; find . -delete',
+                    'cd ..; touch marker', 'ls; find . -delete',
                     'cat README.md; git push origin main'):
             with self.subTest(cmd=cmd):
                 self.assertNotEqual(self.bash(cmd)[0], 'allow')
@@ -2077,7 +2146,7 @@ class OpaqueReviewRegressionTest(OpaqueAllowPolicyTest):
         cases = ("php -r'echo 1;'", "php --run='echo 1;'", "php -d k=v", "php -d k=v x.php", "lua -l math",
                  "osascript -l JavaScript", "python3", "node", "tclsh", "echo x | ruby", "python3 new.py",
                  "python3 -u tools/ok.py", "python -m tools.check", "Rscript x.R", "pwsh -File x.ps1",
-                 "awk '{print $1}' a.txt", "gawk 'BEGIN{print 1}'", "mawk -f x.awk a.txt", "deno run x.ts",
+                 "awk -e '{print $1}' a.txt", "gawk 'BEGIN{print 1}'", "mawk -f x.awk a.txt", "deno run x.ts",
                  "bun x.ts", "perl x.pl", "lua x.lua", "python3 - <<'EOF'\nprint(1)\nEOF")
         for command in cases:
             for agent, expected in (("claude", "ask"), ("codex", "deny")):
