@@ -14,7 +14,6 @@ def main():
     spec = importlib.util.spec_from_file_location("guard_cases", ROOT / "tests/test_guard.py")
     cases = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cases)
-    source = (ROOT / "am/guard.py").read_text(encoding="utf-8")
     # (label, guard.py text, mutated text, BuildAllowlistTest test that must fail) — one allow condition removed at a time
     mutations = [
         ("T5 read output", 'and not script_stdin and _write_targets(word, args, seg):',
@@ -71,7 +70,7 @@ def main():
         ("ignored npm inputs", 'NPM_INPUTS = ("package.json", "package-lock.json", "npm-shrinkwrap.json", ".npmrc")',
          'NPM_INPUTS = ("package.json", "package-lock.json", "npm-shrinkwrap.json")',
          "test_reverify_f_trusted_npm_script_env_and_ignored_inputs"),
-        ("environment", 'out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음"))',
+        ("environment", 'out.append(_finding("opaque", seg, reason="환경 변수 접두가 실행 동작을 바꿀 수 있음", verification=True))',
          "pass", "test_review_environment_prefixes"),
         ("same-line environment", "if not trusted and _changes_env(words):", "if False:",
          "test_reverify_c_environment_changed_on_the_same_line"),
@@ -151,6 +150,28 @@ def main():
         ("folders holding state files", "_is_state_file(a, cwd, root) or _holds_state_file(a, cwd, root) for a in args",
          "_is_state_file(a, cwd, root) for a in args", "AutoGatesTest.test_agents_cannot_change_the_setting"),
     ]
+    mutations.extend([
+        ("T13 whole verification line", "and verification.readonly(original_command, cwd, _verification_cd)",
+         "and False", "test_verification_read_table"),
+        ("T13 secret path in an assignment", 'and not re.search(r"\\.env\\b|\\.pem\\b|id_rsa|credentials|auth\\.json|env:", original_command, re.I)',
+         "and True", "test_verification_check_table"),
+    ])
+    read_mutations = [
+        ("T13 awk expressions", "return _awk(args)", "return True", "test_verification_check_table"),
+        ("T13 ordinary path variables", "or name not in PATH_NAMES", "", "test_verification_check_table"),
+        ("T13 read-only substitutions", "if not _pipeline(stage[1:-1], cwd, cd_target, bindings.copy(), False):",
+         "if False:", "test_verification_check_table"),
+        ("T13 exact docker probe", '.removesuffix("; docker info >/dev/null 2>&1 && echo docker=yes")',
+         "", "test_verification_read_table"),
+    ]
+    killed = run_mutations(cases, guard, mutations) + run_mutations(cases, guard.verification, read_mutations)
+    total = len(mutations) + len(read_mutations)
+    print(f"{killed}/{total} killed")
+    return 0 if killed == total else 1
+
+
+def run_mutations(cases, module, mutations):
+    source = Path(module.__file__).read_text(encoding="utf-8")
     killed = 0
     for label, old, new, test in mutations:
         # a tuple of anchors mutates every layer of a deliberately doubled check at once
@@ -161,7 +182,7 @@ def main():
                 raise RuntimeError("Mutation anchor changed: " + label)
             mutated = mutated.replace(o, n)
         try:
-            exec(compile(mutated, str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
+            exec(compile(mutated, module.__file__, "exec"), module.__dict__)
             cls, _, name = test.rpartition(".")
             result = unittest.TextTestRunner(stream=io.StringIO()).run(
                 unittest.TestSuite([getattr(cases, cls or "BuildAllowlistTest")(name)]))
@@ -169,9 +190,8 @@ def main():
             killed += caught
             print(label + (": killed" if caught else ": SURVIVED/ERROR"), flush=True)
         finally:
-            exec(compile(source, str(ROOT / "am/guard.py"), "exec"), guard.__dict__)
-    print(f"{killed}/{len(mutations)} killed")
-    return 0 if killed == len(mutations) else 1
+            exec(compile(source, module.__file__, "exec"), module.__dict__)
+    return killed
 
 
 if __name__ == "__main__":
