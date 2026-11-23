@@ -1026,6 +1026,18 @@
         "src/main/resources/application.yml",
         ".env.example"
       ]
+    },
+    {
+      "id": "T30",
+      "title": "Grafana 대시보드 비전공자용 설명서 PDF",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_44e58651d990",
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2488,10 +2500,18 @@
     {
       "at": "2026-11-23T14:02:48+09:00",
       "event": "작업 T29 변경: note=사용자 확인 완료(11/23): 앱 업데이트 후 새 주소 링크·웹 로그인 정상"
+    },
+    {
+      "at": "2026-11-23T14:47:08+09:00",
+      "event": "작업 추가 T30 (codex, 자동): Grafana 대시보드 비전공자용 설명서 PDF"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_44e58651d990"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T14:02:48+09:00",
+  "updated_at": "2026-11-23T14:47:56+09:00",
   "requests": [
     {
       "gate": "push",

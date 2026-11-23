@@ -5,31 +5,70 @@
   "phase": "planning",
   "repo": "Trovapp/trova-marketing",
   "test_cmd": null,
-  "approvals": [],
+  "approvals": [
+    {
+      "gate": "merge_main",
+      "ref": "PR#14",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T14:48:00+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#16",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T14:48:00+09:00",
+      "auto": true
+    }
+  ],
   "tasks": [
     {
       "id": "T1",
       "title": "첫 게시물(인스타·스레드) 원고와 이미지 만들고 슬랙으로 보내기",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": "taehyeooo/trova-marketing-T1",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1",
       "pr": "14",
       "dispatch": "ctx_5b65b1070720",
-      "note": "수정 완료: 4장 리뷰 요약(04-reviews.png)·5장으로, 앱 표기 '리뷰 요약 보기/좋은 점/아쉬운 점' 확인, PR #14 5c82648, 슬랙 수정본 1회 발송"
+      "note": "PR #14 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) 리뷰: 시크릿·경로·AI 서명 없음, 원고 규칙 준수, 스레드 268자",
+        "at": "2026-11-23T14:47:56+09:00"
+      },
+      "files": [
+        "posts/2026-11-23.json",
+        "tools/post_images"
+      ]
     },
     {
       "id": "T2",
       "title": "마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "review",
       "branch": "taehyeooo/trova-marketing-T2",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2",
       "pr": "16",
       "dispatch": "ctx_c9f572aee419",
-      "note": "완료: 마스코트 5편·광고형 코드 복원(PR #16 Closes #12, PR #15 Closes #11), 2~5편 재렌더 해시 일치, 1편 앱 클립=운영 웹 데모 녹화(개인정보 없음, 매니저 프레임 확인), 11/24 게시물 슬랙 1회 발송. 광고형 전체 재제작 미검증"
+      "note": "PR #16 머지 완료. #15(광고형)는 base feat/#7-real-reel — #7/#8 정리 후",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) 리뷰 #16 통과(lint reel 허용·테스트 갱신). #15는 base가 feat/#7-real-reel이라 #7/#8 정리 후 별도",
+        "at": "2026-11-23T14:47:56+09:00"
+      },
+      "files": [
+        "video/mascot-reel",
+        "posts/2026-11-24.json"
+      ]
     }
   ],
   "history": [
@@ -72,8 +111,36 @@
     {
       "at": "2026-11-23T11:28:37+09:00",
       "event": "작업 T2 변경: pr=16, note=완료: 마스코트 5편·광고형 코드 복원(PR #16 Closes #12, PR #15 Closes #11), 2~5편 재렌더 해시 일치, 1편 앱 클립=운영 웹 데모 녹화(개인정보 없음, 매니저 프레임 확인), 11/24 게시물 슬랙 1회 발송. 광고형 전체 재제작 미검증"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T1 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T2 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T14:48:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#14)"
+    },
+    {
+      "at": "2026-11-23T14:48:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#16)"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "자동 승인 실행: merge_main(PR#14)"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "작업 T1 변경: status=done, note=PR #14 머지"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "작업 T2 변경: status=review, note=PR #16 머지 완료. #15(광고형)는 base feat/#7-real-reel — #7/#8 정리 후"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T11:28:37+09:00"
+  "updated_at": "2026-11-23T14:48:19+09:00"
 }
