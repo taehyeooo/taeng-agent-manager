@@ -1045,9 +1045,9 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "514",
       "dispatch": "ctx_9dc30128c166",
-      "note": "추가(11/23): '한눈에 보기' 대시보드 + 5쪽 그림 설명서",
+      "note": "한눈에 보기 대시보드 게시(/d/trova-at-a-glance), 5쪽 PDF, PR #514(대시보드 JSON + 영상 대기·진행 수 계측 코드) — 검증·배포 승인 필요",
       "verification": {
         "tests": "skip",
         "review": "pass",
@@ -2638,10 +2638,14 @@
     {
       "at": "2026-11-23T17:27:56+09:00",
       "event": "작업 T32 변경: status=blocked, note=T31에 합쳐 완료(배포 기록용 중복 작업)"
+    },
+    {
+      "at": "2026-11-23T18:00:01+09:00",
+      "event": "작업 T30 변경: pr=514, note=한눈에 보기 대시보드 게시(/d/trova-at-a-glance), 5쪽 PDF, PR #514(대시보드 JSON + 영상 대기·진행 수 계측 코드) — 검증·배포 승인 필요"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T17:27:56+09:00",
+  "updated_at": "2026-11-23T18:00:01+09:00",
   "requests": [
     {
       "gate": "push",
