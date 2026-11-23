@@ -486,6 +486,13 @@
       "ref": "511",
       "note": "사용자 '승인' 2026-11-23: 공동 편집 개선 PR #511 머지·운영 배포",
       "at": "2026-11-23T17:14:59+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#511",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T17:27:56+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1058,12 +1065,12 @@
       "title": "공동 편집 사후 검증 개선점 반영(Kafka 장애 대기·락·푸시 유실·테스트 공백)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "511",
       "dispatch": "ctx_e67b6f43c6ea",
-      "note": "PR #511(이슈 #510) 완료, 협업 테스트 71 통과, Windows 31 실패=main과 동일 Python 환경. Claude 검증 대기",
+      "note": "#511 머지 a8ffd9c·운영 배포 11/23 17:17~17:21(중단 약 210초), 백업 app.jar.bak-20261123-171704, Kafka 그룹 trova-trip-events-<호스트>-<접미사> 정상, 기록 #512",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1083,12 +1090,12 @@
       "title": "공동 편집 개선 #511 머지·운영 배포",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "blocked",
       "branch": null,
       "worktree": null,
       "pr": "511",
       "dispatch": "ctx_1bfb6885ae34",
-      "note": "사용자 승인 11/23"
+      "note": "T31에 합쳐 완료(배포 기록용 중복 작업)"
     }
   ],
   "history": [
@@ -2619,10 +2626,22 @@
     {
       "at": "2026-11-23T17:27:12+09:00",
       "event": "작업 T30 변경: status=dispatched, note=추가(11/23): '한눈에 보기' 대시보드 + 5쪽 그림 설명서"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "자동 승인 실행: merge_main(PR#511)"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "작업 T31 변경: status=done, note=#511 머지 a8ffd9c·운영 배포 11/23 17:17~17:21(중단 약 210초), 백업 app.jar.bak-20261123-171704, Kafka 그룹 trova-trip-events-<호스트>-<접미사> 정상, 기록 #512"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "작업 T32 변경: status=blocked, note=T31에 합쳐 완료(배포 기록용 중복 작업)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T17:27:12+09:00",
+  "updated_at": "2026-11-23T17:27:56+09:00",
   "requests": [
     {
       "gate": "push",
