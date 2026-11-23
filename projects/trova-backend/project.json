@@ -999,7 +999,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
       "pr": "508",
       "dispatch": "ctx_c8a528ff4612",
-      "note": "준비 완료: 백엔드 PR #508(APP_WEB_APP_LEGACY_ORIGIN 추가), 앱 PR #249, Caddy 설정안 deploy/caddy/Caddyfile.share-domain, 런북 docs/runbooks/share-web-domain.md. 구글·카카오 로그인 콘솔 변경 불필요, 카카오 지도 JS SDK 도메인 추가 필요(사용자). 운영 반영은 승인 후"
+      "note": "카카오 JS 키 'Trova - local'(앱 .env 지도 키와 앞자리 일치) SDK 도메인에 https://trova.duckdns.org 추가·저장(11/23, 사용자 요청). 참고: 지금 웹 주소 app.193-123-161-217.sslip.io는 그 목록에 없음 — 현재 웹 지도 동작 여부 검증 때 확인"
     }
   ],
   "history": [
@@ -2422,10 +2422,14 @@
     {
       "at": "2026-11-23T11:29:00+09:00",
       "event": "작업 T29 변경: pr=508, note=준비 완료: 백엔드 PR #508(APP_WEB_APP_LEGACY_ORIGIN 추가), 앱 PR #249, Caddy 설정안 deploy/caddy/Caddyfile.share-domain, 런북 docs/runbooks/share-web-domain.md. 구글·카카오 로그인 콘솔 변경 불필요, 카카오 지도 JS SDK 도메인 추가 필요(사용자). 운영 반영은 승인 후"
+    },
+    {
+      "at": "2026-11-23T11:43:46+09:00",
+      "event": "작업 T29 변경: note=카카오 JS 키 'Trova - local'(앱 .env 지도 키와 앞자리 일치) SDK 도메인에 https://trova.duckdns.org 추가·저장(11/23, 사용자 요청). 참고: 지금 웹 주소 app.193-123-161-217.sslip.io는 그 목록에 없음 — 현재 웹 지도 동작 여부 검증 때 확인"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T11:29:00+09:00",
+  "updated_at": "2026-11-23T11:43:46+09:00",
   "requests": [
     {
       "gate": "push",
