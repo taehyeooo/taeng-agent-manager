@@ -69,6 +69,18 @@
         "video/mascot-reel",
         "posts/2026-11-24.json"
       ]
+    },
+    {
+      "id": "T3",
+      "title": "오래된 PR #8·#15 정리해 합칠 수 있게",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T3",
+      "pr": null,
+      "dispatch": "ctx_45cf743263d6",
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -139,8 +151,16 @@
     {
       "at": "2026-11-23T14:48:19+09:00",
       "event": "작업 T2 변경: status=review, note=PR #16 머지 완료. #15(광고형)는 base feat/#7-real-reel — #7/#8 정리 후"
+    },
+    {
+      "at": "2026-11-23T15:54:22+09:00",
+      "event": "작업 추가 T3 (codex, 자동): 오래된 PR #8·#15 정리해 합칠 수 있게"
+    },
+    {
+      "at": "2026-11-23T15:55:26+09:00",
+      "event": "작업 T3 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T3, dispatch=ctx_45cf743263d6"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T14:48:19+09:00"
+  "updated_at": "2026-11-23T15:55:26+09:00"
 }
