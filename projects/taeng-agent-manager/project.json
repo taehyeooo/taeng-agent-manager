@@ -157,6 +157,20 @@
       "note": "사용자 '승인' 2026-11-23: T13 가드 읽기 전용 검증 PR #19 main 병합 (auto_gates 사용자 설정)",
       "at": "2026-11-23T14:49:02+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "20",
+      "note": "사용자 '승인' 2026-11-23: 마케팅 가이드·디자인 레퍼런스 PR #20 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T18:44:55+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#20",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T18:52:48+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -458,12 +472,12 @@
       "title": "영상 요청 가이드 문서(docs/video-guide.md)와 레퍼런스 사이트",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "20",
       "dispatch": "ctx_2c5fc69961f6",
-      "note": "사용자 지시 11/23: 영상 요청 시 prompt-motion.com 등 레퍼런스 추천, design-guide처럼 문서화",
+      "note": "PR #20 main 병합(사용자 승인 11/23)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2120,10 +2134,22 @@
     {
       "at": "2026-11-23T18:44:35+09:00",
       "event": "작업 T14 변경: pr=20"
+    },
+    {
+      "at": "2026-11-23T18:44:55+09:00",
+      "event": "승인 기록: merge_main (20) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T18:52:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#20)"
+    },
+    {
+      "at": "2026-11-23T18:52:48+09:00",
+      "event": "작업 T14 변경: status=done, note=PR #20 main 병합(사용자 승인 11/23)"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T18:44:35+09:00",
+  "updated_at": "2026-11-23T18:52:48+09:00",
   "requests": [
     {
       "gate": "push",
