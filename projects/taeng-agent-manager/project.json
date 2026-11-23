@@ -2074,10 +2074,14 @@
     {
       "at": "2026-11-23T15:59:46+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for p in 8 15; do echo \"== #$p\"; gh pr view $p -R Trovapp/trova-marketing --json commits --jq '.commits[].messageHeadlin"
+    },
+    {
+      "at": "2026-11-23T17:27:08+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(closes); 명령: orca orchestration send --to dispatch:ctx_9dc30128c166 --subject \"Grafana '한눈에 보기' 대시보드 + 5쪽 그림 설명서\" --body \"사용자 피드백(202"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T16:02:29+09:00",
+  "updated_at": "2026-11-23T17:27:08+09:00",
   "requests": [
     {
       "gate": "push",

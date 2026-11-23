@@ -1040,7 +1040,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_9dc30128c166",
-      "note": "쉬운 설명서 완성: ~/Desktop/트루바-그라파나-쉬운설명.pdf 16쪽, 13개 기능 흐름도·실제 캡처 14장, 앞뒤 찾아보기 표. 사용자 확인 대기",
+      "note": "추가(11/23): '한눈에 보기' 대시보드 + 5쪽 그림 설명서",
       "verification": {
         "tests": "skip",
         "review": "pass",
@@ -2615,10 +2615,14 @@
     {
       "at": "2026-11-23T17:15:19+09:00",
       "event": "작업 T32 변경: status=dispatched, pr=511, dispatch=ctx_1bfb6885ae34, note=사용자 승인 11/23"
+    },
+    {
+      "at": "2026-11-23T17:27:12+09:00",
+      "event": "작업 T30 변경: status=dispatched, note=추가(11/23): '한눈에 보기' 대시보드 + 5쪽 그림 설명서"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T17:15:19+09:00",
+  "updated_at": "2026-11-23T17:27:12+09:00",
   "requests": [
     {
       "gate": "push",
