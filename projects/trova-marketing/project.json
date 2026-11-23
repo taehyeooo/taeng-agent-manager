@@ -18,6 +18,18 @@
       "pr": "14",
       "dispatch": "ctx_5b65b1070720",
       "note": "수정 완료: 4장 리뷰 요약(04-reviews.png)·5장으로, 앱 표기 '리뷰 요약 보기/좋은 점/아쉬운 점' 확인, PR #14 5c82648, 슬랙 수정본 1회 발송"
+    },
+    {
+      "id": "T2",
+      "title": "마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": "taehyeooo/trova-marketing-T2",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2",
+      "pr": null,
+      "dispatch": "ctx_c9f572aee419",
+      "note": "임시 폴더 코드 삭제 확인 → Codex 기록(~/.codex/sessions 11/17~18)에서 복원, 2편 비교 검증, 1편 앱 클립 재녹화, 11/24 게시물 슬랙 1회"
     }
   ],
   "history": [
@@ -48,8 +60,16 @@
     {
       "at": "2026-11-23T10:47:15+09:00",
       "event": "작업 T1 변경: note=수정 완료: 4장 리뷰 요약(04-reviews.png)·5장으로, 앱 표기 '리뷰 요약 보기/좋은 점/아쉬운 점' 확인, PR #14 5c82648, 슬랙 수정본 1회 발송"
+    },
+    {
+      "at": "2026-11-23T11:13:56+09:00",
+      "event": "작업 추가 T2 (codex, 자동): 마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송"
+    },
+    {
+      "at": "2026-11-23T11:14:33+09:00",
+      "event": "작업 T2 변경: status=dispatched, branch=taehyeooo/trova-marketing-T2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2, dispatch=ctx_c9f572aee419, note=임시 폴더 코드 삭제 확인 → Codex 기록(~/.codex/sessions 11/17~18)에서 복원, 2편 비교 검증, 1편 앱 클립 재녹화, 11/24 게시물 슬랙 1회"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T10:47:15+09:00"
+  "updated_at": "2026-11-23T11:14:33+09:00"
 }
