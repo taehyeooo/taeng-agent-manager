@@ -171,6 +171,20 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-23T18:52:48+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "21",
+      "note": "사용자 '승인' 2026-11-23: oh-my-design 디자인 레퍼런스 PR #21 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T19:31:34+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#21",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T19:31:39+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -498,7 +512,7 @@
       "title": "디자인 레퍼런스에 oh-my-design 추가",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "21",
@@ -2189,10 +2203,22 @@
     {
       "at": "2026-11-23T19:09:03+09:00",
       "event": "작업 T15 변경: pr=21"
+    },
+    {
+      "at": "2026-11-23T19:31:34+09:00",
+      "event": "승인 기록: merge_main (21) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T19:31:39+09:00",
+      "event": "자동 승인 실행: merge_main(PR#21)"
+    },
+    {
+      "at": "2026-11-23T19:31:39+09:00",
+      "event": "작업 T15 변경: status=done"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T19:09:03+09:00",
+  "updated_at": "2026-11-23T19:31:39+09:00",
   "requests": [
     {
       "gate": "push",
