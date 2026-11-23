@@ -452,6 +452,18 @@
         "tests/test_guard.py",
         "AGENTS.md"
       ]
+    },
+    {
+      "id": "T14",
+      "title": "영상 요청 가이드 문서(docs/video-guide.md)와 레퍼런스 사이트",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_2c5fc69961f6",
+      "note": "사용자 지시 11/23: 영상 요청 시 prompt-motion.com 등 레퍼런스 추천, design-guide처럼 문서화"
     }
   ],
   "history": [
@@ -2078,10 +2090,18 @@
     {
       "at": "2026-11-23T17:27:08+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(closes); 명령: orca orchestration send --to dispatch:ctx_9dc30128c166 --subject \"Grafana '한눈에 보기' 대시보드 + 5쪽 그림 설명서\" --body \"사용자 피드백(202"
+    },
+    {
+      "at": "2026-11-23T18:30:38+09:00",
+      "event": "작업 추가 T14 (codex, 자동): 영상 요청 가이드 문서(docs/video-guide.md)와 레퍼런스 사이트"
+    },
+    {
+      "at": "2026-11-23T18:30:48+09:00",
+      "event": "작업 T14 변경: status=dispatched, dispatch=ctx_2c5fc69961f6, note=사용자 지시 11/23: 영상 요청 시 prompt-motion.com 등 레퍼런스 추천, design-guide처럼 문서화"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-23T18:23:25+09:00",
+  "updated_at": "2026-11-23T18:30:48+09:00",
   "requests": [
     {
       "gate": "push",
