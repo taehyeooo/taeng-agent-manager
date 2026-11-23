@@ -945,25 +945,22 @@
       "title": "같이 고치기 1: 멤버·권한·참여/멤버 API·낙관적 잠금·변경 기록 (spec trip-collab)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "499",
       "dispatch": "ctx_4f1fc8f52719",
-      "note": "main acfed70 머지(#500 포함). 같은 모델 검증이라 verify 미기록 — 사용자 '지금 바로 배포' 판단으로 진행. 11/23 이후 Claude 사후 검증 예정",
+      "note": "사후 검증 통과(11/23)",
       "verification": {
         "tests": "pass",
-        "review": "fail",
+        "review": "pass",
         "security": "pass",
-        "by": "claude:reviewflow",
-        "summary": "PR #499: test 1325 통과, 권한 누락 0(여행 자원 26곳 TripAccess, 개인 자원 14곳 본인 검사 유지). 중간 7: 기존 보기 링크가 배포 즉시 편집 참여 토큰(정책 결정), 다시 짜기 재사용이 사용자 단위라 멤버끼리 AI 중복 소모, 편집 응답에 새 버전 없음(연속 편집 409), 테스트 누락 4. 낮음 17",
-        "at": "2026-11-21T20:04:55+09:00"
+        "by": "claude",
+        "summary": "Claude(Sonnet) 사후 검증 #499·#500: 권한 우회·IDOR·링크 재사용·티켓 재사용·연결 누수 없음. 경미: If-Match 없으면 버전 검사 생략(의도), 403/404로 여행 id 존재 노출, 백필 기동 1회, Kafka 장애 시 동시 publish 대기·open() 락 안 DB 조회·푸시 큐 DiscardOldest·재기동마다 컨슈머 그룹. 테스트 공백: EDITOR 403 경로, If-Match 생략, JWT 만료 스트림 종료, 원격 MEMBER_REMOVED",
+        "at": "2026-11-23T16:22:51+09:00"
       },
       "files": [
-        "src/main/java/com/trova/backend/service/TripMembershipService.java",
-        "src/main/java/com/trova/backend/controller/TripReplanController.java",
-        "src/main/java/com/trova/backend/controller/TripController.java",
-        "src/main/java/com/trova/backend/service/TripChanges.java"
+        "src/main/java/com/trova/backend"
       ]
     },
     {
@@ -2523,10 +2520,22 @@
     {
       "at": "2026-11-23T15:13:01+09:00",
       "event": "작업 T30 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "작업 T25 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "자동 승인 실행: merge_main(PR#499)"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "작업 T25 변경: status=done, note=사후 검증 통과(11/23)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T15:13:01+09:00",
+  "updated_at": "2026-11-23T16:22:51+09:00",
   "requests": [
     {
       "gate": "push",
