@@ -115,6 +115,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T14:17:20+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#31",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T14:29:34+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -387,12 +394,24 @@
       "title": "슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "31",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #31: 슬랙 dry-run [인스타 설명란]/[스레드 글] 분리, 스레드 글 해시태그 1·질문 끝, 원고 11개 갱신, lint·테스트 35 통과",
+        "at": "2026-11-24T14:29:43+09:00"
+      },
+      "files": [
+        "tools/daily_posts",
+        "posts"
+      ]
     }
   ],
   "history": [
@@ -735,8 +754,24 @@
     {
       "at": "2026-11-24T14:25:04+09:00",
       "event": "작업 추가 T12 (codex, 자동): 슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙"
+    },
+    {
+      "at": "2026-11-24T14:29:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#31)"
+    },
+    {
+      "at": "2026-11-24T14:29:43+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T14:29:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#31)"
+    },
+    {
+      "at": "2026-11-24T14:29:47+09:00",
+      "event": "작업 T12 변경: status=done, pr=31"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T14:25:04+09:00"
+  "updated_at": "2026-11-24T14:29:47+09:00"
 }
