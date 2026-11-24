@@ -529,6 +529,18 @@
       "files": [
         "docs/design-guide.md"
       ]
+    },
+    {
+      "id": "T16",
+      "title": "마케팅 가이드 문구 규칙·영상 원칙 갱신",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_0ac0c95489f8",
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2215,10 +2227,18 @@
     {
       "at": "2026-11-23T19:31:39+09:00",
       "event": "작업 T15 변경: status=done"
+    },
+    {
+      "at": "2026-11-24T10:43:36+09:00",
+      "event": "작업 추가 T16 (codex, 자동): 마케팅 가이드 문구 규칙·영상 원칙 갱신"
+    },
+    {
+      "at": "2026-11-24T10:43:42+09:00",
+      "event": "작업 T16 변경: status=dispatched, dispatch=ctx_0ac0c95489f8"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-24T10:40:57+09:00",
+  "updated_at": "2026-11-24T10:43:42+09:00",
   "requests": [
     {
       "gate": "push",
