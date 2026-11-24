@@ -525,6 +525,12 @@
       "ref": "518-python",
       "note": "사용자 '승인' 2026-11-24: #518 영상 분석 파이썬 파일 2개(run_pipeline.py, extract_places.py) 운영 교체(분석 0건 시점, 백업 후)",
       "at": "2026-11-24T15:48:02+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "api-domain",
+      "note": "사용자 '승인' 2026-11-24: API·로그인 주소 api.trova.duckdns.org 운영 적용",
+      "at": "2026-11-24T16:15:21+09:00"
     }
   ],
   "tasks": [
@@ -2857,10 +2863,14 @@
     {
       "at": "2026-11-24T16:13:50+09:00",
       "event": "작업 T36 변경: pr=520, note=콘솔 등록 완료(11/24, 사용자 로그인 후 매니저 Chrome): 구글 trova 프로젝트(trovapp 계정 authuser=2) OAuth 클라이언트 trova-backend에 https://api.trova.duckdns.org/login/oauth2/code/google 추가, 카카오 REST 키 'Trova - local'에 .../code/kakao 추가. 기존 URI 유지. 주의: GCP 무료 평가판 10일 남음(크레딧 ₩414,984) — Places·Gemini 키가 이 프로젝트"
+    },
+    {
+      "at": "2026-11-24T16:15:21+09:00",
+      "event": "승인 기록: deploy (api-domain)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T16:13:50+09:00",
+  "updated_at": "2026-11-24T16:15:21+09:00",
   "requests": [
     {
       "gate": "push",
