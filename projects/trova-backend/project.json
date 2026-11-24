@@ -1121,8 +1121,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_d32ec854a482",
-      "note": "사용자 승인 11/24"
+      "dispatch": "ctx_f34852e3c485",
+      "note": "Python 호출 복구: 31→12 실패(PYTHONUTF8). 남은 12개는 리눅스 전용(os.nice·프로세스 그룹) → @DisabledOnOs(WINDOWS)+Gradle PYTHONUTF8 후속 위임"
     }
   ],
   "history": [
@@ -2697,10 +2697,14 @@
     {
       "at": "2026-11-24T10:16:40+09:00",
       "event": "작업 T33 변경: status=dispatched, dispatch=ctx_d32ec854a482, note=사용자 승인 11/24"
+    },
+    {
+      "at": "2026-11-24T10:30:29+09:00",
+      "event": "작업 T33 변경: dispatch=ctx_f34852e3c485, note=Python 호출 복구: 31→12 실패(PYTHONUTF8). 남은 12개는 리눅스 전용(os.nice·프로세스 그룹) → @DisabledOnOs(WINDOWS)+Gradle PYTHONUTF8 후속 위임"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T10:16:40+09:00",
+  "updated_at": "2026-11-24T10:30:29+09:00",
   "requests": [
     {
       "gate": "push",
