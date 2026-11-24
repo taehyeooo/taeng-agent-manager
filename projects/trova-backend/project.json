@@ -1283,7 +1283,7 @@
       "worktree": null,
       "pr": "526",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "사용자 결정 11/24: 다음 서버 변경과 묶어서 배포(PR #526 검증 통과, 머지 대기)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2998,10 +2998,14 @@
     {
       "at": "2026-11-24T18:19:32+09:00",
       "event": "작업 T38 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T18:20:11+09:00",
+      "event": "작업 T38 변경: note=사용자 결정 11/24: 다음 서버 변경과 묶어서 배포(PR #526 검증 통과, 머지 대기)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T18:19:32+09:00",
+  "updated_at": "2026-11-24T18:20:11+09:00",
   "requests": [
     {
       "gate": "push",
