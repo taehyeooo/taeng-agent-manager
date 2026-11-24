@@ -1272,6 +1272,30 @@
         "src/main/java/com/trova/backend/controller/ApiErrorAdvice.java",
         "src/main/java/com/trova/backend/controller/ApiErrors.java"
       ]
+    },
+    {
+      "id": "T38",
+      "title": "오류 응답 X-Trace-Id 헤더 보완",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": "526",
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 직접 확인 #526: 객체 경로·보안 필터 401/403·비객체 경로 모두 같은 traceId를 본문과 X-Trace-Id 헤더에 사용, 로그 한 번만 기록, 테스트로 헤더=본문 검증, 트레일러 없음. 1467 통과",
+        "at": "2026-11-24T18:19:32+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/controller/ApiErrorAdvice.java",
+        "src/main/java/com/trova/backend/controller/ApiErrors.java"
+      ]
     }
   ],
   "history": [
@@ -2962,10 +2986,22 @@
     {
       "at": "2026-11-24T17:58:33+09:00",
       "event": "작업 T37 변경: status=done, note=#524 배포 17:46~17:50(228초), 두 API 404·401 JSON·본문 traceId 정상, 공유 200·OAuth 302 정상. 남은 것: JSON 경로 X-Trace-Id 헤더 누락(경미), 운영 409 미검증(로컬 테스트 통과). 백업 app.jar.bak-20261124-174647"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 추가 T38 (codex, 자동): 오류 응답 X-Trace-Id 헤더 보완"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 T38 변경: pr=526"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 T38 검증(claude): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T17:58:33+09:00",
+  "updated_at": "2026-11-24T18:19:32+09:00",
   "requests": [
     {
       "gate": "push",
