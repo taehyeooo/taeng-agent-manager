@@ -1215,6 +1215,18 @@
       "pr": null,
       "dispatch": null,
       "note": "자동 배정: test → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "T34",
+      "title": "QA 높음 2건(한글 줄바꿈, 분석 중 장소 목록) + 첫 실행 속도",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2637,8 +2649,12 @@
     {
       "at": "2026-11-24T15:06:46+09:00",
       "event": "자동 승인 실행: merge_main(PR#253)"
+    },
+    {
+      "at": "2026-11-24T15:08:58+09:00",
+      "event": "작업 추가 T34 (codex, 자동): QA 높음 2건(한글 줄바꿈, 분석 중 장소 목록) + 첫 실행 속도"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:06:46+09:00"
+  "updated_at": "2026-11-24T15:08:58+09:00"
 }
