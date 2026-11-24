@@ -1466,6 +1466,18 @@
         "src/components/AppErrorBoundary.tsx",
         "src/screens/PlanTripScreen.tsx"
       ]
+    },
+    {
+      "id": "T40",
+      "title": "출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -3068,8 +3080,12 @@
     {
       "at": "2026-11-24T17:58:33+09:00",
       "event": "작업 T39 변경: status=done, note=#264 OTA 그룹 e4be8cff(v11), 웹 배포(접속 실패 0/389), 웹 배포 스크립트 원자적 교체·권한 사전 확인 #265 병합"
+    },
+    {
+      "at": "2026-11-24T18:07:56+09:00",
+      "event": "작업 추가 T40 (codex, 자동): 출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T17:58:33+09:00"
+  "updated_at": "2026-11-24T18:07:56+09:00"
 }
