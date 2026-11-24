@@ -594,6 +594,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T15:43:13+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#257",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:52:48+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1278,12 +1285,23 @@
       "title": "플레이 v11 재설치 확인 + 링크→앱 열기 확인",
       "agent": "codex",
       "kind": "test",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "257",
       "dispatch": null,
-      "note": "플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인"
+      "note": "플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "플레이 재설치 versionCode 11, 두 도메인 verified, 공유 링크 → 앱 바로 열림, OTA 269e1f24 수신·한글 줄바꿈 적용 확인. 분석 중 목록은 진행 분석 없어 미검증",
+        "at": "2026-11-24T15:52:54+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-v11-play-release"
+      ]
     }
   ],
   "history": [
@@ -2766,8 +2784,24 @@
     {
       "at": "2026-11-24T15:43:13+09:00",
       "event": "작업 T35 변경: note=플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인"
+    },
+    {
+      "at": "2026-11-24T15:52:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#257)"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "작업 T35 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "자동 승인 실행: merge_main(PR#257)"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "작업 T35 변경: status=done, pr=257"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:43:13+09:00"
+  "updated_at": "2026-11-24T15:52:54+09:00"
 }
