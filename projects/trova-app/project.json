@@ -1472,12 +1472,12 @@
       "title": "출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완",
       "agent": "codex",
       "kind": "test",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
-      "worktree": null,
+      "worktree": "C:/Users/user/orca/workspaces/trova-app/trova-app-T40",
       "pr": null,
-      "dispatch": null,
-      "note": "에뮬레이터 확인은 사용자 귀가 후(집 네트워크) 진행. 서버 헤더 PR 먼저"
+      "dispatch": "ctx_d24ec572f114",
+      "note": "집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)"
     }
   ],
   "history": [
@@ -3088,8 +3088,12 @@
     {
       "at": "2026-11-24T18:08:42+09:00",
       "event": "작업 T40 변경: note=에뮬레이터 확인은 사용자 귀가 후(집 네트워크) 진행. 서버 헤더 PR 먼저"
+    },
+    {
+      "at": "2026-11-24T22:06:04+09:00",
+      "event": "작업 T40 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/trova-app/trova-app-T40, dispatch=ctx_d24ec572f114, note=집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T18:08:42+09:00"
+  "updated_at": "2026-11-24T22:06:04+09:00"
 }
