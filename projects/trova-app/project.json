@@ -1246,17 +1246,18 @@
       "dispatch": null,
       "note": "자동 배정: general → codex (config/agents.json 선호)",
       "verification": {
-        "tests": "fail",
-        "review": "fail",
+        "tests": "pass",
+        "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "Claude(Sonnet) #254: OTA 가능(JS만). 수정 필요: 테스트가 정규식 위주, App.tsx:85 스플래시 숨김 후 booting 빈 프레임 가능, AppText U+2060 접근성·글리프 두부 위험·중첩 Text 미보호·accessibilityLabel 덮어쓰기, ProcessingScreen 첫 마운트 마스크 없음·scrollToEnd가 사용자 스크롤 무시·key name+index",
-        "at": "2026-11-24T15:23:54+09:00"
+        "summary": "재검증 97297ed: 스플래시 순서·접근성 라벨·첫 마운트 페이드·사용자 스크롤 존중·안정 key·렌더 테스트 모두 해결, OTA 가능. 낮은 위험 2: 인증 복원 무한 대기 시 스플래시 유지(타임아웃 없음), onScrollEndDrag 누락 시 자동 따라가기 정지",
+        "at": "2026-11-24T15:35:36+09:00"
       },
       "files": [
         "App.tsx",
         "src/components/AppText.tsx",
-        "src/screens/ProcessingScreen.tsx"
+        "src/screens/ProcessingScreen.tsx",
+        "src/components/StartupSplash.tsx"
       ]
     }
   ],
@@ -2716,8 +2717,12 @@
     {
       "at": "2026-11-24T15:35:08+09:00",
       "event": "작업 T32 변경: note=v11 플레이 출시 확인(사용자 보고 2026-11-24 '업뎃 됐어'). 남은 확인: 링크→앱 열기(verified), 비공개 테스트 v5 정리"
+    },
+    {
+      "at": "2026-11-24T15:35:36+09:00",
+      "event": "작업 T34 검증(claude): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:35:08+09:00"
+  "updated_at": "2026-11-24T15:35:36+09:00"
 }
