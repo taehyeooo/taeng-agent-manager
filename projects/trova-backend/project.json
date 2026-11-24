@@ -1177,7 +1177,7 @@
       "worktree": null,
       "pr": "518",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "#518 JAR 운영 반영(UP). 파이썬 2개 15:50 반영 → 15:58 첫 실사용 분석 실패 → 15:58:36 백업 복구. 원인 조사 중(yt-dlp YouTube 로그인 확인 기록)",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2832,10 +2832,14 @@
     {
       "at": "2026-11-24T15:57:14+09:00",
       "event": "작업 추가 T36 (codex, 자동): API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)"
+    },
+    {
+      "at": "2026-11-24T16:03:13+09:00",
+      "event": "작업 T35 변경: note=#518 JAR 운영 반영(UP). 파이썬 2개 15:50 반영 → 15:58 첫 실사용 분석 실패 → 15:58:36 백업 복구. 원인 조사 중(yt-dlp YouTube 로그인 확인 기록)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T15:57:14+09:00",
+  "updated_at": "2026-11-24T16:03:13+09:00",
   "requests": [
     {
       "gate": "push",
