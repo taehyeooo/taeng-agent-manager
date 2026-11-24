@@ -541,6 +541,12 @@
       "ref": "store-applinks",
       "note": "사용자 '지금 진행해줘' 2026-11-23: 새 공유 주소 앱 링크용 스토어 업데이트(Play)",
       "at": "2026-11-23T14:44:33+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "v11-internal",
+      "note": "사용자 '내부 테스트로 먼저 올리고 QA로 진행하자' 2026-11-24: v11 AAB 플레이 내부 테스트 트랙 업로드(프로덕션 아님)",
+      "at": "2026-11-24T10:45:40+09:00"
     }
   ],
   "tasks": [
@@ -1135,6 +1141,18 @@
         "docs/pwa.md",
         "docs/release-checklist.md"
       ]
+    },
+    {
+      "id": "T31",
+      "title": "v11 플레이 내부 테스트 업로드",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_acac9fb591e3",
+      "note": "내부 테스트 트랙만. 다음: Windows 에뮬레이터 QA"
     }
   ],
   "history": [
@@ -2485,8 +2503,20 @@
     {
       "at": "2026-11-24T10:36:35+09:00",
       "event": "작업 T30 변경: pr=251, note=EAS AAB e9e67447 완성(v11). Play 제출 승인 대기"
+    },
+    {
+      "at": "2026-11-24T10:45:40+09:00",
+      "event": "승인 기록: deploy (v11-internal)"
+    },
+    {
+      "at": "2026-11-24T10:45:40+09:00",
+      "event": "작업 추가 T31 (codex, 자동): v11 플레이 내부 테스트 업로드"
+    },
+    {
+      "at": "2026-11-24T10:45:51+09:00",
+      "event": "작업 T31 변경: status=dispatched, dispatch=ctx_acac9fb591e3, note=내부 테스트 트랙만. 다음: Windows 에뮬레이터 QA"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T10:36:35+09:00"
+  "updated_at": "2026-11-24T10:45:51+09:00"
 }
