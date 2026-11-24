@@ -1265,6 +1265,18 @@
         "src/screens/ProcessingScreen.tsx",
         "src/components/StartupSplash.tsx"
       ]
+    },
+    {
+      "id": "T35",
+      "title": "플레이 v11 재설치 확인 + 링크→앱 열기 확인",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2731,8 +2743,12 @@
     {
       "at": "2026-11-24T15:36:25+09:00",
       "event": "승인 기록: deploy (ota-254)"
+    },
+    {
+      "at": "2026-11-24T15:36:52+09:00",
+      "event": "작업 추가 T35 (codex, 자동): 플레이 v11 재설치 확인 + 링크→앱 열기 확인"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:36:25+09:00"
+  "updated_at": "2026-11-24T15:36:52+09:00"
 }
