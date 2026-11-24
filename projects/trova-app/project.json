@@ -1118,9 +1118,23 @@
       "status": "dispatched",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "251",
       "dispatch": "ctx_60698855ee34",
-      "note": "사용자 지시 11/24. Play 제출·웹 배포는 승인 후 별도"
+      "note": "EAS AAB e9e67447 완성(v11). Play 제출 승인 대기",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #251: intentFilters에 trova.duckdns.org /t/ autoVerify 추가·옛 주소 유지, android.version 11, AAB versionCode 11·런타임 30389d0(v10과 분리), assetlinks 새 주소 200·Play 서명 지문 일치, 테스트 418·타입 통과, AI 서명 없음",
+        "at": "2026-11-24T10:36:35+09:00"
+      },
+      "files": [
+        "app.json",
+        "scripts/trip-copy.test.mjs",
+        "docs/pwa.md",
+        "docs/release-checklist.md"
+      ]
     }
   ],
   "history": [
@@ -2463,8 +2477,16 @@
     {
       "at": "2026-11-24T10:16:40+09:00",
       "event": "작업 T30 변경: status=dispatched, dispatch=ctx_60698855ee34, note=사용자 지시 11/24. Play 제출·웹 배포는 승인 후 별도"
+    },
+    {
+      "at": "2026-11-24T10:36:35+09:00",
+      "event": "작업 T30 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:36:35+09:00",
+      "event": "작업 T30 변경: pr=251, note=EAS AAB e9e67447 완성(v11). Play 제출 승인 대기"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T10:16:40+09:00"
+  "updated_at": "2026-11-24T10:36:35+09:00"
 }
