@@ -558,6 +558,12 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T17:58:33+09:00",
       "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "526",
+      "note": "사용자 요청 2026-11-24: '#526 서버 배포도 지금 같이 해 줘'",
+      "at": "2026-11-24T22:28:58+09:00"
     }
   ],
   "tasks": [
@@ -1278,12 +1284,12 @@
       "title": "오류 응답 X-Trace-Id 헤더 보완",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": "526",
-      "dispatch": null,
-      "note": "사용자 결정 11/24: 다음 서버 변경과 묶어서 배포(PR #526 검증 통과, 머지 대기)",
+      "dispatch": "ctx_a58275a59fa1",
+      "note": "사용자 요청으로 지금 배포(묶음 대기 해제) 2026-11-24",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -3002,10 +3008,18 @@
     {
       "at": "2026-11-24T18:20:11+09:00",
       "event": "작업 T38 변경: note=사용자 결정 11/24: 다음 서버 변경과 묶어서 배포(PR #526 검증 통과, 머지 대기)"
+    },
+    {
+      "at": "2026-11-24T22:28:58+09:00",
+      "event": "승인 기록: deploy (526)"
+    },
+    {
+      "at": "2026-11-24T22:29:16+09:00",
+      "event": "작업 T38 변경: status=dispatched, dispatch=ctx_a58275a59fa1, note=사용자 요청으로 지금 배포(묶음 대기 해제) 2026-11-24"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T18:20:11+09:00",
+  "updated_at": "2026-11-24T22:29:16+09:00",
   "requests": [
     {
       "gate": "push",
