@@ -601,6 +601,12 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T15:52:48+09:00",
       "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "design-qa-analysis",
+      "note": "사용자 2026-11-24 '제일 최신 버전으로 QA 진행해'(제안한 영상 분석 1회 포함): 디자인 QA용 영상 분석 1회",
+      "at": "2026-11-24T16:02:50+09:00"
     }
   ],
   "tasks": [
@@ -1302,6 +1308,18 @@
       "files": [
         "docs/qa/2026-11-24-v11-play-release"
       ]
+    },
+    {
+      "id": "T36",
+      "title": "최신 버전 디자인 QA(분석 중 화면 포함)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2800,8 +2818,16 @@
     {
       "at": "2026-11-24T15:52:54+09:00",
       "event": "작업 T35 변경: status=done, pr=257"
+    },
+    {
+      "at": "2026-11-24T16:02:50+09:00",
+      "event": "승인 기록: paid_service (design-qa-analysis)"
+    },
+    {
+      "at": "2026-11-24T16:02:50+09:00",
+      "event": "작업 추가 T36 (codex, 자동): 최신 버전 디자인 QA(분석 중 화면 포함)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:52:54+09:00"
+  "updated_at": "2026-11-24T16:02:50+09:00"
 }
