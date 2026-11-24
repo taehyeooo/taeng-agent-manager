@@ -2296,10 +2296,18 @@
     {
       "at": "2026-11-24T10:57:24+09:00",
       "event": "작업 T16 변경: status=done"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: gh pr merge 25 -R Trovapp/trova-marketing --merge 2>&1 | tail -1; sleep 3; gh pr merge 24 -R Trovapp/trova-marketing --m"
+    },
+    {
+      "at": "2026-11-24T10:58:13+09:00",
+      "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: gh api [가림].json --jq .path 2>&1 | head -1; for t in T7 T8; do python3 -m am task verify trova-marketing $t --by claude "
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-24T10:57:24+09:00",
+  "updated_at": "2026-11-24T10:58:13+09:00",
   "requests": [
     {
       "gate": "push",

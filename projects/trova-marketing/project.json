@@ -54,6 +54,27 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-23T20:27:46+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#25",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#24",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#23",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -206,12 +227,25 @@
       "title": "릴스 8편: Codex가 기획·연출 전부(imagegen+HyperFrames), 최종본 하나",
       "agent": "codex",
       "kind": "design",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "23",
       "dispatch": "ctx_b68cf8bcbcf3",
-      "note": "8편 수정본 22.2초(실제 리뷰 녹화·지도·구글 플레이 설치 엔딩+공식 배지) 슬랙 발송. 데스크탑 교체는 사용자 터미널 실행 대기(macOS 권한)"
+      "note": "8편 수정본 22.2초(실제 리뷰 녹화·지도·구글 플레이 설치 엔딩+공식 배지) 슬랙 발송. 데스크탑 교체는 사용자 터미널 실행 대기(macOS 권한)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 8편 최종본·캐러셀 프레임 확인, 안내 문구 제거, 커밋 형식·AI 서명 0, 비밀값 0, lint·테스트 33 통과",
+        "at": "2026-11-24T10:58:14+09:00"
+      },
+      "files": [
+        "posts",
+        "video",
+        "tools"
+      ]
     },
     {
       "id": "T8",
@@ -223,7 +257,20 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_a763b1504720",
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "note": "자동 배정: docs → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 8편 최종본·캐러셀 프레임 확인, 안내 문구 제거, 커밋 형식·AI 서명 0, 비밀값 0, lint·테스트 33 통과",
+        "at": "2026-11-24T10:58:14+09:00"
+      },
+      "files": [
+        "posts",
+        "video",
+        "tools"
+      ]
     }
   ],
   "history": [
@@ -446,8 +493,36 @@
     {
       "at": "2026-11-24T10:43:36+09:00",
       "event": "작업 T8 변경: status=dispatched, dispatch=ctx_a763b1504720"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#25)"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#24)"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#23)"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T7 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "자동 승인 실행: merge_main(PR#23)"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T7 변경: status=done"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T8 검증(claude): tests=pass, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T10:43:36+09:00"
+  "updated_at": "2026-11-24T10:58:14+09:00"
 }
