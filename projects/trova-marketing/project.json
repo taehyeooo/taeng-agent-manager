@@ -75,6 +75,12 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T10:57:46+09:00",
       "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "reel9-alternatives",
+      "note": "사용자 2026-11-24: 9편 촬영용 '대안 찾기' 최대 2회 실행 허용(외부 지도·AI 소액)",
+      "at": "2026-11-24T11:20:36+09:00"
     }
   ],
   "tasks": [
@@ -541,8 +547,12 @@
     {
       "at": "2026-11-24T11:05:17+09:00",
       "event": "작업 T9 변경: status=dispatched, dispatch=ctx_7c679e57402f, note=1단계 Windows 캡처·녹화 → 2단계 Mac 편집(9편 Codex 자유 연출, 8편 피드 새 이미지)"
+    },
+    {
+      "at": "2026-11-24T11:20:36+09:00",
+      "event": "승인 기록: paid_service (reel9-alternatives)"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T11:05:17+09:00"
+  "updated_at": "2026-11-24T11:20:36+09:00"
 }

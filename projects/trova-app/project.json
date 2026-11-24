@@ -1170,8 +1170,8 @@
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": "ctx_3e6ec08c32cc",
-      "note": "자동 배정: test → codex (config/agents.json 선호)"
+      "dispatch": "ctx_af2ca9ba3c55",
+      "note": "APK c6rcy5w(v11, preview 채널, OTA 끔) 빌드 완료 → Windows 별도 AVD QA"
     }
   ],
   "history": [
@@ -2558,8 +2558,12 @@
     {
       "at": "2026-11-24T10:56:35+09:00",
       "event": "작업 T32 변경: status=dispatched, dispatch=ctx_3e6ec08c32cc"
+    },
+    {
+      "at": "2026-11-24T11:21:15+09:00",
+      "event": "작업 T32 변경: dispatch=ctx_af2ca9ba3c55, note=APK c6rcy5w(v11, preview 채널, OTA 끔) 빌드 완료 → Windows 별도 AVD QA"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T10:56:35+09:00"
+  "updated_at": "2026-11-24T11:21:15+09:00"
 }
