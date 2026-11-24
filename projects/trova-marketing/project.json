@@ -122,6 +122,12 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T14:29:34+09:00",
       "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "reels-10-11-ai",
+      "note": "사용자 2026-11-24 'ai 돌려도 돼': 릴스 10·11편 촬영용 영상 분석 1~2회·말로 바꾸기 여러 회(외부 AI 소액)",
+      "at": "2026-11-24T14:31:22+09:00"
     }
   ],
   "tasks": [
@@ -412,6 +418,18 @@
         "tools/daily_posts",
         "posts"
       ]
+    },
+    {
+      "id": "T13",
+      "title": "릴스 10편 '말로 바꾸기' + 11편 '영상 공유→AI 분석→초안'",
+      "agent": "codex",
+      "kind": "design",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -770,8 +788,16 @@
     {
       "at": "2026-11-24T14:29:47+09:00",
       "event": "작업 T12 변경: status=done, pr=31"
+    },
+    {
+      "at": "2026-11-24T14:31:22+09:00",
+      "event": "승인 기록: paid_service (reels-10-11-ai)"
+    },
+    {
+      "at": "2026-11-24T14:31:22+09:00",
+      "event": "작업 추가 T13 (codex, 자동): 릴스 10편 '말로 바꾸기' + 11편 '영상 공유→AI 분석→초안'"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T14:29:47+09:00"
+  "updated_at": "2026-11-24T14:31:22+09:00"
 }
