@@ -551,6 +551,13 @@
       "ref": "524",
       "note": "사용자 '승인' 2026-11-24: 오류 응답 통일 #524 배포",
       "at": "2026-11-24T17:44:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#524",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:33+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1247,12 +1254,12 @@
       "title": "체크리스트 중간: API 오류 응답 형식 통일(하위 호환)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "524",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "#524 배포 17:46~17:50(228초), 두 API 404·401 JSON·본문 traceId 정상, 공유 200·OAuth 302 정상. 남은 것: JSON 경로 X-Trace-Id 헤더 누락(경미), 운영 409 미검증(로컬 테스트 통과). 백업 app.jar.bak-20261124-174647",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2947,10 +2954,18 @@
     {
       "at": "2026-11-24T17:44:07+09:00",
       "event": "승인 기록: deploy (524)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "자동 승인 실행: merge_main(PR#524)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "작업 T37 변경: status=done, note=#524 배포 17:46~17:50(228초), 두 API 404·401 JSON·본문 traceId 정상, 공유 200·OAuth 302 정상. 남은 것: JSON 경로 X-Trace-Id 헤더 누락(경미), 운영 409 미검증(로컬 테스트 통과). 백업 app.jar.bak-20261124-174647"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T17:44:07+09:00",
+  "updated_at": "2026-11-24T17:58:33+09:00",
   "requests": [
     {
       "gate": "push",

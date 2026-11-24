@@ -653,6 +653,20 @@
       "ref": "264",
       "note": "사용자 '승인' 2026-11-24: #264 무선 업데이트(v11)·웹 배포·웹 배포 스크립트 권한 수정",
       "at": "2026-11-24T17:44:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#265",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:22+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#264",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:33+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1432,12 +1446,12 @@
       "title": "체크리스트 높음·중간: 초안 입력 복구, 웹 로딩 실패 안내, TripDetailScreen 분리",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "264",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "#264 OTA 그룹 e4be8cff(v11), 웹 배포(접속 실패 0/389), 웹 배포 스크립트 원자적 교체·권한 사전 확인 #265 병합",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -3042,8 +3056,20 @@
     {
       "at": "2026-11-24T17:44:07+09:00",
       "event": "승인 기록: deploy (264)"
+    },
+    {
+      "at": "2026-11-24T17:58:22+09:00",
+      "event": "자동 승인 실행: merge_main(PR#265)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "자동 승인 실행: merge_main(PR#264)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "작업 T39 변경: status=done, note=#264 OTA 그룹 e4be8cff(v11), 웹 배포(접속 실패 0/389), 웹 배포 스크립트 원자적 교체·권한 사전 확인 #265 병합"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T17:44:07+09:00"
+  "updated_at": "2026-11-24T17:58:33+09:00"
 }
