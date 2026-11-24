@@ -547,6 +547,13 @@
       "ref": "v11-internal",
       "note": "사용자 '내부 테스트로 먼저 올리고 QA로 진행하자' 2026-11-24: v11 AAB 플레이 내부 테스트 트랙 업로드(프로덕션 아님)",
       "at": "2026-11-24T10:45:40+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#251",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:48:32+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1121,12 +1128,12 @@
       "title": "공유 링크 trova.duckdns.org 앱 바로 열기(Android 앱 링크) + v11 빌드",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "251",
       "dispatch": "ctx_60698855ee34",
-      "note": "EAS AAB e9e67447 완성(v11). Play 제출 승인 대기",
+      "note": "#251 병합 ec37c5a",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1147,12 +1154,12 @@
       "title": "v11 플레이 내부 테스트 업로드",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "blocked",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_acac9fb591e3",
-      "note": "내부 테스트 트랙만. 다음: Windows 에뮬레이터 QA"
+      "note": "EAS에 Play 제출용 서비스 계정 키 없음 → 사용자가 Play Console에서 AAB 수동 업로드 필요"
     }
   ],
   "history": [
@@ -2515,8 +2522,20 @@
     {
       "at": "2026-11-24T10:45:51+09:00",
       "event": "작업 T31 변경: status=dispatched, dispatch=ctx_acac9fb591e3, note=내부 테스트 트랙만. 다음: Windows 에뮬레이터 QA"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#251)"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "작업 T30 변경: status=done, note=#251 병합 ec37c5a"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "작업 T31 변경: status=blocked, note=EAS에 Play 제출용 서비스 계정 키 없음 → 사용자가 Play Console에서 AAB 수동 업로드 필요"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T10:45:51+09:00"
+  "updated_at": "2026-11-24T10:48:32+09:00"
 }
