@@ -506,6 +506,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-23T19:08:40+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#517",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:40:57+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1117,12 +1124,24 @@
       "title": "Windows 노트북 Python 설치(테스트 31 실패 해결)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "517",
       "dispatch": "ctx_f34852e3c485",
-      "note": "Python 호출 복구: 31→12 실패(PYTHONUTF8). 남은 12개는 리눅스 전용(os.nice·프로세스 그룹) → @DisabledOnOs(WINDOWS)+Gradle PYTHONUTF8 후속 위임"
+      "note": "Windows 실패 0, #517 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #517: 파라미터 테스트를 메서드로 나눠 Windows 제외 정확히 12개(리눅스에선 모두 실행), Gradle test에 PYTHONUTF8=1, 운영 코드 변경 없음. Windows 1468 중 실패 0",
+        "at": "2026-11-24T10:41:05+09:00"
+      },
+      "files": [
+        "build.gradle",
+        "src/test/java"
+      ]
     }
   ],
   "history": [
@@ -2701,10 +2720,26 @@
     {
       "at": "2026-11-24T10:30:29+09:00",
       "event": "작업 T33 변경: dispatch=ctx_f34852e3c485, note=Python 호출 복구: 31→12 실패(PYTHONUTF8). 남은 12개는 리눅스 전용(os.nice·프로세스 그룹) → @DisabledOnOs(WINDOWS)+Gradle PYTHONUTF8 후속 위임"
+    },
+    {
+      "at": "2026-11-24T10:40:57+09:00",
+      "event": "자동 승인 실행: merge_main(PR#517)"
+    },
+    {
+      "at": "2026-11-24T10:41:05+09:00",
+      "event": "작업 T33 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:41:09+09:00",
+      "event": "자동 승인 실행: merge_main(PR#517)"
+    },
+    {
+      "at": "2026-11-24T10:41:09+09:00",
+      "event": "작업 T33 변경: status=done, pr=517, note=Windows 실패 0, #517 병합"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T10:30:29+09:00",
+  "updated_at": "2026-11-24T10:41:09+09:00",
   "requests": [
     {
       "gate": "push",
