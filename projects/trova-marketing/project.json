@@ -302,6 +302,18 @@
       "pr": null,
       "dispatch": "ctx_7c679e57402f",
       "note": "8편 피드 재작업 Windows Codex 위임(슬랙·데스크탑은 Mac 후처리). 9편은 대안 장면 재촬영 후 편집"
+    },
+    {
+      "id": "T10",
+      "title": "슬랙 발송 메시지에서 날짜 없애기",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -580,8 +592,12 @@
     {
       "at": "2026-11-24T12:13:37+09:00",
       "event": "승인 기록: paid_service (alternatives-multi)"
+    },
+    {
+      "at": "2026-11-24T12:16:41+09:00",
+      "event": "작업 추가 T10 (codex, 자동): 슬랙 발송 메시지에서 날짜 없애기"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T12:13:37+09:00"
+  "updated_at": "2026-11-24T12:16:41+09:00"
 }
