@@ -1394,6 +1394,18 @@
       "files": [
         "docs/qa/2026-11-24-checklist-audit"
       ]
+    },
+    {
+      "id": "T39",
+      "title": "체크리스트 높음·중간: 초안 입력 복구, 웹 로딩 실패 안내, TripDetailScreen 분리",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2944,8 +2956,12 @@
     {
       "at": "2026-11-24T16:59:28+09:00",
       "event": "작업 T38 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:03:55+09:00",
+      "event": "작업 추가 T39 (codex, 자동): 체크리스트 높음·중간: 초안 입력 복구, 웹 로딩 실패 안내, TripDetailScreen 분리"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T16:59:28+09:00"
+  "updated_at": "2026-11-24T17:03:55+09:00"
 }
