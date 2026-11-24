@@ -560,6 +560,13 @@
       "ref": "v11-production",
       "note": "사용자 '승인' 2026-11-24: v11 AAB 플레이 프로덕션 출시(자체 QA 앱 결함 0)",
       "at": "2026-11-24T12:28:42+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#252",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T14:00:48+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1172,12 +1179,12 @@
       "title": "v11 자체 QA(APK 빌드 → Windows 에뮬레이터 QA)",
       "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "252",
       "dispatch": "ctx_af2ca9ba3c55",
-      "note": "QA 6번(대안 검색) 통과: 6.6초·후보 19곳 / 3.7초. 앱 결함 0. 정식 배포 승인 대기",
+      "note": "v11 프로덕션 검토 제출 완료(2026-11-24, 전체 출시). 플레이 빠른 검사(최대 15분) 후 Google 검토(보통 7일 이내). 무시한 안내: AD_ID(비공개 테스트 v5 원인), screen.portrait(v10과 동일). 출시 후 확인: 링크→앱 열기 verified",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2595,8 +2602,16 @@
     {
       "at": "2026-11-24T12:28:42+09:00",
       "event": "승인 기록: deploy (v11-production)"
+    },
+    {
+      "at": "2026-11-24T14:00:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#252)"
+    },
+    {
+      "at": "2026-11-24T14:00:48+09:00",
+      "event": "작업 T32 변경: status=done, note=v11 프로덕션 검토 제출 완료(2026-11-24, 전체 출시). 플레이 빠른 검사(최대 15분) 후 Google 검토(보통 7일 이내). 무시한 안내: AD_ID(비공개 테스트 v5 원인), screen.portrait(v10과 동일). 출시 후 확인: 링크→앱 열기 verified"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T12:28:42+09:00"
+  "updated_at": "2026-11-24T14:00:48+09:00"
 }
