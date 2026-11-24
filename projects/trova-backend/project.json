@@ -1244,9 +1244,20 @@
       "status": "todo",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "524",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "fail",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) #524 조건부: ApiErrorAdvice.java:33 본문이 String/List면 ClassCastException→500, 테스트 공백(실제 AccessDenied 403·OAuth 실패 redirect·관리자 error·SSE 후 오류), 4xx traceId 로그 대조 불가(경미)",
+        "at": "2026-11-24T17:23:37+09:00"
+      },
+      "files": [
+        "src/main/java"
+      ]
     }
   ],
   "history": [
@@ -2913,10 +2924,18 @@
     {
       "at": "2026-11-24T17:03:55+09:00",
       "event": "작업 추가 T37 (codex, 자동): 체크리스트 중간: API 오류 응답 형식 통일(하위 호환)"
+    },
+    {
+      "at": "2026-11-24T17:23:37+09:00",
+      "event": "작업 T37 검증(claude): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:23:37+09:00",
+      "event": "작업 T37 변경: pr=524"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T17:03:55+09:00",
+  "updated_at": "2026-11-24T17:23:37+09:00",
   "requests": [
     {
       "gate": "push",
