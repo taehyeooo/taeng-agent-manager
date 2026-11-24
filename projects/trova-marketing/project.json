@@ -200,6 +200,18 @@
         "video/hyperframes",
         "posts/2026-11-26.json"
       ]
+    },
+    {
+      "id": "T7",
+      "title": "릴스 8편: Codex가 기획·연출 전부(imagegen+HyperFrames), 최종본 하나",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_b68cf8bcbcf3",
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -402,8 +414,16 @@
     {
       "at": "2026-11-23T20:27:54+09:00",
       "event": "작업 T6 변경: status=done, note=7편 최종본(HyperFrames) 슬랙 발송, PR #22 머지"
+    },
+    {
+      "at": "2026-11-24T10:06:58+09:00",
+      "event": "작업 추가 T7 (codex, 자동): 릴스 8편: Codex가 기획·연출 전부(imagegen+HyperFrames), 최종본 하나"
+    },
+    {
+      "at": "2026-11-24T10:07:06+09:00",
+      "event": "작업 T7 변경: status=dispatched, dispatch=ctx_b68cf8bcbcf3"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-23T20:27:54+09:00"
+  "updated_at": "2026-11-24T10:07:06+09:00"
 }
