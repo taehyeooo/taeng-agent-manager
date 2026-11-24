@@ -667,6 +667,20 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T17:58:33+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#266",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:27:21+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#266",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T22:27:27+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1472,12 +1486,23 @@
       "title": "출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완",
       "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
-      "branch": null,
+      "status": "done",
+      "branch": "docs/post-release-emulator-20261124",
       "worktree": "C:/Users/user/orca/workspaces/trova-app/trova-app-T40",
-      "pr": null,
+      "pr": "266",
       "dispatch": "ctx_d24ec572f114",
-      "note": "집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)"
+      "note": "집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "OTA e4be8cff(01a20cc2) 수신, 초안·홈 링크 이어서 쓰기 복구·새로 시작, 동시 저장 시 '친구가 방금 바꿨어요'+입력 보존 확인. 409 실제 본문은 프록시 없어 미관측 → main ApiErrorContractTest가 code·status·traceId+VERSION_CONFLICT·latest 유지를 고정(#524 배포됨). 로그아웃 삭제는 로컬 테스트 9/9. 문서만 변경, 비밀값 없음",
+        "at": "2026-11-24T22:27:27+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-post-release"
+      ]
     }
   ],
   "history": [
@@ -3092,8 +3117,28 @@
     {
       "at": "2026-11-24T22:06:04+09:00",
       "event": "작업 T40 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/trova-app/trova-app-T40, dispatch=ctx_d24ec572f114, note=집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)"
+    },
+    {
+      "at": "2026-11-24T22:27:21+09:00",
+      "event": "자동 승인 실행: merge_main(PR#266)"
+    },
+    {
+      "at": "2026-11-24T22:27:27+09:00",
+      "event": "작업 T40 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T22:27:27+09:00",
+      "event": "승인 기록: merge_main (PR#266) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T22:27:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#266)"
+    },
+    {
+      "at": "2026-11-24T22:27:32+09:00",
+      "event": "작업 T40 변경: status=done, branch=docs/post-release-emulator-20261124, pr=266"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T22:06:04+09:00"
+  "updated_at": "2026-11-24T22:27:32+09:00"
 }
