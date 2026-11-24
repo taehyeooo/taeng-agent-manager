@@ -1159,7 +1159,19 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_acac9fb591e3",
-      "note": "EAS에 Play 제출용 서비스 계정 키 없음 → 사용자가 Play Console에서 AAB 수동 업로드 필요"
+      "note": "사용자 결정 11/24: 내부 테스트 생략, 자체 QA 후 정식 배포"
+    },
+    {
+      "id": "T32",
+      "title": "v11 자체 QA(APK 빌드 → Windows 에뮬레이터 QA)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_3e6ec08c32cc",
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2534,8 +2546,20 @@
     {
       "at": "2026-11-24T10:48:32+09:00",
       "event": "작업 T31 변경: status=blocked, note=EAS에 Play 제출용 서비스 계정 키 없음 → 사용자가 Play Console에서 AAB 수동 업로드 필요"
+    },
+    {
+      "at": "2026-11-24T10:56:30+09:00",
+      "event": "작업 T31 변경: status=blocked, note=사용자 결정 11/24: 내부 테스트 생략, 자체 QA 후 정식 배포"
+    },
+    {
+      "at": "2026-11-24T10:56:30+09:00",
+      "event": "작업 추가 T32 (codex, 자동): v11 자체 QA(APK 빌드 → Windows 에뮬레이터 QA)"
+    },
+    {
+      "at": "2026-11-24T10:56:35+09:00",
+      "event": "작업 T32 변경: status=dispatched, dispatch=ctx_3e6ec08c32cc"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T10:48:32+09:00"
+  "updated_at": "2026-11-24T10:56:35+09:00"
 }
