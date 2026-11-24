@@ -1196,6 +1196,18 @@
       "files": [
         "docs/qa/2026-11-24-v11-self-qa"
       ]
+    },
+    {
+      "id": "T33",
+      "title": "같이 고치기 실시간 QA(Windows 에뮬레이터 두 대, v11+v10)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2610,8 +2622,12 @@
     {
       "at": "2026-11-24T14:00:48+09:00",
       "event": "작업 T32 변경: status=done, note=v11 프로덕션 검토 제출 완료(2026-11-24, 전체 출시). 플레이 빠른 검사(최대 15분) 후 Google 검토(보통 7일 이내). 무시한 안내: AD_ID(비공개 테스트 v5 원인), screen.portrait(v10과 동일). 출시 후 확인: 링크→앱 열기 verified"
+    },
+    {
+      "at": "2026-11-24T15:00:46+09:00",
+      "event": "작업 추가 T33 (codex, 자동): 같이 고치기 실시간 QA(Windows 에뮬레이터 두 대, v11+v10)"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T14:00:48+09:00"
+  "updated_at": "2026-11-24T15:00:46+09:00"
 }
