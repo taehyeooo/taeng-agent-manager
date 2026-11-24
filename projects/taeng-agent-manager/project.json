@@ -2320,10 +2320,14 @@
     {
       "at": "2026-11-24T15:56:46+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(dig), 자동 허용 목록에 없는 프로그램·스크립트 실행(dscacheutil); 명령: dig +short api.trova.duckdns.org 2>&1 | head -2; dscacheutil -q host -a name api.trova.duckdns.org 2>&1 | head -4"
+    },
+    {
+      "at": "2026-11-24T22:53:11+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(gcloud); 명령: which gcloud && gcloud auth list --format=\"value(account,status)\" 2>&1 | sed 's/^[^@]*@/***@/' ; gcloud projects list --"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-24T22:49:38+09:00",
+  "updated_at": "2026-11-24T22:53:11+09:00",
   "requests": [
     {
       "gate": "push",

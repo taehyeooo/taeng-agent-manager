@@ -480,6 +480,18 @@
         "posts/media",
         "video"
       ]
+    },
+    {
+      "id": "T15",
+      "title": "릴스 12·13·14편: 스레드 댓글 의견대로 상황 먼저(저장만 잔뜩/지도에 찍히는 순간/다시 찾기)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_3792af6d33fc",
+      "note": "스레드 댓글 의견 반영, 레퍼런스는 기존 Ondefica·UGC promo 재사용"
     }
   ],
   "history": [
@@ -878,8 +890,16 @@
     {
       "at": "2026-11-24T15:26:19+09:00",
       "event": "작업 T14 변경: status=done, pr=33"
+    },
+    {
+      "at": "2026-11-24T23:14:07+09:00",
+      "event": "작업 추가 T15 (codex, 자동): 릴스 12·13·14편: 스레드 댓글 의견대로 상황 먼저(저장만 잔뜩/지도에 찍히는 순간/다시 찾기)"
+    },
+    {
+      "at": "2026-11-24T23:18:46+09:00",
+      "event": "작업 T15 변경: status=dispatched, dispatch=ctx_3792af6d33fc, note=스레드 댓글 의견 반영, 레퍼런스는 기존 Ondefica·UGC promo 재사용"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T15:26:19+09:00"
+  "updated_at": "2026-11-24T23:18:46+09:00"
 }

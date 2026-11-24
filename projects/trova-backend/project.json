@@ -1329,12 +1329,12 @@
       "title": "기존 테스트 실패 정리: pgvector SQL 기대 9·실제 7(main에서도 실패, #525·#526 배포 때 발견)",
       "agent": "codex",
       "kind": "test",
-      "status": "todo",
+      "status": "dispatched",
       "branch": null,
       "worktree": null,
       "pr": null,
-      "dispatch": null,
-      "note": "자동 배정: test → codex (config/agents.json 선호)"
+      "dispatch": "ctx_8c4ebf932269",
+      "note": "사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)"
     }
   ],
   "history": [
@@ -3073,10 +3073,14 @@
     {
       "at": "2026-11-24T22:49:50+09:00",
       "event": "작업 T38 변경: status=done, pr=526"
+    },
+    {
+      "at": "2026-11-24T23:18:46+09:00",
+      "event": "작업 T39 변경: status=dispatched, dispatch=ctx_8c4ebf932269, note=사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T22:49:50+09:00",
+  "updated_at": "2026-11-24T23:18:46+09:00",
   "requests": [
     {
       "gate": "push",
