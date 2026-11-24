@@ -587,6 +587,13 @@
       "ref": "ota-254",
       "note": "사용자 '승인' 2026-11-24: PR #254 무선 업데이트(v11 런타임) + 웹 배포",
       "at": "2026-11-24T15:36:25+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#254",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:43:13+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1245,12 +1252,12 @@
       "title": "QA 높음 2건(한글 줄바꿈, 분석 중 장소 목록) + 첫 실행 속도",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "254",
       "dispatch": null,
-      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "note": "#254 머지 6524064, v11 런타임 무선 업데이트 그룹 269e1f24 게시, 웹 배포(백업 backup-before-6524064), 기록 #256",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -1276,7 +1283,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": null,
-      "note": "자동 배정: test → codex (config/agents.json 선호)"
+      "note": "플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인"
     }
   ],
   "history": [
@@ -2747,8 +2754,20 @@
     {
       "at": "2026-11-24T15:36:52+09:00",
       "event": "작업 추가 T35 (codex, 자동): 플레이 v11 재설치 확인 + 링크→앱 열기 확인"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "자동 승인 실행: merge_main(PR#254)"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "작업 T34 변경: status=done, pr=254, note=#254 머지 6524064, v11 런타임 무선 업데이트 그룹 269e1f24 게시, 웹 배포(백업 backup-before-6524064), 기록 #256"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "작업 T35 변경: note=플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T15:36:52+09:00"
+  "updated_at": "2026-11-24T15:43:13+09:00"
 }
