@@ -2312,10 +2312,18 @@
     {
       "at": "2026-11-24T15:06:39+09:00",
       "event": "확인 없이 실행: 명령 인수에 변수 값이 들어가 무엇이 실행될지 미리 알 수 없음; 명령: for r in \"Trovapp/trova-marketing 32\" \"Trovapp/trova-app 253\"; do set -- $r; gh pr view $2 -R $1 --json commits --jq '.c"
+    },
+    {
+      "at": "2026-11-24T15:56:29+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(dig); 명령: dig +short api.trova.duckdns.org @1.1.1.1"
+    },
+    {
+      "at": "2026-11-24T15:56:46+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(dig), 자동 허용 목록에 없는 프로그램·스크립트 실행(dscacheutil); 명령: dig +short api.trova.duckdns.org 2>&1 | head -2; dscacheutil -q host -a name api.trova.duckdns.org 2>&1 | head -4"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-24T15:52:48+09:00",
+  "updated_at": "2026-11-24T15:56:46+09:00",
   "requests": [
     {
       "gate": "push",

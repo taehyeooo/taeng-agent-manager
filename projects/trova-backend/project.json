@@ -1190,6 +1190,18 @@
         "src/main/java",
         "src/main/python"
       ]
+    },
+    {
+      "id": "T36",
+      "title": "API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -2816,10 +2828,14 @@
     {
       "at": "2026-11-24T15:48:02+09:00",
       "event": "승인 기록: deploy (518-python)"
+    },
+    {
+      "at": "2026-11-24T15:57:14+09:00",
+      "event": "작업 추가 T36 (codex, 자동): API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T15:48:02+09:00",
+  "updated_at": "2026-11-24T15:57:14+09:00",
   "requests": [
     {
       "gate": "push",
