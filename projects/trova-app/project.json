@@ -640,6 +640,13 @@
       "ref": "ota-262",
       "note": "사용자 '승인' 2026-11-24: 디자인 수정 #262 무선 업데이트(v11)·웹 배포",
       "at": "2026-11-24T17:10:24+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#262",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:14:42+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1371,12 +1378,12 @@
       "title": "디자인 QA 13건 전부 수정(분석 중 순차 표시·대비·여백·핀·아이콘)",
       "agent": "codex",
       "kind": "design",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "262",
       "dispatch": null,
-      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "note": "#262 머지 355eff1, OTA 그룹 1349e974(v11), 웹 배포(권한 복구 후 200), 기록 #263. 되돌리기: OTA 56c01a96 재게시, 웹 backup-before-355eff1. 반복 문제: 웹 배포 스크립트 파일 권한",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2991,8 +2998,16 @@
     {
       "at": "2026-11-24T17:10:24+09:00",
       "event": "승인 기록: deploy (ota-262)"
+    },
+    {
+      "at": "2026-11-24T17:14:42+09:00",
+      "event": "자동 승인 실행: merge_main(PR#262)"
+    },
+    {
+      "at": "2026-11-24T17:14:42+09:00",
+      "event": "작업 T37 변경: status=done, note=#262 머지 355eff1, OTA 그룹 1349e974(v11), 웹 배포(권한 복구 후 200), 기록 #263. 되돌리기: OTA 56c01a96 재게시, 웹 backup-before-355eff1. 반복 문제: 웹 배포 스크립트 파일 권한"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T17:10:24+09:00"
+  "updated_at": "2026-11-24T17:14:42+09:00"
 }
