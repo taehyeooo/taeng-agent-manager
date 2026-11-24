@@ -627,6 +627,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T16:42:36+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#261",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:59:22+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1373,9 +1380,20 @@
       "status": "todo",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "261",
       "dispatch": null,
-      "note": "자동 배정: test → codex (config/agents.json 선호)"
+      "note": "점검 결과: 세 항목 모두 '일부만 됨'. 높음: 제출 전 초안 조건·메모 복구, 웹 번들 로딩 실패·경계 밖 렌더 오류 복구 화면. 중간: TripDetailScreen 2,145줄·PlanTripScreen 1,137줄 분리, API 오류 형식 통일. 3,000줄 초과 0",
+      "verification": {
+        "tests": "skip",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "문서 점검만",
+        "at": "2026-11-24T16:59:28+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-checklist-audit"
+      ]
     }
   ],
   "history": [
@@ -2914,8 +2932,20 @@
     {
       "at": "2026-11-24T16:48:19+09:00",
       "event": "작업 추가 T38 (codex, 자동): 체크리스트 점검: 새로고침 시 상태 유실·긴 파일·오류 흰 화면"
+    },
+    {
+      "at": "2026-11-24T16:59:22+09:00",
+      "event": "자동 승인 실행: merge_main(PR#261)"
+    },
+    {
+      "at": "2026-11-24T16:59:28+09:00",
+      "event": "작업 T38 변경: pr=261, note=점검 결과: 세 항목 모두 '일부만 됨'. 높음: 제출 전 초안 조건·메모 복구, 웹 번들 로딩 실패·경계 밖 렌더 오류 복구 화면. 중간: TripDetailScreen 2,145줄·PlanTripScreen 1,137줄 분리, API 오류 형식 통일. 3,000줄 초과 0"
+    },
+    {
+      "at": "2026-11-24T16:59:28+09:00",
+      "event": "작업 T38 검증(claude): tests=skip, review=pass, security=pass"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-24T16:48:19+09:00"
+  "updated_at": "2026-11-24T16:59:28+09:00"
 }
