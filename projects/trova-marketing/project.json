@@ -128,6 +128,13 @@
       "ref": "reels-10-11-ai",
       "note": "사용자 2026-11-24 'ai 돌려도 돼': 릴스 10·11편 촬영용 영상 분석 1~2회·말로 바꾸기 여러 회(외부 AI 소액)",
       "at": "2026-11-24T14:31:22+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#32",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:06:46+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -427,9 +434,21 @@
       "status": "todo",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "32",
       "dispatch": null,
-      "note": "자동 배정: design → codex (config/agents.json 선호)"
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 10편(말로 바꾸기 22초)·11편(영상→초안 21초) 미리보기 10장 휴대폰 틀 실제 화면, 앱 아이콘·Play 배지, AI 서명 0, 테스트 35 통과. 분석 1회·말로 바꾸기 3회",
+        "at": "2026-11-24T15:07:02+09:00"
+      },
+      "files": [
+        "posts/media/spoken-change",
+        "posts/media/video-to-draft"
+      ]
     }
   ],
   "history": [
@@ -796,8 +815,20 @@
     {
       "at": "2026-11-24T14:31:22+09:00",
       "event": "작업 추가 T13 (codex, 자동): 릴스 10편 '말로 바꾸기' + 11편 '영상 공유→AI 분석→초안'"
+    },
+    {
+      "at": "2026-11-24T15:06:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#32)"
+    },
+    {
+      "at": "2026-11-24T15:07:02+09:00",
+      "event": "작업 T13 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:07:02+09:00",
+      "event": "작업 T13 변경: pr=32"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T14:31:22+09:00"
+  "updated_at": "2026-11-24T15:07:02+09:00"
 }
