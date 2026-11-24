@@ -491,7 +491,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_3792af6d33fc",
-      "note": "스레드 댓글 의견 반영, 레퍼런스는 기존 Ondefica·UGC promo 재사용"
+      "note": "사용자 2026-11-24 밤: 끝나면 슬랙(C0CJQ1A4002)에 영상+글 보내 놓기 승인('슬랙에 보내놔 영상이랑 글이랑'). 매니저 검수 후 Mac send_slack.py로 편당 1회"
     }
   ],
   "history": [
@@ -898,8 +898,12 @@
     {
       "at": "2026-11-24T23:18:46+09:00",
       "event": "작업 T15 변경: status=dispatched, dispatch=ctx_3792af6d33fc, note=스레드 댓글 의견 반영, 레퍼런스는 기존 Ondefica·UGC promo 재사용"
+    },
+    {
+      "at": "2026-11-24T23:40:54+09:00",
+      "event": "작업 T15 변경: note=사용자 2026-11-24 밤: 끝나면 슬랙(C0CJQ1A4002)에 영상+글 보내 놓기 승인('슬랙에 보내놔 영상이랑 글이랑'). 매니저 검수 후 Mac send_slack.py로 편당 1회"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T23:18:46+09:00"
+  "updated_at": "2026-11-24T23:40:54+09:00"
 }
