@@ -538,6 +538,13 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T16:22:42+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#520",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:26:57+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1209,12 +1216,12 @@
       "title": "API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)",
       "agent": "codex",
       "kind": "general",
-      "status": "todo",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "520",
       "dispatch": null,
-      "note": "콘솔 등록 완료(11/24, 사용자 로그인 후 매니저 Chrome): 구글 trova 프로젝트(trovapp 계정 authuser=2) OAuth 클라이언트 trova-backend에 https://api.trova.duckdns.org/login/oauth2/code/google 추가, 카카오 REST 키 'Trova - local'에 .../code/kakao 추가. 기존 URI 유지. 주의: GCP 무료 평가판 10일 남음(크레딧 ₩414,984) — Places·Gemini 키가 이 프로젝트",
+      "note": "운영 적용 16:16~16:26: Caddy 새 호스트, #520 배포(185초), #258 OTA 그룹 56c01a96(v11), 웹 배포(권한 문제로 41초 영향 후 재배포), 두 호스트 OAuth redirect_uri 일치·공유 200·CSP 확인, 기록 #522. 남은 것: 실기기 로그인·OTA 수신·v10·단축어·공동 편집 확인",
       "verification": {
         "tests": "pass",
         "review": "pass",
@@ -2882,10 +2889,18 @@
     {
       "at": "2026-11-24T16:22:42+09:00",
       "event": "작업 T35 변경: status=done, note=#518 JAR 운영 15:46 UP(중단 183초), 30분 관찰 정상. 파이썬 2개는 15:58 실패 후 복구 상태 유지 — 실패 링크 자체 문제(제목 404·Gemini 400·yt-dlp 봇 확인) 정황, 새 코드 원인 가능성 낮음. 재반영은 스테이징 대조 후 별도 작업. 기록 #519·#521"
+    },
+    {
+      "at": "2026-11-24T16:26:57+09:00",
+      "event": "자동 승인 실행: merge_main(PR#520)"
+    },
+    {
+      "at": "2026-11-24T16:26:57+09:00",
+      "event": "작업 T36 변경: status=done, pr=520, note=운영 적용 16:16~16:26: Caddy 새 호스트, #520 배포(185초), #258 OTA 그룹 56c01a96(v11), 웹 배포(권한 문제로 41초 영향 후 재배포), 두 호스트 OAuth redirect_uri 일치·공유 200·CSP 확인, 기록 #522. 남은 것: 실기기 로그인·OTA 수신·v10·단축어·공동 편집 확인"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T16:22:42+09:00",
+  "updated_at": "2026-11-24T16:26:57+09:00",
   "requests": [
     {
       "gate": "push",
