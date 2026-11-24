@@ -288,7 +288,7 @@
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_7c679e57402f",
-      "note": "1단계 Windows 캡처·녹화 → 2단계 Mac 편집(9편 Codex 자유 연출, 8편 피드 새 이미지)"
+      "note": "캡처 10장·녹화 5개 완료(chore/#26-reel9-feed-raw). 대안 후보·교체는 '인터넷 연결 오류'로 미촬영 → 백엔드 조사"
     }
   ],
   "history": [
@@ -551,8 +551,12 @@
     {
       "at": "2026-11-24T11:20:36+09:00",
       "event": "승인 기록: paid_service (reel9-alternatives)"
+    },
+    {
+      "at": "2026-11-24T11:33:05+09:00",
+      "event": "작업 T9 변경: note=캡처 10장·녹화 5개 완료(chore/#26-reel9-feed-raw). 대안 후보·교체는 '인터넷 연결 오류'로 미촬영 → 백엔드 조사"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T11:20:36+09:00"
+  "updated_at": "2026-11-24T11:33:05+09:00"
 }
