@@ -381,6 +381,18 @@
       "files": [
         "posts/media/alternative"
       ]
+    },
+    {
+      "id": "T12",
+      "title": "슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -719,8 +731,12 @@
     {
       "at": "2026-11-24T14:17:20+09:00",
       "event": "작업 T11 변경: status=done, note=9편 수정본 슬랙 1회 발송(사용자 '보내'), 데스크탑 09-대안찾기 교체"
+    },
+    {
+      "at": "2026-11-24T14:25:04+09:00",
+      "event": "작업 추가 T12 (codex, 자동): 슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T14:17:20+09:00"
+  "updated_at": "2026-11-24T14:25:04+09:00"
 }
