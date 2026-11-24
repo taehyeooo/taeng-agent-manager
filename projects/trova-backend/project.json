@@ -585,6 +585,20 @@
       "note": "auto_gates 사용자 설정",
       "at": "2026-11-24T22:49:50+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#529",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T23:25:24+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#529",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T23:25:28+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1329,12 +1343,23 @@
       "title": "기존 테스트 실패 정리: pgvector SQL 기대 9·실제 7(main에서도 실패, #525·#526 배포 때 발견)",
       "agent": "codex",
       "kind": "test",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
-      "pr": null,
+      "pr": "529",
       "dispatch": "ctx_8c4ebf932269",
-      "note": "사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)"
+      "note": "사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "#518(8bde140)이 일차별 장소 조회를 여행 전체 조회(findByTripOrderByDayAndVisitOrder)로 바꿔 SQL 2회 감소 — 의도한 최적화. 기대값 7·원인 주석, 점수·응답 동등성 유지, 전체 1489 중 실패 0",
+        "at": "2026-11-24T23:25:28+09:00"
+      },
+      "files": [
+        "src/test/java/com/trova/backend/recommendation/PersonalizationPgvectorEquivalenceTest.java"
+      ]
     }
   ],
   "history": [
@@ -3077,10 +3102,30 @@
     {
       "at": "2026-11-24T23:18:46+09:00",
       "event": "작업 T39 변경: status=dispatched, dispatch=ctx_8c4ebf932269, note=사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)"
+    },
+    {
+      "at": "2026-11-24T23:25:24+09:00",
+      "event": "자동 승인 실행: merge_main(PR#529)"
+    },
+    {
+      "at": "2026-11-24T23:25:28+09:00",
+      "event": "작업 T39 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T23:25:28+09:00",
+      "event": "승인 기록: merge_main (PR#529) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T23:25:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#529)"
+    },
+    {
+      "at": "2026-11-24T23:25:34+09:00",
+      "event": "작업 T39 변경: status=done, pr=529"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T23:18:46+09:00",
+  "updated_at": "2026-11-24T23:25:34+09:00",
   "requests": [
     {
       "gate": "push",
