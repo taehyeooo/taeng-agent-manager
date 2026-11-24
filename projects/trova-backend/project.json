@@ -564,6 +564,27 @@
       "ref": "526",
       "note": "사용자 요청 2026-11-24: '#526 서버 배포도 지금 같이 해 줘'",
       "at": "2026-11-24T22:28:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#527",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:49:38+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#527",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T22:49:45+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#526",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:49:50+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -1284,7 +1305,7 @@
       "title": "오류 응답 X-Trace-Id 헤더 보완",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "done",
       "branch": null,
       "worktree": null,
       "pr": "526",
@@ -1295,12 +1316,12 @@
         "review": "pass",
         "security": "pass",
         "by": "claude",
-        "summary": "Claude 직접 확인 #526: 객체 경로·보안 필터 401/403·비객체 경로 모두 같은 traceId를 본문과 X-Trace-Id 헤더에 사용, 로그 한 번만 기록, 테스트로 헤더=본문 검증, 트레일러 없음. 1467 통과",
-        "at": "2026-11-24T18:19:32+09:00"
+        "summary": "#526 머지(ce95a4e)·운영 배포. 1,482 통과, 기존 pgvector 1건 예외(T39). 중단 166초. 매니저가 두 주소 401에서 X-Trace-Id 헤더=본문 traceId 직접 확인, 헬스 200. 파이썬 2개 해시 보존",
+        "at": "2026-11-24T22:49:45+09:00"
       },
       "files": [
         "src/main/java/com/trova/backend/controller/ApiErrorAdvice.java",
-        "src/main/java/com/trova/backend/controller/ApiErrors.java"
+        "docs/monitoring/2026-11-24-release-526.md"
       ]
     },
     {
@@ -3032,10 +3053,30 @@
     {
       "at": "2026-11-24T22:34:42+09:00",
       "event": "작업 추가 T39 (codex, 자동): 기존 테스트 실패 정리: pgvector SQL 기대 9·실제 7(main에서도 실패, #525·#526 배포 때 발견)"
+    },
+    {
+      "at": "2026-11-24T22:49:38+09:00",
+      "event": "자동 승인 실행: merge_main(PR#527)"
+    },
+    {
+      "at": "2026-11-24T22:49:45+09:00",
+      "event": "작업 T38 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T22:49:45+09:00",
+      "event": "승인 기록: merge_main (PR#527) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T22:49:50+09:00",
+      "event": "자동 승인 실행: merge_main(PR#526)"
+    },
+    {
+      "at": "2026-11-24T22:49:50+09:00",
+      "event": "작업 T38 변경: status=done, pr=526"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T22:34:42+09:00",
+  "updated_at": "2026-11-24T22:49:50+09:00",
   "requests": [
     {
       "gate": "push",
