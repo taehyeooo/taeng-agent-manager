@@ -351,6 +351,18 @@
       "files": [
         "tools/daily_posts/send_slack.py"
       ]
+    },
+    {
+      "id": "T11",
+      "title": "9편 다듬기: 앱 화면을 휴대폰 안에(온보딩처럼)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -669,8 +681,12 @@
     {
       "at": "2026-11-24T13:57:35+09:00",
       "event": "작업 T9 변경: status=done, pr=29, note=9편 슬랙 1회 발송·데스크탑 09-대안찾기 전달 완료. 새 스레드 글(188자)은 원고 PR 미생성(Codex 자동 승인 심사 거부) — 사소, 다음 원고 작업 때 반영"
+    },
+    {
+      "at": "2026-11-24T14:04:13+09:00",
+      "event": "작업 추가 T11 (codex, 자동): 9편 다듬기: 앱 화면을 휴대폰 안에(온보딩처럼)"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T13:57:35+09:00"
+  "updated_at": "2026-11-24T14:04:13+09:00"
 }
