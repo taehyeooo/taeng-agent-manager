@@ -1111,6 +1111,18 @@
       "pr": "511",
       "dispatch": "ctx_1bfb6885ae34",
       "note": "T31에 합쳐 완료(배포 기록용 중복 작업)"
+    },
+    {
+      "id": "T33",
+      "title": "Windows 노트북 Python 설치(테스트 31 실패 해결)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_d32ec854a482",
+      "note": "사용자 승인 11/24"
     }
   ],
   "history": [
@@ -2677,10 +2689,18 @@
     {
       "at": "2026-11-23T19:08:40+09:00",
       "event": "작업 T30 변경: status=done, note=#514 머지 3d15542·운영 배포 11/23 18:58(중단 약 210초), 백업 app.jar.bak-20261123-185657, Grafana 영상 분석 카드 0건 초록 확인, 기록 #515"
+    },
+    {
+      "at": "2026-11-24T10:16:16+09:00",
+      "event": "작업 추가 T33 (codex, 자동): Windows 노트북 Python 설치(테스트 31 실패 해결)"
+    },
+    {
+      "at": "2026-11-24T10:16:40+09:00",
+      "event": "작업 T33 변경: status=dispatched, dispatch=ctx_d32ec854a482, note=사용자 승인 11/24"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-23T19:08:40+09:00",
+  "updated_at": "2026-11-24T10:16:40+09:00",
   "requests": [
     {
       "gate": "push",

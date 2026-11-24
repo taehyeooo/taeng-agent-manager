@@ -1109,6 +1109,18 @@
       "pr": null,
       "dispatch": null,
       "note": "사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
+    },
+    {
+      "id": "T30",
+      "title": "공유 링크 trova.duckdns.org 앱 바로 열기(Android 앱 링크) + v11 빌드",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_60698855ee34",
+      "note": "사용자 지시 11/24. Play 제출·웹 배포는 승인 후 별도"
     }
   ],
   "history": [
@@ -2443,8 +2455,16 @@
     {
       "at": "2026-11-23T14:44:52+09:00",
       "event": "작업 T29 변경: status=blocked, note=사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
+    },
+    {
+      "at": "2026-11-24T10:16:16+09:00",
+      "event": "작업 추가 T30 (codex, 자동): 공유 링크 trova.duckdns.org 앱 바로 열기(Android 앱 링크) + v11 빌드"
+    },
+    {
+      "at": "2026-11-24T10:16:40+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_60698855ee34, note=사용자 지시 11/24. Play 제출·웹 배포는 승인 후 별도"
     }
   ],
   "created_at": "2026-11-18T10:29:41+09:00",
-  "updated_at": "2026-11-23T14:44:52+09:00"
+  "updated_at": "2026-11-24T10:16:40+09:00"
 }
