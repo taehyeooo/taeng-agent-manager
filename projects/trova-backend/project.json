@@ -1148,12 +1148,12 @@
       "title": "버그 조사: 대안 찾기 '인터넷 연결 오류'(운영)",
       "agent": "codex",
       "kind": "general",
-      "status": "dispatched",
+      "status": "blocked",
       "branch": null,
       "worktree": null,
       "pr": null,
       "dispatch": "ctx_c2ce3fa55fec",
-      "note": "자동 배정: general → codex (config/agents.json 선호)"
+      "note": "조사 결과: 요청이 운영 서버에 도달하지 않음(대안 GET 0건, Places 호출 0건). 서버 문제 증거 없음. 에뮬레이터 쪽 연결 실패 추정 → v11 QA에서 logcat 켜고 1회 재현 예정. 제안: apiFetch에 경로 유형·경과 시간·예외 분류 로깅"
     }
   ],
   "history": [
@@ -2756,10 +2756,14 @@
     {
       "at": "2026-11-24T11:33:05+09:00",
       "event": "작업 T34 변경: status=dispatched, dispatch=ctx_c2ce3fa55fec"
+    },
+    {
+      "at": "2026-11-24T11:39:47+09:00",
+      "event": "작업 T34 변경: status=blocked, note=조사 결과: 요청이 운영 서버에 도달하지 않음(대안 GET 0건, Places 호출 0건). 서버 문제 증거 없음. 에뮬레이터 쪽 연결 실패 추정 → v11 QA에서 logcat 켜고 1회 재현 예정. 제안: apiFetch에 경로 유형·경과 시간·예외 분류 로깅"
     }
   ],
   "created_at": "2026-11-18T00:32:26+09:00",
-  "updated_at": "2026-11-24T11:33:05+09:00",
+  "updated_at": "2026-11-24T11:39:47+09:00",
   "requests": [
     {
       "gate": "push",
