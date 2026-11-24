@@ -449,6 +449,18 @@
         "posts/media/spoken-change",
         "posts/media/video-to-draft"
       ]
+    },
+    {
+      "id": "T14",
+      "title": "릴스 10·11편 화면 끊김 다듬기 + 녹화 규칙",
+      "agent": "codex",
+      "kind": "design",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: design → codex (config/agents.json 선호)"
     }
   ],
   "history": [
@@ -827,8 +839,12 @@
     {
       "at": "2026-11-24T15:07:02+09:00",
       "event": "작업 T13 변경: pr=32"
+    },
+    {
+      "at": "2026-11-24T15:18:32+09:00",
+      "event": "작업 추가 T14 (codex, 자동): 릴스 10·11편 화면 끊김 다듬기 + 녹화 규칙"
     }
   ],
   "created_at": "2026-11-23T10:32:53+09:00",
-  "updated_at": "2026-11-24T15:07:02+09:00"
+  "updated_at": "2026-11-24T15:18:32+09:00"
 }
