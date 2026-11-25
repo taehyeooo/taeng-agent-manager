@@ -2324,10 +2324,14 @@
     {
       "at": "2026-11-24T22:53:11+09:00",
       "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(gcloud); 명령: which gcloud && gcloud auth list --format=\"value(account,status)\" 2>&1 | sed 's/^[^@]*@/***@/' ; gcloud projects list --"
+    },
+    {
+      "at": "2026-11-24T23:46:27+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(rustup); 명령: which cargo rustup 2>&1; rustup target list --installed 2>&1 | head"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-24T23:25:24+09:00",
+  "updated_at": "2026-11-24T23:46:27+09:00",
   "requests": [
     {
       "gate": "push",
