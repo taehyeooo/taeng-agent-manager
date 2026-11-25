@@ -2981,7 +2981,8 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
                                     code="outside_cd" if readonly_after else None))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
-        found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index], design_search=design_search)
+        found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index],
+                        design_search=design_search and not compound and not inner)
         out += _distrust_content(found, seg) if distrust else found
     if depth == 0:
         out += tripwire(cmd, out)

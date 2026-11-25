@@ -83,7 +83,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - **레포 안 `config/guard.json`의 `auto_gates`는 무시**하고 `am status`에 경고한다.
   - 왜 레포 밖인가: 레포 안 파일은 `git reset`·`checkout`·`restore` 경로 지정·`stash pop`·`merge`/`rebase --abort`·연결된 작업 폴더 등 끝없는 git 간접 경로로 되돌릴 수 있어 하나씩 막을 수 없다. 레포 밖 파일은 git이 건드리지 못한다.
   - 기기마다 따로라서 새 기기에서는 사용자가 다시 만든다(그 기기에서는 만들기 전까지 전부 묻기 — 안전한 기본값).
-- **`~/.config/agent-manager` 폴더 전체가 사용자 전용**이다(`guard.json` 설정, `home` 가드 위치 기록, 감사 로그). 그 안 파일·폴더의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `unlink`, `rmdir`, `shred`, `ln`(링크 원본·대상 모두), `dd of=`, `tee`, `sed -i`, `truncate`, `touch`, Edit/Write)는 `auto_gates`와 상관없이 Claude 확인 창, Codex 차단. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 폴더를 담은 상위 폴더(`~/.config`, `~`)를 지우거나 옮기는 것도 같다. 글롭(`*`·`?`·`[ ]`)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 확인한다. 읽기는 그대로 허용.
+- **`~/.config/agent-manager` 폴더 전체가 사용자 전용**이다(`guard.json` 설정, `home` 가드 위치 기록, 감사 로그). 그 안 파일·폴더의 쓰기·삭제·이동·링크(리다이렉트, `cp`, `mv`, `rm`, `unlink`, `rmdir`, `shred`, `ln`(링크 원본·대상 모두), `dd of=`, `tee`, `sed -i`, `truncate`, `touch`, Edit/Write)는 `auto_gates`와 상관없이 일반 Claude는 확인 창을 띄우고 Codex는 차단한다. Claude 워커에서는 셸 명령의 opaque 확인만 차단과 안내로 바뀌며 Edit·Write는 확인 창을 유지한다. 경로는 `~`·절대·상대·심볼릭 링크·`..`·대소문자를 모두 정규화해 비교하고, 그 폴더를 담은 상위 폴더(`~/.config`, `~`)를 지우거나 옮기는 것도 같다. 글롭(`*`·`?`·`[ ]`)은 확정할 수 없으므로 글롭 앞 폴더까지로 넓혀 보수적으로 확인한다. 읽기는 그대로 허용.
 - PowerShell 쓰기 cmdlet과 기본 별칭(`New-Item`/`ni`, `Set-Content`/`sc`, `Add-Content`/`ac`, `Out-File`, `Copy-Item`/`cp`/`copy`/`cpi`, `Move-Item`/`mv`/`move`/`mi`, `Remove-Item`/`rm`/`del`/`ri`/`erase`/`rd`, `Rename-Item`/`ren`/`rni`, `Clear-Content`/`clc`)도 같은 원칙: `-Path`·`-LiteralPath`·`-FilePath`·`-Destination`·`-Target`·`-Value`(`-Name:값` 형태 포함)·위치 인수 중 하나라도 사용자 폴더에 닿으면 확인/차단. `New-Item -ItemType SymbolicLink/HardLink/Junction`의 `-Target`(`-Value`)이 사용자 폴더면 `ln` 원본과 같다. `$HOME`·`${HOME}`·`$env:USERPROFILE`·`%USERPROFILE%` 표기도 home으로 본다.
 - **가드 위치 기록(`home`)이 없을 때의 훅 동작**: 예전에는 조용히 통과했다(지우기만 하면 가드 전체가 꺼짐). 이제는 **항상 도구 실행을 막고**(`exit 2`) `python -m am setup`을 안내한다. 지금 폴더의 `am/guard.py`는 믿지 않는다(위조 가드가 될 수 있음).
   - 단 하나의 예외: 매니저 레포(`am/cli.py`가 있음) 루트에서 Bash로 정확히 `python -m am setup`(또는 `python3 -m am setup`)만 통과한다 — 새 기기 첫 설치용. 뒤에 다른 글자(`--install …`, `&& …`, 줄바꿈 …)가 붙거나 하위 폴더·다른 레포면 막는다.
@@ -98,6 +98,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - 이런 우회의 뒤에는 Claude Code·Codex 자체 권한 검사가 있다.
 - Bash 검증 줄의 모든 단계가 읽기 전용이면 작업 트리 밖의 reviewflow 결과도 확인 없이 읽고 `guard-allowed.log`에 기록한다. 같은 줄에서 대입한 경로 변수, `sed -n`과 `awk`의 단순 필터·집계, 끝의 `docker info >/dev/null 2>&1 && echo docker=yes`만 알아보며 동적 파일명의 실제 값과 복잡한 식은 확인할 수 없다.
 - `run=$(bash …/review.sh collect 1)`은 실행 후에야 결과 경로를 알 수 있어 뒤의 파일 읽기까지 한 번에 허용하지 않는다. collect를 먼저 실행하고 출력된 경로로 읽는다. Orca 작업 목록을 확인할 수 없으면 일반 Claude 확인 창을 사용한다.
+- 디자인 검색은 지정한 Python 소스의 해시와 형제 항목 이름을 검사한다. `__pycache__`와 `tests` 디렉터리 내부의 파일은 검사 범위에 포함하지 않는다.
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
 
@@ -108,12 +109,12 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - Claude의 명령 확인 사유가 opaque뿐이고 현재 터미널이 Orca의 진행 중인 워커로 확인되면 종료 코드 2와 함께 명령을 나누거나 `orca orchestration ask`로 매니저에게 묻도록 안내한다.
 - 이 레포의 `.claude/settings.json`은 Bash를 확인 창 없이 허용한다(사용자 지시 2026-11-20). 가드 훅이 먼저 돌므로 금지·승인 관문·위험 신호 확인은 그대로다.
 - 금지 → 차단. 승인 필요 → `project.json`에 맞는 승인(`--ref`까지)이 없으면 차단하고, 승인 요청(명령·영향 범위·위험)을 기록한다.
-- 실행 내용을 미리 다 알 수 없는 명령(opaque)은 **위험 신호가 없으면 확인 창 없이 허용하고 기록**한다(사용자 지시 2026-11-18). 명령에 배포·삭제·외부 전송·비밀값 파일·승인 조작 등 위험 신호가 보이거나, 실행할 명령이 변수·동적 코드로 정해지거나 셸이 표준입력을 실행하면 Claude는 확인 창, Codex는 차단을 유지한다. `~/.config/agent-manager/guard.json`(없으면 레포 안 `config/guard.json`, 하위 호환)의 `"opaque": "ask"`로 예전 확인 방식으로 되돌릴 수 있다(둘 다 없으면 `allow`). 금지·미승인 작업·승인 기록·파일 편집 검사는 그대로다. 두 설정 파일 모두 사용자만 직접 바꾼다(레포 안 파일은 에이전트 수정·삭제 금지, 레포 밖 파일은 Claude 확인·Codex 차단).
+- 실행 내용을 미리 다 알 수 없는 명령(opaque)은 **위험 신호가 없으면 확인 창 없이 허용하고 기록**한다(사용자 지시 2026-11-18). 명령에 배포·삭제·외부 전송·비밀값 파일·승인 조작 등 위험 신호가 보이거나, 실행할 명령이 변수·동적 코드로 정해지거나 셸이 표준입력을 실행하면 일반 Claude는 확인 창을 띄우고, Claude 워커는 opaque 확인을 차단하고 매니저 문의 방법을 안내하며, Codex는 차단한다. `~/.config/agent-manager/guard.json`(없으면 레포 안 `config/guard.json`, 하위 호환)의 `"opaque": "ask"`로 예전 확인 방식으로 되돌릴 수 있다(둘 다 없으면 `allow`). 금지·미승인 작업·승인 기록·파일 편집 검사는 그대로다. 두 설정 파일 모두 사용자만 직접 바꾼다(레포 안 파일은 에이전트 수정·삭제 금지, 레포 밖 파일은 Claude 확인·Codex 차단).
 - `am approve`는 에이전트가 스스로 기록할 수 없다 — Claude는 권한 창에서 사용자가 직접 확인, Codex는 차단(사용자가 `! python -m am approve ...`).
   예외: `auto_gates`에 있는 gate는 승인 관문이 차단·확인 대신 허용되고(자동 승인 기록을 남김), 그 gate의 `python -m am approve`(이 매니저 레포의 am)도 확인 창 없이 기록된다(`auto` 표시). 목록에 없는 gate(예: `deploy`·`paid_service`)는 지금처럼 사용자 확인. 금지 항목과 그 밖의 위험 신호 검사는 그대로다.
 - 매니저 세션이 지금 작업 폴더 밖(다른 프로젝트 레포) 파일을 고치면 차단 → 매니저는 위임만 한다.
 - 훅이 막으면 우회하지 말고, 메시지의 승인 요청을 그대로 사용자에게 보여 준다.
-- **위협 모델**: 가드는 협조적인 에이전트의 실수를 막는 장치다. 인터프리터 밖에서 문자열을 일부러 쪼개 위험 단어를 숨기는 적대적 우회까지 막지는 못한다(그 뒤에는 Claude Code 자체 권한 검사가 있다). 대신 코드 실행 지점 — 인터프리터 코드 문자열(`python -c`·`node -e`·`php -r`·`pwsh -c` 등), 셸·인터프리터의 표준입력 프로그램, `eval`, 명령 실행 옵션(`sed e`, `git -c alias.*='!…'`, `rebase --exec` 등) — 은 내용과 상관없이 확인한다(Claude 확인 창, Codex 차단).
+- **위협 모델**: 가드는 협조적인 에이전트의 실수를 막는 장치다. 인터프리터 밖에서 문자열을 일부러 쪼개 위험 단어를 숨기는 적대적 우회까지 막지는 못한다(그 뒤에는 Claude Code 자체 권한 검사가 있다). 대신 코드 실행 지점 — 인터프리터 코드 문자열(`python -c`·`node -e`·`php -r`·`pwsh -c` 등), 셸·인터프리터의 표준입력 프로그램, `eval`, 명령 실행 옵션(`sed e`, `git -c alias.*='!…'`, `rebase --exec` 등) — 은 내용과 상관없이 확인한다(일반 Claude 확인 창, Claude 워커의 opaque 명령은 차단과 안내, Codex 차단).
 
 ### 승인 요청 형식 (사용자에게) — 개발을 모르는 사람도 한 번 읽고 답할 수 있게
 제목 한 줄 + 표. **인용 블록(`>`)·기울임(`*…*`)·긴 문단을 쓰지 않는다** — 터미널에서 흐리거나 기울어져 읽기 어렵다(사용자 피드백 2026-11-10).

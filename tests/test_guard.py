@@ -55,7 +55,8 @@ class GuardTest(unittest.TestCase):
         environment = patch.dict(os.environ)
         environment.start()
         self.addCleanup(environment.stop)
-        os.environ.pop("ORCA_TERMINAL_HANDLE", None)
+        for name in ("ORCA_TERMINAL_HANDLE", "NAME", "B", "S", "f", "R", "file", "folder"):
+            os.environ.pop(name, None)
         self.tmp = tempfile.TemporaryDirectory()
         base = Path(self.tmp.name)
         self.root = str(base / "mgr")
@@ -621,6 +622,11 @@ class BuildAllowlistTest(GuardTest):
         "cd ../other && sed -n '/result/p' log",
     )
     VERIFY_CHECKS = (
+        'B=relative; file "$B"/*', 'B=/absolute; ls "$B"/*',
+        'B="docs/*.md"; ls "$B"', 'B=docs/*; ls "$B"', 'B=`pwd`; ls "$B"',
+        'B=docs; ls "${B:-other}"', 'B="$other/log"; ls "$B"',
+        r'B=docs; grep -n "a\wb" "$B"', r"""B=docs; grep -n 'a\|b' "$B" """,
+        """f=spec; awk '/a/,/b/{print}' $f""", """f=spec; awk -v start=0 '/a/,/b/' $f""",
         'B="$(cat path)"; file "$B"/*', 'S="$other"; echo skip',
         'B=/abs/path; file -C "$B"', 'B=src ls "$B"',
         """f=src; awk '/a/,/b/{system("cmd")}' $f""",
@@ -664,6 +670,10 @@ class BuildAllowlistTest(GuardTest):
                 for agent in ("claude", "codex"):
                     with self.subTest(cmd=cmd, agent=agent):
                         self.assertNotEqual(self.bash(cmd, agent=agent)[0], "allow")
+
+    def test_verification_inherited_binding(self):
+        with patch.dict(os.environ, {"NAME": "existing"}):
+            self.assertEqual(self.bash('NAME=docs; ls "$NAME"')[0], "ask")
 
     def test_verification_read_audit(self):
         cmd = "grep -n '^diff' diff.patch | awk -F: '$1>1100'"
@@ -1392,13 +1402,62 @@ class T7FalsePositiveTest(GuardTest):
                 decision, message = self.bash(prefix + " " + args)
                 self.assertEqual(decision, "allow", message)
             for command in (prefix + " --persist", prefix + " --preview", prefix + " --output-dir out",
+                            prefix + " --pers", prefix + " --prev", prefix + " --out out",
                             prefix.replace("2.15.0", "2.15.1"), prefix.replace("/scripts/", "/other/")):
                 self.assertEqual(self.bash(command)[0], "ask")
+            for separator in (";", "&&", "|"):
+                command = f"{prefix} {separator} head -1 README.md"
+                with self.subTest(separator=separator):
+                    self.assertEqual(self.bash(command)[0], "ask")
+                    # Even if the outer recognizer is later broadened, the segment
+                    # classifier must grant no interpreter exception on a compound line.
+                    with patch.object(G, "_design_search", return_value=True):
+                        self.assertEqual(self.bash(command)[0], "ask")
             (scripts / "core.py").write_bytes(b"# changed")
             self.assertEqual(self.bash(prefix)[0], "ask")
             (scripts / "core.py").write_bytes(b"# fixture")
             (scripts / "csv.py").write_bytes(b"# shadows standard library")
             self.assertEqual(self.bash(prefix)[0], "ask")
+
+    def test_design_search_symlink(self):
+        scripts = self.home / G.DESIGN_SEARCH_DIR
+        scripts.mkdir(parents=True)
+        source = self.home / "original.py"
+        source.write_bytes(b"# pinned fixture")
+        script = scripts / "search.py"
+        try:
+            script.symlink_to(source)
+        except OSError as exc:
+            self.skipTest(f"symlink unavailable: {exc}")
+        pins = {"search.py": hashlib.sha256(source.read_bytes()).hexdigest()}
+        with patch.object(Path, "home", return_value=self.home), patch.object(G, "DESIGN_SEARCH_HASHES", pins):
+            self.assertEqual(self.bash(f'python3 "{script.as_posix()}" query')[0], "ask")
+
+    def test_worker_lookup(self):
+        env = {"ORCA_TERMINAL_HANDLE": "term_worker", "ORCA_CLI_BIN_DIR": str(self.app)}
+        worker = {"terminal": "term_worker", "host": "local", "outcome": "in_progress", "liveness": "live"}
+
+        def page(rows=(), cursor=None):
+            return json.dumps({"result": {"workers": rows, "nextCursor": cursor}})
+
+        with patch.dict(os.environ, env), patch.object(subprocess, "check_output") as lookup:
+            lookup.side_effect = [page(cursor="next"), page([worker])]
+            self.assertTrue(G._orca_worker())
+            self.assertEqual(lookup.call_args.args[0][-2:], ["--cursor", "next"])
+            for cursor, calls in (("next", 2), ("invalid cursor", 1)):
+                with self.subTest(cursor=cursor):
+                    lookup.reset_mock()
+                    lookup.side_effect = [page(cursor=cursor)] * calls
+                    self.assertFalse(G._orca_worker())
+                    self.assertEqual(lookup.call_count, calls)
+            for key, value in (("host", "remote"), ("outcome", "succeeded"), ("liveness", "exited")):
+                with self.subTest(key=key):
+                    lookup.side_effect = [page([dict(worker, **{key: value})])]
+                    self.assertFalse(G._orca_worker())
+            for error in (FileNotFoundError(), subprocess.TimeoutExpired("orca", 2)):
+                with self.subTest(error=type(error).__name__):
+                    lookup.side_effect = error
+                    self.assertEqual(self.bash("python -c 'print(1)'")[0], "ask")
 
     def test_worker_opaque_only(self):
         terminal = "term_123"
@@ -1409,6 +1468,8 @@ class T7FalsePositiveTest(GuardTest):
             decision, message = self.bash("python -c 'print(1)'")
             self.assertEqual(decision, "deny")
             self.assertIn("orca orchestration ask", message)
+            for tool in ("Edit", "Write"):
+                self.assertEqual(self.tool(tool, S.user_guard_file())[0], "ask")
             payload = {"tool_name": "Bash", "tool_input": {"command": "python -c 'print(1)'"}, "cwd": str(self.app)}
             with patch("sys.stdin", io.StringIO(json.dumps(payload))), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(G.main(["claude"]), 2)
