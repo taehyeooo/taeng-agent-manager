@@ -48,6 +48,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 릴스·쇼츠 등 홍보 영상이나 인스타그램·스레드 게시물 요청을 받으면 **작업을 계획하기 전에 [`docs/marketing-guide.md`](docs/marketing-guide.md)를 처음부터 읽고 그대로 따른다**(사용자 지시 2026-11-23). 마케팅 규칙은 그 문서에서만 관리한다.
 
 ## 위임
+- 지시문에 “셸 변수·명령 치환·인터프리터 실행 대신 경로를 그대로 쓰고 Read·Write 도구를 사용하세요”를 넣는다.
 - 지시문은 intaeng `delegate-pr` 템플릿(워크트리·먼저 읽기·맡은 파일·테스트 먼저·변형 검사·PR까지·머지 금지·보고 형식). 파일로 저장해 `--spec-file`로 넘긴다.
 - `orca orchestration worker-start --spec-file <지시문> --agent <claude|codex> --worktree new-top-level --repo path:<프로젝트 경로> --name <slug>-<작업id> --base-branch main --task-title "<slug> <작업id>" --json`
   → `am task set <slug> <id> --status dispatched --dispatch <id> --worktree <경로> --branch <브랜치>`. 그다음 **턴을 끝낸다**(Orca가 깨운다, 폴링 금지).
@@ -96,11 +97,15 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - `home`이 없을 때 통과시키는 `python -m am setup`은 지금 레포의 `am` 코드를 실행한다 — 매니저 레포로 보이게 꾸민 폴더에서 돌리면 그 레포를 가드 위치로 기록한다(사람이 새 기기에서 직접 돌리는 경우만 가정).
 - 이런 우회의 뒤에는 Claude Code·Codex 자체 권한 검사가 있다.
 - Bash 검증 줄의 모든 단계가 읽기 전용이면 작업 트리 밖의 reviewflow 결과도 확인 없이 읽고 `guard-allowed.log`에 기록한다. 같은 줄에서 대입한 경로 변수, `sed -n`과 `awk`의 단순 필터·집계, 끝의 `docker info >/dev/null 2>&1 && echo docker=yes`만 알아보며 동적 파일명의 실제 값과 복잡한 식은 확인할 수 없다.
+- `run=$(bash …/review.sh collect 1)`은 실행 후에야 결과 경로를 알 수 있어 뒤의 파일 읽기까지 한 번에 허용하지 않는다. collect를 먼저 실행하고 출력된 경로로 읽는다. Orca 작업 목록을 확인할 수 없으면 일반 Claude 확인 창을 사용한다.
 - `am task set --status done`의 `merge_main` 요구와 단계 전환의 `spec`·`repo_create` 요구도 목록에 있으면 자동 기록 승인으로 충족된다. `am require <slug> <gate>`도 목록에 있으면 통과(종료 코드 0, 기록은 안 남김).
 - **예외 — 승인 기록을 되돌릴 수 있는 git 명령**: 상태 파일(`projects/*/project.json`·`.am/`)을 담은 작업 트리(이 매니저 레포)를 통째로 되돌리는 git 명령(`reset --hard`·`reset --merge/--keep`·`clean -f`·`stash`·`checkout -f`·`switch --discard-changes`·`checkout -- .`)은 `destructive_delete`가 목록에 있어도, 예전 승인 기록이 있어도 매번 사람이 본다(Claude 확인 창, Codex 차단). 서비스 레포에서는 그대로 자동. 사용자 설정 보호는 이 분기에 기대지 않는다(레포 밖이라).
 
 ### 실행 시점 강제 — `am guard`
 프로젝트 레포와 이 레포의 `.claude/settings.json` PreToolUse 훅이 **도구가 실행되기 전에** `am/guard.py`를 부른다.
+- Bash 읽기 명령에서는 같은 줄의 독립적인 리터럴 경로 대입(`B`, `S`, `f`, `folder` 등)을 인수에 치환해 다시 검사한다. 셸 특수 변수와 혼동할 수 있는 이름, 상속된 환경 변수, 동적 값은 확인 대상으로 둔다. `awk '/시작/,/끝/' 파일`처럼 동작문이 없는 범위 필터도 허용한다.
+- ui-ux-pro-max 2.15.0의 지정된 설치 경로와 검색 코드 SHA-256이 일치하면 단독 Python 검색의 화면 출력 옵션을 허용한다. 저장·미리보기 옵션은 사람이 확인한다.
+- Claude의 명령 확인 사유가 opaque뿐이고 현재 터미널이 Orca의 진행 중인 워커로 확인되면 종료 코드 2와 함께 명령을 나누거나 `orca orchestration ask`로 매니저에게 묻도록 안내한다.
 - 이 레포의 `.claude/settings.json`은 Bash를 확인 창 없이 허용한다(사용자 지시 2026-11-20). 가드 훅이 먼저 돌므로 금지·승인 관문·위험 신호 확인은 그대로다.
 - 금지 → 차단. 승인 필요 → `project.json`에 맞는 승인(`--ref`까지)이 없으면 차단하고, 승인 요청(명령·영향 범위·위험)을 기록한다.
 - 실행 내용을 미리 다 알 수 없는 명령(opaque)은 **위험 신호가 없으면 확인 창 없이 허용하고 기록**한다(사용자 지시 2026-11-18). 명령에 배포·삭제·외부 전송·비밀값 파일·승인 조작 등 위험 신호가 보이거나, 실행할 명령이 변수·동적 코드로 정해지거나 셸이 표준입력을 실행하면 Claude는 확인 창, Codex는 차단을 유지한다. `~/.config/agent-manager/guard.json`(없으면 레포 안 `config/guard.json`, 하위 호환)의 `"opaque": "ask"`로 예전 확인 방식으로 되돌릴 수 있다(둘 다 없으면 `allow`). 금지·미승인 작업·승인 기록·파일 편집 검사는 그대로다. 두 설정 파일 모두 사용자만 직접 바꾼다(레포 안 파일은 에이전트 수정·삭제 금지, 레포 밖 파일은 Claude 확인·Codex 차단).
