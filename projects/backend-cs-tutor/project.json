@@ -299,6 +299,18 @@
       "ref": "PR#65",
       "note": "2026-11-12 사용자: 'S30 승인' — dadok-cs PR #65(S30 색 더하기·지금 회차 표시) squash 병합",
       "at": "2026-11-12T10:54:09+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#67",
+      "note": "사용자 승인 2026-11-12: UI/UX QA 21개 수정 병합",
+      "at": "2026-11-12T22:18:46+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#69",
+      "note": "사용자 승인 2026-11-13: 진단 다시 하기 병합",
+      "at": "2026-11-13T00:41:13+09:00"
     }
   ],
   "tasks": [
@@ -1068,6 +1080,89 @@
       },
       "files": [
         "frontend"
+      ]
+    },
+    {
+      "id": "QA1",
+      "title": "UI/UX QA: 분리된 시험 환경에서 사용자 흐름 캡처(codex) → Claude 디자인 스킬 평가",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA",
+      "pr": null,
+      "dispatch": "ctx_097dc3ff289d",
+      "note": "UI/UX 평가 워커가 확인 창에서 반복 정지 → 전체 설정(스킬 허용) 적용 뒤 재시작 ctx_84eb7706d065"
+    },
+    {
+      "id": "T34",
+      "title": "UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "fix/#66-uiux-qa",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34",
+      "pr": "67",
+      "dispatch": "ctx_6e440322dfa8",
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "후속 711472b 재검증: M1·M2·L1~L8 고침, 새 테스트 8개 약화 없음, 172 통과·CI 5 통과. 낮은 메모 2(쓰이지 않는 not_logged_in 분기, 선택 prop 버튼)",
+        "at": "2026-11-12T22:16:40+09:00"
+      },
+      "files": [
+        "frontend/src"
+      ]
+    },
+    {
+      "id": "T35",
+      "title": "진단 다시 하기를 찾기 쉽게: 홈(진단 끝난 뒤)·진단 결과 위쪽에 버튼, 화면 이름 '진단'으로 — T34 병합 뒤",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "feat/#68-rediagnosis",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35",
+      "pr": "69",
+      "dispatch": "ctx_2546925019f4",
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "후속 2ac8ed9 재검증: 지적 4건 고침, 새 테스트 4개 약화 없음, 188 통과·CI 7 통과. 남김 2(완료 이력 기반 제목, GET-POST 원자 보호)는 후속 이슈",
+        "at": "2026-11-13T00:39:17+09:00"
+      },
+      "files": [
+        "frontend/src",
+        "backend/src/test/resources/diagnosis-browser.mjs"
+      ]
+    },
+    {
+      "id": "T36",
+      "title": "이슈 #70: 재진단 화면 이름을 완료 이력 기준으로, 진행 중 진단을 재시작이 덮지 않게(서버 잠금 안 검사)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": "fix/#70-rediagnosis-followup",
+      "worktree": "C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36",
+      "pr": "71",
+      "dispatch": "ctx_3f0cc43b8439",
+      "note": "Windows 백엔드 CI 20분 시간 초과 → 재실행 중, 교차 검증 ctx_d3955e2b3417",
+      "verification": {
+        "tests": "fail",
+        "review": "fail",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "잠금·has_completed·보안 맞음. 테스트 1곳 약화(DiagnosisApiTest:329), Windows CI 시간 초과 유력 원인=회전 테스트 HTTP 증가, 제목 깜빡임 → 같은 워커 수정",
+        "at": "2026-11-13T11:34:49+09:00"
+      },
+      "files": [
+        "backend/src/test/java/kr/dadokcs/DiagnosisApiTest.java",
+        "frontend/src/LearningApp.tsx"
       ]
     }
   ],
@@ -2495,10 +2590,118 @@
     {
       "at": "2026-11-12T11:09:54+09:00",
       "event": "작업 S30 변경: status=done, note=PR #65 병합, 실행 중 앱 반영(git pull, 화면 자동 갱신)"
+    },
+    {
+      "at": "2026-11-12T11:24:25+09:00",
+      "event": "작업 추가 QA1 (codex): UI/UX QA: 분리된 시험 환경에서 사용자 흐름 캡처(codex) → Claude 디자인 스킬 평가"
+    },
+    {
+      "at": "2026-11-12T11:24:25+09:00",
+      "event": "작업 QA1 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-QA, dispatch=ctx_097dc3ff289d, note=사용자 요청 2026-11-12"
+    },
+    {
+      "at": "2026-11-12T11:47:04+09:00",
+      "event": "작업 QA1 변경: note=1단계 캡처 128장 완료(격리 환경 정리 확인). Claude UI/UX 평가 위임"
+    },
+    {
+      "at": "2026-11-12T12:15:50+09:00",
+      "event": "작업 QA1 변경: note=UI/UX 평가 워커가 확인 창에서 반복 정지 → 전체 설정(스킬 허용) 적용 뒤 재시작 ctx_84eb7706d065"
+    },
+    {
+      "at": "2026-11-12T12:25:27+09:00",
+      "event": "작업 추가 T34 (codex, 자동): UI/UX QA 고칠 점 21개 반영(Astra): 높음4·중간8·낮음9 — uiux-review.md"
+    },
+    {
+      "at": "2026-11-12T12:26:21+09:00",
+      "event": "작업 T34 변경: status=dispatched, branch=taehyeooo/backend-cs-tutor-T34, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T34, dispatch=ctx_af79e80e2e6f"
+    },
+    {
+      "at": "2026-11-12T21:57:17+09:00",
+      "event": "작업 T34 변경: branch=fix/#66-uiux-qa, pr=67"
+    },
+    {
+      "at": "2026-11-12T21:57:46+09:00",
+      "event": "작업 추가 T35 (codex, 자동): 진단 다시 하기를 찾기 쉽게: 홈(진단 끝난 뒤)·진단 결과 위쪽에 버튼, 화면 이름 '진단'으로 — T34 병합 뒤"
+    },
+    {
+      "at": "2026-11-12T22:04:50+09:00",
+      "event": "작업 T34 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-12T22:04:50+09:00",
+      "event": "작업 T34 변경: dispatch=ctx_6e440322dfa8"
+    },
+    {
+      "at": "2026-11-12T22:16:40+09:00",
+      "event": "작업 T34 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-12T22:16:40+09:00",
+      "event": "작업 T34 변경: status=review"
+    },
+    {
+      "at": "2026-11-12T22:18:46+09:00",
+      "event": "승인 기록: merge_main (PR#67)"
+    },
+    {
+      "at": "2026-11-12T22:19:17+09:00",
+      "event": "작업 T34 변경: status=done"
+    },
+    {
+      "at": "2026-11-12T22:20:13+09:00",
+      "event": "작업 T35 변경: status=dispatched, branch=feat/#68-rediagnosis, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T35, dispatch=ctx_d879b1961daa"
+    },
+    {
+      "at": "2026-11-12T22:35:41+09:00",
+      "event": "작업 T35 변경: pr=69, dispatch=ctx_7dfe422eb2ca"
+    },
+    {
+      "at": "2026-11-13T00:25:12+09:00",
+      "event": "작업 T35 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-13T00:25:12+09:00",
+      "event": "작업 T35 변경: dispatch=ctx_2546925019f4"
+    },
+    {
+      "at": "2026-11-13T00:39:17+09:00",
+      "event": "작업 T35 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-13T00:39:18+09:00",
+      "event": "작업 T35 변경: status=review"
+    },
+    {
+      "at": "2026-11-13T00:41:13+09:00",
+      "event": "승인 기록: merge_main (PR#69)"
+    },
+    {
+      "at": "2026-11-13T00:41:35+09:00",
+      "event": "작업 T35 변경: status=done"
+    },
+    {
+      "at": "2026-11-13T10:20:42+09:00",
+      "event": "작업 추가 T36 (codex, 자동): 이슈 #70: 재진단 화면 이름을 완료 이력 기준으로, 진행 중 진단을 재시작이 덮지 않게(서버 잠금 안 검사)"
+    },
+    {
+      "at": "2026-11-13T10:20:57+09:00",
+      "event": "작업 T36 변경: status=dispatched, branch=fix/#70-rediagnosis-followup, worktree=C:/Users/user/orca/workspaces/dadok-cs/backend-cs-tutor-T36, dispatch=ctx_96d9cf86c6f7"
+    },
+    {
+      "at": "2026-11-13T11:21:47+09:00",
+      "event": "작업 T36 변경: pr=71, note=Windows 백엔드 CI 20분 시간 초과 → 재실행 중, 교차 검증 ctx_d3955e2b3417"
+    },
+    {
+      "at": "2026-11-13T11:34:49+09:00",
+      "event": "작업 T36 검증(claude:reviewflow): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-13T11:34:50+09:00",
+      "event": "작업 T36 변경: dispatch=ctx_3f0cc43b8439"
     }
   ],
   "created_at": "2026-11-10T10:43:41+09:00",
-  "updated_at": "2026-11-12T11:09:54+09:00",
+  "updated_at": "2026-11-13T11:34:50+09:00",
   "requests": [
     {
       "gate": "merge_main",
