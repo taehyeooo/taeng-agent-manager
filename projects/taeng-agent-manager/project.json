@@ -577,7 +577,7 @@
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/am-tool-catalog",
       "pr": null,
       "dispatch": "ctx_dd92965c1ccf",
-      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+      "note": "사용자 확정 2026-11-25: 새 카탈로그 파일 없이 디자인·마케팅 가이드에 나눠 넣기, 에이전트 운영 3개 제외, 도구 중복 없게, 검토 절차만 별도 문서"
     }
   ],
   "history": [
@@ -2348,10 +2348,14 @@
     {
       "at": "2026-11-25T11:00:13+09:00",
       "event": "작업 T17 변경: status=dispatched, branch=docs/tool-catalog, worktree=/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/am-tool-catalog, dispatch=ctx_dd92965c1ccf"
+    },
+    {
+      "at": "2026-11-25T11:02:28+09:00",
+      "event": "작업 T17 변경: note=사용자 확정 2026-11-25: 새 카탈로그 파일 없이 디자인·마케팅 가이드에 나눠 넣기, 에이전트 운영 3개 제외, 도구 중복 없게, 검토 절차만 별도 문서"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-25T11:00:13+09:00",
+  "updated_at": "2026-11-25T11:02:28+09:00",
   "requests": [
     {
       "gate": "push",
