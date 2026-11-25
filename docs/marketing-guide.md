@@ -25,7 +25,7 @@
 | [Prompt Motion](https://prompt-motion.com/) | **사용자가 지정한 1순위.** Claude로 만든 모션 그래픽 영상과 작품별 프롬프트·스킬을 함께 살펴볼 때 | 앱 시연은 Product UI·Phone, 움직이는 글자는 Kinetic type, 설명 장면은 Charts·Diagrams·Characters 필터부터 본다. 프롬프트는 원 작성자의 저작권과 이용 조건을 확인해 복사·변형하고 출처 링크를 유지한다. |
 | [Meta 광고 라이브러리](https://www.facebook.com/ads/library) | 국내 앱이 실제 집행 중인 인스타그램·페이스북 광고(릴스 포함)의 흐름을 볼 때 | 국가를 대한민국으로 두고 첫 장면부터 앱 시연까지의 순서를 본다. |
 | [TikTok Creative Center (Top Ads)](https://ads.tiktok.com/business/creativecenter) | 성과가 좋은 숏폼 광고의 도입부와 컷 속도를 비교할 때 | Top Ads에서 업종·지역을 좁힌다. |
-| [Mobbin](https://mobbin.com) | 실제 앱 화면과 흐름으로 데모 장면을 구성할 때 | 일부 흐름은 영상으로 볼 수 있다. 무료 공개 범위에서 살펴본다. |
+| Mobbin | 데모 장면 구성 시 → [디자인 가이드의 Mobbin](design-guide.md#디자인-레퍼런스-사이트) | — |
 | [Screensdesign](https://screensdesign.com) | 앱 화면·온보딩 녹화에서 조작 순서를 볼 때 | 어떤 조작부터 결과 화면까지 보여 주는지 본다. |
 | [Dribbble (Motion)](https://dribbble.com/search/motion) | 짧은 UI 모션이나 전환 아이디어를 찾을 때 | 화면 요소가 등장하고 사라지는 타이밍을 본다. |
 | [Jitter](https://jitter.video/templates) | 제품 UI 모션 템플릿의 구성을 볼 때 | 글자와 제품 화면이 번갈아 등장하는 순서를 참고한다. |

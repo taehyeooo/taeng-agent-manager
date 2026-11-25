@@ -48,7 +48,7 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 릴스·쇼츠 등 홍보 영상이나 인스타그램·스레드 게시물 요청을 받으면 **작업을 계획하기 전에 [`docs/marketing-guide.md`](docs/marketing-guide.md)를 처음부터 읽고 그대로 따른다**(사용자 지시 2026-11-23). 마케팅 규칙은 그 문서에서만 관리한다.
 
 ## 외부 도구
-디자인·영상·글쓰기·마케팅·코드베이스 이해 작업을 계획할 때 [디자인 가이드](docs/design-guide.md)와 [마케팅 가이드](docs/marketing-guide.md)의 도구 표를 참고하고, 서비스에 쓸 스킬 3~5개만 고른다.
+디자인·영상·글쓰기·마케팅 작업을 계획할 때 [디자인 가이드](docs/design-guide.md)와 [마케팅 가이드](docs/marketing-guide.md)의 도구 표를 참고하고, 서비스에 쓸 스킬 3~5개만 고른다.
 외부 스킬·플러그인·MCP 서버·실행 도구를 **설치·업데이트하기 전** [공통 보안 검토 절차](docs/tool-security-review.md)를 따른다.
 도구 등록은 설치 승인이 아니다. 설치 자체는 기존 승인 정책(`system_permission`, 유료면 `paid_service`, 사용자 `auto_gates` 설정 포함)을 그대로 따른다.
 
