@@ -2,7 +2,7 @@
 
 저장 위치: 이 레포(taeng-agent-manager)의 `docs/design-guide.md` · 만든 날: 2026-11-20 · 사용자 지시로 만들고 관리한다.
 
-UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 그래픽에 관한 요청(예: "디자인 할 건데 디자인 문서 보고 해줘")을 받으면 매니저는 **작업을 계획하기 전에 이 문서를 처음부터 읽는다.** 디자인 규칙은 이 문서 한 곳에서만 관리한다. AGENTS.md·CLAUDE.md에는 이 문서를 가리키는 한 줄만 둔다.
+UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 그래픽에 관한 요청(예: "디자인 할 건데 디자인 문서 보고 해줘")을 받으면 매니저는 **작업을 계획하기 전에 이 문서를 처음부터 읽는다.** 디자인 규칙은 이 문서 한 곳에서만 관리한다. 디자인 도구 설명·설치 상태도 이 문서에서 관리하며, 영상 도구는 [마케팅 가이드](marketing-guide.md#영상글쓰기마케팅-도구)에 둔다. AGENTS.md·CLAUDE.md에는 이 문서를 가리키는 한 줄만 둔다.
 
 홍보물(릴스·게시물)은 [마케팅 가이드](marketing-guide.md)를 따른다.
 
@@ -11,7 +11,9 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 | 단계 | 하는 일 | 누가 | 남길 것 |
 |---|---|---|---|
 | 1. 사용자 흐름 확인 | 대상 사용자, 목표, 핵심 작업, 사용 환경. 사용자 목표 → 진입 화면 → 주요 행동 → 결과 확인 흐름과 막히는 지점. 로딩·오류·빈 화면·완료 상태와 복구 경로(아래 'UX 검토 체크리스트') | 매니저(필요하면 조사 작업자) | 흐름 한 장, 확인 못 한 것은 '가정' 표시 |
-| 2. 도구 고르기 | 아래 '빠른 선택표'와 도구별 UI·UX 활용 상황으로, 프로젝트 스택에 맞는 것만. 전체 방향은 하나를 중심으로, 나머지는 보완. 그 기기에 실제로 설치됐는지 확인(3장 규칙) | 매니저 | 고른 도구·이유·적용 범위 |
+| 2. 도구 고르기 | 아래 빠른 선택표와 도구 표에서 프로젝트 스택에 맞는 것만. **서비스 시작 때 이 서비스에 쓸 스킬 3~5개만 고른다(전부 받지 않는다).** 전체 방향은 하나를 중심으로, 나머지는 보완. 그 기기의 설치 상태 확인 | 매니저 | 고른 도구·이유·적용 범위 |
+| 2-1. 설치 전 보안 검토 | 새 설치·업데이트가 필요하면 [공통 검토 절차](tool-security-review.md)로 같은 버전을 두 모델이 독립 검토. 등록·링크 참고만이면 검토 불필요 | Codex·Claude Code | 검토 기록·남은 검토자 |
+| 2-2. 설치 → 사용 | 설치 요청·검토 완료·기존 승인 정책 충족 후 검토한 버전만 설치하고 사용. 기존 설치분은 확인된 범위에서 사용 | 작업자 | 기기·에이전트별 설치 상태·버전·검토 기록 갱신 |
 | 시안 전 · 레퍼런스 선택 | 사용자가 레퍼런스를 원하면 아래 ‘디자인 레퍼런스 사이트’에서 사례 2~4개를 골라 직접 링크와 추천 이유를 보여 주고 사용자가 고르게 한다. | 매니저 → 사용자 | 선택한 사례와 참고할 부분 |
 | 3. 시안 3개 | 서로 다른 방향 3개. 각 시안: 콘셉트 한 줄, 바뀌는 화면 전/후 목업(밝은·어두운 — **실제 휴대폰 화면 전체로**: 기기 프레임·상태 바·헤더·탭 바까지, 지금 앱 화면과 코드를 바탕으로 바뀌는 부분만 바꾸고, 카드나 일부만 잘라 그리지 않는다. 흐름마다 지금 화면 → 바뀐 화면을 나란히, 흐름 순서대로 화면 1~3장 — 사용자 피드백 2026-11-20), 움직임, 바뀌는 디자인 값, 난이도·위험, 추천 순위. 사용자가 원하면 Claude와 Codex가 서로 결과를 보지 않고 각각 만든다 | 작업자 | 목업 파일·설명, 비교 페이지(매니저) |
 | 4. 사용자 선택 | 시안 고르기는 **항상 사용자 몫**. 매니저는 한 화면에서 비교할 수 있게 보여 주고 추천만 한다. 섞어도 된다 | 사용자 | 고른 것과 사용자 말(그대로) |
@@ -32,11 +34,12 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 | [Refero](https://refero.design) | 로그인·결제·온보딩 화면이나 입력 폼 같은 특정 UI 요소를 빠르게 찾을 때 | 웹·iOS 사례에서 같은 UI 패턴을 찾아 화면 배치와 조작 방식을 비교하기 좋다. |
 | [Land-book](https://land-book.com) | Trova 소개 사이트(trovapp.github.io)나 공유 링크로 여는 웹 화면의 레이아웃과 색 조합을 정할 때 | 랜딩 페이지·웹사이트를 섹션, 스타일, 산업별로 탐색할 수 있다. |
 | [Godly](https://godly.design) | 최근 웹디자인 흐름을 살펴보거나 홍보용 웹페이지의 스크롤·모션·타이포그래피 연출을 구상할 때 | 실험적인 웹사이트에서 스크롤에 따라 글자와 화면이 어떻게 달라지는지 살펴보기 좋다. |
+| [oh-my-design](https://oh-my-design.kr/design-systems) | 글꼴(특히 한글 타이포)·색·컴포넌트 기준을 정하거나, 국내 서비스(여기어때·토스·당근 등)가 화면 규칙을 어떻게 잡는지 볼 때 | 실제 서비스 622곳의 DESIGN.md를 지역·업종별로 찾을 수 있고, 에이전트에게 바로 읽힐 수 있다. 한글 화면용 스킬(/hangul)도 있다. 다른 회사의 색·로고·고유 글꼴을 그대로 가져오지 않고, 기준과 구성 방식만 참고한다. 글꼴은 라이선스를 확인하고 쓴다. |
 
 ## 2. 매니저가 지킬 것
 
 - **다른 레포 작업도 이 문서로**: 매니저 레포에서 다른 서비스 레포(예: Trova 앱·백엔드)의 디자인을 맡길 때, 작업자는 그 레포(다른 기기일 수도 있음)에서 일하므로 이 문서를 직접 못 읽을 수 있다. **매니저가 이 문서를 읽고**, 고른 도구·선택 이유·적용 범위·진행 단계·체크리스트 중 필요한 항목을 **지시문에 옮겨 적어 전달**한다. 서비스 레포마다 이 문서를 복사해 두지 않는다.
-- **도구 설치**: 필요한 도구가 그 기기에 없으면 사용자에게 설치를 묻는다. **사용자가 승인하면 에이전트가 설치한다.** 설치 전에 무료인지(유료면 설치하지 않고 다시 묻는다)와 설치 내용(외부 코드라면 설치 스크립트·실행 명령)을 확인하고, 설치 후 무엇을 어느 기기에 어떻게 설치했는지 보고하고 5장 표를 고친다.
+- **도구 설치**: 도구 고르기 → [설치 전 보안 검토](tool-security-review.md) → 설치 → 사용 순서로 진행한다. 설치 요청이 있어도 검토가 끝나기 전에는 설치하지 않는다. 설치 자체는 기존 승인 정책(`system_permission`, 유료면 `paid_service`, 사용자 `auto_gates` 설정 포함)을 따른다. 설치 후 이 문서 도구 표의 기기·에이전트별 상태·버전·확인일·검토 링크를 고친다.
 - 기존 디자인 시스템, 이미 합의한 흐름, 사용자 지시가 우선이다. 도구 때문에 전체 화면이나 서비스 정책을 임의로 바꾸지 않는다. 도구 목록 전체를 일괄 설치하지 않는다.
 - 서비스별 디자인 결정(색의 의미, 사용자가 싫다고 한 표현 등)은 그 서비스 레포의 디자인 문서에 남기고, 지시문에 옮겨 적는다.
 - 쓰지 않은 도구를 썼다고, 읽지 않은 문서를 읽었다고 보고하지 않는다. 이 문서를 찾지 못하면 그렇다고 알린다.
@@ -52,27 +55,11 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 
 선택한 도구와 이유, 적용 범위, 확인한 것과 남은 가정. **설계 제안 / 구현 확인 / 실제 사용자 테스트 결과를 구분**한다. 사용자 테스트를 하지 않았으면 '검증 필요'로 남긴다. 아래 '사용 결과 기록 예시'를 따른다.
 
-## 5. 기기별로 지금 쓸 수 있는 디자인 도구
+## 5. 기기별 설치 상태와 도구 설명
 
-설치·삭제할 때마다 고친다(확인한 날짜와 함께). 표에 없으면 '없음'으로 보고 설치를 묻는다.
+설치 상태는 아래 [디자인 도구 표](#디자인-도구)에 통합한다. 영상·글쓰기·마케팅 도구는 [해당 표](marketing-guide.md#영상글쓰기마케팅-도구)에서 확인한다. 설치·삭제·업데이트할 때 확인 날짜와 검토 기록도 함께 갱신한다.
 
-| 기기·에이전트 | 쓸 수 있는 것 (2026-11-20 확인) |
-|---|---|
-| Mac · Claude Code | Anthropic Frontend Design(`frontend-design`), Expo 디자인 시스템·애니메이션·네이티브 UI(`expo:expo-design-system`·`expo-animation`·`expo-native-ui`), uiflow(`design-compare`·`design-qa`·`design-sweep`), 애플 가이드(`hig-components-layout`·`hig-patterns`). **2026-11-20 사용자 승인으로 설치**: UI UX Pro Max(플러그인 `ui-ux-pro-max@ui-ux-pro-max-skill`, MIT, 훅 없음 — 검색 스크립트는 쓸 때만 실행), Emil Kowalski Skills 20개(`~/.claude/skills/`에 복사, MIT, 문서만: `animate-expo`·`emil-design-eng`·`review-animations`·`gestures` 등), Impeccable(`~/.claude/skills/impeccable`, Apache-2.0, **스킬만 복사하고 플러그인의 자동 실행 훅은 설치 안 함** — 모든 프로젝트의 파일 편집마다 돌기 때문. 처음 쓸 때 체크섬 검증된 엔진을 내려받음) |
-| Mac · Codex | 디자인 도구 없음 |
-| Windows · Codex | 작업자 보고(2026-11-20) 기준 UI UX Pro Max, Emil Kowalski Skills, Frontend Design, web-design-guidelines, apple-design 사용. 정확한 목록은 다음 설치 작업 때 확인해 고친다 |
-
----
-
-아래는 사용자가 제공한 도구 참고 자료(2026-11-20)다.
-
-## 문서 목적
-
-웹사이트, 앱 UI, 인터랙션, 모션 그래픽 작업을 계획할 때 참고하는 14개 스킬 및 도구 목록이다. 각 도구의 핵심 기능, UI 활용 상황, UX 활용 상황을 보고 현재 작업에 필요한 것을 선택한다.
-
-UI는 화면의 색상, 글자, 간격, 배치와 시각적 표현을 다룬다. UX는 사용자가 목표를 달성하는 전체 흐름, 이해하기 쉬운 안내, 오류 복구와 작업 결과 확인을 다룬다. 아래 활용 상황은 매니저가 도구를 선택하기 위한 제안이며, 해당 도구가 사용자 조사나 사용성 검증을 자동으로 수행한다는 뜻은 아니다.
-
-이 문서는 설치형 스킬 자체가 아니라 도구 선택을 돕는 참고 문서다. 모든 도구를 설치하거나 모든 프로젝트에 함께 적용할 필요는 없다. 영상 자막과 제공된 링크, 대화 중 확인한 공식 자료를 바탕으로 정리했다. 기능 수, 설치 방법, 지원 환경과 요금제는 실제 사용 시 공식 문서에서 확인한다.
+UI는 색상·글자·간격·배치, UX는 목표 달성 흐름·안내·오류 복구·결과 확인을 다룬다. 도구가 사용자 조사나 사용성 검증을 대신 수행한다고 가정하지 않는다. 지원 환경·현재 기능·요금제는 사용 시 원본에서 확인한다.
 
 ## 에이전트 매니저 사용 지침
 
@@ -101,7 +88,7 @@ UI는 화면의 색상, 글자, 간격, 배치와 시각적 표현을 다룬다.
 
 ## 이 문서와 서비스별 UX 문서의 역할
 
-이 문서에는 도구의 선택 기준과 UI·UX 활용법을 둔다. 서비스의 구체적인 화면 흐름과 정책은 필요할 때 별도 문서에 기록한다. 예를 들어 `monitoring-service-ux.md`에는 오류 발견 → 원인 이해 → 해결 행동 → 해결 여부 확인의 흐름, 화면별 상태, 예외 상황과 사용자 테스트 결과를 담는다. 현재 작업에 별도 UX 문서가 없다면 핵심 흐름부터 작업 계획에 정리한다.
+이 문서에는 디자인 도구의 선택 기준과 UI·UX 활용법을 둔다. 서비스의 구체적인 화면 흐름과 정책은 필요할 때 별도 문서에 기록한다. 예를 들어 `monitoring-service-ux.md`에는 오류 발견 → 원인 이해 → 해결 행동 → 해결 여부 확인의 흐름, 화면별 상태, 예외 상황과 사용자 테스트 결과를 담는다. 현재 작업에 별도 UX 문서가 없다면 핵심 흐름부터 작업 계획에 정리한다.
 
 ## 빠른 선택표
 
@@ -109,173 +96,54 @@ UI는 화면의 색상, 글자, 간격, 배치와 시각적 표현을 다룬다.
 
 | 작업 상황 | 우선 검토할 도구 | 필요할 때 추가할 도구 |
 |---|---|---|
-| 사용자 목표와 핵심 이용 흐름 설계 | UI UX Pro Max의 UX 패턴 참고 | Google Stitch로 흐름을 시안화한 뒤 사용자 테스트 |
-| 기존 흐름에서 혼란과 이탈 개선 | Impeccable로 화면과 문구 검토 | 사용성 관찰로 원인과 개선 효과 확인 |
-| 새 웹사이트 UI 제작 | Frontend Design | Impeccable로 마무리 검토 |
-| 앱 또는 대시보드 디자인 규칙 설정 | UI UX Pro Max | Google Stitch로 화면 흐름 시안 확인 |
-| 개성 있는 랜딩 페이지나 포트폴리오 | Taste Skill 또는 Hallmark | React Bits로 필요한 시각 효과 추가 |
-| 기존 화면의 간격, 색상, 강조 개선 | Impeccable | Hallmark로 구조 재검토 |
-| 메뉴, 팝업, 버튼 애니메이션 개선 | Emil Kowalski Skills | Keyframe Gallery에서 사례 탐색 |
-| 텍스트, 배경, 카드에 효과 추가 | React Bits | Emil Kowalski Skills로 모션 검토 |
-| 코딩 전 앱 화면과 이동 흐름 확인 | Google Stitch | 구현 단계에서 디자인 스킬 선택 |
-| 웹, 발표 자료, 이미지 등 함께 제작 | Open Design | 영상이 필요하면 HyperFrames 검토 |
-| 같은 형식의 영상을 반복 제작 | Remotion | Awesome Opus 5.5 Videos에서 아이디어 참고 |
-| HTML/CSS 기반 제품 소개 영상 | HyperFrames | 기존 브랜드 규칙 적용 |
-| 대화 중심으로 설명 애니메이션 제작 | Claude Motion | 이용 가능한 요금제와 기능 확인 |
-| 모션 그래픽이나 3D 장면 아이디어 탐색 | Awesome Opus 5.5 Videos | 결과물에 맞는 제작 도구 별도 선택 |
+| 사용자 목표와 핵심 이용 흐름 설계 | [ui-ux-pro-max](#ui-ux-pro-max)의 UX 패턴 참고 | [google-stitch](#google-stitch)로 흐름을 시안화한 뒤 사용자 테스트 |
+| 기존 흐름에서 혼란과 이탈 개선 | [impeccable](#impeccable)로 화면과 문구 검토 | 사용성 관찰로 원인과 개선 효과 확인 |
+| 새 웹사이트 UI 제작 | [frontend-design](#frontend-design) | [impeccable](#impeccable)로 마무리 검토 |
+| 앱 또는 대시보드 디자인 규칙 설정 | [ui-ux-pro-max](#ui-ux-pro-max) | [google-stitch](#google-stitch)로 화면 흐름 시안 확인 |
+| 개성 있는 랜딩 페이지나 포트폴리오 | [taste-skill](#taste-skill) 또는 [hallmark](#hallmark) | [react-bits](#react-bits)로 필요한 시각 효과 추가 |
+| 기존 화면의 간격, 색상, 강조 개선 | [impeccable](#impeccable) | [hallmark](#hallmark)로 구조 재검토 |
+| 메뉴, 팝업, 버튼 애니메이션 개선 | [emil-design-eng](#emil-design-eng) | [keyframe-gallery](#keyframe-gallery)에서 사례 탐색 |
+| 텍스트, 배경, 카드에 효과 추가 | [react-bits](#react-bits) | [emil-design-eng](#emil-design-eng)로 모션 검토 |
+| 코딩 전 앱 화면과 이동 흐름 확인 | [google-stitch](#google-stitch) | 구현 단계에서 디자인 스킬 선택 |
+| 웹, 발표 자료, 이미지 등 함께 제작 | [open-design](#open-design) | 영상이 필요하면 [hyperframes](marketing-guide.md#hyperframes) 검토 |
+| 같은 형식의 영상을 반복 제작 | [remotion-skills](marketing-guide.md#remotion-skills) | [awesome-opus5-5-videos](marketing-guide.md#awesome-opus5-5-videos)에서 아이디어 참고 |
+| HTML/CSS 기반 제품 소개 영상 | [hyperframes](marketing-guide.md#hyperframes) | 기존 브랜드 규칙 적용 |
+| 대화 중심으로 설명 애니메이션 제작 | [claude-motion](marketing-guide.md#claude-motion) | 이용 가능한 요금제와 기능 확인 |
+| 모션 그래픽이나 3D 장면 아이디어 탐색 | [awesome-opus5-5-videos](marketing-guide.md#awesome-opus5-5-videos) | 결과물에 맞는 제작 도구 별도 선택 |
 
-## CH1. AI 디자인 스킬
+## 디자인 도구
 
-### 1. Anthropic Frontend Design
+**등록됨 ≠ 설치됨.** 서비스에 필요한 스킬 3~5개만 고른 뒤, 새 설치·업데이트는 [보안 검토](tool-security-review.md) → 승인 정책에 따른 설치 → 사용 순서로 진행한다. 검색: `grep -i <키워드> docs/design-guide.md docs/marketing-guide.md`.
 
-- **유형:** AI 코딩 에이전트용 디자인 스킬
-- **핵심 기능:** 서비스의 목적과 콘셉트에 맞춰 타이포그래피, 색상, 레이아웃, 모션 방향을 정한다. 반복적인 카드 배치와 획일적인 표현을 줄이고 일관된 시각적 방향으로 UI를 구현하도록 돕는다.
-- **UI 활용 상황:** 새 웹사이트나 랜딩 페이지를 만들 때, 디자인 방향을 처음 정할 때, AI가 만든 화면이 비슷한 템플릿처럼 느껴질 때.
-- **UX 활용 상황:** 새 화면에서 핵심 행동이 명확히 보이도록 정보 우선순위와 버튼 문구를 정리할 때. 시각적 계층과 상태 안내를 개선하는 보조 역할로 사용하고, 전체 사용자 여정은 별도로 설계한다.
-- **요청 예시:** “서비스의 대상 사용자와 핵심 기능을 기준으로 디자인 방향을 정하고 첫 화면을 구현해 줘.”
-- **공식 스킬:** https://github.com/anthropics/skills/tree/main/skills/frontend-design
+고를 때 차이: hallmark는 페이지 구조를 새로 잡을 때, unslop은 반복 장식을 덜어낼 때, impeccable은 전체 화면을 평가해 수정 우선순위를 정할 때 중심 도구 하나로 고른다. ui-ux-pro-max는 여러 화면의 공통 규칙, interface-design은 정보·조작 흐름, taste-skill은 레퍼런스에 맞춘 분위기 조정에 우선한다.
 
-### 2. UI UX Pro Max
+설치 상태는 2026-11-25 읽기 확인 기준이다. Mac Claude는 `~/.claude/skills/`와 `~/.claude/plugins/installed_plugins.json`·해당 설치 경로를 대조했다. Mac Codex는 `~/.codex/skills/`·`~/.codex/plugins/` 및 이 세션의 스킬 목록에서 확인했다. 표의 **미설치는 해당 에이전트 사용자 설치 경로에서 찾지 못했다는 뜻**이며, 모든 프로젝트의 의존성까지 조사했다는 뜻이 아니다. 현재 세션과 Mac Codex 설치 경로에는 Codex Security의 `$check-skills`가 없어 사용할 수 없으며, 이번에 설치하거나 실행하지 않았다. Windows는 직접 확인할 수 없어 2026-11-20 작업자 보고를 옮겼고 버전·현재 상태는 확인 필요다. 웹 서비스·레퍼런스 사이트는 설치형 스킬과 구분한다. 명시하지 않은 라이선스는 확인 필요다.
 
-- **유형:** UI/UX 디자인 지식을 제공하는 스킬
-- **핵심 기능:** 서비스 유형과 업종에 맞는 스타일, 색상, 폰트 조합, 차트와 UX 패턴을 참고해 디자인 규칙을 구성한다. 웹뿐 아니라 앱 UI 작업에도 활용할 수 있다.
-- **UI 활용 상황:** 금융, 관리 도구, 모니터링 등 정보가 많은 대시보드 제작, 여러 화면의 디자인 통일, 앱의 기본 UI 규칙 설정.
-- **UX 활용 상황:** 메뉴 구조와 입력 폼을 검토하거나 회원가입 등 핵심 작업의 단계를 정리할 때. 오류 안내, 완료 피드백, 접근성 등 UX 패턴을 참고해 설계안을 만들고 실제 사용자로 검증한다.
-- **요청 예시:** “비전공자가 사용하는 모니터링 서비스야. 어려운 용어를 줄이고 상태와 다음 행동을 쉽게 파악하도록 디자인 규칙을 정해 줘.”
-- **GitHub:** https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
-- **적용 메모:** 프로젝트의 Flutter, SwiftUI, React 등 실제 스택에 맞는 지침을 선택한다. 모든 스택에서 동일한 코드가 동작하는 도구로 해석하지 않는다.
+| 이름 | 종류 | 언제 쓰나 | 원본 URL | 설치 상태(기기·에이전트별, 버전) | 검토 기록 |
+|---|---|---|---|---|---|
+| <a id="frontend-design"></a>Frontend Design (`frontend-design`) | 스킬 | 명세서를 바탕으로 랜딩 페이지·웹 UI 첫 시안을 구현. 서비스 목적에 맞춰 글자·색·배치·핵심 행동의 우선순위를 정한다. | https://github.com/anthropics/skills/tree/main/skills/frontend-design | Mac Claude: 설치됨(1.1.1, 커밋 f8c5e7a1dcb71b10cb74586224b5401f3de5db28, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 설치 보고(2026-11-20), 버전·현재 상태 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="ui-ux-pro-max"></a>UI UX Pro Max (`ui-ux-pro-max`) | 스킬·플러그인 | 여러 화면의 색상·타이포그래피·컴포넌트 스타일과 UX 패턴을 정한다. 앱·대시보드·폼 흐름에 사용하고 Flutter·SwiftUI·React 등 실제 스택에 맞는 지침만 선택. 로컬 플러그인 메타데이터의 라이선스: MIT. | https://github.com/nextlevelbuilder/ui-ux-pro-max-skill | Mac Claude: 설치됨(2.15.0, 커밋 2de1134dc4d1cfe112934611ae5803ae17a1bd7e, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 설치 보고(2026-11-20), 버전·현재 상태 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="interface-design"></a>Interface Design (`interface-design`) | 스킬 | 관리자 페이지·대시보드·설정 화면의 정보 우선순위와 조작 흐름. 쉽앤핑의 장애 상태와 다음 행동 배치에 적합. | https://github.com/Dammyjay93/interface-design | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="hallmark"></a>Hallmark (`hallmark`) | 스킬 | 큰 제목 → 기능 카드 3개 구성이 반복될 때 제품의 실제 사용 장면 중심으로 테마와 구조를 바꾼다. 모바일 가독성과 핵심 작업 수행 우선. | https://github.com/Nutlope/hallmark | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="taste-skill"></a>Taste Skill (`taste-skill`) | 스킬 | 레퍼런스로 분위기를 정하고 브라우저에서 여백·폰트·배치를 다시 조정. 정보 밀도·모션이 이해를 방해하지 않는지 확인. 수치 설정과 하위 스킬은 선택 버전 문서에서 확인. | https://github.com/Leonxlnx/taste-skill | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="unslop"></a>unslop (`unslop`) | 스킬 | 기존 화면에서 과한 그라데이션·발광·불필요한 배지 등 반복적인 AI 장식을 정리. | https://github.com/heydamir/unslop | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="impeccable"></a>Impeccable (`impeccable`) | 스킬 | 기존 화면을 평가하고 고칠 순서를 정한다. 배지·제목·카드의 강조, 문구, 글자·간격과 로딩·오류·빈 화면 안내를 점검. audit·critique 등은 설치 버전 기준. | https://github.com/pbakaus/impeccable | Mac Claude: 설치됨(SKILL.md 선언 4.10.0, 복사본·커밋 확인 불가, 2026-11-20 사용자 승인 설치; 스킬만 복사·자동 편집 훅 제외, 기존 기록상 첫 사용 시 엔진 다운로드, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="ui-skills"></a>UI Skills (`ui-skills`) | 스킬 카탈로그 사이트 | 접근성·애니메이션·컴포넌트 마감 문제에 맞는 개별 스킬을 찾는다. 사이트 자체를 설치하지 않으며 선택한 개별 스킬의 실제 원본을 검토. | https://www.ui-skills.com/ | Mac Claude·Mac Codex·Windows Codex: 사이트 자체 설치 대상 아님; 개별 스킬 설치 여부 확인 필요 | 검토 기록 없음 |
+| <a id="emil-design-eng"></a>emil-design-eng (Emil Kowalski Skills) (`emil-design-eng`) | 스킬 모음 | 버튼 반응·모달 전환·팝오버·제스처의 속도·감속·타이밍을 다듬는다. animate·review-animations 등으로 상태 변화를 전달하고 반복 작업 지연·종료·입력 처리 확인. | https://github.com/emilkowalski/skills | Mac Claude: 설치됨(버전·커밋 확인 불가(복사본, 2026-11-20 사용자 승인 설치), 하위 스킬 20개, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 설치 보고(2026-11-20), 버전·현재 상태 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="web-design-guidelines"></a>web-design-guidelines (`web-design-guidelines`) | 스킬 | 배포 전 키보드 조작·포커스 표시·폼 사용성 등 웹 UI의 기본 품질 점검. | https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines | Mac Claude: 해당 스킬 미설치(vercel 플러그인 설치와 구분); Mac Codex: 미설치; Windows Codex: 설치 보고(2026-11-20), 버전·현재 상태 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="google-stitch"></a>Google Stitch (`google-stitch`) | 실행 도구(웹 작업 공간) | 코딩 전 앱·웹 화면 시안과 이동 흐름을 비교하고 DESIGN.md로 디자인 정보 전달. 사용자에게 프로토타입 작업을 맡겨 관찰하며 실제 기능 구현 완료와 구분. | https://stitch.withgoogle.com | Mac Claude·Mac Codex·Windows Codex: 웹 서비스, 계정·이용 가능 여부 확인 필요 | 검토 기록 없음 |
+| <a id="open-design"></a>Open Design (`open-design`) | 실행 도구(작업 공간) | 같은 브랜드의 웹·앱 시안·발표·이미지를 한곳에서 관리하고 에이전트와 연결. 영상 연계는 [hyperframes](marketing-guide.md#hyperframes) 참조. 단일 스킬이 아니므로 실행 환경과 연결 에이전트 확인. | https://github.com/nexu-io/open-design | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="react-bits"></a>React Bits (`react-bits`) | 실행 도구(컴포넌트 모음) | React 랜딩 페이지의 텍스트·배경·카드 효과를 미리 보고 코드에 적용. Flutter·SwiftUI에 그대로 넣지 않으며 효과별 의존성·모바일 성능·가독성·키보드 조작 확인. | https://github.com/DavidHDev/react-bits | Mac Claude: 미설치; Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음 |
+| <a id="keyframe-gallery"></a>Keyframe Gallery (`keyframe-gallery`) | 레퍼런스 사이트 | 제품의 화면 전환·메뉴·버튼 모션 사례를 비교하고 속도·방향을 전달할 때. 현재 사용자 작업에 맞는지 판단하며 구현 도구는 별도 선택. | https://keyframe.gallery | Mac Claude·Mac Codex·Windows Codex: 사이트 자체 설치 대상 아님 | 검토 기록 없음 |
+| <a id="expo-design"></a>Expo 디자인 스킬 (`expo-design`) | 스킬·플러그인 | 기존 기록의 expo-design-system·expo-animation·expo-native-ui를 Expo 앱의 디자인 시스템·애니메이션·네이티브 UI 작업에 선택. | https://github.com/expo/skills/tree/main/plugins/expo | Mac Claude: 설치됨(1.13.9, 커밋 d4f484024fec15196bfd3c272e953e3f983972cf, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="uiflow"></a>uiflow (`uiflow`) | 스킬·플러그인 | 기존 design-compare·design-qa·design-sweep으로 앱 화면 전후 비교·디자인 QA·기기별 화면 검토. 로컬 플러그인 메타데이터 라이선스: MIT. | https://github.com/taehyeooo/taeng-marketplace/tree/main/plugins/uiflow | Mac Claude: 설치됨(0.2.1, 커밋 c080db5f994df10720f439ce88bba3699280d8b5, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="hig-components-layout"></a>hig-components-layout (`hig-components-layout`) | 스킬 | Apple HIG의 사이드바·탭·목록 등 레이아웃·탐색 컴포넌트를 검토. 로컬 SOURCE·LICENSE 확인: MIT. | https://github.com/raintree-technology/apple-hig-skills | Mac Claude: 설치됨(1.0.0, SOURCE 기록 커밋 fdc3599, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
+| <a id="hig-patterns"></a>hig-patterns (`hig-patterns`) | 스킬 | Apple HIG의 온보딩·검색·설정·로딩·피드백 등 상호작용 패턴을 검토. 로컬 SOURCE·LICENSE 확인: MIT. | https://github.com/raintree-technology/apple-hig-skills | Mac Claude: 설치됨(1.0.0, SOURCE 기록 커밋 fdc3599, 확인 2026-11-25); Mac Codex: 미설치; Windows Codex: 확인 필요 | 검토 기록 없음(이 절차 이전 설치) |
 
-### 3. Taste Skill
+설치 근거 보충: frontend-design·ui-ux-pro-max·expo·uiflow의 버전·커밋은 설치 기록과 캐시를 대조했다. `web-design-guidelines`는 설치 경로에서 발견하지 못했다. Mac Claude의 `vercel@claude-plugins-official` 0.56.0 설치만으로 그 스킬을 설치됨으로 간주하지 않는다.
 
-- **유형:** 디자인 방향과 시각적 개성을 조정하는 스킬 모음
-- **핵심 기능:** 획일적인 AI 화면에서 벗어나도록 디자인 방향, 레퍼런스와 화면 검토를 활용한다. 영상에서는 레이아웃의 과감함, 모션 양, 정보 밀도를 각각 1~10으로 조절하는 방식으로 소개한다.
-- **UI 활용 상황:** 포트폴리오, 브랜드 사이트, 인상적인 랜딩 페이지, 차분함과 과감함 사이의 디자인 방향을 구체적으로 전달하고 싶을 때.
-- **UX 활용 상황:** 정보 밀도와 모션이 이해를 방해하는지 살펴보고 읽기 부담을 줄일 때. 시각적 표현 조절이 중심이므로 사용자 조사나 전체 UX 설계의 대체 도구로 쓰지 않는다.
-- **요청 예시:** “여백은 넓게, 정보 밀도는 낮게, 모션은 절제해서 차분한 포트폴리오를 만들어 줘.”
-- **사이트:** https://tasteskill.dev/
-- **GitHub:** https://github.com/Leonxlnx/taste-skill
-- **적용 메모:** 수치 설정과 하위 스킬 구성은 버전에 따라 달라질 수 있으므로 설치한 버전의 문서를 확인한다.
+emil-design-eng 행에 합친 복사본 20개: `animate`, `animate-expo`, `animation-performance`, `animation-vocabulary`, `apple-design`, `ask-emil`, `ask-sonner`, `break-ui`, `choreograph`, `emil-design-eng`, `find-animation-opportunities`, `gestures`, `improve-animations`, `learn-taste`, `mobile-native`, `pick-ui-library`, `prototype`, `remove-animations`, `review-animations`, `write-swift`. Windows의 apple-design 사용 보고도 이 묶음에 포함하며 확인 필요다. 기존 기록의 라이선스는 Emil 묶음 MIT·Impeccable Apache-2.0이나, 이 복사본에는 LICENSE가 없어 설치 대상 버전에서 다시 확인한다. Impeccable 엔진 다운로드 동작은 안전성 검토 완료를 뜻하지 않는다.
 
-### 4. Hallmark
-
-- **유형:** 테마 기반 디자인 생성 및 검토 스킬
-- **핵심 기능:** 요청에 맞는 테마와 페이지 구조를 선택해 화면을 만들고, 반복적인 AI 디자인 패턴을 점검한다. 기존 화면의 검토나 재설계에도 활용한다.
-- **UI 활용 상황:** 디자인 콘셉트를 고르기 어려울 때, 개성이 필요한 새 페이지를 만들 때, 비슷한 카드와 제목 구조가 반복되는 화면을 개선할 때.
-- **UX 활용 상황:** 화면 구조와 정보 배치를 재검토하고 모바일에서 콘텐츠를 읽고 이동하기 쉬운지 확인할 때. 브랜드 개성보다 핵심 작업 수행을 우선한다.
-- **요청 예시:** “서비스에 어울리는 디자인 방향을 제안하고, 선택한 방향으로 모바일에서도 잘 읽히는 소개 페이지를 만들어 줘.”
-- **사이트:** https://www.usehallmark.com/
-- **GitHub:** https://github.com/Nutlope/hallmark
-
-### 5. Impeccable
-
-- **유형:** 디자인 개선 및 품질 검토 스킬
-- **핵심 기능:** `bolder`, `quieter`, `colorize`, `polish` 등 의도가 분명한 명령으로 시각적 강조, 색상, 디테일을 조정한다. `audit`, `critique` 등 검토 기능도 제공한다.
-- **UI 활용 상황:** 이미 만든 화면이 밋밋하거나 복잡할 때, 특정 영역의 강조를 조절할 때, 글자 크기와 간격 등 마무리 품질을 높일 때.
-- **UX 활용 상황:** 헷갈리는 문구, 약한 버튼 강조, 복잡한 정보 구조를 검토할 때. 로딩, 오류, 빈 화면과 완료 안내를 점검할 범위로 지정하고 개선안을 검토한다.
-- **요청 예시:** “첫 화면의 핵심 메시지는 더 강조하고, 정보가 많은 목록은 차분하게 정리해 줘. 전체 간격과 글자 크기도 다듬어 줘.”
-- **사이트:** https://impeccable.style
-- **GitHub:** https://github.com/pbakaus/impeccable
-- **적용 메모:** 전체를 다시 설계할 필요가 없다면 수정할 화면과 요소를 지정해서 사용한다.
-
-## CH2. 디자인 작업 공간
-
-### 6. Google Stitch
-
-- **유형:** AI UI 디자인 및 프로토타입 작업 공간
-- **핵심 기능:** 자연어로 앱과 웹의 화면 시안을 만들고 대화로 수정한다. 여러 화면을 연결해 이동 흐름을 확인하는 프로토타입을 만들 수 있으며 DESIGN.md로 디자인 정보를 전달하는 흐름을 지원한다.
-- **UI 활용 상황:** 구현 전에 화면 구성을 비교할 때, 앱의 여러 화면을 한 번에 기획할 때, 버튼을 누른 후 어디로 이동하는지 확인할 때.
-- **UX 활용 상황:** 화면을 연결해 사용자가 목표까지 도달하는 경로를 확인할 때. 프로토타입으로 단계 수, 뒤로 가기, 화면 전환과 버튼의 의미를 검토하고 사용자에게 작업을 맡겨 관찰한다.
-- **요청 예시:** “일정 관리 앱의 달력, 할 일 목록, 일정 상세 화면을 만들고 화면 사이의 이동 흐름을 보여 줘.”
-- **사이트:** https://stitch.withgoogle.com
-- **적용 메모:** 시안과 프로토타입 완성을 실제 서비스 기능 구현 완료로 판단하지 않는다.
-
-### 7. Open Design
-
-- **유형:** 오픈소스 디자인 작업 공간
-- **핵심 기능:** 웹사이트, 앱 시안, 발표 자료, 이미지와 영상 등 다양한 결과물을 한 작업 공간에서 제작한다. 코딩 에이전트와 연결하며 HyperFrames를 활용한 영상 제작 흐름도 제공한다.
-- **UI 활용 상황:** 같은 브랜드로 홈페이지와 발표 자료를 함께 만들 때, 여러 디자인 결과물을 통합 관리할 때, 디자인에서 구현으로 이어지는 작업 공간이 필요할 때.
-- **UX 활용 상황:** 여러 화면과 시안을 한곳에서 비교하고 피드백을 반영할 때. 사용자 흐름과 화면별 상태를 작업 자료로 함께 관리하는 데 활용하며 사용자 조사는 별도로 진행한다.
-- **요청 예시:** “서비스의 색상과 폰트 규칙을 공유하는 홈페이지 시안과 소개 발표 자료를 만들어 줘.”
-- **GitHub:** https://github.com/nexu-io/open-design
-- **적용 메모:** 단일 스킬 파일이 아니라 별도 작업 공간이다. 설치 환경과 연결할 에이전트를 확인한다.
-
-## CH3. 웹 인터랙션
-
-### 8. Emil Kowalski Skills
-
-- **유형:** UI 인터랙션 및 애니메이션 설계 스킬 모음
-- **핵심 기능:** 팝업, 메뉴, 버튼 등의 움직임에 필요한 속도, 감속 곡선과 타이밍을 설계한다. `animate`는 움직임 제작, `review-animations`는 기존 애니메이션 검토에 활용한다.
-- **UI 활용 상황:** 메뉴와 모달이 갑자기 나타나 어색할 때, 버튼 반응이 둔할 때, 움직임을 추가할 부분과 줄일 부분을 판단할 때.
-- **UX 활용 상황:** 버튼 입력이 처리됐는지, 화면에서 무엇이 바뀌었는지 모션으로 명확히 전달할 때. 반복 작업을 지연시키는 효과를 줄이고 애니메이션 중 입력과 종료 동작도 확인한다.
-- **요청 예시:** “모달과 드롭다운의 등장과 종료 애니메이션을 검토하고, 사용자 반응이 빠르게 느껴지도록 다듬어 줘.”
-- **사이트:** https://aiforui.dev/skills
-- **GitHub:** https://github.com/emilkowalski/skills
-
-### 9. React Bits
-
-- **유형:** 애니메이션 React 컴포넌트 모음
-- **핵심 기능:** 텍스트 등장, 마우스에 반응하는 배경, 카드, 파티클 등 시각 효과를 미리 보고 코드를 가져오거나 설치해 적용한다.
-- **UI 활용 상황:** React 기반 포트폴리오와 랜딩 페이지에 시각적 포인트를 줄 때, 특정 효과를 처음부터 구현하는 시간을 줄일 때.
-- **UX 활용 상황:** 필요한 정보나 상태 변화에 주의를 유도하는 효과를 구현할 때 제한적으로 활용한다. 장식 효과가 가독성, 성능, 클릭과 키보드 조작을 방해하지 않는지 확인한다. 전체 UX를 설계하는 도구는 아니다.
-- **요청 예시:** “첫 화면 제목에만 텍스트 등장 효과를 적용하고, 본문은 읽기 편하게 유지해 줘.”
-- **사이트:** https://reactbits.dev
-- **GitHub:** https://github.com/DavidHDev/react-bits
-- **적용 메모:** React용 코드이므로 Flutter나 SwiftUI에 그대로 넣을 수 없다. 효과별 의존성과 모바일 성능을 확인한다.
-
-### 10. Keyframe Gallery
-
-- **유형:** 제품 UI 모션 레퍼런스 사이트
-- **핵심 기능:** 실제 제품의 화면 전환, 메뉴, 버튼 반응 등 모션 디자인 사례를 살펴본다.
-- **UI 활용 상황:** 원하는 움직임을 말로 설명하기 어려울 때, 구현 전에 모션의 방향을 고를 때, 팀이나 에이전트와 참고 사례를 공유할 때.
-- **UX 활용 상황:** 화면 전환과 상태 변화가 어떻게 전달되는지 참고 사례를 비교할 때. 사례가 현재 사용자의 작업에도 적절한지 판단하며, 타 서비스의 효과를 그대로 적용하지 않는다.
-- **요청 예시:** “이 사례에서 메뉴가 열리는 속도와 방향을 참고하되, 현재 서비스의 레이아웃에 맞게 구현해 줘.”
-- **사이트:** https://keyframe.gallery
-- **적용 메모:** 설치형 스킬이나 컴포넌트 라이브러리가 아니다. 참고 사례를 보고 구현 도구는 별도로 선택한다.
-
-## CH4. 모션 그래픽과 영상
-
-### 11. Remotion
-
-- **유형:** React 기반 영상 제작 프레임워크 및 공식 AI 스킬
-- **핵심 기능:** React 코드로 영상 장면과 타이밍을 구성한다. 데이터와 문구를 바꿔 같은 형식의 영상을 반복 제작할 수 있다.
-- **UI·영상 표현 활용 상황:** 통계와 순위 애니메이션, 주간 리포트, 앱 홍보 영상, 동일한 템플릿으로 만드는 여러 편의 영상.
-- **UX 활용 상황:** 온보딩이나 기능 설명 영상을 제작해 사용자의 이해를 돕고 싶을 때 간접적으로 활용한다. 실제 화면의 이동 흐름이나 오류 복구를 개선하는 UX 도구는 아니며, 설명 영상이 복잡한 UI를 대신 해결한다고 판단하지 않는다.
-- **요청 예시:** “이번 주 이용자 수와 주요 기능을 보여 주는 20초 영상을 만들고, 다음 주에는 데이터만 바꿔 재사용할 수 있게 해 줘.”
-- **사이트:** https://www.remotion.dev
-- **GitHub:** https://github.com/remotion-dev/remotion
-- **공식 스킬 안내:** https://www.remotion.dev/docs/ai/skills
-- **스킬 저장소:** https://github.com/remotion-dev/skills
-
-### 12. HyperFrames
-
-- **유형:** HTML 기반 영상 제작 프레임워크
-- **핵심 기능:** HTML, CSS, 미디어와 애니메이션으로 구성한 장면을 MP4 영상으로 렌더링한다. AI 에이전트와 함께 사용하는 제작 흐름을 제공한다.
-- **UI·영상 표현 활용 상황:** HTML/CSS 중심으로 제품 소개 영상, 움직이는 타이포그래피, 짧은 기능 설명 영상을 만들 때.
-- **UX 활용 상황:** 기능 사용 순서나 서비스 동작을 짧은 영상으로 설명할 때 간접적으로 활용한다. 실제 제품의 UX 설계와 사용성 검증은 별도로 진행한다.
-- **요청 예시:** “제품명이 등장한 다음 핵심 기능 세 가지를 순서대로 보여 주는 10초 MP4 영상을 만들어 줘.”
-- **사이트:** https://hyperframes.heygen.com/
-- **GitHub:** https://github.com/heygen-com/hyperframes
-- **적용 메모:** 웹페이지에서 움직임을 확인한 것과 영상 렌더링 완료를 구분한다. 최종 MP4의 화면과 재생을 확인한다.
-
-### 13. Claude Motion
-
-- **유형:** Claude 내 대화형 애니메이션 제작 기능
-- **핵심 기능:** 데이터나 아이디어를 설명 애니메이션으로 만들고, 대화로 문구와 타이밍을 수정해 영상으로 내보내는 기능이다.
-- **UI·영상 표현 활용 상황:** 코드 작업보다 대화 중심 제작을 선호할 때, 발표에 넣을 움직이는 설명 자료가 필요할 때.
-- **UX 활용 상황:** 새 기능의 이용 방법이나 복잡한 개념을 설명하는 애니메이션이 필요할 때 간접적으로 활용한다. 설명 내용을 이해하는지는 사용자에게 확인하며, 앱의 UX를 자동으로 설계하는 도구로 취급하지 않는다.
-- **요청 예시:** “사용자가 회원가입하고 첫 모임에 참여하는 과정을 짧은 설명 애니메이션으로 만들어 줘.”
-- **공식 소개:** https://claude.com/resources/articles/dashboards-and-motion
-- **적용 메모:** 2026-10-08 공식 발표에서는 Team 및 Enterprise 베타로 소개됐다. 실제 사용 시 현재 계정의 이용 가능 여부를 확인한다. Codex에 설치하는 스킬로 취급하지 않는다.
-
-### 14. Awesome Opus 5.5 Videos
-
-- **유형:** 모션 그래픽, 3D 장면과 인터랙티브 작품의 예시 및 프롬프트 모음
-- **핵심 기능:** Claude Opus 5.5로 작성한 코드 기반 작품과 관련 프롬프트 또는 원작 게시물을 모아 제공한다. 참고할 장면을 고르고 프롬프트를 자신의 아이디어에 맞게 수정할 수 있다.
-- **UI·영상 표현 활용 상황:** 3D 애니메이션이나 모션 그래픽의 아이디어를 찾을 때, 어떤 프롬프트가 어떤 결과를 만드는지 비교할 때, 시각적 프로토타입을 실험할 때.
-- **UX 활용 상황:** 상태 변화나 상호작용을 설명하는 시각적 아이디어를 탐색할 때 참고한다. 직접적인 UX 설계 및 검증 도구가 아니며, 화려한 사례가 실제 작업에도 도움이 되는지 별도로 판단한다.
-- **요청 예시:** “이 저장소에서 제품 소개에 맞는 모션 사례를 찾아 장면 구성만 참고하고, 우리 서비스의 내용과 브랜드에 맞게 새로 만들어 줘.”
-- **GitHub:** https://github.com/yihui-dev/awesome-opus5-5-videos
-- **적용 메모:** 설치형 제작 도구가 아니다. 일부 항목은 전체 프롬프트가 없을 수 있으며, 다른 모델에서 같은 결과가 재현된다고 가정하지 않는다. 원작의 출처와 이용 조건을 확인한다.
 
 ## 사용 결과 기록 예시
 
