@@ -1723,7 +1723,7 @@ DESIGN_SEARCH_HASHES = {
 def _design_search(command):
     """One direct command, literal argv only. argparse accepts abbreviated write options."""
     if "search.py" not in command or not re.fullmatch(
-            r"""python3?(?:[ \t]+(?:[\w./:-]+|"[\w ./:-]+"|'[\w ./:-]+'))+""", command):
+            r"""python3?(?:[ \t]+(?:[\w./:-]+|"[\w ./~:-]+"|'[\w ./~:-]+'))+""", command):
         return False
     _, script, *args = tokens(command)
     folder = Path.home() / DESIGN_SEARCH_DIR

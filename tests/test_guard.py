@@ -1380,15 +1380,17 @@ class T7FalsePositiveTest(GuardTest):
             self.assertEqual(self.bash(f'bash "{command_path}" collect')[0], 'ask')
 
     def test_design_search_pin(self):
-        scripts = self.home / ".claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.15.0/.claude/skills/ui-ux-pro-max/scripts"
+        plugin_home = self.home / "RUNNER~1"
+        scripts = plugin_home / ".claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.15.0/.claude/skills/ui-ux-pro-max/scripts"
         scripts.mkdir(parents=True)
         for name in ("search.py", "core.py"):
             (scripts / name).write_bytes(b"# fixture")
         pins = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in scripts.iterdir()}
         prefix = f'python3 "{scripts.as_posix()}/search.py" "monitoring dashboard friendly status alerts"'
-        with patch.object(Path, "home", return_value=self.home), patch.object(G, "DESIGN_SEARCH_HASHES", pins, create=True):
+        with patch.object(Path, "home", return_value=plugin_home), patch.object(G, "DESIGN_SEARCH_HASHES", pins, create=True):
             for args in ("--design-system --density 5 -f markdown", "--domain ux -n 3"):
-                self.assertEqual(self.bash(prefix + " " + args)[0], "allow")
+                decision, message = self.bash(prefix + " " + args)
+                self.assertEqual(decision, "allow", message)
             for command in (prefix + " --persist", prefix + " --preview", prefix + " --output-dir out",
                             prefix.replace("2.15.0", "2.15.1"), prefix.replace("/scripts/", "/other/")):
                 self.assertEqual(self.bash(command)[0], "ask")
