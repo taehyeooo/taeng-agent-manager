@@ -199,6 +199,13 @@
       "note": "사용자 '승인' 2026-11-24: 마케팅 가이드 문구 규칙 PR #22 (auto_gates 사용자 설정)",
       "at": "2026-11-24T10:51:36+09:00",
       "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#23",
+      "note": "auto_gates 사용자 설정 2026-11-25 (auto_gates 사용자 설정)",
+      "at": "2026-11-25T11:32:22+09:00",
+      "auto": true
     }
   ],
   "tasks": [
@@ -572,12 +579,28 @@
       "title": "외부 도구 공통 카탈로그 + 설치 전 보안 검토 절차 등록(설치 없음)",
       "agent": "codex",
       "kind": "docs",
-      "status": "dispatched",
+      "status": "done",
       "branch": "docs/tool-catalog",
       "worktree": "/Users/gimtaehyeong/orca/workspaces/taeng-agent-manager/am-tool-catalog",
       "pr": "23",
       "dispatch": "ctx_7e222cc5ee37",
-      "note": "PR #23 교차 검토(claude): 구성 확정대로 31개 중복 없음 확인, 지적 2건(AGENTS '코드베이스 이해' 잔존, Mobbin 양쪽 설명) 수정 요청"
+      "note": "PR #23 교차 검토(claude): 구성 확정대로 31개 중복 없음 확인, 지적 2건(AGENTS '코드베이스 이해' 잔존, Mobbin 양쪽 설명) 수정 요청",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "교차 검토(claude): 디자인 18·마케팅 13 중복 없음, 에이전트 운영 3개 제외, 설치 없음, 기존 설치분 '검토 기록 없음' 표시, 지적 2건 수정 확인. 테스트 441 통과, CI Ubuntu·Windows 통과",
+        "at": "2026-11-25T11:32:22+09:00"
+      },
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/design-guide.md",
+        "docs/marketing-guide.md",
+        "docs/tool-security-review.md",
+        "docs/tool-reviews/TEMPLATE.md"
+      ]
     }
   ],
   "history": [
@@ -2356,10 +2379,26 @@
     {
       "at": "2026-11-25T11:24:07+09:00",
       "event": "작업 T17 변경: pr=23, dispatch=ctx_7e222cc5ee37, note=PR #23 교차 검토(claude): 구성 확정대로 31개 중복 없음 확인, 지적 2건(AGENTS '코드베이스 이해' 잔존, Mobbin 양쪽 설명) 수정 요청"
+    },
+    {
+      "at": "2026-11-25T11:32:22+09:00",
+      "event": "작업 T17 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-25T11:32:22+09:00",
+      "event": "승인 기록: merge_main (PR#23) — auto_gates"
+    },
+    {
+      "at": "2026-11-25T11:32:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#23)"
+    },
+    {
+      "at": "2026-11-25T11:32:26+09:00",
+      "event": "작업 T17 변경: status=done"
     }
   ],
   "created_at": "2026-11-09T22:55:19+09:00",
-  "updated_at": "2026-11-25T11:24:07+09:00",
+  "updated_at": "2026-11-25T11:32:26+09:00",
   "requests": [
     {
       "gate": "push",
