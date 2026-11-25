@@ -39,6 +39,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 if __package__ in (None, ""):  # run as a script from a hook
@@ -440,9 +441,15 @@ def extract_substitutions(cmd):
     return "".join(out), inner, False
 
 
+def _parameter_braces(cmd):
+    return {i for match in re.finditer(r"\$\{[A-Za-z_]\w*\}", cmd)
+            for i in (match.start() + 1, match.end() - 1)}
+
+
 def split_commands(cmd):
     """Split on ; | & { } ( ) and newlines that are outside quotes. `&` inside a redirection (2>&1, &>file, >&2) is not a separator."""
     out, cur, q = [], [], None
+    braces = _parameter_braces(cmd)
     for i, ch in enumerate(cmd):
         if q:
             cur.append(ch)
@@ -453,7 +460,7 @@ def split_commands(cmd):
             cur.append(ch)
         elif ch == "&" and ((i > 0 and cmd[i - 1] in "<>") or (i + 1 < len(cmd) and cmd[i + 1] == ">")):
             cur.append(ch)
-        elif cmd[i:i + 2] == "{}" or ch == "}" and i > 0 and cmd[i - 1] == "{":  # find -exec … {} placeholder
+        elif i in braces or cmd[i:i + 2] == "{}" or ch == "}" and i > 0 and cmd[i - 1] == "{":
             cur.append(ch)
         elif ch in ";|&\n{}()":
             out.append("".join(cur))
@@ -467,6 +474,7 @@ def split_commands(cmd):
 def piped_segments(cmd):
     """split_commands와 같은 구분 → 각 조각이 파이프(| 또는 |&, ||는 제외)로 표준 입력을 받는지."""
     flags, cur, seps, q = [], [], "", None
+    braces = _parameter_braces(cmd)
     for i, ch in enumerate(cmd):
         if q:
             cur.append(ch)
@@ -477,7 +485,7 @@ def piped_segments(cmd):
             cur.append(ch)
         elif ch == "&" and ((i > 0 and cmd[i - 1] in "<>") or (i + 1 < len(cmd) and cmd[i + 1] == ">")):
             cur.append(ch)
-        elif cmd[i:i + 2] == "{}" or ch == "}" and i > 0 and cmd[i - 1] == "{":
+        elif i in braces or cmd[i:i + 2] == "{}" or ch == "}" and i > 0 and cmd[i - 1] == "{":
             cur.append(ch)
         elif ch in ";|&\n{}()":
             if "".join(cur).strip():
@@ -1702,6 +1710,48 @@ def _plugin_script(path):
 # writes reports/usage locally; it neither posts comments nor runs repository code.
 REVIEWFLOW_COLLECT_SHA256 = "94d19778aacd8fddf391e3b612ead5b4ca633dcecac54bc94424e2630e836c1e"
 
+DESIGN_SEARCH_DIR = Path(".claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.15.0/.claude/skills/ui-ux-pro-max/scripts")
+DESIGN_SEARCH_HASHES = {
+    "search.py": "6b52ebb01480058cab145d3c2cb57880a529e522c0781cf8cd873fa55c9b9f1d",
+    "core.py": "caf92bdcf2579c9a7d6af4f53c54ee9d3c8f05472cfab77aaec38bef120ec63e",
+    "design_system.py": "043ed3f404214869ffbf4c8d529afc6c6ceddb211fa4726d67d7a03edf7265db",
+    "reasoning_contract.py": "b8bac1af82aa280d3e06f00aabaeac4337e632996b07fed874e2b6ee6e9c5913",
+    "preview.py": "2900f6b4307439c20083aa6a630332f9e8ac6fd95901bd703f75fa9a75b84fbb",
+}
+
+
+def _design_search(command):
+    """One direct command, literal argv only. argparse accepts abbreviated write options."""
+    if "search.py" not in command or not re.fullmatch(
+            r"""python3?(?:[ \t]+(?:[\w./:-]+|"[\w ./~:-]+"|'[\w ./~:-]+'))+""", command):
+        return False
+    _, script, *args = tokens(command)
+    folder = Path.home() / DESIGN_SEARCH_DIR
+    if Path(script) != folder / "search.py" or not args or args.pop(0).startswith("-"):
+        return False
+    values = dict.fromkeys(("--domain", "-d", "--stack", "-s"), r"[a-z][a-z0-9-]*")
+    values.update(dict.fromkeys(("--max-results", "-n"), r"[1-9]|1\d|20"))
+    values.update(dict.fromkeys(("--density", "--variance", "--motion"), r"[1-9]|10"))
+    values.update({"--format": "ascii|markdown", "-f": "ascii|markdown", "--tokens": "css|dtcg",
+                   "--project-name": r"[\w][\w .-]*", "-p": r"[\w][\w .-]*"})
+    while args:
+        option = args.pop(0)
+        if option in ("--design-system", "-ds", "--json", "--full"):
+            continue
+        if option not in values or not args or not re.fullmatch(values[option], args.pop(0)):
+            return False
+    try:
+        if folder.resolve() != Path.home().resolve() / DESIGN_SEARCH_DIR:
+            return False
+        # A new sibling module/package could shadow a standard-library import.
+        for entry in folder.iterdir():
+            if entry.name not in {*DESIGN_SEARCH_HASHES, "validate_data.py", "__pycache__", "tests"}:
+                return False
+        return all(not (folder / name).is_symlink() and hashlib.sha256((folder / name).read_bytes()).hexdigest() == digest
+                   for name, digest in DESIGN_SEARCH_HASHES.items())
+    except OSError:
+        return False
+
 
 def _reviewflow_collect(script, args, cwd):
     if not args or args[0] != "collect" or len(args) > 2:
@@ -1841,7 +1891,7 @@ def _plain_script_run(word, args, toks, cwd, piped):
         and not any(CODE_INPUT_OPTION.match(a) for a in args[1:]) and _clean_script(args[0], cwd, None)
 
 
-def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None, piped=False):
+def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_body=None, piped=False, design_search=False):
     """One simple command → findings. A program that no rule below explains is opaque (policy applied by decide).
     piped: the segment's standard input is the previous command's output (a | b) — an interpreter that reads
     its program from there runs code nobody can see beforehand."""
@@ -1944,7 +1994,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
     remote = _remote_deploy(word, args, seg, cwd, root)
     out.extend(remote)
     verdict = _script_run_verdict(word, args, toks, cwd) if word in INTERPRETERS else None
-    if word in INTERPRETERS and verdict is None:
+    if word in INTERPRETERS and verdict is None and not design_search:
         # 인터프리터는 '작업 폴더 안, 원격 main과 같은 스크립트 파일 하나 실행'(같은 언어 소스도 깨끗)으로 판명될 때만
         # 아래 기존 판정. 코드 옵션, 옵션 값 뒤 표준입력, 파일 인수 없음, 파이프 입력, 바뀐 형제 소스 등은 모두 확인.
         out.append(_finding("opaque", seg, confirm=True, verification=word == "awk",
@@ -2067,7 +2117,7 @@ def analyze(seg, cwd, root, depth=0, script_stdin=False, trusted=False, patch_bo
             reason = f"python -m {module}은 자동 허용 목록 밖(unittest만 허용)"
         elif python:
             # 스크립트 파일이 원격 main과 같아도 같은 레포의 .py가 바뀌었거나 새로 생겼으면 import로 바뀐 코드가 돈다
-            ok = script_stdin or _build_allowed(toks, cwd) and (script is None or _lang_tree_clean(word, cwd))
+            ok = design_search or script_stdin or _build_allowed(toks, cwd) and (script is None or _lang_tree_clean(word, cwd))
             reason = "추적·변경 여부를 확인하지 못한 Python 스크립트"
             blockers = None if ok or not args else _sibling_blockers(args[0], cwd)
             if blockers:
@@ -2865,7 +2915,7 @@ def _distrust_content(findings, seg):
     return findings
 
 
-def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=False):
+def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=False, design_search=False):
     """untrusted: an enclosing command line also writes files, so content-based trust does not hold here."""
     out, stored = [], []
     if depth == 0:
@@ -2931,7 +2981,8 @@ def classify_command(cmd, cwd, root=None, depth=0, trusted=False, untrusted=Fals
                                     code="outside_cd" if readonly_after else None))
         if not trusted and _changes_env(words):
             out.append(_finding("opaque", seg, reason="같은 명령줄에서 환경 변수·셸 설정을 바꿈"))
-        found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index])
+        found = analyze(seg, cwd, root, depth, trusted=trusted, piped=piped[index],
+                        design_search=design_search and not compound and not inner)
         out += _distrust_content(found, seg) if distrust else found
     if depth == 0:
         out += tripwire(cmd, out)
@@ -3325,6 +3376,31 @@ def _record_opaque_allow(command, opaque, cwd, root, projects):
         pass
 
 
+def _orca_worker():
+    terminal = os.environ.get("ORCA_TERMINAL_HANDLE")
+    directory = Path(os.environ.get("ORCA_CLI_BIN_DIR", ""))
+    if not terminal or not directory.is_absolute():
+        return False
+    cli = directory / ("orca.cmd" if os.name == "nt" else "orca")
+    command = [str(cli), "orchestration", "worker-list", "--environment", "local", "--json", "--limit", "100"]
+    cursor = None
+    deadline = time.monotonic() + 2
+    try:
+        while (remaining := deadline - time.monotonic()) > 0:
+            page = json.loads(subprocess.check_output(command + (["--cursor", cursor] if cursor else []),
+                              cwd=directory, stderr=subprocess.DEVNULL, timeout=remaining, encoding="utf-8"))["result"]
+            if any(row.get("terminal") == terminal and row.get("outcome") == "in_progress"
+                   and row.get("liveness") == "live" and row.get("host", "local") == "local" for row in page["workers"]):
+                return True
+            next_cursor = page.get("nextCursor")
+            if not next_cursor or next_cursor == cursor or not re.fullmatch(r"[\w=+/.-]+", next_cursor):
+                return False
+            cursor = next_cursor
+    except (OSError, subprocess.SubprocessError, ValueError, KeyError, TypeError, AttributeError):
+        return False
+    return False
+
+
 def decide(payload, agent="claude", root=None):
     """→ (decision, message). decision: allow | deny | ask"""
     tool, cmd, path, patch, cwd = extract(payload)
@@ -3337,7 +3413,7 @@ def decide(payload, agent="claude", root=None):
         drive = windows_drive_paths(cmd)
         cmd = bash_escapes(cmd)
     if cmd:
-        findings += classify_command(cmd, cwd, root)
+        findings += classify_command(cmd, cwd, root, design_search=tool == "Bash" and _design_search(original_command))
     if cmd and tool == "Bash" and drive != original_command:  # C:\…도 이스케이프로 깨지기 전 경로로 한 번 더(합친다)
         findings += [f for f in classify_command(bash_escapes(drive), cwd, root) if f not in findings]
     if path:
@@ -3345,14 +3421,19 @@ def decide(payload, agent="claude", root=None):
     if patch:
         findings += _patch_paths(patch, cwd, root)
     findings = [f for f in findings if f["kind"] != "seen"]
+    expanded = []
+    readonly = (tool == "Bash" and original_command and not path and not patch
+                and verification.readonly(original_command, cwd, _verification_cd, expanded))
+    if readonly:
+        for directory, stage in expanded:
+            findings.extend(f for f in classify_command(bash_escapes(stage), directory, root) if f["kind"] != "seen")
     # Keep every gate, forbidden operation and independent opaque finding. Only these
     # specific syntactic ambiguities can be resolved by the whole-line Bash grammar.
-    if (tool == "Bash" and original_command and not path and not patch
+    if (readonly
             and all(f["kind"] == "opaque" and (f.get("verification") or f.get("code") == "variable_args"
                     or f.get("code") == "unknown_program" and f["seg"] == "docker info >/dev/null 2>&1")
                     for f in findings)
-            and not re.search(r"\.env\b|\.pem\b|id_rsa|credentials|auth\.json|env:", original_command, re.I)
-            and verification.readonly(original_command, cwd, _verification_cd)):
+            and not re.search(r"\.env\b|\.pem\b|id_rsa|credentials|auth\.json|env:", original_command, re.I)):
         try:
             # Concurrent reviewers append independent records without rewriting project state.
             log = S.user_guard_file().with_name("guard-allowed.log")
@@ -3438,6 +3519,10 @@ def decide(payload, agent="claude", root=None):
         S.event(projects[f["slug"]], f"승인된 작업 실행: {f['gate']}" + (f"({f['ref']})" if f.get("ref") else ""))
     if not missing:
         if opaque and (tool in WRITE_TOOLS or not cmd or _opaque_policy(root) == "ask" or _opaque_risks(opaque)):
+            if agent == "claude" and cmd and all(f["kind"] == "opaque" for f in findings) and _orca_worker():
+                return "deny", ("[am guard] 사람 확인이 필요한 명령이라 워커에서는 실행하지 않습니다. "
+                                "변수·명령 치환 없이 경로를 그대로 써서 나눠 실행하거나, "
+                                "꼭 필요하면 `orca orchestration ask`로 매니저에게 물으세요.")
             msg = "[am guard] 무엇이 실행될지 미리 확인할 수 없는 명령입니다 — 사람이 직접 판단해야 합니다\n" + \
                   "\n".join(f"- {f['reason']}: {f['seg']}" for f in opaque) + "\n변수·치환·eval 없이 명령을 그대로 쓰면 자동으로 검사됩니다."
             return ("deny" if agent == "codex" else "ask"), msg

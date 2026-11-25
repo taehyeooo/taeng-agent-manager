@@ -1,14 +1,16 @@
 """Recognize the small Bash language used to inspect review artifacts. Never evaluate it."""
+import os
 import re
 
 
 # Keep the spelling of words until expansion is checked. Unsupported syntax ends the proof.
-TOKEN = re.compile(r"""[ \t]+|&&|\|\||[;|)]|[A-Za-z_]\w*=\$\(|2>&1|[012]?>[ \t]*/dev/null|(?:[\w./:=,%+@~*$\[\]-]|'[^'\n]*'|"[^"\n\\!]*")+""")
+TOKEN = re.compile(r"""[ \t]+|&&|\|\||[;|)]|[A-Za-z_]\w*=\$\(|2>&1|[012]?>[ \t]*/dev/null|(?:\$\{\w+\}|[\w./:=,%+@~*$\[\]-]|'[^'\n]*'|"(?:[^"\n\\!]|\\\|)*")+""")
 SEPARATORS = {";", "&&", "||", "|"}
 NULL_REDIRECT = re.compile(r"(?:2>&1|[012]?>[ \t]*/dev/null)")
 PATH = re.compile(r"(?!-)[\w./~:][\w./: -]*")
 # Shells have writable special parameters (including lowercase names in zsh).
-PATH_NAMES = {"R", "r", "f", "d", "p", "file", "dir", "root", "src", "folder", "filename", "target", "report"}
+PATH_NAMES = {"R", "B", "S", "r", "f", "d", "p", "file", "dir", "root", "src", "folder", "filename", "target", "report",
+              "name", "document", "brand", "spec", "script", "input_file", "output_file"}
 
 # Positive option sets for the commands with output operands, helpers or script options.
 SHORT_OPTIONS = {
@@ -38,7 +40,8 @@ def _awk(args):
         return False
     if not program:
         return False
-    if AWK_TEST.fullmatch(program):
+    address = r"/[\w ^$.*+#:-]+/"
+    if AWK_TEST.fullmatch(program) or re.fullmatch(rf"{address}\s*,\s*{address}", program):
         return True
     # Comparisons may use >, but a print redirection can never match an action.
     while program:
@@ -53,6 +56,8 @@ def _awk(args):
 
 
 def _reads(word, args):
+    if word == "file":
+        return bool(args) and all(not a.startswith("-") for a in args)
     if word == "awk":
         return _awk(args)
     if word == "sed":
@@ -82,6 +87,11 @@ def _reads(word, args):
 
 
 def _argument(raw, bindings, word, index, operands):
+    # Directory-prefixed glob cannot expand to a command-line option.
+    glob = re.fullmatch(r'"\$(\w+)"/\*', raw)
+    if glob and word == "file":
+        directory = bindings.get(glob[1])
+        return directory + "/*" if directory and directory.startswith("/") else None
     if raw.startswith("'") and raw.endswith("'") and raw.count("'") == 2:
         return raw[1:-1]
     quoted = raw.startswith('"') and raw.endswith('"') and raw.count('"') == 2
@@ -97,9 +107,10 @@ def _argument(raw, bindings, word, index, operands):
             return None
     if "$" not in raw:
         return raw
-    if not raw.startswith("$") or raw[1:] not in bindings:
+    reference = re.fullmatch(r"\$(?:\{(\w+)\}|(\w+))", raw)
+    if not reference or (name := reference[1] or reference[2]) not in bindings:
         return None
-    path = bindings[raw[1:]]
+    path = bindings[name]
     if word == "awk":
         program_index = 2 if operands[0] == "-F" else int(operands[0].startswith("-F"))
         if index <= program_index:
@@ -114,7 +125,7 @@ def _argument(raw, bindings, word, index, operands):
     return path if quoted or " " not in path else None
 
 
-def _pipeline(items, cwd, cd_target, bindings, allow_bindings):
+def _pipeline(items, cwd, cd_target, bindings, allow_bindings, expanded):
     start = 0
     has_read = False
     while start < len(items):
@@ -137,10 +148,11 @@ def _pipeline(items, cwd, cd_target, bindings, allow_bindings):
         word = stage[0]
         name, eq, value = word.partition("=")
         if eq:
-            if not allow_bindings or name not in PATH_NAMES or before not in (None, ";") or after != ";":
+            if (not allow_bindings or name not in PATH_NAMES and name.lower() not in PATH_NAMES
+                    or name in os.environ or before not in (None, ";") or after != ";"):
                 return False
             if value == "$(" and stage[-1] == ")":
-                if not _pipeline(stage[1:-1], cwd, cd_target, bindings.copy(), False):
+                if not _pipeline(stage[1:-1], cwd, cd_target, bindings.copy(), False, expanded):
                     return False
                 bindings[name] = None
             elif len(stage) == 1:
@@ -159,6 +171,12 @@ def _pipeline(items, cwd, cd_target, bindings, allow_bindings):
         args = [_argument(raw, bindings, word, i, operands) for i, raw in enumerate(operands)]
         if None in args or ")" in stage:
             return False
+        # Reclassify literal arguments with the guard's existing rules (including
+        # credential reads). Keep quoting/expansion semantics of every other word.
+        resolved = [("'" + arg + "'" if "$" in raw and not raw.startswith("'") else raw)
+                    for raw, arg in zip(operands, args)]
+        if resolved != operands:
+            expanded.append((cwd, " ".join([word, *resolved])))
         if word == "cd":
             if (before in {"|", "||", "&&"} or after not in {";", "&&"} or len(args) != 1
                     or not PATH.fullmatch(args[0])):
@@ -173,11 +191,11 @@ def _pipeline(items, cwd, cd_target, bindings, allow_bindings):
     return has_read
 
 
-def readonly(command, cwd, cd_target):
+def readonly(command, cwd, cd_target, expanded=None):
     # Only the exit status of this exact, silent daemon probe is used in a verification line.
     # Reject it on its own, with options, in a substitution, or with a different output sink.
     command = command.strip(" \t").removesuffix("; docker info >/dev/null 2>&1 && echo docker=yes")
-    if any(c in command for c in ("\\", "`", "\n", "\r", "\0")):
+    if any(c in command for c in ("`", "\n", "\r", "\0")):
         return False
     items = []
     pos = 0
@@ -186,9 +204,11 @@ def readonly(command, cwd, cd_target):
         if not match:
             return False
         value = match.group()
+        if "\\" in value and not re.fullmatch(r'"(?:[^"\\$!]|\\\|)*"', value):
+            return False
         pos = match.end()
         if NULL_REDIRECT.fullmatch(value) and pos < len(command) and command[pos] not in " \t;&|":
             return False
         if not value.isspace():
             items.append(value)
-    return _pipeline(items, cwd, cd_target, {}, True)
+    return _pipeline(items, cwd, cd_target, {}, True, [] if expanded is None else expanded)
