@@ -51,6 +51,12 @@ class GuardTest(unittest.TestCase):
         fetched_baseline(app)
 
     def setUp(self):
+        # Tests model a human terminal unless the case explicitly supplies a worker.
+        environment = patch.dict(os.environ)
+        environment.start()
+        self.addCleanup(environment.stop)
+        for name in ("ORCA_TERMINAL_HANDLE", "NAME", "B", "S", "f", "R", "file", "folder"):
+            os.environ.pop(name, None)
         self.tmp = tempfile.TemporaryDirectory()
         base = Path(self.tmp.name)
         self.root = str(base / "mgr")
@@ -596,6 +602,11 @@ class VerifierRound4Test(GuardTest):
 class BuildAllowlistTest(GuardTest):
     # T13 원칙 표. 문자열만 판정하고 검토 대상 명령은 실행하지 않는다.
     VERIFY_READS = (
+        r'tail -30 docs/위임로그/김태형.md && ls prompts && grep -n -i "디자인\|D1\|design" docs/plans/x.md | head -40; cat .claude/settings.json; B="/abs/path/brand"; file "$B"/*; ls -la "$B"',
+        'S="/abs/path/search.py"; echo skip',
+        """f=docs/specs/2026-11-24-ship-and-ping-feature-spec.md; grep -n "^#" $f | head -60; awk '/^## 0/,/^## 2/' $f | head -80""",
+        'folder=src; ls "${folder}"',
+        'NAME=docs/spec.md; cat ${NAME}',
         "cd ~/.config/reviewflow/runs/sample; sed -n 1,700p diff.patch",
         'cd ../other; R=src/main/java/com/trova/backend; grep -rn "x" $R | head -60',
         "f=diff.patch; awk 'NR>=180 && NR<=330' $f",
@@ -611,6 +622,14 @@ class BuildAllowlistTest(GuardTest):
         "cd ../other && sed -n '/result/p' log",
     )
     VERIFY_CHECKS = (
+        'B=relative; file "$B"/*', 'B=/absolute; ls "$B"/*',
+        'B="docs/*.md"; ls "$B"', 'B=docs/*; ls "$B"', 'B=`pwd`; ls "$B"',
+        'B=docs; ls "${B:-other}"', 'B="$other/log"; ls "$B"',
+        r'B=docs; grep -n "a\wb" "$B"', r"""B=docs; grep -n 'a\|b' "$B" """,
+        """f=spec; awk '/a/,/b/{print}' $f""", """f=spec; awk -v start=0 '/a/,/b/' $f""",
+        'B="$(cat path)"; file "$B"/*', 'S="$other"; echo skip',
+        'B=/abs/path; file -C "$B"', 'B=src ls "$B"',
+        """f=src; awk '/a/,/b/{system("cmd")}' $f""",
         """awk 'BEGIN{system("rm x")}'""", "awk 'BEGIN{print 1 > out}'", "awk '{getline x}'",
         "awk -f unknown.awk", "awk -F: '$1>0' -f unknown.awk", "awk 'NR>3' $f",
         "sed -i s/x/y/ data", "sed 'e' data", "cd ../other; sed -n '1w out' input",
@@ -651,6 +670,10 @@ class BuildAllowlistTest(GuardTest):
                 for agent in ("claude", "codex"):
                     with self.subTest(cmd=cmd, agent=agent):
                         self.assertNotEqual(self.bash(cmd, agent=agent)[0], "allow")
+
+    def test_verification_inherited_binding(self):
+        with patch.dict(os.environ, {"NAME": "existing"}):
+            self.assertEqual(self.bash('NAME=docs; ls "$NAME"')[0], "ask")
 
     def test_verification_read_audit(self):
         cmd = "grep -n '^diff' diff.patch | awk -F: '$1>1100'"
@@ -1357,12 +1380,104 @@ class T7FalsePositiveTest(GuardTest):
         command_path = script.as_posix()
         with patch.object(Path, 'home', return_value=home), patch.object(
                 G, 'REVIEWFLOW_COLLECT_SHA256', hashlib.sha256(content).hexdigest(), create=True):
+            command = f'run=$(bash "{command_path}" collect 1); echo "$run"; cat "$run/meta.json"; ls "$run"; wc -c "$run"/*'
+            self.assertEqual(self.bash(command)[0], 'ask')
             for prefix in ('bash ', ''):
                 self.assertEqual(self.bash(f'{prefix}"{command_path}" collect 123')[0], 'allow')
             for args in ('record', 'comment', 'collect --upload', 'collect main extra'):
                 self.assertEqual(self.bash(f'bash "{command_path}" {args}')[0], 'ask')
             script.write_bytes(content + b'# modified\n')
             self.assertEqual(self.bash(f'bash "{command_path}" collect')[0], 'ask')
+
+    def test_design_search_pin(self):
+        plugin_home = self.home / "RUNNER~1"
+        scripts = plugin_home / ".claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.15.0/.claude/skills/ui-ux-pro-max/scripts"
+        scripts.mkdir(parents=True)
+        for name in ("search.py", "core.py"):
+            (scripts / name).write_bytes(b"# fixture")
+        pins = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in scripts.iterdir()}
+        prefix = f'python3 "{scripts.as_posix()}/search.py" "monitoring dashboard friendly status alerts"'
+        with patch.object(Path, "home", return_value=plugin_home), patch.object(G, "DESIGN_SEARCH_HASHES", pins, create=True):
+            for args in ("--design-system --density 5 -f markdown", "--domain ux -n 3"):
+                decision, message = self.bash(prefix + " " + args)
+                self.assertEqual(decision, "allow", message)
+            for command in (prefix + " --persist", prefix + " --preview", prefix + " --output-dir out",
+                            prefix + " --pers", prefix + " --prev", prefix + " --out out",
+                            prefix.replace("2.15.0", "2.15.1"), prefix.replace("/scripts/", "/other/")):
+                self.assertEqual(self.bash(command)[0], "ask")
+            for separator in (";", "&&", "|"):
+                command = f"{prefix} {separator} head -1 README.md"
+                with self.subTest(separator=separator):
+                    self.assertEqual(self.bash(command)[0], "ask")
+                    # Even if the outer recognizer is later broadened, the segment
+                    # classifier must grant no interpreter exception on a compound line.
+                    with patch.object(G, "_design_search", return_value=True):
+                        self.assertEqual(self.bash(command)[0], "ask")
+            (scripts / "core.py").write_bytes(b"# changed")
+            self.assertEqual(self.bash(prefix)[0], "ask")
+            (scripts / "core.py").write_bytes(b"# fixture")
+            (scripts / "csv.py").write_bytes(b"# shadows standard library")
+            self.assertEqual(self.bash(prefix)[0], "ask")
+
+    def test_design_search_symlink(self):
+        scripts = self.home / G.DESIGN_SEARCH_DIR
+        scripts.mkdir(parents=True)
+        source = self.home / "original.py"
+        source.write_bytes(b"# pinned fixture")
+        script = scripts / "search.py"
+        try:
+            script.symlink_to(source)
+        except OSError as exc:
+            self.skipTest(f"symlink unavailable: {exc}")
+        pins = {"search.py": hashlib.sha256(source.read_bytes()).hexdigest()}
+        with patch.object(Path, "home", return_value=self.home), patch.object(G, "DESIGN_SEARCH_HASHES", pins):
+            self.assertEqual(self.bash(f'python3 "{script.as_posix()}" query')[0], "ask")
+
+    def test_worker_lookup(self):
+        env = {"ORCA_TERMINAL_HANDLE": "term_worker", "ORCA_CLI_BIN_DIR": str(self.app)}
+        worker = {"terminal": "term_worker", "host": "local", "outcome": "in_progress", "liveness": "live"}
+
+        def page(rows=(), cursor=None):
+            return json.dumps({"result": {"workers": rows, "nextCursor": cursor}})
+
+        with patch.dict(os.environ, env), patch.object(subprocess, "check_output") as lookup:
+            lookup.side_effect = [page(cursor="next"), page([worker])]
+            self.assertTrue(G._orca_worker())
+            self.assertEqual(lookup.call_args.args[0][-2:], ["--cursor", "next"])
+            for cursor, calls in (("next", 2), ("invalid cursor", 1)):
+                with self.subTest(cursor=cursor):
+                    lookup.reset_mock()
+                    lookup.side_effect = [page(cursor=cursor)] * calls
+                    self.assertFalse(G._orca_worker())
+                    self.assertEqual(lookup.call_count, calls)
+            for key, value in (("host", "remote"), ("outcome", "succeeded"), ("liveness", "exited")):
+                with self.subTest(key=key):
+                    lookup.side_effect = [page([dict(worker, **{key: value})])]
+                    self.assertFalse(G._orca_worker())
+            for error in (FileNotFoundError(), subprocess.TimeoutExpired("orca", 2)):
+                with self.subTest(error=type(error).__name__):
+                    lookup.side_effect = error
+                    self.assertEqual(self.bash("python -c 'print(1)'")[0], "ask")
+
+    def test_worker_opaque_only(self):
+        terminal = "term_123"
+        row = {"terminal": terminal, "outcome": "in_progress", "liveness": "live"}
+        response = json.dumps({"ok": True, "result": {"workers": [row]}})
+        with patch.dict(os.environ, {"ORCA_TERMINAL_HANDLE": terminal, "ORCA_CLI_BIN_DIR": str(self.app)}), patch.object(
+                subprocess, "check_output", return_value=response):
+            decision, message = self.bash("python -c 'print(1)'")
+            self.assertEqual(decision, "deny")
+            self.assertIn("orca orchestration ask", message)
+            for tool in ("Edit", "Write"):
+                self.assertEqual(self.tool(tool, S.user_guard_file())[0], "ask")
+            payload = {"tool_name": "Bash", "tool_input": {"command": "python -c 'print(1)'"}, "cwd": str(self.app)}
+            with patch("sys.stdin", io.StringIO(json.dumps(payload))), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(G.main(["claude"]), 2)
+            self.assertEqual(self.bash("python -m am approve app deploy")[0], "ask")
+            os.environ["ORCA_TERMINAL_HANDLE"] = "term_manager"
+            self.assertEqual(self.bash("python -c 'print(1)'")[0], "ask")
+            del os.environ["ORCA_TERMINAL_HANDLE"]
+            self.assertEqual(self.bash("python -c 'print(1)'")[0], "ask")
 
     def test_t7_external_cd_readonly(self):
         other, app = self.other.as_posix(), self.app.as_posix()

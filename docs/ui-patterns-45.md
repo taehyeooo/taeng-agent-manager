@@ -4,7 +4,7 @@
 |---|---|
 | 버튼과 입력 피드백, 로딩·빈 화면·오류·완료 상태 | [UX 검토 체크리스트](design-guide.md#ux-검토-체크리스트) |
 | 기존 공통 컴포넌트와 디자인 규칙 사용 | [매니저가 지킬 것](design-guide.md#2-매니저가-지킬-것) |
-| 동작 타이밍과 기기의 모션 줄이기 설정 | [Emil Kowalski Skills](design-guide.md#8-emil-kowalski-skills)와 [에이전트 매니저 사용 지침 7번](design-guide.md#에이전트-매니저-사용-지침) |
+| 동작 타이밍과 기기의 모션 줄이기 설정 | [emil-design-eng](design-guide.md#emil-design-eng)와 [에이전트 매니저 사용 지침 7번](design-guide.md#에이전트-매니저-사용-지침) |
 | 적용한 화면의 확인 결과 기록 | [보고 형식](design-guide.md#4-보고-형식) |
 
 현재 앱의 화면과 코드를 살펴보고, 아래 45개 UI 패턴 중 기존 기능에 어울리는 것을 골라 실제로 적용해줘.

@@ -5,7 +5,7 @@
   "after": "claude",
   "codex_model": "gpt-6.2-astra",
   "codex_effort": "high",
-  "_codex_model_설명": "사용자 지시(2026-11-20 '아스트라 6.2 사용해줘', '코덱스 아스트라 6.2 높음 써줘'): Codex 워커는 worker-start에 --model gpt-6.2-astra --effort high를 붙인다(그 전 2026-11-19엔 gpt-6-astra). 무거운 작업은 --on windows.",
+  "_codex_model_설명": "사용자 지시(2026-11-26 '다 코덱스 아스트라 6.2 높음 써줘')에 따라 모든 Codex 워커는 worker-start에 --model gpt-6.2-astra --effort high를 붙인다. 2026-11-19에는 gpt-6-astra, 2026-11-20부터는 gpt-6.2-astra와 high를 사용했다. 2026-11-25~26에는 사용자 지시('코덱스는 아스트라 6.2 중간 사용해줘')로 medium을 사용했다. 무거운 작업은 --on windows.",
   "kinds": {
     "general": "codex",
     "design": "codex",

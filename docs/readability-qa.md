@@ -3,8 +3,8 @@
 | 겹치는 항목 | 디자인 가이드 위치 |
 |---|---|
 | 먼저 볼 정보와 주요 행동 찾기 | [UX 검토 체크리스트의 사용자 목표·정보 구조·작업 흐름](design-guide.md#ux-검토-체크리스트) |
-| 강조, 문구, 글자와 간격 조정 | [Impeccable](design-guide.md#5-impeccable) |
-| 읽기와 조작을 방해하는 움직임 확인 | [에이전트 매니저 사용 지침 7번](design-guide.md#에이전트-매니저-사용-지침)과 [Emil Kowalski Skills](design-guide.md#8-emil-kowalski-skills) |
+| 강조, 문구, 글자와 간격 조정 | [Impeccable](design-guide.md#impeccable) |
+| 읽기와 조작을 방해하는 움직임 확인 | [에이전트 매니저 사용 지침 7번](design-guide.md#에이전트-매니저-사용-지침)과 [emil-design-eng](design-guide.md#emil-design-eng) |
 | 수정한 화면 확인과 결과 보고 | [진행 순서 7단계](design-guide.md#1-진행-순서)와 [보고 형식](design-guide.md#4-보고-형식) |
 
 현재 프로젝트의 주요 화면을 살펴보고, 사용자가 내용을 읽거나 다음 행동을 찾기 어렵게 만드는 디자인을 개선해줘.
