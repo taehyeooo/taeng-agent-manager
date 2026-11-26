@@ -60,6 +60,13 @@ UI·UX·화면 구성·사용자 흐름·인터랙션·애니메이션·모션 �
 - 시작이 실패하면 같은 명령을 다시 돌리지 않는다 — `failedStage`를 읽고 원인부터(`orca skills get orchestration --reference references/recovery-and-cleanup.md`).
 - Orca가 없는 환경에서만 대안: `git worktree add` + `codex exec`/`claude -p` (승인 우회 플래그 없이).
 
+### 끝난 작업 폴더 정리
+
+- 구현·검수 워커의 `worker_done`을 받을 때마다 `orca orchestration worker-release --dispatch <id>`로 해당 터미널을 닫는다. 끝난 터미널이 쌓여 Mac CPU에 부하가 걸리는 것을 막는다.
+- 작업 PR이 main에 합쳐지고 `am task set <slug> <id> --status done`까지 마치면, Mac과 Windows에 있는 해당 작업의 구현·검수 워크트리를 바로 정리한다. 진행 중인 작업 폴더, 개발 서버용 폴더(`*-devserver`), 원본 레포는 보존한다.
+- 각 워크트리가 있는 기기에서 `git -C "<경로>" status --porcelain`을 실행한다. 변경 사항이 출력되거나 상태 확인에 실패하면 해당 폴더를 보존하고 경로와 이유를 보고한다.
+- 상태 확인에 성공하고 출력이 비어 있는 워크트리는 `orca worktree rm --worktree "path:<경로>" --force --delete-branch`로 정리한다. Windows 워크트리를 정리할 때는 `--environment windows`를 붙인다. Orca는 병합을 확인한 로컬 브랜치만 삭제한다.
+
 ## 신뢰 계층 (이 순서로 검증 — 앞 단계가 실패하면 뒤로 가지 않는다)
 1. **코드 구조·프로젝트 규칙**: 워커 워크트리에서 `git diff --stat main...HEAD` — 맡은 파일만, 커밋 형식(intaeng 커밋 훅).
 2. **Lint·Test·CI**: `test_cmd` 직접 실행, `gh pr checks <번호>`. CI로 강제할 수 있는 검사는 CI에 둔다(intaeng `rules.yml` + 레포의 테스트 워크플로).
