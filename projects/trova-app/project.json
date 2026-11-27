@@ -1,0 +1,3144 @@
+{
+  "slug": "trova-app",
+  "name": "Trova 앱",
+  "idea": "이미 출시된 Trova 모바일 앱(Expo·React Native) 운영: 릴리스·스토어 제출·광고·QA",
+  "phase": "developing",
+  "repo": "Trovapp/trova-app",
+  "test_cmd": "npm run test:web",
+  "approvals": [
+    {
+      "gate": "destructive_delete",
+      "ref": "worktree-cleanup-2026-11-18",
+      "note": "사용자 승인: demo-ads-app + 끝난 작업 폴더 14개 삭제(release-v8·메인 폴더 유지)",
+      "at": "2026-11-18T10:34:34+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "trovapp.github.io-privacy-admob",
+      "note": "사용자 승인(2026-11-18): 개인정보처리방침 AdMob 수정 게시(push·PR·머지)",
+      "at": "2026-11-18T10:43:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#183",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, main 합쳐도 자동 배포 없음 확인",
+      "at": "2026-11-18T14:01:59+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "v8-play-production",
+      "note": "사용자 승인(2026-11-18 '틈틈이 확인해서 v8 배포까지 완료해줘'): v8 재빌드(AdMob+PR #183) Play 프로덕션 제출·출시",
+      "at": "2026-11-18T14:58:24+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/simplicity-research",
+      "note": "디자인 리서치 보고서, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T18:03:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#184",
+      "note": "디자인 리서치 보고서(문서만, 매니저가 내용 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T18:05:51+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/#185-simplicity-copy",
+      "note": "T8 디자인 개선 1차 — Windows Codex가 push(Windows 쪽 가드 미설치로 사전 승인 없이 올라감, 사후 기록), 사용자 위임 범위 2026-11-19",
+      "at": "2026-11-19T21:36:23+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#186",
+      "note": "디자인 개선 1차, Claude 재검토 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T22:44:48+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/#187-chip-affordance",
+      "note": "T9 칩 개선, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T23:06:23+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#188",
+      "note": "T9 칩 개선, Claude 리뷰 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T23:13:18+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/pending-polling",
+      "note": "대기 장소 폴링 개선 — Windows Codex push(Windows 가드 미설치, 사후 기록), 사용자 위임 2026-11-19",
+      "at": "2026-11-19T23:28:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#189",
+      "note": "대기 장소 폴링 개선, Claude 재검토 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T23:57:40+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/simplicity-v2",
+      "note": "T12 디자인 2차, 사용자 위임(밤사이 승인 위임) 2026-11-20",
+      "at": "2026-11-20T10:28:16+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#190",
+      "note": "T12 디자인 2차, 재검토 통과, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T11:11:51+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#149-151-152-qa-followup",
+      "note": "T5 QA 후속(테스트·문서), 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
+      "at": "2026-11-20T16:11:28+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#191",
+      "note": "T5 QA 후속, 리뷰 통과, 사용자 위임 2026-11-20",
+      "at": "2026-11-20T16:16:24+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#201",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-20T22:48:37+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#202",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-20T23:40:05+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#209",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T11:09:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#209",
+      "note": "auto_gates — 사용자 '적용하고 다음 디자인… 다 승인해주고'(2026-11-21), 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T11:09:54+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#213",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T12:55:14+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#213",
+      "note": "auto_gates — 사용자 디자인 선택(2026-11-21 '클로드 2·3·찜·말로 바꾸기', '배낭으로 해보자'), 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T12:55:22+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#215",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T14:45:00+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#215",
+      "note": "auto_gates — 사용자 '진행해'(2026-11-21), T1·얇은 핀·저장 문구 확정, 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T14:45:09+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#217",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T15:29:51+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#217",
+      "note": "auto_gates — 사용자 'S2를 해줘'(2026-11-21), 교차 검증(Codex) 재검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T15:29:58+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "release-2026-11-21",
+      "note": "사용자 '진행해'(2026-11-21) — AI 대기·여행 컨셉·저장 이름·얇은 선 아이콘 스토어/운영 출시 승인",
+      "at": "2026-11-21T15:40:11+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#218",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T16:24:32+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#218",
+      "note": "auto_gates — 출시 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T16:24:41+09:00",
+      "auto": true
+    },
+    {
+      "gate": "spec",
+      "ref": "trip-collab",
+      "note": "사용자 정책 답(2026-11-21): 권한 동일·실시간(SSE, 0원)·링크 하나에 선택, '진행해' (auto_gates 사용자 설정)",
+      "at": "2026-11-21T16:44:52+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#221",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T19:03:52+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#221",
+      "note": "auto_gates — 사용자 'QA 모두 고쳐줘', 교차 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T19:04:00+09:00",
+      "auto": true
+    },
+    {
+      "gate": "push",
+      "ref": "feat/trip-collab-live",
+      "note": "auto_gates — 작업 브랜치 push·PR(같이 고치기 실시간 앱) (auto_gates 사용자 설정)",
+      "at": "2026-11-21T22:10:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#222",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T23:56:26+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#220",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T23:56:26+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#220",
+      "note": "auto_gates + 사용자 '지금 바로 배포' — #222를 먼저 #220 브랜치에 합친 뒤 main으로 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T23:56:35+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#224",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T00:14:27+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#224",
+      "note": "auto_gates — 출시 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:14:30+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#225",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T00:42:31+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#225",
+      "note": "auto_gates — 웹 배포 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:42:34+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#226",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T01:27:35+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#226",
+      "note": "auto_gates — 실기기 발견 수정, Codex 다른 세션 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T01:27:49+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#228",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T01:58:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#228",
+      "note": "auto_gates — 전체 QA 후속 수정, Codex 검증 통과 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T01:58:52+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "collab-followup-2026-11-22",
+      "note": "사용자 '승인'(2026-11-22) — #226·#228 Android OTA + 웹 배포",
+      "at": "2026-11-22T10:59:09+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#229",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T11:03:28+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#230",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T11:03:28+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#229",
+      "note": "auto_gates — 웹 배포 기록 문서 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T11:03:31+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#230",
+      "note": "auto_gates — OTA 출시 기록 문서 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T11:03:38+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "T17-design3-bugs",
+      "note": "사용자 '진행해'(2026-11-22) — PR #231 머지·OTA·웹 배포",
+      "at": "2026-11-22T17:06:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#231",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T17:06:58+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#231",
+      "note": "auto_gates + 사용자 '진행해' (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:07:04+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#234",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T17:19:15+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#234",
+      "note": "auto_gates — 웹 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:19:16+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#232",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T17:20:33+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#232",
+      "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:20:36+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "video-history-ui",
+      "note": "사용자 '승인'(2026-11-22) — PR #233 머지·OTA·웹 배포",
+      "at": "2026-11-22T20:01:26+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#233",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T20:01:26+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#235",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T20:05:34+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#235",
+      "note": "auto_gates — 웹 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T20:05:37+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#236",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T20:05:48+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#236",
+      "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T20:05:54+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "ios-scroll-apple-minimal",
+      "note": "사용자 '승인'(2026-11-23) — #238·#240 머지·OTA·웹",
+      "at": "2026-11-23T00:13:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#238",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:04+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#240",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:13:14+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#240",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:25+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#243",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:21:07+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#243",
+      "note": "auto_gates — 웹 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:21:18+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#242",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:21:45+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#242",
+      "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:21:48+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "apple-minimal-picks",
+      "note": "사용자 '승인'(2026-11-23) — #244 머지·OTA·웹",
+      "at": "2026-11-23T00:41:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#244",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:41:01+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#245",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:42:16+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#245",
+      "note": "auto_gates — 캡처 1장 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:42:25+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#246",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:45:40+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#246",
+      "note": "auto_gates — 웹 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:45:48+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#247",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:46:12+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#247",
+      "note": "auto_gates — OTA 출시 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:46:19+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "share-domain",
+      "note": "사용자 '승인' 2026-11-23: 공유 주소 전환 웹 배포·OTA",
+      "at": "2026-11-23T12:16:50+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "store-applinks",
+      "note": "사용자 '지금 진행해줘' 2026-11-23: 새 공유 주소 앱 링크용 스토어 업데이트(Play)",
+      "at": "2026-11-23T14:44:33+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "v11-internal",
+      "note": "사용자 '내부 테스트로 먼저 올리고 QA로 진행하자' 2026-11-24: v11 AAB 플레이 내부 테스트 트랙 업로드(프로덕션 아님)",
+      "at": "2026-11-24T10:45:40+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#251",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:48:32+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "v11-production",
+      "note": "사용자 '승인' 2026-11-24: v11 AAB 플레이 프로덕션 출시(자체 QA 앱 결함 0)",
+      "at": "2026-11-24T12:28:42+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#252",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T14:00:48+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#253",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:06:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#255",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:33:20+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "ota-254",
+      "note": "사용자 '승인' 2026-11-24: PR #254 무선 업데이트(v11 런타임) + 웹 배포",
+      "at": "2026-11-24T15:36:25+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#254",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:43:13+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#257",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:52:48+09:00",
+      "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "design-qa-analysis",
+      "note": "사용자 2026-11-24 '제일 최신 버전으로 QA 진행해'(제안한 영상 분석 1회 포함): 디자인 QA용 영상 분석 1회",
+      "at": "2026-11-24T16:02:50+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "api-domain",
+      "note": "사용자 '승인' 2026-11-24: 앱 #258 API 주소 OTA(v11)·웹 배포",
+      "at": "2026-11-24T16:15:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#259",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:42:36+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#260",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:42:36+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#261",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:59:22+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "ota-262",
+      "note": "사용자 '승인' 2026-11-24: 디자인 수정 #262 무선 업데이트(v11)·웹 배포",
+      "at": "2026-11-24T17:10:24+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#262",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:14:42+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "264",
+      "note": "사용자 '승인' 2026-11-24: #264 무선 업데이트(v11)·웹 배포·웹 배포 스크립트 권한 수정",
+      "at": "2026-11-24T17:44:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#265",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:22+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#264",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:33+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#266",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:27:21+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#266",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T22:27:27+09:00",
+      "auto": true
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "개인정보처리방침 AdMob 수정안 (trovapp.github.io)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trovapp.github.io/trova-privacy-admob",
+      "pr": null,
+      "dispatch": "ctx_1f9b0a9e2936",
+      "note": "개인정보처리방침 AdMob 반영 완료(trovapp.github.io PR#1 머지 2026-11-18). 작업자 종료"
+    },
+    {
+      "id": "T2",
+      "title": "Play Console 광고·광고 ID·데이터 보안 신고 수정 (사용자)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "2026-11-20 AdMob 확인: 앱 인증 확인됨, 앱 승인 상태 '준비 중'(검토 중), 계정 아직 미승인, 지급 프로필 완료(2/4). Play 신고 수정·검토 제출은 11-18 완료"
+    },
+    {
+      "id": "T3",
+      "title": "v8 Play 제출 (AdMob 인증·신고 수정 뒤)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "2026-11-20 Play Console 확인: Trova 프로덕션, 게시 대기 제출 0·정책 작업 0 → 11-18 v10 검토 통과·게시 완료로 판단. 계정 할 일: 2027-02까지 판매자 상태 선언(사용자)"
+    },
+    {
+      "id": "T4",
+      "title": "시연·완료 작업 폴더 정리 (임시 토큰 패치·.env 삭제)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": ""
+    },
+    {
+      "id": "T5",
+      "title": "버그 #151·#152·#149",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "fix/#149-151-152-qa-followup",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5",
+      "pr": "191",
+      "dispatch": "ctx_75e51333f04e",
+      "note": "PR#191 머지. #149·#151·#152 닫음. 낮음 후속: 화면 연결 테스트·문서 줄번호",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#191 reviewflow 통과(낮음 7: #151·#152 테스트 일부 동어반복, 화면 연결 미고정, 문서 줄번호 오류). 서버 근거 #447~451 확인, #149 닫은 근거 맞음. 테스트 288",
+        "at": "2026-11-20T16:16:24+09:00"
+      },
+      "files": [
+        "scripts/qa-149-151-152.test.mjs",
+        "docs/reviews/qa-149-151-152-followup.md"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "QA 2차 지적 수정: 다크 입력 대비·큰 글씨 탭 잘림·버튼 대비·확대 줄바꿈·장소 정보 없음 안내 + #149 오류 원문 노출",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "taehyeooo/trova-app-qa-fixes",
+      "worktree": null,
+      "pr": "183",
+      "dispatch": null,
+      "note": "PR #183 머지. 사용자 반영은 OTA/v9 필요",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #183 재검증 pass(회귀 2건 해결), qa-accessibility·errors 9/9, 토큰 검사 통과, Windows test:web 257 통과. 낮음 2건(경고 로그 호스트명, 웹 accent 불일치)",
+        "at": "2026-11-18T14:01:59+09:00"
+      }
+    },
+    {
+      "id": "T7",
+      "title": "디자인 리서치: 복잡하지 않게 느끼도록 — 레퍼런스 앱·패턴 조사와 화면별 개선 제안(코드 수정 없음, 보고서만)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_8eee5ccb761f",
+      "note": "디자인 리서치 완료(PR#184) → 디자인 1차 #186·2차 #190으로 이어짐. 작업자 종료",
+      "verification": {
+        "tests": "skip",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "보고서 문서만(코드 변경 없음, 테스트 대상 없음). 매니저(Claude)가 전체를 읽고 근거·과장 여부 확인",
+        "at": "2026-11-19T18:06:03+09:00"
+      },
+      "files": [
+        "docs/design/simplicity-research-2026-11-19.md"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "디자인 개선 1차: 리서치 우선순위 1~3(찜 검색·여행 만들기 문구, 분석 대기 반복·영어 표제·탭 이름, 초안 이름 선택·저장 문구) — 전/후 캡처",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "186",
+      "dispatch": "ctx_86e4355b0264",
+      "note": "",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#186 1차 reviewflow 수정 필요(핵심어 칩) → Codex 반영 후 재검토 통과(낮음 4). 테스트 263·tsc 통과, 시뮬레이터 캡처 6장",
+        "at": "2026-11-19T22:44:47+09:00"
+      },
+      "files": [
+        "src/screens/PlanTripScreen.tsx",
+        "src/screens/SavedPlacesScreen.tsx",
+        "src/screens/ProcessingScreen.tsx"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "후속(디자인 낮음): 초안 핵심어 칩 배경이 화면과 같아 버튼으로 안 보임(bgMuted), 직선거리+경고 섞인 문장 칩 이름, 주석 정리 — PR#186 재검토",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "188",
+      "dispatch": "ctx_d60167744903",
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#188 Claude reviewflow 통과(높음·중간 0, 낮음 4). Codex 실행 웹 테스트 264 통과·tsc 0, 대비 라이트 6.5:1·다크 7:1",
+        "at": "2026-11-19T23:13:18+09:00"
+      },
+      "files": [
+        "src/screens/PlanTripScreen.tsx",
+        "scripts/screen-rules.test.mjs"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "앱 다음 출시 묶음(versionCode 11): 디자인 1차 #186 + 칩 #188 + 이후 앱 변경 — 사용자 결정 2026-11-19 '나중에 묶어서'",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "218",
+      "dispatch": "ctx_74f444f8a02b",
+      "note": "출시 후 실사용 확인(Windows trova-qa Play v10): 강릉 쇼츠 분석 55초 안에 2곳, 리뷰 요약 12초 안에 완료, 재시도 없음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:review",
+        "summary": "출시 교차 확인(Windows Codex): EAS production Android 그룹 2f14364f·지문 692378b1·커밋 692c142 일치, PR #218 비밀값 없음, test:web 349/349. Windows trova-qa는 재시작 전이라 아직 옛 화면 — 수신은 Mac 에뮬레이터 로그로만 확인, 실기기 확인은 사용자 몫",
+        "at": "2026-11-21T16:26:57+09:00"
+      },
+      "files": [
+        "docs/experience-notes.md",
+        "docs/release-checklist.md"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "대기 장소 확인 요청(/api/places/pending) 폴링 점검·개선 — 운영 2기기 21분 232건",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "189",
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#189 1차 수정 필요(오류 시 폴링 미회복) → Codex 수정 후 재검토 통과(낮음 2). 웹 테스트 275·tsc 통과",
+        "at": "2026-11-19T23:57:40+09:00"
+      },
+      "files": [
+        "src/lib/pendingPolling.ts",
+        "src/screens/ProcessingScreen.tsx",
+        "src/screens/PlacesListScreen.tsx"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "디자인 개선 2차: 리서치 우선순위 4~5(홈 상태별 우선 배치, 여행 상세 빈 시간 조건 노출·'동선·날씨 더 보기' 펼침) — 전/후 캡처, 사용자 아침 확인용",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "feat/simplicity-v2",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2",
+      "pr": "190",
+      "dispatch": "ctx_1b9bd1bbcf85",
+      "note": "PR#190 머지 de260cd(재검토 통과). 낮음 후속: 요청 중 일차 전환 문구, PWA 음성 안내, 날씨 오류 초기화, 문서 수치. T10 출시 묶음에 포함",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#190 재검토 통과: 1차 중간 3 해결, 새 지적 낮음 9(요청 중 일차 전환 문구, PWA 음성 안내, 문서 수치 등) 후속. 테스트 285·tsc·토큰 통과, 변형 17/17",
+        "at": "2026-11-20T11:04:58+09:00"
+      },
+      "files": [
+        "src/screens/HomeScreen.tsx",
+        "src/screens/TripDetailScreen.tsx",
+        "src/lib/homePriority.ts",
+        "src/lib/gapAvailability.ts",
+        "src/lib/tripCare.ts",
+        "src/components/WeatherAlertBanner.tsx",
+        "src/components/HomeFirstShare.tsx",
+        "scripts/simplicity-v2.test.mjs"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "디자인 3차: 보기 좋게 꾸미기(색·글꼴·아이콘·애니메이션) — 현황 점검 + 방향 시안 3개(사용자 선택) → 고른 방향 적용",
+      "agent": "codex",
+      "kind": "design",
+      "status": "blocked",
+      "branch": null,
+      "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13",
+      "pr": "192",
+      "dispatch": "ctx_3db4d590ee60",
+      "note": "디자인 가이드 이전 방식이라 사용자 결정(2026-11-20)으로 중단 — 시안 PR#192·#193·#194는 참고 자료로. 새 작업 T14로 다시"
+    },
+    {
+      "id": "T14",
+      "title": "디자인 3차(다시): docs/design-guide.md 진행 순서대로 — 1단계 사용자 흐름 확인부터",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "195",
+      "dispatch": "ctx_a93de3188eb0",
+      "note": "분석 화면 실제 녹화 완료(PR#203 04-analysis-passport-route.mp4, 속초·고성 쇼츠 1회 분석 58초). 실제로 본 문제: 누른 뒤 6초 홈 머묾, EXTRACTING에서 비행기 26초 정지, 문구 중복, 진행 띠 줄바꿈, 발권 0.25초 — T18(AI 대기)에서 다룸"
+    },
+    {
+      "id": "T15",
+      "title": "디자인 3차 적용 A: 바닥줄·티켓 스텁·발권·저장 도장 (06-final 명세)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "feat/#199-task-dock",
+      "worktree": null,
+      "pr": "202",
+      "dispatch": "ctx_0e54e6399ec3",
+      "note": "PR#202 머지(2026-11-20). 후속 낮음: 홈 '장소 추출하기'·완료 '보기' 주황 동시, DONE 갈래 테스트, mutation.mjs test:web 등록, PR#201 후속 5건. 앱 출시는 T10 묶음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#202 Claude 교차 검수 3회(3차 통과·낮음 11) + 머지 전 정리 36cbad4를 매니저가 직접 확인: worklets 직접 import 제거(reanimated runOnJS), 선택 후보만 주황 확정, 장소별 교체 상태, 토큰화. 테스트 317·tsc·토큰 213·변형 통과. 후속: 홈 주황 동시 노출, DONE 갈래 테스트, mutation test:web 등록",
+        "at": "2026-11-20T23:40:12+09:00"
+      },
+      "files": [
+        "src/components/TaskDock.tsx",
+        "src/components/Stamp.tsx",
+        "src/components/AnalysisDock.tsx",
+        "src/components/AlternativeFinderSheet.tsx",
+        "src/screens/TripDetailScreen.tsx",
+        "src/screens/PlanTripScreen.tsx"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "디자인 3차 적용 B: 분석 중 화면 여권 위의 항로(퍼센트 제거)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "feat/#200-passport-route",
+      "worktree": null,
+      "pr": "201",
+      "dispatch": "ctx_b85380b060e7",
+      "note": "PR#201 머지(2026-11-20). 낮음 후속 5건(낭독·잉크 width 성능·테스트 공백·경험 기록·PR 본문). 앱 출시는 T10 묶음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#201 재검수 통과: 1차 10건 해결, 테스트 295 직접 실행 확인. 낮음 후속: 같은 단계 안 문구 변경 미낭독, 잉크 클립 width 매 프레임(실기기 성능 미측정), 화면 연결 테스트 공백, experience-notes 미기록, PR 본문 옛 경로",
+        "at": "2026-11-20T22:48:44+09:00"
+      },
+      "files": [
+        "src/screens/ProcessingScreen.tsx",
+        "src/components/analysis/PassportRoute.tsx",
+        "src/components/analysis/routeMotion.ts",
+        "src/lib/processingRules.ts"
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "디자인 3차 실기기 발견 버그: 되돌리기 미표시(googlePlaceId null)+교체 시 메모 소실, 상세 목록 끝까지 안 내려감·빈 시간 이동 없음, 바닥줄 '빈 시간 1곳' 줄바꿈, '630분' 표기·1곳인데 장소 사이 문구, 여행 이름-지역 불일치, 대안 후보 품질, 시트 열 때 헤더 안 어두워짐, 큰 글자 제목 겹침 (PR #203 README)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "231",
+      "dispatch": "ctx_31e80c3a069d",
+      "note": "PR #238 Codex 검증 통과(Android·웹 회귀 없음). 운영 반영 대기(빈 시간 제외와 함께)"
+    },
+    {
+      "id": "T18",
+      "title": "AI 대기 화면이 멈춰 보이지 않게(분석 여권 항로 선회·흐르는 문구·오래 걸림 안내·% 제거, 다른 AI 대기 화면 공통 부품) — 사용자 피드백 2026-11-21",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "209",
+      "dispatch": "ctx_3750eea7a3a6",
+      "note": "PR #209 squash 머지 ef9e419. 후속: 큰 글자에서 20초 안내 안 뜸(낮음), 대안 찾기 95%·다시 짜기 추정 % 공통 대기로. 앱 출시(배포)는 사용자 확인 필요",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "PR #209 재검증 26c8169: 테스트 323/323·tsc·토큰 통과, 지적 6건·시안 불일치 해결. 낮음 1건(큰 글자에서 20초 안내 안 뜸)은 후속",
+        "at": "2026-11-21T11:09:42+09:00"
+      },
+      "files": [
+        "src/lib/aiWaiting.ts",
+        "src/components/AiWaiting.tsx",
+        "src/screens/ProcessingScreen.tsx",
+        "src/components/analysis/PassportRoute.tsx",
+        "src/components/SavedPlaceInfoSheet.tsx",
+        "src/components/PlaceReviewModal.tsx"
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "여행 컨셉 전체 디자인 통일(모든 화면, 팔레트 조정 허용·주황=실행/초록=도움 유지) + 피그마식 프로토타입 판 + 찜한 장소 네이버지도 저장 패턴 참고·폴더 아이콘 — 사용자 요청 2026-11-21",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "213",
+      "dispatch": "ctx_58b7f2f63c01",
+      "note": "PR #213 squash 머지 899905f. 남은 낮음: AiWaiting 실제 렌더 5초·20초 테스트, 동작 줄이기 전달 테스트. 앱 출시는 사용자 확인 필요",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "PR #213 재검증 c5af0a7: 테스트 333/333·tsc·토큰 통과, 꼭 고칠 것 0, 보안 변경 없음",
+        "at": "2026-11-21T12:55:08+09:00"
+      },
+      "files": [
+        "src/screens/SavedPlacesScreen.tsx",
+        "src/screens/PlanTripScreen.tsx",
+        "src/lib/aiWaiting.ts",
+        "src/components/ConversationSheet.tsx",
+        "src/lib/theme.ts"
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "찜 폴더 아이콘 교체(배낭→우표/항공권) — 사용자 피드백 2026-11-21",
+      "agent": "claude",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "215",
+      "dispatch": "ctx_41df2f38d245",
+      "note": "PR #215 squash 머지 6c27282",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:review+claude:reviewflow",
+        "summary": "PR #215: 아이콘·탭(Claude 구현)은 Codex 검증 — 36px 점선 1건 고쳐 해결, 문구(Codex 구현)는 Claude 검증 — 꼭 고칠 것 0. 이후 변경은 문구 13줄(매니저가 diff 확인). 테스트 337·tsc 통과",
+        "at": "2026-11-21T14:44:54+09:00"
+      },
+      "files": [
+        "src/components/BackpackIcon.tsx",
+        "src/navigation/MainTabs.tsx",
+        "src/screens/SavedPlacesScreen.tsx",
+        "src/screens/HomeScreen.tsx",
+        "scripts/screen-rules.test.mjs",
+        "scripts/qa-accessibility.test.mjs"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "앱 전체 아이콘 얇은 선 스타일 점검·시안 — 사용자 요청 2026-11-21",
+      "agent": "claude",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "217",
+      "dispatch": "ctx_81d3a1ecf253",
+      "note": "PR #217 squash 머지 692c142. draft PR #216(시안)은 열려 있음. 실기기 선명도·VoiceOver 미검증",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex:review",
+        "summary": "PR #217 재검증 a5f8aa0: Windows 349/349·tsc·토큰 통과, 래퍼 2건 해결(Edge 실측 터치 영역 일치), 남은 필수 0. VoiceOver 실기기 미검증",
+        "at": "2026-11-21T15:29:41+09:00"
+      },
+      "files": [
+        "src/components/icons/Feather.tsx",
+        "src/components/icons/ArtIcon.tsx",
+        "src/navigation/MainTabs.tsx",
+        "scripts/thin-icons.test.mjs"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "최신 화면 UX/UI QA(Windows 에뮬레이터) — 사용자 요청 2026-11-21",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "221",
+      "dispatch": "ctx_689e4fd36400",
+      "note": "PR #221 머지. 출시는 다음 OTA 묶음",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "PR #221: test 358·tsc·토큰 통과, 8건 해결(주소는 출처 표시로 부분 해결), 재분석 안내 문구는 서버 동작과 일치, #220과 시험 병합 충돌 없음. 꼭 고칠 것 0. 후속: 저장 취소 문구 두 화면 통일, '(주)' 조사, bookmark.address null",
+        "at": "2026-11-21T19:03:45+09:00"
+      },
+      "files": [
+        "src/screens/HomeScreen.tsx",
+        "src/screens/SavedPlacesScreen.tsx",
+        "src/components/SavedPlaceInfoSheet.tsx",
+        "src/lib/korean.ts"
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "같이 고치기 3: 참여/담기·함께 표시·멤버 관리·409 안내 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "220",
+      "dispatch": "ctx_2e55ee117947",
+      "note": "main fbb4f45 머지(#222 포함), OTA는 서버 배포 뒤",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude:reviewflow",
+        "summary": "PR #220 재검증 1e6218d: test 361·tsc·토큰 통과, 꼭 고칠 것 5건 중 4건 해결·1건 부분(OWNER 첫 공유 시 편집 권한 안내 미노출), 보안(딥링크 자동 참여) 해결. main과 experience-notes 문서 충돌 1곳",
+        "at": "2026-11-21T19:06:03+09:00"
+      },
+      "files": [
+        "src/lib/api/trips.ts",
+        "src/components/TripShareSheet.tsx",
+        "src/navigation/RootNavigator.tsx",
+        "src/screens/TripDetailScreen.tsx"
+      ]
+    },
+    {
+      "id": "T24",
+      "title": "같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "222",
+      "dispatch": "ctx_bc734e8d66c1",
+      "note": "웹 운영 배포 완료 03e72b3, 공유 링크 참여 버튼 확인. 백업 /srv/trova-app/backup-before-03e72b3-6ryKbZKu"
+    },
+    {
+      "id": "T25",
+      "title": "같이 고치기 두 계정 QA(로컬 서버, 운영 배포 전)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "223",
+      "dispatch": "ctx_5c29eecf01da",
+      "note": "운영 반영 완료: 웹 1acbc2e(백업 backup-before-1acbc2e-3dZs8H6u), Android OTA 그룹 8fe479af(되돌리기 cff39447)"
+    },
+    {
+      "id": "T26",
+      "title": "실기기 발견: 여행 상세 '저장한 장소' 폴더 색 점→T1 아이콘, 웹 편집 중 소식 도착 시 저장 소실·충돌 안내 없음",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "226",
+      "dispatch": "ctx_d5fd2367252a",
+      "note": "#226 머지 b67b68c. 운영 OTA·웹 배포는 자동 판단에서 막힘(사용자 수면 중 새 배포) → 아침에 사용자 확인 후 진행. 밤새 로컬 전체 QA"
+    },
+    {
+      "id": "T27",
+      "title": "영상 분석 이력 보기 화면(서버 #503 계약)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "233",
+      "dispatch": "ctx_6dda22dcaef5",
+      "note": "운영 반영 완료: OTA 7fc4baac(되돌리기 27caef78)·웹 722067a, 기록 #235·#236 머지. 실기기 이력 화면 확인 남음"
+    },
+    {
+      "id": "T28",
+      "title": "장소 순서·함께 멤버 표시를 애플처럼 고급스럽게 — 시안 3개(사용자 2026-11-22)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "244",
+      "dispatch": "ctx_b75756d757a0",
+      "note": "운영 반영 완료: OTA e43b15df(되돌리기 ddaeaa38)·웹 d9aa536(백업 backup-before-d9aa536-dJNRA2LS), 기록 #246·#247 머지"
+    },
+    {
+      "id": "T29",
+      "title": "스토어 업데이트: trova.duckdns.org 공유 링크를 앱으로 바로 열기(Android 앱 링크)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "blocked",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
+    },
+    {
+      "id": "T30",
+      "title": "공유 링크 trova.duckdns.org 앱 바로 열기(Android 앱 링크) + v11 빌드",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "251",
+      "dispatch": "ctx_60698855ee34",
+      "note": "#251 병합 ec37c5a",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #251: intentFilters에 trova.duckdns.org /t/ autoVerify 추가·옛 주소 유지, android.version 11, AAB versionCode 11·런타임 30389d0(v10과 분리), assetlinks 새 주소 200·Play 서명 지문 일치, 테스트 418·타입 통과, AI 서명 없음",
+        "at": "2026-11-24T10:36:35+09:00"
+      },
+      "files": [
+        "app.json",
+        "scripts/trip-copy.test.mjs",
+        "docs/pwa.md",
+        "docs/release-checklist.md"
+      ]
+    },
+    {
+      "id": "T31",
+      "title": "v11 플레이 내부 테스트 업로드",
+      "agent": "codex",
+      "kind": "general",
+      "status": "blocked",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_acac9fb591e3",
+      "note": "사용자 결정 11/24: 내부 테스트 생략, 자체 QA 후 정식 배포"
+    },
+    {
+      "id": "T32",
+      "title": "v11 자체 QA(APK 빌드 → Windows 에뮬레이터 QA)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "252",
+      "dispatch": "ctx_af2ca9ba3c55",
+      "note": "v11 플레이 출시 확인(사용자 보고 2026-11-24 '업뎃 됐어'). 남은 확인: 링크→앱 열기(verified), 비공개 테스트 v5 정리",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "v11 자체 QA(Windows 에뮬레이터, 핫스팟): 11항목 중 앱 결함 0. 확인 불가: 대안 검색(승인 심사), 실시간 공동 편집(Mac 네트워크), 앱 링크 직접 열기(출시 후), 광고 소재. 환경 문제: Fortinet TLS 검사(핫스팟으로 해소). PR #252 기록",
+        "at": "2026-11-24T12:12:57+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-v11-self-qa"
+      ]
+    },
+    {
+      "id": "T33",
+      "title": "같이 고치기 실시간 QA(Windows 에뮬레이터 두 대, v11+v10)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "255",
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "같이 고치기 실시간 QA(v11+v10, 구글/카카오): 추가·순서·삭제 양방향 1.4~2.7초 반영, 메모 동시 저장 충돌 안내·초안 보존, 백그라운드·비행기 모드 복구, 내보내기 차단, 삭제 처리 통과. 부분: HTTPS 초대 링크가 앱이 아닌 웹 로그인으로 감(앱 링크는 v11 출시 후)",
+        "at": "2026-11-24T15:33:24+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-collab-realtime"
+      ]
+    },
+    {
+      "id": "T34",
+      "title": "QA 높음 2건(한글 줄바꿈, 분석 중 장소 목록) + 첫 실행 속도",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "254",
+      "dispatch": null,
+      "note": "#254 머지 6524064, v11 런타임 무선 업데이트 그룹 269e1f24 게시, 웹 배포(백업 backup-before-6524064), 기록 #256",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "재검증 97297ed: 스플래시 순서·접근성 라벨·첫 마운트 페이드·사용자 스크롤 존중·안정 key·렌더 테스트 모두 해결, OTA 가능. 낮은 위험 2: 인증 복원 무한 대기 시 스플래시 유지(타임아웃 없음), onScrollEndDrag 누락 시 자동 따라가기 정지",
+        "at": "2026-11-24T15:35:36+09:00"
+      },
+      "files": [
+        "App.tsx",
+        "src/components/AppText.tsx",
+        "src/screens/ProcessingScreen.tsx",
+        "src/components/StartupSplash.tsx"
+      ]
+    },
+    {
+      "id": "T35",
+      "title": "플레이 v11 재설치 확인 + 링크→앱 열기 확인",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "257",
+      "dispatch": null,
+      "note": "플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "플레이 재설치 versionCode 11, 두 도메인 verified, 공유 링크 → 앱 바로 열림, OTA 269e1f24 수신·한글 줄바꿈 적용 확인. 분석 중 목록은 진행 분석 없어 미검증",
+        "at": "2026-11-24T15:52:54+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-v11-play-release"
+      ]
+    },
+    {
+      "id": "T36",
+      "title": "최신 버전 디자인 QA(분석 중 화면 포함)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "259",
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "디자인 QA 13건(높2·중6·낮5), 분석 중 화면: 잘림 해소·여러 곳 한꺼번에 도착 시 빠른 이동은 개선 필요. API 새 주소 실기기: OTA 56c01a96 수신, 카카오·구글 로그인 새 호스트 통과, 공유 링크 접두사 통과",
+        "at": "2026-11-24T16:42:45+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-design-qa",
+        "docs/qa/2026-11-24-api-domain"
+      ]
+    },
+    {
+      "id": "T37",
+      "title": "디자인 QA 13건 전부 수정(분석 중 순차 표시·대비·여백·핀·아이콘)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "262",
+      "dispatch": null,
+      "note": "#262 머지 355eff1, OTA 그룹 1349e974(v11), 웹 배포(권한 복구 후 200), 기록 #263. 되돌리기: OTA 56c01a96 재게시, 웹 backup-before-355eff1. 반복 문제: 웹 배포 스크립트 파일 권한",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) #262: OTA 가능(의존성·설정 변경 없음), 순차 표시 타이머 정리·reduce-motion OK, 지도 클러스터 XSS 없음. 낮은 위험: expo-application 바이너리 포함 여부 미확인(없으면 '확인 불가' 표시), 같은 화면 jobId 변경 시 이전 이름 잔존, 최대 확대 겹침 핀 선택 한계. 테스트 공백: 클러스터·버전 표시",
+        "at": "2026-11-24T17:04:16+09:00"
+      },
+      "files": [
+        "src/components/analysis",
+        "src/lib/kakaoMapHtml.ts",
+        "src/lib/buildInfo.ts"
+      ]
+    },
+    {
+      "id": "T38",
+      "title": "체크리스트 점검: 새로고침 시 상태 유실·긴 파일·오류 흰 화면",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": "261",
+      "dispatch": null,
+      "note": "점검 결과: 세 항목 모두 '일부만 됨'. 높음: 제출 전 초안 조건·메모 복구, 웹 번들 로딩 실패·경계 밖 렌더 오류 복구 화면. 중간: TripDetailScreen 2,145줄·PlanTripScreen 1,137줄 분리, API 오류 형식 통일. 3,000줄 초과 0",
+      "verification": {
+        "tests": "skip",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "문서 점검만",
+        "at": "2026-11-24T16:59:28+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-checklist-audit"
+      ]
+    },
+    {
+      "id": "T39",
+      "title": "체크리스트 높음·중간: 초안 입력 복구, 웹 로딩 실패 안내, TripDetailScreen 분리",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "264",
+      "dispatch": null,
+      "note": "#264 OTA 그룹 e4be8cff(v11), 웹 배포(접속 실패 0/389), 웹 배포 스크립트 원자적 교체·권한 사전 확인 #265 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "재검증 6ac1e73: 웹 복구 화면은 스크립트·modulepreload 로드 실패 또는 부팅 완료 전 오류에만 반응(같은 출처 번들 경로만), 로그아웃 시 초안 삭제, 폴백 다크·글자 크기 반영, 다시 짜기 제목·후보 인계. 테스트 435·타입·웹 빌드 통과",
+        "at": "2026-11-24T17:33:43+09:00"
+      },
+      "files": [
+        "public/startup-recovery.js",
+        "src/components/useInputDraft.tsx",
+        "src/components/AppErrorBoundary.tsx",
+        "src/screens/PlanTripScreen.tsx"
+      ]
+    },
+    {
+      "id": "T40",
+      "title": "출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": "docs/post-release-emulator-20261124",
+      "worktree": "C:/Users/user/orca/workspaces/trova-app/trova-app-T40",
+      "pr": "266",
+      "dispatch": "ctx_d24ec572f114",
+      "note": "집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "OTA e4be8cff(01a20cc2) 수신, 초안·홈 링크 이어서 쓰기 복구·새로 시작, 동시 저장 시 '친구가 방금 바꿨어요'+입력 보존 확인. 409 실제 본문은 프록시 없어 미관측 → main ApiErrorContractTest가 code·status·traceId+VERSION_CONFLICT·latest 유지를 고정(#524 배포됨). 로그아웃 삭제는 로컬 테스트 9/9. 문서만 변경, 비밀값 없음",
+        "at": "2026-11-24T22:27:27+09:00"
+      },
+      "files": [
+        "docs/qa/2026-11-24-post-release"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-18T10:29:41+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-18T10:29:41+09:00",
+      "event": "repo=Trovapp/trova-app"
+    },
+    {
+      "at": "2026-11-18T10:29:41+09:00",
+      "event": "test_cmd=npm run test:web"
+    },
+    {
+      "at": "2026-11-18T10:29:44+09:00",
+      "event": "단계 planning → developing"
+    },
+    {
+      "at": "2026-11-18T10:33:45+09:00",
+      "event": "작업 추가 T1 (codex): 개인정보처리방침 AdMob 수정안 (trovapp.github.io)"
+    },
+    {
+      "at": "2026-11-18T10:33:45+09:00",
+      "event": "작업 추가 T2 (codex): Play Console 광고·광고 ID·데이터 보안 신고 수정 (사용자)"
+    },
+    {
+      "at": "2026-11-18T10:33:45+09:00",
+      "event": "작업 추가 T3 (codex): v8 Play 제출 (AdMob 인증·신고 수정 뒤)"
+    },
+    {
+      "at": "2026-11-18T10:33:45+09:00",
+      "event": "작업 추가 T4 (codex): 시연·완료 작업 폴더 정리 (임시 토큰 패치·.env 삭제)"
+    },
+    {
+      "at": "2026-11-18T10:33:45+09:00",
+      "event": "작업 추가 T5 (codex): 버그 #151·#152·#149"
+    },
+    {
+      "at": "2026-11-18T10:33:50+09:00",
+      "event": "작업 T1 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trovapp.github.io/trova-privacy-admob, dispatch=ctx_1f9b0a9e2936"
+    },
+    {
+      "at": "2026-11-18T10:34:34+09:00",
+      "event": "승인 기록: destructive_delete (worktree-cleanup-2026-11-18)"
+    },
+    {
+      "at": "2026-11-18T10:36:25+09:00",
+      "event": "작업 T1 변경: note=수정안 d465669(로컬). 비맞춤형 광고만 요청·UMP 없음 확인. 게시 승인 대기"
+    },
+    {
+      "at": "2026-11-18T10:43:16+09:00",
+      "event": "승인 기록: push (trovapp.github.io-privacy-admob)"
+    },
+    {
+      "at": "2026-11-18T11:44:06+09:00",
+      "event": "작업 추가 T6 (codex): QA 2차 지적 수정: 다크 입력 대비·큰 글씨 탭 잘림·버튼 대비·확대 줄바꿈·장소 정보 없음 안내 + #149 오류 원문 노출"
+    },
+    {
+      "at": "2026-11-18T11:44:33+09:00",
+      "event": "작업 T6 변경: status=dispatched, note=Windows codex, PR까지"
+    },
+    {
+      "at": "2026-11-18T11:59:12+09:00",
+      "event": "작업 T6 변경: branch=taehyeooo/trova-app-qa-fixes, pr=183, note=Codex 구현 ebc1338(test:web 257·토큰 검사 통과), 캡처 후속. Claude 교차 검증 예정"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "작업 T6 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "승인 기록: merge_main (PR#183)"
+    },
+    {
+      "at": "2026-11-18T14:02:02+09:00",
+      "event": "작업 T6 변경: status=done, note=PR #183 머지. 사용자 반영은 OTA/v9 필요"
+    },
+    {
+      "at": "2026-11-18T14:05:33+09:00",
+      "event": "작업 T3 변경: note=사용자 결정(2026-11-18): QA 수정(PR #183)은 OTA 대신 v8 재빌드에 포함해 Play 제출. 조건: Play Console 신고 수정·AdMob 인증"
+    },
+    {
+      "at": "2026-11-18T14:46:52+09:00",
+      "event": "작업 T2 변경: note=2026-11-18 Claude가 Play Console에서 진행(사용자 요청): 광고 포함=예, 광고 ID=예(광고·분석·사기 방지), 데이터 보안: 대략적 위치·진단 추가, 앱 상호작용·기기 ID에 Google 공유 추가, 기기 ID 필수. Google 검토 제출 완료(코드 작업 아님, 검증 skip). AdMob 앱 인증 완료"
+    },
+    {
+      "at": "2026-11-18T14:51:06+09:00",
+      "event": "작업 T3 변경: status=dispatched, note=v8 재빌드(main: AdMob+PR #183) 시작"
+    },
+    {
+      "at": "2026-11-18T14:58:24+09:00",
+      "event": "승인 기록: deploy (v8-play-production)"
+    },
+    {
+      "at": "2026-11-18T15:34:55+09:00",
+      "event": "작업 T3 변경: note=2026-11-18 Play 프로덕션 v10(1.0.0, 커밋 af3b078, EAS 379054e5, AdMob+PR #183) 전체 출시로 Google 검토 제출. 출시 노트 작성. AD_ID 경고는 다른 활성 아티팩트 때문(v10엔 권한 있음 확인)이라 이번 출시에서 무시. 검토 결과 대기"
+    },
+    {
+      "at": "2026-11-19T16:42:04+09:00",
+      "event": "작업 추가 T7 (codex, 자동): 디자인 리서치: 복잡하지 않게 느끼도록 — 레퍼런스 앱·패턴 조사와 화면별 개선 제안(코드 수정 없음, 보고서만)"
+    },
+    {
+      "at": "2026-11-19T16:43:16+09:00",
+      "event": "작업 T7 변경: status=dispatched, dispatch=ctx_8eee5ccb761f"
+    },
+    {
+      "at": "2026-11-19T18:03:11+09:00",
+      "event": "승인 기록: push (docs/simplicity-research)"
+    },
+    {
+      "at": "2026-11-19T18:05:51+09:00",
+      "event": "승인 기록: merge_main (PR#184)"
+    },
+    {
+      "at": "2026-11-19T18:06:03+09:00",
+      "event": "작업 T7 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T21:06:29+09:00",
+      "event": "작업 추가 T8 (claude): 디자인 개선 1차: 리서치 우선순위 1~3(찜 검색·여행 만들기 문구, 분석 대기 반복·영어 표제·탭 이름, 초안 이름 선택·저장 문구) — 전/후 캡처"
+    },
+    {
+      "at": "2026-11-19T21:07:12+09:00",
+      "event": "작업 T8 변경: status=dispatched, dispatch=ctx_0cbf599bc718"
+    },
+    {
+      "at": "2026-11-19T21:08:52+09:00",
+      "event": "작업 T8 변경: agent=codex, dispatch=ctx_86e4355b0264"
+    },
+    {
+      "at": "2026-11-19T21:36:23+09:00",
+      "event": "승인 기록: push (feat/#185-simplicity-copy)"
+    },
+    {
+      "at": "2026-11-19T22:44:47+09:00",
+      "event": "작업 T8 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T22:44:48+09:00",
+      "event": "승인 기록: merge_main (PR#186)"
+    },
+    {
+      "at": "2026-11-19T22:44:53+09:00",
+      "event": "작업 T8 변경: status=done, pr=186"
+    },
+    {
+      "at": "2026-11-19T22:44:53+09:00",
+      "event": "작업 추가 T9 (codex, 자동): 후속(디자인 낮음): 초안 핵심어 칩 배경이 화면과 같아 버튼으로 안 보임(bgMuted), 직선거리+경고 섞인 문장 칩 이름, 주석 정리 — PR#186 재검토"
+    },
+    {
+      "at": "2026-11-19T22:53:59+09:00",
+      "event": "작업 T9 변경: status=dispatched, dispatch=ctx_d60167744903"
+    },
+    {
+      "at": "2026-11-19T23:06:23+09:00",
+      "event": "승인 기록: push (feat/#187-chip-affordance)"
+    },
+    {
+      "at": "2026-11-19T23:13:18+09:00",
+      "event": "작업 T9 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T23:13:18+09:00",
+      "event": "승인 기록: merge_main (PR#188)"
+    },
+    {
+      "at": "2026-11-19T23:13:25+09:00",
+      "event": "작업 T9 변경: status=done, pr=188"
+    },
+    {
+      "at": "2026-11-19T23:15:04+09:00",
+      "event": "작업 추가 T10 (codex, 자동): 앱 다음 출시 묶음(versionCode 11): 디자인 1차 #186 + 칩 #188 + 이후 앱 변경 — 사용자 결정 2026-11-19 '나중에 묶어서'"
+    },
+    {
+      "at": "2026-11-19T23:17:02+09:00",
+      "event": "작업 추가 T11 (codex, 자동): 대기 장소 확인 요청(/api/places/pending) 폴링 점검·개선 — 운영 2기기 21분 232건"
+    },
+    {
+      "at": "2026-11-19T23:28:01+09:00",
+      "event": "승인 기록: push (perf/pending-polling)"
+    },
+    {
+      "at": "2026-11-19T23:57:40+09:00",
+      "event": "작업 T11 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T23:57:40+09:00",
+      "event": "승인 기록: merge_main (PR#189)"
+    },
+    {
+      "at": "2026-11-19T23:57:47+09:00",
+      "event": "작업 T11 변경: status=done, pr=189"
+    },
+    {
+      "at": "2026-11-20T00:17:32+09:00",
+      "event": "작업 추가 T12 (codex, 자동): 디자인 개선 2차: 리서치 우선순위 4~5(홈 상태별 우선 배치, 여행 상세 빈 시간 조건 노출·'동선·날씨 더 보기' 펼침) — 전/후 캡처, 사용자 아침 확인용"
+    },
+    {
+      "at": "2026-11-20T00:17:42+09:00",
+      "event": "작업 T12 변경: status=dispatched, dispatch=ctx_6cd7a81b254a"
+    },
+    {
+      "at": "2026-11-20T10:28:16+09:00",
+      "event": "승인 기록: push (feat/simplicity-v2)"
+    },
+    {
+      "at": "2026-11-20T10:28:56+09:00",
+      "event": "작업 T12 변경: branch=feat/simplicity-v2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-design2, pr=190"
+    },
+    {
+      "at": "2026-11-20T10:34:50+09:00",
+      "event": "작업 T12 변경: note=Codex 완료, 매니저 커밋·PR#190 → Claude reviewflow 검토 ctx_740e37c091d0"
+    },
+    {
+      "at": "2026-11-20T10:39:34+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T10:41:06+09:00",
+      "event": "작업 T12 변경: dispatch=ctx_1b9bd1bbcf85"
+    },
+    {
+      "at": "2026-11-20T10:41:35+09:00",
+      "event": "작업 T2 변경: note=2026-11-20 AdMob 확인: 앱 인증 확인됨, 앱 승인 상태 '준비 중'(검토 중), 계정 아직 미승인, 지급 프로필 완료(2/4). Play 신고 수정·검토 제출은 11-18 완료"
+    },
+    {
+      "at": "2026-11-20T10:49:30+09:00",
+      "event": "승인된 작업 실행: push(feat/simplicity-v2)"
+    },
+    {
+      "at": "2026-11-20T10:51:48+09:00",
+      "event": "작업 T12 변경: note=리뷰 수정 200946f(테스트 285) → 재검토 ctx_9512ab126125"
+    },
+    {
+      "at": "2026-11-20T11:04:58+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T11:11:51+09:00",
+      "event": "승인 기록: merge_main (PR#190)"
+    },
+    {
+      "at": "2026-11-20T11:11:55+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#190)"
+    },
+    {
+      "at": "2026-11-20T11:12:07+09:00",
+      "event": "작업 T12 변경: status=done, note=PR#190 머지 de260cd(재검토 통과). 낮음 후속: 요청 중 일차 전환 문구, PWA 음성 안내, 날씨 오류 초기화, 문서 수치. T10 출시 묶음에 포함"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T3 변경: note=2026-11-20 Play Console 확인: Trova 프로덕션, 게시 대기 제출 0·정책 작업 0 → 11-18 v10 검토 통과·게시 완료로 판단. 계정 할 일: 2027-02까지 판매자 상태 선언(사용자)"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T1 변경: note=개인정보처리방침 AdMob 반영 완료(trovapp.github.io PR#1 머지 2026-11-18). 작업자 종료"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T7 변경: note=디자인 리서치 완료(PR#184) → 디자인 1차 #186·2차 #190으로 이어짐. 작업자 종료"
+    },
+    {
+      "at": "2026-11-20T16:07:06+09:00",
+      "event": "작업 T5 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-app/trova-app-T5, dispatch=ctx_75e51333f04e"
+    },
+    {
+      "at": "2026-11-20T16:09:21+09:00",
+      "event": "작업 추가 T13 (codex, 자동): 디자인 3차: 보기 좋게 꾸미기(색·글꼴·아이콘·애니메이션) — 현황 점검 + 방향 시안 3개(사용자 선택) → 고른 방향 적용"
+    },
+    {
+      "at": "2026-11-20T16:10:32+09:00",
+      "event": "작업 T13 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-app-T13, dispatch=ctx_17b45ab54174, note=사용자 지시(2026-11-20): 디자인 3차 Windows Codex, 색·디자인·애니메이션 꾸미기. 1단계 시안 3개 → 사용자 선택"
+    },
+    {
+      "at": "2026-11-20T16:11:28+09:00",
+      "event": "승인 기록: push (fix/#149-151-152-qa-followup)"
+    },
+    {
+      "at": "2026-11-20T16:12:31+09:00",
+      "event": "작업 T5 변경: branch=fix/#149-151-152-qa-followup, pr=191, note=#149 PR#183에서 수정·닫음, #151·#152 서버 PR#447~451에서 수정 확인. 테스트 288. Claude 리뷰 ctx_a940e2a79089"
+    },
+    {
+      "at": "2026-11-20T16:16:24+09:00",
+      "event": "작업 T5 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T16:16:24+09:00",
+      "event": "승인 기록: merge_main (PR#191)"
+    },
+    {
+      "at": "2026-11-20T16:16:40+09:00",
+      "event": "작업 T5 변경: status=done, note=PR#191 머지. #149·#151·#152 닫음. 낮음 후속: 화면 연결 테스트·문서 줄번호"
+    },
+    {
+      "at": "2026-11-20T16:28:30+09:00",
+      "event": "작업 T13 변경: pr=192, note=1단계 시안 3개 완료 PR#192(문서·목업만): A 따뜻한 여백(추천)·B 여행 티켓·C 또렷한 여정. 비교 페이지 https://claude.ai/artifact/YaNn113qbHBR9qWmabrwVT. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T16:31:27+09:00",
+      "event": "작업 T13 변경: dispatch=ctx_3db4d590ee60, note=사용자 피드백: 왼쪽 초록 선 싫음, B 티켓 고도화. Claude-only 디자인 스킬(frontend-design·expo-design-system·expo-animation·design-compare) 필요해 Claude 워커로(B1~B3 시안)"
+    },
+    {
+      "at": "2026-11-20T16:32:19+09:00",
+      "event": "작업 T13 변경: note=티켓 고도화 시안 Claude(ctx_3db4d590ee60, ticket-claude/, 디자인 스킬)와 Codex(Windows ctx_4483c5e3d995, ticket-codex/) 각각 독립 제작 — 사용자 지시 2026-11-20 '각각 따로 만들어서 알려줘'"
+    },
+    {
+      "at": "2026-11-20T17:17:55+09:00",
+      "event": "작업 T13 변경: note=티켓 고도화: Claude PR#193(추천 B2 탑승권), Codex PR#194(추천 B2 한 장의 여정+B3 도장). 비교 페이지 https://claude.ai/artifact/J8H47hmwgehLgz64ufxUvA. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 T13 변경: status=blocked, note=디자인 가이드 이전 방식이라 사용자 결정(2026-11-20)으로 중단 — 시안 PR#192·#193·#194는 참고 자료로. 새 작업 T14로 다시"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 추가 T14 (codex, 자동): 디자인 3차(다시): docs/design-guide.md 진행 순서대로 — 1단계 사용자 흐름 확인부터"
+    },
+    {
+      "at": "2026-11-20T18:22:55+09:00",
+      "event": "작업 T14 변경: status=dispatched, dispatch=ctx_cf6df1a068e8, note=1단계 사용자 흐름 조사(Windows Codex), 결과 docs/design/2026-11-20-design3/"
+    },
+    {
+      "at": "2026-11-20T19:50:13+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_8e212c8244e1, note=1단계 흐름 조사: gpt-6-astra 서버 혼잡으로 멈춤 → 사용자 지시로 gpt-6.2-astra로 재시작(같은 작업 폴더)"
+    },
+    {
+      "at": "2026-11-20T19:56:28+09:00",
+      "event": "작업 T14 변경: pr=195, note=1단계 완료: 사용자 흐름 6개·상태 점검·디자인 결정 5개(PR#195, docs/design/2026-11-20-design3/). 우선 후보: 상세 목록·빈 시간 / 분석 이탈 후 결과 찾기 / 초안 확인→저장 / 오늘 여행→지도 / 빈 폴더 찜 넣기. 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-20T20:03:58+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_5b836ce9bd3c, note=2단계 도구: 중심 UI UX Pro Max, 보완 Emil·Expo 디자인/애니메이션·Impeccable·design-compare. Mac Claude에 설치(사용자 승인 2026-11-20). 3단계 시안: Claude ctx_5b836ce9bd3c(03-drafts-claude), Codex Windows ctx_29a6ed272839(03-drafts-codex, gpt-6.2-astra). 흐름 D·B·C"
+    },
+    {
+      "at": "2026-11-20T20:07:33+09:00",
+      "event": "작업 T14 변경: note=3단계: Codex 시안 PR#196 도착(일정 목차·여행 티켓·한 건씩 확인, 추천 일정 목차). Claude 시안 대기 ctx_5b836ce9bd3c"
+    },
+    {
+      "at": "2026-11-20T20:18:08+09:00",
+      "event": "작업 T14 변경: note=3단계: Codex 시안(PR#196)이 카드 조각만 그려 사용자 '별로' → 실제 휴대폰 화면 기준으로 다시 그리기 ctx_c9b772b838cc(gpt-6.2-astra high). Claude 시안 ctx_5b836ce9bd3c에도 같은 기준 전달. 가이드 3단계에 목업 기준 추가 예정"
+    },
+    {
+      "at": "2026-11-20T20:21:32+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_c9b772b838cc, note=Codex 시안 다시 그리기: 첫 작업자가 메시지를 받아 d00ee9b(전체 화면 60장) 올림 + 6.2 high 작업자 ctx_c9b772b838cc가 같은 폴더에서 다시 그리는 중(겹침) → high 결과를 최종으로. Claude 시안 ctx_5b836ce9bd3c 진행 중"
+    },
+    {
+      "at": "2026-11-20T20:45:17+09:00",
+      "event": "작업 T14 변경: note=3단계 시안 완료 — Claude PR#197(바닥줄 추천·여정 티켓·그 자리에서) https://claude.ai/artifact/8qHZ2Qv3ZNMSn9QZoo9qoc / Codex PR#196(6.2 high, 일정 목차 추천·여행 티켓·한 건씩 확인) https://claude.ai/artifact/1Fp6BDn13puK7oE2wPZNWA. 4단계 사용자 선택 대기. 가이드 목업 기준 PR#17 머지"
+    },
+    {
+      "at": "2026-11-20T20:53:49+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_040892764f42, note=4단계 사용자 선택: Claude '바닥줄' + 티켓 디자인 한 곳 + 애니메이션(사용자 말 2026-11-20). 5단계 첫 작업: 바닥줄 티켓 변형 3개(절제형·탑승권형·움직임형) 05-ticket-dock/, Claude ctx_040892764f42"
+    },
+    {
+      "at": "2026-11-20T21:01:50+09:00",
+      "event": "작업 T14 변경: note=5단계 첫 작업 바닥줄 티켓 변형 3개를 Claude(ctx_040892764f42, 05-ticket-dock-claude)와 Codex(Windows 6.2 high ctx_f97f56047680, 05-ticket-dock-codex) 각각. 첫 Codex 시작은 지시문 생성 실패로 멈추고 재시작"
+    },
+    {
+      "at": "2026-11-20T21:09:25+09:00",
+      "event": "작업 T14 변경: note=5단계 바닥줄 티켓 변형: Claude(PR#197 05-ticket-dock-claude, 추천 ①+③ 스텁 떨어짐) / Codex(PR#198, 추천 ③ 도장). 비교 https://claude.ai/artifact/R2fAu9A9z8LYHMBMp2xYau. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T21:19:29+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_9edb66b38f96, note=사용자 확정(2026-11-20): 바닥줄 ①절제형+③움직임형, 저장은 도장, 홈 탑승권 없음. 요청: 분석 중 애니메이션 여행 느낌. Claude ctx_9edb66b38f96(06-final 세부 + 07-analyzing-claude), Codex ctx_f77e4e271d8a(07-analyzing-codex)"
+    },
+    {
+      "at": "2026-11-20T21:24:00+09:00",
+      "event": "작업 T14 변경: note=분석 애니메이션 Codex 시안 도착(PR#198 07-analyzing-codex: 1 비행 일지, 2 발견 여권). Claude 대기 ctx_9edb66b38f96"
+    },
+    {
+      "at": "2026-11-20T21:37:33+09:00",
+      "event": "작업 T14 변경: note=Claude: 06-final 확정안 세부(21화면·구현 명세) 완료, 07-analyzing-claude(항로 1순위·출발 안내판·여권 비추천) — 사용자 '가짜 화면' 피드백으로 실제 ProcessingScreen 기준 수정 중 ctx_2bb74b02b6a5. Codex 분석 시안 다시 그리기 ctx_1b286ffde1df. 실기기 시험(시뮬레이터 녹화) 제안함"
+    },
+    {
+      "at": "2026-11-20T21:47:07+09:00",
+      "event": "작업 T14 변경: note=Codex 분석 애니메이션 실제 화면 기준 재작업 83299d7(PR#198) 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. Claude 수정 대기 ctx_2bb74b02b6a5"
+    },
+    {
+      "at": "2026-11-20T21:50:37+09:00",
+      "event": "작업 T14 변경: note=분석 애니메이션 Claude(fcdf9fe, 항로 1순위)·Codex(83299d7, 비행 일지 1순위) 실제 화면 기준 영상 https://claude.ai/artifact/RWEkoSB1bqvPGK1iSPKXLC. 사용자 선택 대기. 확정안 세부 06-final 완료"
+    },
+    {
+      "at": "2026-11-20T21:57:05+09:00",
+      "event": "작업 T14 변경: note=사용자 요청(2026-11-20): 여권 위에 항로 + 끊김 없이 물 흐르듯. Claude ctx_eea0265f3d88(08-passport-route-claude), Codex ctx_7e5433ae01ac(08-passport-route-codex), 60fps 영상 포함"
+    },
+    {
+      "at": "2026-11-20T22:11:13+09:00",
+      "event": "작업 T14 변경: note=여권 위의 항로: Claude bfea9e5(PR#197 08-passport-route-claude), Codex ce5a5ed(PR#198 08-passport-route-codex), 60fps 영상 비교 https://claude.ai/artifact/ 참고. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 추가 T15 (codex, 자동): 디자인 3차 적용 A: 바닥줄·티켓 스텁·발권·저장 도장 (06-final 명세)"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 T15 변경: status=dispatched, dispatch=ctx_0e54e6399ec3"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 추가 T16 (codex, 자동): 디자인 3차 적용 B: 분석 중 화면 여권 위의 항로(퍼센트 제거)"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 T16 변경: status=dispatched, dispatch=ctx_b85380b060e7"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 T14 변경: note=사용자 선택: 분석 화면 Codex 여권 위의 항로(퍼센트 없음). 6단계 적용 A(T15)·B(T16) Windows Codex 위임"
+    },
+    {
+      "at": "2026-11-20T22:26:56+09:00",
+      "event": "작업 T16 변경: branch=feat/#200-passport-route, pr=201, note=Codex 구현 PR#201(테스트 288→292, 변형 3/3). 7단계 Claude 교차 검수 위임"
+    },
+    {
+      "at": "2026-11-20T22:36:17+09:00",
+      "event": "작업 T16 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:38:12+09:00",
+      "event": "작업 T15 변경: branch=feat/#199-task-dock, pr=202, note=Codex 구현 PR#202(테스트 288→293, 변형 5/5, 웹 캡처 11장). 7단계 Claude 교차 검수 위임"
+    },
+    {
+      "at": "2026-11-20T22:43:30+09:00",
+      "event": "작업 T16 변경: note=검수 반영 ae3c39a(테스트 295, 변형 7/7) → Claude 재검수"
+    },
+    {
+      "at": "2026-11-20T22:46:29+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:48:37+09:00",
+      "event": "자동 승인 실행: merge_main(PR#201)"
+    },
+    {
+      "at": "2026-11-20T22:48:44+09:00",
+      "event": "작업 T16 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:48:58+09:00",
+      "event": "자동 승인 실행: merge_main(PR#201)"
+    },
+    {
+      "at": "2026-11-20T22:48:58+09:00",
+      "event": "작업 T16 변경: status=done, note=PR#201 머지(2026-11-20). 낮음 후속 5건(낭독·잉크 width 성능·테스트 공백·경험 기록·PR 본문). 앱 출시는 T10 묶음"
+    },
+    {
+      "at": "2026-11-20T22:53:39+09:00",
+      "event": "작업 T15 변경: note=검수 반영 9e2d77d(테스트 309, 변형 14/14, main 맞춤) → Claude 재검수"
+    },
+    {
+      "at": "2026-11-20T23:07:15+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T23:11:21+09:00",
+      "event": "작업 T15 변경: note=사용자 결정(2026-11-20): 상세 '대안 장소·말로 바꾸기' 버튼 줄은 계속 보이게(기능 발견), 바닥줄은 이어서 할 일만. Codex ctx_da11168f5942에 전달"
+    },
+    {
+      "at": "2026-11-20T23:19:32+09:00",
+      "event": "작업 T15 변경: note=재검수 반영 07bd2d6(테스트 316, 변형 7/7, 버튼 줄 복구·decisions 기록) → Claude 3차 검수"
+    },
+    {
+      "at": "2026-11-20T23:35:31+09:00",
+      "event": "작업 T15 변경: note=3차 검수 통과(낮음 11). 머지 전 4건 정리 위임(worklets 미선언 import, 후보별 주황 버튼→선택 후보만, 시트 전환 replacing, 토큰 하드코딩)"
+    },
+    {
+      "at": "2026-11-20T23:40:05+09:00",
+      "event": "자동 승인 실행: merge_main(PR#202)"
+    },
+    {
+      "at": "2026-11-20T23:40:12+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "자동 승인 실행: merge_main(PR#202)"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "작업 T15 변경: status=done, note=PR#202 머지(2026-11-20). 후속 낮음: 홈 '장소 추출하기'·완료 '보기' 주황 동시, DONE 갈래 테스트, mutation.mjs test:web 등록, PR#201 후속 5건. 앱 출시는 T10 묶음"
+    },
+    {
+      "at": "2026-11-20T23:40:25+09:00",
+      "event": "작업 T14 변경: note=디자인 3차 6단계 적용 완료: PR#201(분석 여권 항로)·#202(바닥줄·발권·도장) 머지. 남은 것: 아이폰 시뮬레이터 실제 화면 확인·영상(8단계 보고 전), 시안 문서 PR #195~#198 정리"
+    },
+    {
+      "at": "2026-11-20T23:45:36+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_4a08e8289461, note=7·8단계: 3일 켜진 demo-ads 번들러(8082, 11-17 잔여) 종료 후 시뮬레이터 실제 앱 녹화 위임(Claude Mac). AI 분석 호출은 비용 승인 전이라 제외"
+    },
+    {
+      "at": "2026-11-21T00:08:04+09:00",
+      "event": "작업 추가 T17 (codex, 자동): 디자인 3차 실기기 발견 버그: 되돌리기 미표시(googlePlaceId null)+교체 시 메모 소실, 상세 목록 끝까지 안 내려감·빈 시간 이동 없음, 바닥줄 '빈 시간 1곳' 줄바꿈, '630분' 표기·1곳인데 장소 사이 문구, 여행 이름-지역 불일치, 대안 후보 품질, 시트 열 때 헤더 안 어두워짐, 큰 글자 제목 겹침 (PR #203 README)"
+    },
+    {
+      "at": "2026-11-21T00:08:04+09:00",
+      "event": "작업 T14 변경: dispatch=ctx_a93de3188eb0, note=실제 앱 녹화 PR#203(흐름 1·2·3·5, 버그 8건 발견). 뮤지엄산 운영 DB 1줄 복구(2026-11-21, id 33784 — 좌표는 places 1372 근사, 카테고리 attraction 추정). 분석 화면 녹화 위임 ctx_a93de3188eb0(사용자 승인 '승인 다 해')"
+    },
+    {
+      "at": "2026-11-21T00:17:56+09:00",
+      "event": "작업 추가 T18 (codex, 자동): AI 대기 화면이 멈춰 보이지 않게(분석 여권 항로 선회·흐르는 문구·오래 걸림 안내·% 제거, 다른 AI 대기 화면 공통 부품) — 사용자 피드백 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T00:17:56+09:00",
+      "event": "작업 T18 변경: status=dispatched, dispatch=ctx_3d2645d22a49, note=시안 Claude ctx_3d2645d22a49 / Codex ctx_d524c7e89950. 시간 측정은 사용자 판단으로 생략"
+    },
+    {
+      "at": "2026-11-21T00:25:16+09:00",
+      "event": "작업 추가 T19 (codex, 자동): 여행 컨셉 전체 디자인 통일(모든 화면, 팔레트 조정 허용·주황=실행/초록=도움 유지) + 피그마식 프로토타입 판 + 찜한 장소 네이버지도 저장 패턴 참고·폴더 아이콘 — 사용자 요청 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T00:25:16+09:00",
+      "event": "작업 T19 변경: status=dispatched, dispatch=ctx_b049cb8d9d1b, note=시안 Claude ctx_b049cb8d9d1b / Codex ctx_0f66d677a184. '색 전면 교체 금지' 해제(사용자 요청)"
+    },
+    {
+      "at": "2026-11-21T00:26:45+09:00",
+      "event": "작업 T14 변경: note=분석 화면 실제 녹화 완료(PR#203 04-analysis-passport-route.mp4, 속초·고성 쇼츠 1회 분석 58초). 실제로 본 문제: 누른 뒤 6초 홈 머묾, EXTRACTING에서 비행기 26초 정지, 문구 중복, 진행 띠 줄바꿈, 발권 0.25초 — T18(AI 대기)에서 다룸"
+    },
+    {
+      "at": "2026-11-21T00:26:46+09:00",
+      "event": "작업 T18 변경: note=Codex 시안 PR#204(선회 항로·신호 도장, % 있는 곳: PlaceReviewModal:182·AlternativeFinderSheet:417·TripReplanScreen:189). Claude 대기 ctx_3d2645d22a49"
+    },
+    {
+      "at": "2026-11-21T00:34:10+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_d3fed96e3960, note=사용자 지시 '작업은 윈도우에서': Claude 시안을 Windows로 옮김(ctx_d3fed96e3960), Codex Windows ctx_0f66d677a184"
+    },
+    {
+      "at": "2026-11-21T00:34:10+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_337badd15f0a, note=Claude 시안 Windows로 재시작 ctx_337badd15f0a. Codex PR#204 완료. 페이지 https://claude.ai/artifact/8M9AuUdWynCFo9Sv8vKGDT"
+    },
+    {
+      "at": "2026-11-21T00:35:01+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_280a9ca2c5c0, note=사용자 '시안 너무 별로, 디자인 스킬 써서' → Mac Claude(스킬 설치된 곳)로 재시작 ctx_280a9ca2c5c0, Windows Claude 중지"
+    },
+    {
+      "at": "2026-11-21T00:53:24+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_a3421bb4e951, note=사용자 '지금 해놓은 화면에서 변형해야지 실제 화면처럼'(Codex 프로토타입 보고) → 실제 앱 코드에 컨셉 입혀 웹 캡처: Claude ctx_a3421bb4e951(A 탑승권), Codex ctx_980179609d0f(여정 발권소)"
+    },
+    {
+      "at": "2026-11-21T00:55:00+09:00",
+      "event": "작업 T18 변경: note=Claude 디자인 스킬 재작업 완료 PR #207(머지 안 함, 시안 A 선회 추천). 아티팩트 https://claude.ai/artifact/7rkGG4hCbjCnkyfgf9dZ3d — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T00:58:04+09:00",
+      "event": "작업 T18 변경: note=사용자: C 창밖 순항 선택(위빙 조금 더), 리뷰 요약 대기는 새 시안 3개 → 같은 워커 ctx_280a9ca2c5c0"
+    },
+    {
+      "at": "2026-11-21T01:06:51+09:00",
+      "event": "작업 T19 변경: note=Codex 여정 발권소 실제 화면 완료: 41화면×밝게/어둡게 지금 82·시안 82, draft PR #208(머지 안 함). Claude A 탑승권 진행 중"
+    },
+    {
+      "at": "2026-11-21T01:07:46+09:00",
+      "event": "작업 T18 변경: note=C 위빙 1.4배(e847f78)·리뷰 대기 새 시안 3개(903b1c0) PR #207 push, 추천 리뷰1 작은 순항 띠. 사용자 선택 대기. 참고: e847f78 작성자 이메일 비어 있음(squash 머지 시 정리)"
+    },
+    {
+      "at": "2026-11-21T01:09:47+09:00",
+      "event": "작업 T18 변경: note=사용자: 리뷰 대기는 아래 시트 반쯤 열린 상태에서 안 보임 → 누른 자리 한 줄 순항 띠·시트 머리 아래 배치로 재시안(ctx_14a1901cf467)"
+    },
+    {
+      "at": "2026-11-21T01:15:26+09:00",
+      "event": "작업 T18 변경: note=리뷰 대기 누른 자리 시안 5곳 완료(PR #207 9b18378). 발견: 다시 열면 같은 요약 재요청(staleTime 0), 장소 시트는 리뷰 요약 보기 다시 눌러야 함 — 구현 때 고칠 것"
+    },
+    {
+      "at": "2026-11-21T01:19:23+09:00",
+      "event": "작업 T18 변경: note=리뷰 대기 문구 끝 점 애니메이션 반영(PR #207 47c8f0a). 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-21T01:21:28+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_e6c496cd5b29, note=사용자 확정: 분석 C(위빙 1.4배)+리뷰 누른 자리 순항 띠+문구 끝 점(분석에도). 적용 위임 Windows Codex ctx_e6c496cd5b29, 시안 PR #207 참고"
+    },
+    {
+      "at": "2026-11-21T02:10:59+09:00",
+      "event": "작업 T18 변경: note=Codex 적용 완료 PR #209(42파일, 테스트 319 통과 보고) → Claude 교차 검증 위임"
+    },
+    {
+      "at": "2026-11-21T02:11:11+09:00",
+      "event": "작업 T19 변경: note=Claude A 탑승권 실제 화면 완료 draft PR #210(지금 76·시안 78장). Codex 여정 발권소 PR #208. 아침 비교 페이지 준비"
+    },
+    {
+      "at": "2026-11-21T02:14:55+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_36455becd813, note=사용자 '지금 화면에 대해서 조금씩 디자인을 바꾸라는 거야 새로운 디자인이 아니라' → 최소 변경 버전 재위임: Claude ctx_36455becd813, Codex ctx_944297c16591. 지난 판 아티팩트 A 91wunHCefbKxVYkxYMXVMa, 여정 3doeDTNW2GetHm4xYxpjkq"
+    },
+    {
+      "at": "2026-11-21T02:20:05+09:00",
+      "event": "작업 T18 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T02:20:21+09:00",
+      "event": "작업 T18 변경: dispatch=ctx_3750eea7a3a6, note=교차 검증 미통과(중간 5·시안 불일치) → 같은 Codex에 수정 요청 ctx_3750eea7a3a6"
+    },
+    {
+      "at": "2026-11-21T11:07:50+09:00",
+      "event": "작업 T19 변경: note=조금씩 버전 완료: Codex PR #211, Claude PR #212 — 비교 페이지 공개"
+    },
+    {
+      "at": "2026-11-21T11:09:42+09:00",
+      "event": "작업 T18 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T11:09:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#209)"
+    },
+    {
+      "at": "2026-11-21T11:09:54+09:00",
+      "event": "승인 기록: merge_main (PR#209) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T11:10:10+09:00",
+      "event": "자동 승인 실행: merge_main(PR#209)"
+    },
+    {
+      "at": "2026-11-21T11:10:10+09:00",
+      "event": "작업 T18 변경: status=done, pr=209, note=PR #209 squash 머지 ef9e419. 후속: 큰 글자에서 20초 안내 안 뜸(낮음), 대안 찾기 95%·다시 짜기 추정 % 공통 대기로. 앱 출시(배포)는 사용자 확인 필요"
+    },
+    {
+      "at": "2026-11-21T11:35:13+09:00",
+      "event": "작업 T19 변경: note=조금씩 버전 공개: Claude PR #212 4QToBbZUnpb98K7pUJxyDk, Codex PR #211 2vWs1bArPc4KDv3m3qgayK, 모음 8dxq9y5XWghW5eaRYenb67 — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T12:15:31+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_58b7f2f63c01, note=사용자 선택: Claude 조금씩 A 기준(흐름2·내 여행 절취선·찜 구성), 분석·일정 짜는 중·말로 바꾸기 대기는 창밖 순항, 폴더 아이콘 배낭(+캐리어·수하물 태그 비교 캡처). 적용 위임 Windows Codex ctx_58b7f2f63c01"
+    },
+    {
+      "at": "2026-11-21T12:17:14+09:00",
+      "event": "작업 T19 변경: note=사용자: 폴더 아이콘 배낭 확정"
+    },
+    {
+      "at": "2026-11-21T12:44:00+09:00",
+      "event": "작업 T19 변경: pr=213, note=Codex 적용 완료 PR #213(코드 16파일, 테스트 328 통과 보고) → Claude 교차 검증 ctx_e220c18cc053"
+    },
+    {
+      "at": "2026-11-21T12:51:47+09:00",
+      "event": "작업 T19 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T12:55:08+09:00",
+      "event": "작업 T19 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T12:55:14+09:00",
+      "event": "자동 승인 실행: merge_main(PR#213)"
+    },
+    {
+      "at": "2026-11-21T12:55:22+09:00",
+      "event": "승인 기록: merge_main (PR#213) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T13:00:09+09:00",
+      "event": "자동 승인 실행: merge_main(PR#213)"
+    },
+    {
+      "at": "2026-11-21T13:00:09+09:00",
+      "event": "작업 T19 변경: status=done, note=PR #213 squash 머지 899905f. 남은 낮음: AiWaiting 실제 렌더 5초·20초 테스트, 동작 줄이기 전달 테스트. 앱 출시는 사용자 확인 필요"
+    },
+    {
+      "at": "2026-11-21T13:19:00+09:00",
+      "event": "작업 추가 T20 (codex, 자동): 찜 폴더 아이콘 교체(배낭→우표/항공권) — 사용자 피드백 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T13:19:03+09:00",
+      "event": "작업 T20 변경: status=dispatched, dispatch=ctx_54ed4bf6e08c, note=시안 3개(A 우표, B 항공권, C 우표+소인) 실제 화면 캡처, draft PR"
+    },
+    {
+      "at": "2026-11-21T13:35:10+09:00",
+      "event": "작업 T20 변경: note=시안 완료 draft PR #214, 비교 페이지 8dgFLet2LaLaHQsgfjmhMr, 추천 B 항공권 — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T13:35:44+09:00",
+      "event": "작업 T20 변경: note=사용자: 애플처럼 약간 투명하게 → A2·B2·C2 반투명 버전 추가 요청"
+    },
+    {
+      "at": "2026-11-21T13:47:02+09:00",
+      "event": "작업 T20 변경: dispatch=ctx_b149c92b2880, note=사용자: 얇은 선+옅은 면 아이콘 스타일(참고 이미지), '찜'→'저장' 전체 이름 변경, 저장 폴더 아이콘 재시안(D 항공권·E 우표·F 여권) → feat/saved-rename. 다음: 앱 전체 아이콘 점검"
+    },
+    {
+      "at": "2026-11-21T13:54:23+09:00",
+      "event": "작업 T20 변경: pr=215, note=PR #215: '찜'→'저장' 문구 30여 곳+D 항공권 얇은 선 적용, 테스트 334. 시안 페이지 QNLPHFaSKC6dCn9rnL8Hht — 아이콘 선택 대기 후 교차 검증"
+    },
+    {
+      "at": "2026-11-21T13:59:22+09:00",
+      "event": "작업 T20 변경: agent=claude, dispatch=ctx_41df2f38d245, note=사용자 '항공권 좋은데 올려준 사진처럼, 디자인 스킬 써서' → Claude(Mac, 디자인 스킬 필요) T1·T2·T3, PR #215 브랜치에 커밋"
+    },
+    {
+      "at": "2026-11-21T14:22:07+09:00",
+      "event": "작업 T20 변경: note=항공권 T1~T3 완료(Claude, 디자인 스킬 4개), 앱에 T2 적용 PR #215 6312695. 페이지 2SsZYR42PXongx1ESntCVe — 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-21T14:24:19+09:00",
+      "event": "작업 T20 변경: note=사용자: T1 선택, 탭은 위치 핀 얇게만 → 같은 Claude 작업자에 반영 요청"
+    },
+    {
+      "at": "2026-11-21T14:33:34+09:00",
+      "event": "작업 T20 변경: note=T1·얇은 핀·문구 다듬기 완료(PR #215 8756b7f, 테스트 334). 교차 검증: 아이콘 부분 Codex ctx_94f558936e89, 문구 부분 Claude(ctx_7bfb91c722a9 후속)"
+    },
+    {
+      "at": "2026-11-21T14:44:54+09:00",
+      "event": "작업 T20 검증(codex:review+claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T14:45:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#215)"
+    },
+    {
+      "at": "2026-11-21T14:45:09+09:00",
+      "event": "승인 기록: merge_main (PR#215) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T14:45:19+09:00",
+      "event": "자동 승인 실행: merge_main(PR#215)"
+    },
+    {
+      "at": "2026-11-21T14:45:19+09:00",
+      "event": "작업 T20 변경: status=done, note=PR #215 squash 머지 6c27282"
+    },
+    {
+      "at": "2026-11-21T14:45:23+09:00",
+      "event": "작업 추가 T21 (claude): 앱 전체 아이콘 얇은 선 스타일 점검·시안 — 사용자 요청 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T14:45:44+09:00",
+      "event": "작업 T21 변경: status=dispatched, dispatch=ctx_81d3a1ecf253, note=S1 선만 얇게 / S2 눈에 띄는 곳만 참고 그림체 시안, draft PR"
+    },
+    {
+      "at": "2026-11-21T15:03:53+09:00",
+      "event": "작업 T21 변경: pr=216, note=시안 완료 draft PR #216, 아이콘 183곳 목록, S1·S2, 추천 S2. 페이지 R8rSy7asFEhjBWyyVkz7ZM — 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-21T15:10:35+09:00",
+      "event": "작업 T21 변경: note=사용자: S2 선택 → feat/thin-icons 적용 요청"
+    },
+    {
+      "at": "2026-11-21T15:18:10+09:00",
+      "event": "작업 T21 변경: pr=217, note=S2 적용 PR #217(495bfab, 테스트 343, 새 테스트 7개 먼저 실패→통과). Codex 교차 검증 ctx_e83534bd5517"
+    },
+    {
+      "at": "2026-11-21T15:20:43+09:00",
+      "event": "작업 T21 검증(codex:review): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T15:27:18+09:00",
+      "event": "작업 T21 검증(codex:review): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T15:29:41+09:00",
+      "event": "작업 T21 검증(codex:review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T15:29:51+09:00",
+      "event": "자동 승인 실행: merge_main(PR#217)"
+    },
+    {
+      "at": "2026-11-21T15:29:58+09:00",
+      "event": "승인 기록: merge_main (PR#217) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T15:30:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#217)"
+    },
+    {
+      "at": "2026-11-21T15:30:07+09:00",
+      "event": "작업 T21 변경: status=done, note=PR #217 squash 머지 692c142. draft PR #216(시안)은 열려 있음. 실기기 선명도·VoiceOver 미검증"
+    },
+    {
+      "at": "2026-11-21T15:40:11+09:00",
+      "event": "승인 기록: deploy (release-2026-11-21)"
+    },
+    {
+      "at": "2026-11-21T15:52:29+09:00",
+      "event": "작업 T10 변경: status=dispatched, dispatch=ctx_17c8d123a807, note=사용자 배포 승인(2026-11-21 '진행해'). 네이티브 변경 없으면 무선 업데이트(production), 있으면 스토어 빌드 versionCode 11. QA 에뮬레이터 확인 후 출시"
+    },
+    {
+      "at": "2026-11-21T15:54:48+09:00",
+      "event": "작업 T10 변경: status=todo, note=Windows에 Expo 로그인 안 됨 → 출시 중단(테스트 349 통과, 네이티브 변경 없음 → 무선 업데이트 후보). 사용자 Expo 로그인 대기"
+    },
+    {
+      "at": "2026-11-21T16:03:30+09:00",
+      "event": "작업 T10 변경: status=dispatched, note=사용자 Expo 로그인 완료(Windows) → 출시 재개"
+    },
+    {
+      "at": "2026-11-21T16:10:55+09:00",
+      "event": "작업 T10 변경: note=Windows Expo 계정 taeng527(프로젝트 소유, Google 로그인)로 재로그인 → 출시 재개"
+    },
+    {
+      "at": "2026-11-21T16:18:07+09:00",
+      "event": "작업 T10 변경: agent=claude, dispatch=ctx_74f444f8a02b, note=Windows는 google-services.json(비밀 파일) 차이로 지문 불일치 → 원본 있는 Mac으로 인계(Claude). 기대 지문 692378b1…, 무료 사용량 4/15·MAU 19/1000"
+    },
+    {
+      "at": "2026-11-21T16:24:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#218)"
+    },
+    {
+      "at": "2026-11-21T16:24:41+09:00",
+      "event": "승인 기록: merge_main (PR#218) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T16:26:57+09:00",
+      "event": "작업 T10 검증(codex:review): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T16:27:01+09:00",
+      "event": "자동 승인 실행: merge_main(PR#218)"
+    },
+    {
+      "at": "2026-11-21T16:27:01+09:00",
+      "event": "작업 T10 변경: status=done, pr=218, note=무선 업데이트 출시 완료(그룹 2f14364f). 실기기 새 화면 확인 대기"
+    },
+    {
+      "at": "2026-11-21T16:36:05+09:00",
+      "event": "자동 승인 실행: merge_main(PR#218)"
+    },
+    {
+      "at": "2026-11-21T16:36:05+09:00",
+      "event": "작업 T10 변경: note=출시 후 실사용 확인(Windows trova-qa Play v10): 강릉 쇼츠 분석 55초 안에 2곳, 리뷰 요약 12초 안에 완료, 재시도 없음"
+    },
+    {
+      "at": "2026-11-21T16:39:56+09:00",
+      "event": "작업 추가 T22 (codex, 자동): 최신 화면 UX/UI QA(Windows 에뮬레이터) — 사용자 요청 2026-11-21"
+    },
+    {
+      "at": "2026-11-21T16:40:00+09:00",
+      "event": "작업 T22 변경: status=dispatched, dispatch=ctx_66b8d0b6b179, note=trova-qa만, 테스트용 데이터만 만들고 정리, 코드 수정 없음, HTML 리포트"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "승인 기록: spec (trip-collab) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T23 (codex, 자동): 같이 고치기 3: 참여/담기·함께 표시·멤버 관리·409 안내 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T24 (codex, 자동): 같이 고치기 4: SSE 연결·토스트·복귀 새로 받기 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T18:31:42+09:00",
+      "event": "작업 T23 변경: status=dispatched, dispatch=ctx_2e55ee117947, note=계약 docs/api/trip-collab.md(백엔드 #499), 가짜 응답으로 개발"
+    },
+    {
+      "at": "2026-11-21T18:33:38+09:00",
+      "event": "작업 T22 변경: pr=219, note=UX/UI QA 완료 PR #219(문서만): 높음1·중간4·낮음3. 페이지 GfZKXvKYp2rVcePjFnMK6N. 재분석으로 테스트 계정 강릉 영상 10→5곳(운영 기록 변화). 고칠 항목 사용자 판단 대기"
+    },
+    {
+      "at": "2026-11-21T18:46:29+09:00",
+      "event": "작업 T23 변경: pr=220, note=PR #220: 참여/담기·함께 표시·멤버·링크 관리·OWNER 전용·409, 테스트 355, 캡처 12장. 계약 메모: join 응답이 신규/기존 멤버 구분 없음"
+    },
+    {
+      "at": "2026-11-21T18:46:39+09:00",
+      "event": "작업 T23 변경: note=Claude 교차 검증 ctx_76a2467494d1"
+    },
+    {
+      "at": "2026-11-21T18:47:52+09:00",
+      "event": "작업 T22 변경: dispatch=ctx_689e4fd36400, note=사용자 '모두 고쳐줘' → QA 8건 수정 위임(Windows Codex)"
+    },
+    {
+      "at": "2026-11-21T18:57:04+09:00",
+      "event": "작업 T23 검증(claude:reviewflow): tests=pass, review=fail, security=fail"
+    },
+    {
+      "at": "2026-11-21T18:58:56+09:00",
+      "event": "작업 T22 변경: pr=221, note=QA 8건 수정 PR #221, 테스트 358, 캡처 32장, #220과 겹침 screen-rules.test 1개. 서버 후속: 재분석 이전 결과 이력 조회, 경포호 카탈로그 매칭 좌표·ID 검증"
+    },
+    {
+      "at": "2026-11-21T19:03:45+09:00",
+      "event": "작업 T22 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T19:03:52+09:00",
+      "event": "자동 승인 실행: merge_main(PR#221)"
+    },
+    {
+      "at": "2026-11-21T19:04:00+09:00",
+      "event": "승인 기록: merge_main (PR#221) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T19:04:04+09:00",
+      "event": "자동 승인 실행: merge_main(PR#221)"
+    },
+    {
+      "at": "2026-11-21T19:04:04+09:00",
+      "event": "작업 T22 변경: status=done, note=PR #221 머지. 출시는 다음 OTA 묶음"
+    },
+    {
+      "at": "2026-11-21T19:06:03+09:00",
+      "event": "작업 T23 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-21T19:09:37+09:00",
+      "event": "작업 T23 변경: note=마무리 3b095f7: main 병합, OWNER 첫 공유 안내, 테스트 371. 서버 #499 운영 배포 후 머지 대기"
+    },
+    {
+      "at": "2026-11-21T20:49:08+09:00",
+      "event": "작업 T23 변경: note=서버 계약 0fc6c20 반영 050c40f(X-Trip-Version 캐시 갱신, 오류 본문, 실행자별 설명), 테스트 377. 서버에 CORS 노출 헤더 요청(T26)"
+    },
+    {
+      "at": "2026-11-21T22:02:18+09:00",
+      "event": "작업 T24 변경: status=dispatched, dispatch=ctx_bc734e8d66c1, note=#220 브랜치 위 feat/trip-collab-live, 순수 JS SSE"
+    },
+    {
+      "at": "2026-11-21T22:10:46+09:00",
+      "event": "승인 기록: push (feat/trip-collab-live) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T22:19:10+09:00",
+      "event": "작업 T24 변경: pr=222, note=PR #222: 순수 JS SSE 파서+expo/fetch, 테스트 383, 캡처 2장. Codex 다른 세션 검증(OTA 가능 여부 중점)"
+    },
+    {
+      "at": "2026-11-21T22:21:24+09:00",
+      "event": "작업 T24 변경: note=Codex 다른 세션 검증: 보안 통과, OTA 조건부 가능(지문 변화 없음), 수정 P1 1·P2 3 → 요청"
+    },
+    {
+      "at": "2026-11-21T22:23:47+09:00",
+      "event": "작업 T24 변경: note=수정 72a66ed(테스트 388) → Codex 재확인"
+    },
+    {
+      "at": "2026-11-21T22:26:26+09:00",
+      "event": "작업 T24 변경: note=마지막 수정 9dd5301(재연결·복귀 시 멤버 명단 갱신, 테스트 389) — 매니저가 diff 직접 확인, 지적 해소. Codex 검증 4/4"
+    },
+    {
+      "at": "2026-11-21T22:52:19+09:00",
+      "event": "작업 추가 T25 (codex, 자동): 같이 고치기 두 계정 QA(로컬 서버, 운영 배포 전)"
+    },
+    {
+      "at": "2026-11-21T22:52:25+09:00",
+      "event": "작업 T25 변경: status=dispatched, dispatch=ctx_5c29eecf01da, note=로컬 서버(#499+#500)+앱(#220+#222), 테스트 계정 2~3, memory·가능하면 Kafka"
+    },
+    {
+      "at": "2026-11-21T23:24:18+09:00",
+      "event": "작업 T25 변경: pr=223, note=QA: 기준 8/9 통과, 2(실시간) 실패 — 삭제 미전파·웹 드래그 요청 0, 장소 저장 500은 로컬 DB embedding 열 누락(환경). Kafka(Docker 없음)·네이티브 SSE(QA APK 광고 모듈 누락)·개인화 양성 대조 미확인"
+    },
+    {
+      "at": "2026-11-21T23:29:27+09:00",
+      "event": "작업 T24 변경: note=QA 수정 2817e7c: 삭제 안내·목록 이동(TRIP_DELETED/404/403), 웹 드래그→위/아래 버튼, 테스트 391. 서버 삭제 이벤트 필요 → #500에 요청"
+    },
+    {
+      "at": "2026-11-21T23:51:10+09:00",
+      "event": "작업 T25 변경: note=기준 2 재QA 통과: 추가 810ms·삭제 317ms·위/아래 ~310ms·시간 311ms·여행 삭제 전파 153ms. 기준 9/9 통과(Kafka·네이티브 SSE·개인화 양성 대조는 운영 후 확인)"
+    },
+    {
+      "at": "2026-11-21T23:56:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#222)"
+    },
+    {
+      "at": "2026-11-21T23:56:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#220)"
+    },
+    {
+      "at": "2026-11-21T23:56:35+09:00",
+      "event": "승인 기록: merge_main (PR#220) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T23:56:52+09:00",
+      "event": "작업 T23 변경: note=main fbb4f45 머지(#222 포함), OTA는 서버 배포 뒤"
+    },
+    {
+      "at": "2026-11-22T00:14:27+09:00",
+      "event": "자동 승인 실행: merge_main(PR#224)"
+    },
+    {
+      "at": "2026-11-22T00:14:30+09:00",
+      "event": "승인 기록: merge_main (PR#224) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:14:35+09:00",
+      "event": "작업 T24 변경: note=OTA 출시 그룹 cff39447-bd59-445e-af02-28854b56305f(main fbb4f45), Play v10 수신 확인. 되돌리기: 2f14364f republish"
+    },
+    {
+      "at": "2026-11-22T00:36:09+09:00",
+      "event": "작업 T24 변경: note=웹(PWA)은 예전 번들이라 참여 버튼 없음(사용자 시뮬레이터에서 발견) → 웹 운영 배포 위임 ctx_0f09d618e124"
+    },
+    {
+      "at": "2026-11-22T00:42:31+09:00",
+      "event": "자동 승인 실행: merge_main(PR#225)"
+    },
+    {
+      "at": "2026-11-22T00:42:34+09:00",
+      "event": "승인 기록: merge_main (PR#225) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:42:37+09:00",
+      "event": "작업 T24 변경: note=웹 운영 배포 완료 03e72b3, 공유 링크 참여 버튼 확인. 백업 /srv/trova-app/backup-before-03e72b3-6ryKbZKu"
+    },
+    {
+      "at": "2026-11-22T01:09:07+09:00",
+      "event": "작업 추가 T26 (codex, 자동): 실기기 발견: 여행 상세 '저장한 장소' 폴더 색 점→T1 아이콘, 웹 편집 중 소식 도착 시 저장 소실·충돌 안내 없음"
+    },
+    {
+      "at": "2026-11-22T01:09:13+09:00",
+      "event": "작업 T26 변경: status=dispatched, dispatch=ctx_d5fd2367252a, note=강릉 실기기 테스트: 에뮬→시뮬 반영 OK(추가·시간·순서), 시뮬→에뮬 방향은 저장이 겹쳐 미확인. 임시 장소 삭제·5곳 복원 완료"
+    },
+    {
+      "at": "2026-11-22T01:19:10+09:00",
+      "event": "작업 T26 변경: pr=226, note=PR #226: 원인 = 소식 뒤 PATCH 409 받고 창이 닫혀 안내가 화면 밖. 초안 유지·재저장·재시도 안내, 폴더 점→T1, 테스트 392. Codex 다른 세션 검증"
+    },
+    {
+      "at": "2026-11-22T01:21:34+09:00",
+      "event": "작업 T26 변경: note=검증: 웹 pass, 수정 요청 P1(Android 피커 재오픈) + P2(메모 초안·이동수단·헤더 안내·원격 삭제 404)"
+    },
+    {
+      "at": "2026-11-22T01:27:35+09:00",
+      "event": "자동 승인 실행: merge_main(PR#226)"
+    },
+    {
+      "at": "2026-11-22T01:27:49+09:00",
+      "event": "승인 기록: merge_main (PR#226) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T01:28:18+09:00",
+      "event": "작업 T26 변경: note=#226 머지 b67b68c. 운영 OTA·웹 배포는 자동 판단에서 막힘(사용자 수면 중 새 배포) → 아침에 사용자 확인 후 진행. 밤새 로컬 전체 QA"
+    },
+    {
+      "at": "2026-11-22T01:51:32+09:00",
+      "event": "작업 T25 변경: note=로컬 전체 QA PR #227: 8/10 pass(양방향 14건 0.2~1.5초), fail 2(동시 삭제 404 일반 안내, 큰 글자 메모 줄 겹침) → 수정 위임"
+    },
+    {
+      "at": "2026-11-22T01:56:52+09:00",
+      "event": "작업 T25 변경: note=수정 PR #228(df8aef3, 테스트 395) → Codex 검증"
+    },
+    {
+      "at": "2026-11-22T01:58:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#228)"
+    },
+    {
+      "at": "2026-11-22T01:58:52+09:00",
+      "event": "승인 기록: merge_main (PR#228) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T01:58:56+09:00",
+      "event": "작업 T25 변경: note=PR #228 머지. 운영 반영(OTA·웹)은 아침 사용자 확인 대기 — main에 #226·#228 대기"
+    },
+    {
+      "at": "2026-11-22T10:59:09+09:00",
+      "event": "승인 기록: deploy (collab-followup-2026-11-22)"
+    },
+    {
+      "at": "2026-11-22T10:59:27+09:00",
+      "event": "작업 T25 변경: note=사용자 승인 → OTA·웹 배포 위임(main 1acbc2e)"
+    },
+    {
+      "at": "2026-11-22T11:03:28+09:00",
+      "event": "자동 승인 실행: merge_main(PR#229)"
+    },
+    {
+      "at": "2026-11-22T11:03:28+09:00",
+      "event": "자동 승인 실행: merge_main(PR#230)"
+    },
+    {
+      "at": "2026-11-22T11:03:31+09:00",
+      "event": "승인 기록: merge_main (PR#229) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T11:03:38+09:00",
+      "event": "승인 기록: merge_main (PR#230) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T11:03:40+09:00",
+      "event": "작업 T25 변경: note=운영 반영 완료: 웹 1acbc2e(백업 backup-before-1acbc2e-3dZs8H6u), Android OTA 그룹 8fe479af(되돌리기 cff39447)"
+    },
+    {
+      "at": "2026-11-22T11:04:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#230)"
+    },
+    {
+      "at": "2026-11-22T12:07:26+09:00",
+      "event": "작업 T17 변경: status=dispatched, dispatch=ctx_31e80c3a069d, note=사용자 외출 중 진행: 디자인 3차 실기기 버그 8건 재현·수정. 머지·배포 금지"
+    },
+    {
+      "at": "2026-11-22T12:31:56+09:00",
+      "event": "작업 T17 변경: pr=231, note=PR #231: 고침 5(스크롤·빈시간, 줄바꿈, 630분, 시트 헤더, 큰 글자), 서버 필요 2(null ID 되돌리기·메모, 대안 이름 현지화), 데이터 확인 1(제목 지역). 테스트 400. Codex 검증"
+    },
+    {
+      "at": "2026-11-22T12:34:29+09:00",
+      "event": "작업 T17 변경: note=PR #231 Codex 검증 통과(테스트 400, 공동편집 회귀 없음). iOS 실기기 2건(마지막 장소 스크롤, 최대 글자 헤더) 재확인 남음. 머지는 사용자 복귀 후"
+    },
+    {
+      "at": "2026-11-22T17:06:50+09:00",
+      "event": "승인 기록: deploy (T17-design3-bugs)"
+    },
+    {
+      "at": "2026-11-22T17:06:58+09:00",
+      "event": "자동 승인 실행: merge_main(PR#231)"
+    },
+    {
+      "at": "2026-11-22T17:07:04+09:00",
+      "event": "승인 기록: merge_main (PR#231) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:07:55+09:00",
+      "event": "작업 추가 T27 (codex, 자동): 영상 분석 이력 보기 화면(서버 #503 계약)"
+    },
+    {
+      "at": "2026-11-22T17:07:59+09:00",
+      "event": "작업 T27 변경: status=dispatched, dispatch=ctx_6dda22dcaef5"
+    },
+    {
+      "at": "2026-11-22T17:07:59+09:00",
+      "event": "작업 T17 변경: note=main 2a7446f 머지, OTA·웹 배포 위임"
+    },
+    {
+      "at": "2026-11-22T17:11:19+09:00",
+      "event": "작업 T17 변경: note=OTA 그룹 27caef78(main 2a7446f), Play v10 수신 확인, 되돌리기 8fe479af. 기록 PR #232(웹 기록과 함께 머지 예정)"
+    },
+    {
+      "at": "2026-11-22T17:15:55+09:00",
+      "event": "작업 T27 변경: pr=233, note=PR #233(b9c2258, 테스트 404, 캡처 4) → Codex 검증"
+    },
+    {
+      "at": "2026-11-22T17:19:15+09:00",
+      "event": "자동 승인 실행: merge_main(PR#234)"
+    },
+    {
+      "at": "2026-11-22T17:19:16+09:00",
+      "event": "승인 기록: merge_main (PR#234) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:19:41+09:00",
+      "event": "작업 T17 변경: note=웹 배포 완료 2a7446f(백업 backup-before-2a7446f-G9BzZvKW), 기록 #234 머지, #232 충돌 정리 중"
+    },
+    {
+      "at": "2026-11-22T17:19:41+09:00",
+      "event": "작업 T27 변경: note=검증: OTA 가능, 수정 3(live·embed 영상 키, 도로명 주소 우선, 저장 후 영상 주소 유지) → 요청"
+    },
+    {
+      "at": "2026-11-22T17:20:33+09:00",
+      "event": "자동 승인 실행: merge_main(PR#232)"
+    },
+    {
+      "at": "2026-11-22T17:20:36+09:00",
+      "event": "승인 기록: merge_main (PR#232) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:20:40+09:00",
+      "event": "작업 T17 변경: pr=231, note=운영 반영 완료(OTA 27caef78·웹 2a7446f), 기록 #232·#234 머지. iOS 실기기 2건 확인 남음"
+    },
+    {
+      "at": "2026-11-22T17:23:53+09:00",
+      "event": "작업 T27 변경: note=마지막 수정 cda74b7(중첩 유튜브 주소, 테스트 409) — 매니저가 diff 직접 확인(첫 위치 일치 하나의 패턴, 서버와 같은 순서). 지적 모두 해소. 머지·배포 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-22T20:01:26+09:00",
+      "event": "승인 기록: deploy (video-history-ui)"
+    },
+    {
+      "at": "2026-11-22T20:01:26+09:00",
+      "event": "승인 기록: merge_main (PR#233) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T20:01:59+09:00",
+      "event": "작업 T27 변경: pr=233, note=main 722067a 머지, OTA·웹 배포 위임"
+    },
+    {
+      "at": "2026-11-22T20:05:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#235)"
+    },
+    {
+      "at": "2026-11-22T20:05:37+09:00",
+      "event": "승인 기록: merge_main (PR#235) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T20:05:40+09:00",
+      "event": "작업 T27 변경: note=웹 배포 완료 722067a(백업 backup-before-722067a-zW4yFr1B), 기록 #235 머지. OTA 대기"
+    },
+    {
+      "at": "2026-11-22T20:05:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#236)"
+    },
+    {
+      "at": "2026-11-22T20:05:54+09:00",
+      "event": "승인 기록: merge_main (PR#236) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T20:06:03+09:00",
+      "event": "작업 T27 변경: note=운영 반영 완료: OTA 7fc4baac(되돌리기 27caef78)·웹 722067a, 기록 #235·#236 머지. 실기기 이력 화면 확인 남음"
+    },
+    {
+      "at": "2026-11-22T23:03:38+09:00",
+      "event": "작업 T17 변경: note=iOS 확인 2건: 시뮬레이터 네이티브 빌드로 확인 위임 ctx_5f4e47a805e1(첫 시작은 실행 명령 글자 누락으로 실패 후 재시작)"
+    },
+    {
+      "at": "2026-11-22T23:27:37+09:00",
+      "event": "작업 T17 변경: note=iOS 확인(PR #237 문서): 상세 스크롤 FAIL(4번째 행에서 멈춤), 최대 글자 PASS → iOS 스크롤 수정 위임(Mac)"
+    },
+    {
+      "at": "2026-11-22T23:35:51+09:00",
+      "event": "작업 T17 변경: note=iOS 스크롤 원인: 목록이 944pt로 측정(보이는 618pt) → 실제 시트 높이 적용, PR #238(41a6a70), 시뮬레이터 7곳·5곳 끝까지 PASS. Codex 검증"
+    },
+    {
+      "at": "2026-11-22T23:41:15+09:00",
+      "event": "작업 T17 변경: note=PR #238 Codex 검증 통과(Android·웹 회귀 없음). 운영 반영 대기(빈 시간 제외와 함께)"
+    },
+    {
+      "at": "2026-11-22T23:41:28+09:00",
+      "event": "작업 추가 T28 (codex, 자동): 장소 순서·함께 멤버 표시를 애플처럼 고급스럽게 — 시안 3개(사용자 2026-11-22)"
+    },
+    {
+      "at": "2026-11-22T23:41:35+09:00",
+      "event": "작업 T28 변경: status=dispatched, dispatch=ctx_b75756d757a0, note=디자인 가이드 3단계: 실제 앱 화면 시안 3개(애플 미니멀/반투명 칩/얇은 선), 사용자 선택 전 코드 반영 없음"
+    },
+    {
+      "at": "2026-11-22T23:49:43+09:00",
+      "event": "작업 T28 변경: pr=239, note=시안 3개 draft PR #239, 비교 페이지 YbqQHmtndXKa7Gmjnzoiwu, 추천 1안(애플 미니멀)→3안→2안. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-22T23:52:12+09:00",
+      "event": "작업 T28 변경: note=사용자 1안(애플 미니멀) 선택 → 적용 + 다른 화면 후보 조사 위임"
+    },
+    {
+      "at": "2026-11-23T00:03:40+09:00",
+      "event": "작업 T28 변경: pr=240, note=PR #240 적용(테스트 411) → Codex 검증 중. 다른 화면 후보 8곳 조사 페이지 Uq911f4TyG2fyMGNRp6pz7"
+    },
+    {
+      "at": "2026-11-23T00:04:54+09:00",
+      "event": "작업 T28 변경: note=사용자: 후보 8곳 시안 만들어 비교·선택 → 위임(prototype/apple-minimal-8)"
+    },
+    {
+      "at": "2026-11-23T00:07:07+09:00",
+      "event": "작업 T28 변경: note=PR #240 검증: 수정 2(빈 시간 버튼 선 밖·간격, 카드 접근성 이름) → 요청"
+    },
+    {
+      "at": "2026-11-23T00:11:07+09:00",
+      "event": "작업 T28 변경: note=PR #240 재확인 PASS(테스트 413, 빈 시간 간격 17px, 카드 접근성 이름). 운영 반영 대기"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: deploy (ios-scroll-apple-minimal)"
+    },
+    {
+      "at": "2026-11-23T00:13:04+09:00",
+      "event": "승인 기록: merge_main (PR#238) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:14+09:00",
+      "event": "자동 승인 실행: merge_main(PR#240)"
+    },
+    {
+      "at": "2026-11-23T00:13:25+09:00",
+      "event": "승인 기록: merge_main (PR#240) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:52+09:00",
+      "event": "작업 T28 변경: note=#240 main 9e474a5 머지(+#238), OTA·웹 위임. 8곳 시안 draft PR #241"
+    },
+    {
+      "at": "2026-11-23T00:14:35+09:00",
+      "event": "작업 T28 변경: note=8곳 시안 비교 페이지 BdL8kuGbwmT4gV3hrzLVrX(draft PR #241). 8B는 왼쪽 3px 색 선 — 사용자 금지 규칙과 충돌 표시. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-23T00:21:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#243)"
+    },
+    {
+      "at": "2026-11-23T00:21:18+09:00",
+      "event": "승인 기록: merge_main (PR#243) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:21:45+09:00",
+      "event": "자동 승인 실행: merge_main(PR#242)"
+    },
+    {
+      "at": "2026-11-23T00:21:48+09:00",
+      "event": "승인 기록: merge_main (PR#242) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:21:51+09:00",
+      "event": "작업 T28 변경: note=운영 반영 완료: OTA ddaeaa38(되돌리기 7fc4baac)·웹 9e474a5(백업 backup-before-9e474a5-Bwqg5qVB), 기록 #242·#243 머지. 8곳 시안 선택 대기"
+    },
+    {
+      "at": "2026-11-23T00:22:56+09:00",
+      "event": "작업 T28 변경: note=사용자 선택: 4A(박스 유지)·5A·6A·7A 적용, 1·2·3·8 유지 → 위임(feat/apple-minimal-picks)"
+    },
+    {
+      "at": "2026-11-23T00:30:57+09:00",
+      "event": "작업 T28 변경: note=PR #244(4곳 적용, 테스트 416, 캡처 38) → Codex 검증"
+    },
+    {
+      "at": "2026-11-23T00:40:32+09:00",
+      "event": "작업 T28 변경: note=PR #244 재확인 PASS(테스트 418). 캡처 1장 교체 후 운영 반영 사용자 확인"
+    },
+    {
+      "at": "2026-11-23T00:41:01+09:00",
+      "event": "승인 기록: deploy (apple-minimal-picks)"
+    },
+    {
+      "at": "2026-11-23T00:41:01+09:00",
+      "event": "승인 기록: merge_main (PR#244) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:41:24+09:00",
+      "event": "작업 T28 변경: pr=244, note=#244 main d9aa536 머지, OTA·웹 위임"
+    },
+    {
+      "at": "2026-11-23T00:42:16+09:00",
+      "event": "자동 승인 실행: merge_main(PR#245)"
+    },
+    {
+      "at": "2026-11-23T00:42:25+09:00",
+      "event": "승인 기록: merge_main (PR#245) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:45:40+09:00",
+      "event": "자동 승인 실행: merge_main(PR#246)"
+    },
+    {
+      "at": "2026-11-23T00:45:48+09:00",
+      "event": "승인 기록: merge_main (PR#246) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:46:12+09:00",
+      "event": "자동 승인 실행: merge_main(PR#247)"
+    },
+    {
+      "at": "2026-11-23T00:46:19+09:00",
+      "event": "승인 기록: merge_main (PR#247) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:46:23+09:00",
+      "event": "작업 T28 변경: note=운영 반영 완료: OTA e43b15df(되돌리기 ddaeaa38)·웹 d9aa536(백업 backup-before-d9aa536-dJNRA2LS), 기록 #246·#247 머지"
+    },
+    {
+      "at": "2026-11-23T12:16:50+09:00",
+      "event": "승인 기록: deploy (share-domain)"
+    },
+    {
+      "at": "2026-11-23T14:44:33+09:00",
+      "event": "승인 기록: deploy (store-applinks)"
+    },
+    {
+      "at": "2026-11-23T14:44:33+09:00",
+      "event": "작업 추가 T29 (codex, 자동): 스토어 업데이트: trova.duckdns.org 공유 링크를 앱으로 바로 열기(Android 앱 링크)"
+    },
+    {
+      "at": "2026-11-23T14:44:52+09:00",
+      "event": "작업 T29 변경: status=blocked, note=사용자 취소(11/23 '아니 스토어 말고') — 스토어 업데이트는 나중에. store-applinks 승인 기록은 사용하지 않음"
+    },
+    {
+      "at": "2026-11-24T10:16:16+09:00",
+      "event": "작업 추가 T30 (codex, 자동): 공유 링크 trova.duckdns.org 앱 바로 열기(Android 앱 링크) + v11 빌드"
+    },
+    {
+      "at": "2026-11-24T10:16:40+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_60698855ee34, note=사용자 지시 11/24. Play 제출·웹 배포는 승인 후 별도"
+    },
+    {
+      "at": "2026-11-24T10:36:35+09:00",
+      "event": "작업 T30 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:36:35+09:00",
+      "event": "작업 T30 변경: pr=251, note=EAS AAB e9e67447 완성(v11). Play 제출 승인 대기"
+    },
+    {
+      "at": "2026-11-24T10:45:40+09:00",
+      "event": "승인 기록: deploy (v11-internal)"
+    },
+    {
+      "at": "2026-11-24T10:45:40+09:00",
+      "event": "작업 추가 T31 (codex, 자동): v11 플레이 내부 테스트 업로드"
+    },
+    {
+      "at": "2026-11-24T10:45:51+09:00",
+      "event": "작업 T31 변경: status=dispatched, dispatch=ctx_acac9fb591e3, note=내부 테스트 트랙만. 다음: Windows 에뮬레이터 QA"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#251)"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "작업 T30 변경: status=done, note=#251 병합 ec37c5a"
+    },
+    {
+      "at": "2026-11-24T10:48:32+09:00",
+      "event": "작업 T31 변경: status=blocked, note=EAS에 Play 제출용 서비스 계정 키 없음 → 사용자가 Play Console에서 AAB 수동 업로드 필요"
+    },
+    {
+      "at": "2026-11-24T10:56:30+09:00",
+      "event": "작업 T31 변경: status=blocked, note=사용자 결정 11/24: 내부 테스트 생략, 자체 QA 후 정식 배포"
+    },
+    {
+      "at": "2026-11-24T10:56:30+09:00",
+      "event": "작업 추가 T32 (codex, 자동): v11 자체 QA(APK 빌드 → Windows 에뮬레이터 QA)"
+    },
+    {
+      "at": "2026-11-24T10:56:35+09:00",
+      "event": "작업 T32 변경: status=dispatched, dispatch=ctx_3e6ec08c32cc"
+    },
+    {
+      "at": "2026-11-24T11:21:15+09:00",
+      "event": "작업 T32 변경: dispatch=ctx_af2ca9ba3c55, note=APK c6rcy5w(v11, preview 채널, OTA 끔) 빌드 완료 → Windows 별도 AVD QA"
+    },
+    {
+      "at": "2026-11-24T12:12:57+09:00",
+      "event": "작업 T32 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T12:12:57+09:00",
+      "event": "작업 T32 변경: pr=252"
+    },
+    {
+      "at": "2026-11-24T12:27:55+09:00",
+      "event": "작업 T32 변경: note=QA 6번(대안 검색) 통과: 6.6초·후보 19곳 / 3.7초. 앱 결함 0. 정식 배포 승인 대기"
+    },
+    {
+      "at": "2026-11-24T12:28:42+09:00",
+      "event": "승인 기록: deploy (v11-production)"
+    },
+    {
+      "at": "2026-11-24T14:00:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#252)"
+    },
+    {
+      "at": "2026-11-24T14:00:48+09:00",
+      "event": "작업 T32 변경: status=done, note=v11 프로덕션 검토 제출 완료(2026-11-24, 전체 출시). 플레이 빠른 검사(최대 15분) 후 Google 검토(보통 7일 이내). 무시한 안내: AD_ID(비공개 테스트 v5 원인), screen.portrait(v10과 동일). 출시 후 확인: 링크→앱 열기 verified"
+    },
+    {
+      "at": "2026-11-24T15:00:46+09:00",
+      "event": "작업 추가 T33 (codex, 자동): 같이 고치기 실시간 QA(Windows 에뮬레이터 두 대, v11+v10)"
+    },
+    {
+      "at": "2026-11-24T15:06:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#253)"
+    },
+    {
+      "at": "2026-11-24T15:08:58+09:00",
+      "event": "작업 추가 T34 (codex, 자동): QA 높음 2건(한글 줄바꿈, 분석 중 장소 목록) + 첫 실행 속도"
+    },
+    {
+      "at": "2026-11-24T15:23:54+09:00",
+      "event": "작업 T34 검증(claude): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:23:54+09:00",
+      "event": "작업 T34 변경: pr=254"
+    },
+    {
+      "at": "2026-11-24T15:33:20+09:00",
+      "event": "자동 승인 실행: merge_main(PR#255)"
+    },
+    {
+      "at": "2026-11-24T15:33:24+09:00",
+      "event": "작업 T33 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:33:25+09:00",
+      "event": "자동 승인 실행: merge_main(PR#255)"
+    },
+    {
+      "at": "2026-11-24T15:33:25+09:00",
+      "event": "작업 T33 변경: status=done, pr=255"
+    },
+    {
+      "at": "2026-11-24T15:35:08+09:00",
+      "event": "자동 승인 실행: merge_main(PR#252)"
+    },
+    {
+      "at": "2026-11-24T15:35:08+09:00",
+      "event": "작업 T32 변경: note=v11 플레이 출시 확인(사용자 보고 2026-11-24 '업뎃 됐어'). 남은 확인: 링크→앱 열기(verified), 비공개 테스트 v5 정리"
+    },
+    {
+      "at": "2026-11-24T15:35:36+09:00",
+      "event": "작업 T34 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:36:25+09:00",
+      "event": "승인 기록: deploy (ota-254)"
+    },
+    {
+      "at": "2026-11-24T15:36:52+09:00",
+      "event": "작업 추가 T35 (codex, 자동): 플레이 v11 재설치 확인 + 링크→앱 열기 확인"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "자동 승인 실행: merge_main(PR#254)"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "작업 T34 변경: status=done, pr=254, note=#254 머지 6524064, v11 런타임 무선 업데이트 그룹 269e1f24 게시, 웹 배포(백업 backup-before-6524064), 기록 #256"
+    },
+    {
+      "at": "2026-11-24T15:43:13+09:00",
+      "event": "작업 T35 변경: note=플레이 재설치 versionCode 11·두 도메인 verified 확인. 카카오 로그인 대기 → 링크·OTA 수신 확인"
+    },
+    {
+      "at": "2026-11-24T15:52:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#257)"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "작업 T35 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "자동 승인 실행: merge_main(PR#257)"
+    },
+    {
+      "at": "2026-11-24T15:52:54+09:00",
+      "event": "작업 T35 변경: status=done, pr=257"
+    },
+    {
+      "at": "2026-11-24T16:02:50+09:00",
+      "event": "승인 기록: paid_service (design-qa-analysis)"
+    },
+    {
+      "at": "2026-11-24T16:02:50+09:00",
+      "event": "작업 추가 T36 (codex, 자동): 최신 버전 디자인 QA(분석 중 화면 포함)"
+    },
+    {
+      "at": "2026-11-24T16:15:21+09:00",
+      "event": "승인 기록: deploy (api-domain)"
+    },
+    {
+      "at": "2026-11-24T16:42:36+09:00",
+      "event": "자동 승인 실행: merge_main(PR#259)"
+    },
+    {
+      "at": "2026-11-24T16:42:36+09:00",
+      "event": "자동 승인 실행: merge_main(PR#260)"
+    },
+    {
+      "at": "2026-11-24T16:42:45+09:00",
+      "event": "작업 T36 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T16:42:45+09:00",
+      "event": "자동 승인 실행: merge_main(PR#259)"
+    },
+    {
+      "at": "2026-11-24T16:42:45+09:00",
+      "event": "작업 T36 변경: status=done, pr=259"
+    },
+    {
+      "at": "2026-11-24T16:44:20+09:00",
+      "event": "작업 추가 T37 (codex, 자동): 디자인 QA 13건 전부 수정(분석 중 순차 표시·대비·여백·핀·아이콘)"
+    },
+    {
+      "at": "2026-11-24T16:48:19+09:00",
+      "event": "작업 추가 T38 (codex, 자동): 체크리스트 점검: 새로고침 시 상태 유실·긴 파일·오류 흰 화면"
+    },
+    {
+      "at": "2026-11-24T16:59:22+09:00",
+      "event": "자동 승인 실행: merge_main(PR#261)"
+    },
+    {
+      "at": "2026-11-24T16:59:28+09:00",
+      "event": "작업 T38 변경: pr=261, note=점검 결과: 세 항목 모두 '일부만 됨'. 높음: 제출 전 초안 조건·메모 복구, 웹 번들 로딩 실패·경계 밖 렌더 오류 복구 화면. 중간: TripDetailScreen 2,145줄·PlanTripScreen 1,137줄 분리, API 오류 형식 통일. 3,000줄 초과 0"
+    },
+    {
+      "at": "2026-11-24T16:59:28+09:00",
+      "event": "작업 T38 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:03:55+09:00",
+      "event": "작업 추가 T39 (codex, 자동): 체크리스트 높음·중간: 초안 입력 복구, 웹 로딩 실패 안내, TripDetailScreen 분리"
+    },
+    {
+      "at": "2026-11-24T17:04:16+09:00",
+      "event": "작업 T37 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:04:16+09:00",
+      "event": "작업 T37 변경: pr=262"
+    },
+    {
+      "at": "2026-11-24T17:10:24+09:00",
+      "event": "승인 기록: deploy (ota-262)"
+    },
+    {
+      "at": "2026-11-24T17:14:42+09:00",
+      "event": "자동 승인 실행: merge_main(PR#262)"
+    },
+    {
+      "at": "2026-11-24T17:14:42+09:00",
+      "event": "작업 T37 변경: status=done, note=#262 머지 355eff1, OTA 그룹 1349e974(v11), 웹 배포(권한 복구 후 200), 기록 #263. 되돌리기: OTA 56c01a96 재게시, 웹 backup-before-355eff1. 반복 문제: 웹 배포 스크립트 파일 권한"
+    },
+    {
+      "at": "2026-11-24T17:27:50+09:00",
+      "event": "작업 T39 검증(claude): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:27:50+09:00",
+      "event": "작업 T39 변경: pr=264"
+    },
+    {
+      "at": "2026-11-24T17:33:43+09:00",
+      "event": "작업 T39 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:44:07+09:00",
+      "event": "승인 기록: deploy (264)"
+    },
+    {
+      "at": "2026-11-24T17:58:22+09:00",
+      "event": "자동 승인 실행: merge_main(PR#265)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "자동 승인 실행: merge_main(PR#264)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "작업 T39 변경: status=done, note=#264 OTA 그룹 e4be8cff(v11), 웹 배포(접속 실패 0/389), 웹 배포 스크립트 원자적 교체·권한 사전 확인 #265 병합"
+    },
+    {
+      "at": "2026-11-24T18:07:56+09:00",
+      "event": "작업 추가 T40 (codex, 자동): 출시 후 확인(에뮬레이터): 입력 복구·409 형식·OTA e4be8cff + 서버 X-Trace-Id 헤더 보완"
+    },
+    {
+      "at": "2026-11-24T18:08:42+09:00",
+      "event": "작업 T40 변경: note=에뮬레이터 확인은 사용자 귀가 후(집 네트워크) 진행. 서버 헤더 PR 먼저"
+    },
+    {
+      "at": "2026-11-24T22:06:04+09:00",
+      "event": "작업 T40 변경: status=dispatched, worktree=C:/Users/user/orca/workspaces/trova-app/trova-app-T40, dispatch=ctx_d24ec572f114, note=집 네트워크에서 에뮬레이터 확인 시작(서버 헤더는 #526로 완료·묶음 배포 대기)"
+    },
+    {
+      "at": "2026-11-24T22:27:21+09:00",
+      "event": "자동 승인 실행: merge_main(PR#266)"
+    },
+    {
+      "at": "2026-11-24T22:27:27+09:00",
+      "event": "작업 T40 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T22:27:27+09:00",
+      "event": "승인 기록: merge_main (PR#266) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T22:27:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#266)"
+    },
+    {
+      "at": "2026-11-24T22:27:32+09:00",
+      "event": "작업 T40 변경: status=done, branch=docs/post-release-emulator-20261124, pr=266"
+    }
+  ],
+  "created_at": "2026-11-18T10:29:41+09:00",
+  "updated_at": "2026-11-24T22:27:32+09:00"
+}

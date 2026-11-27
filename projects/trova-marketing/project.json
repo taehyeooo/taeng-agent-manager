@@ -1,0 +1,951 @@
+{
+  "slug": "trova-marketing",
+  "name": "trova-marketing",
+  "idea": "매일 인스타·스레드 원고를 자동으로 만들어 슬랙으로 보내기 (기존 trova-marketing 레포의 슬랙 발송 #10 위에 원고 자동 생성 추가)",
+  "phase": "planning",
+  "repo": "Trovapp/trova-marketing",
+  "test_cmd": null,
+  "approvals": [
+    {
+      "gate": "merge_main",
+      "ref": "PR#14",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T14:48:00+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#16",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T14:48:00+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#8",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T15:59:55+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#15",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T16:02:29+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#18",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T18:23:25+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#20",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T19:55:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#22",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T20:27:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#25",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#24",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#23",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:57:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "reel9-alternatives",
+      "note": "사용자 2026-11-24: 9편 촬영용 '대안 찾기' 최대 2회 실행 허용(외부 지도·AI 소액)",
+      "at": "2026-11-24T11:20:36+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#27",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T12:12:43+09:00",
+      "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "alternatives-multi",
+      "note": "사용자 2026-11-24 '대안검색 여러 번 해도 돼': QA·9편 촬영용 대안 검색 반복 허용(외부 지도·AI 소액)",
+      "at": "2026-11-24T12:13:37+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#28",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T12:26:55+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#29",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T13:54:09+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#30",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T14:17:20+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#31",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T14:29:34+09:00",
+      "auto": true
+    },
+    {
+      "gate": "paid_service",
+      "ref": "reels-10-11-ai",
+      "note": "사용자 2026-11-24 'ai 돌려도 돼': 릴스 10·11편 촬영용 영상 분석 1~2회·말로 바꾸기 여러 회(외부 AI 소액)",
+      "at": "2026-11-24T14:31:22+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#32",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:06:46+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#33",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T15:26:05+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#35",
+      "note": "auto_gates 사용자 설정 2026-11-25 (auto_gates 사용자 설정)",
+      "at": "2026-11-25T09:55:05+09:00",
+      "auto": true
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "첫 게시물(인스타·스레드) 원고와 이미지 만들고 슬랙으로 보내기",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": "taehyeooo/trova-marketing-T1",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1",
+      "pr": "14",
+      "dispatch": "ctx_5b65b1070720",
+      "note": "PR #14 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) 리뷰: 시크릿·경로·AI 서명 없음, 원고 규칙 준수, 스레드 268자",
+        "at": "2026-11-23T14:47:56+09:00"
+      },
+      "files": [
+        "posts/2026-11-23.json",
+        "tools/post_images"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "taehyeooo/trova-marketing-T2",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2",
+      "pr": "16",
+      "dispatch": "ctx_c9f572aee419",
+      "note": "#16·#15 병합 완료",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) 리뷰 #16 통과(lint reel 허용·테스트 갱신). #15는 base가 feat/#7-real-reel이라 #7/#8 정리 후 별도",
+        "at": "2026-11-23T14:47:56+09:00"
+      },
+      "files": [
+        "video/mascot-reel",
+        "posts/2026-11-24.json"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "오래된 PR #8·#15 정리해 합칠 수 있게",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T3",
+      "pr": "15",
+      "dispatch": "ctx_45cf743263d6",
+      "note": "#8·#15 모두 main 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 경량 확인: 커밋 형식 준수·AI 서명 0, 추가 줄에 비밀값·개인 경로 0, 워커 테스트 35·lint 오류 0, CLEAN",
+        "at": "2026-11-23T15:59:57+09:00"
+      },
+      "files": [
+        "video/real-reel",
+        "video/ad-reel"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "릴스: Hook→Problem→Solution→Demo→CTA 구조 새 릴스 + 11/25 게시물 슬랙 발송",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "18",
+      "dispatch": "ctx_b7647d7c69db",
+      "note": "6편 수정본도 사용자 '별로' → 레퍼런스 고르기부터 다시",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 경량 확인: 커밋 형식·AI 서명 0, 비밀값·개인 경로 0, 장면 프레임 확인(실제 앱 녹화+글자 연출), 워커 lint·테스트 통과",
+        "at": "2026-11-23T18:23:28+09:00"
+      },
+      "files": [
+        "video/mascot-reel",
+        "posts/2026-11-25.json"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "릴스 7편: Windows 에뮬레이터 실제 화면 녹화 + 레퍼런스(Ondefica·링크 하나) 스타일",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "20",
+      "dispatch": "ctx_a60e30a88af1",
+      "note": "7편 23.8초 슬랙 발송, PR #20 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 장면 프레임 8장(실제 에뮬레이터 녹화+글자 연출), 커밋 형식·AI 서명 0, 비밀값·개인 경로 0, lint·테스트 35 통과",
+        "at": "2026-11-23T19:55:50+09:00"
+      },
+      "files": [
+        "video",
+        "posts/2026-11-26.json"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "HyperFrames 시험 도입 + 릴스 7편 비교판",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "22",
+      "dispatch": "ctx_55aec291f41f",
+      "note": "7편 최종본(HyperFrames) 슬랙 발송, PR #22 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 최종본 리뷰 장면 판독 가능, 커밋 형식·AI 서명 0, 비밀값·개인 경로 0, HyperFrames 레포 안 설치",
+        "at": "2026-11-23T20:27:50+09:00"
+      },
+      "files": [
+        "video/hyperframes",
+        "posts/2026-11-26.json"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "릴스 8편: Codex가 기획·연출 전부(imagegen+HyperFrames), 최종본 하나",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "23",
+      "dispatch": "ctx_b68cf8bcbcf3",
+      "note": "8편 수정본 22.2초(실제 리뷰 녹화·지도·구글 플레이 설치 엔딩+공식 배지) 슬랙 발송. 데스크탑 교체는 사용자 터미널 실행 대기(macOS 권한)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 8편 최종본·캐러셀 프레임 확인, 안내 문구 제거, 커밋 형식·AI 서명 0, 비밀값 0, lint·테스트 33 통과",
+        "at": "2026-11-24T10:58:14+09:00"
+      },
+      "files": [
+        "posts",
+        "video",
+        "tools"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "홍보 문구 규칙 변경: 안내 문구·'링크는 프로필에' 빼기, 인기 해시태그",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_a763b1504720",
+      "note": "자동 배정: docs → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 8편 최종본·캐러셀 프레임 확인, 안내 문구 제거, 커밋 형식·AI 서명 0, 비밀값 0, lint·테스트 33 통과",
+        "at": "2026-11-24T10:58:14+09:00"
+      },
+      "files": [
+        "posts",
+        "video",
+        "tools"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "릴스 9편 '대안 찾기'(Codex 연출) + 8편 피드 게시물 재작업(실제 앱 캡처 위주)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "29",
+      "dispatch": "ctx_7c679e57402f",
+      "note": "9편 슬랙 1회 발송·데스크탑 09-대안찾기 전달 완료. 새 스레드 글(188자)은 원고 PR 미생성(Codex 자동 승인 심사 거부) — 사소, 다음 원고 작업 때 반영",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 9편 20초 미리보기 5장(실제 앱 크롭+명조 자막), 커밋·AI 서명 0, lint·테스트 34 통과",
+        "at": "2026-11-24T13:54:24+09:00"
+      },
+      "files": [
+        "posts/2026-11-29.json",
+        "posts/media/alternative"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "슬랙 발송 메시지에서 날짜 없애기",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "28",
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #28: 첫 줄은 --title > slack_heading > topic, 날짜·요일 표기 제거, 첨부 이름 '첨부-NN', 테스트 34·lint 통과, 비밀값·AI 서명 0",
+        "at": "2026-11-24T12:26:56+09:00"
+      },
+      "files": [
+        "tools/daily_posts/send_slack.py"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "9편 다듬기: 앱 화면을 휴대폰 안에(온보딩처럼)",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "30",
+      "dispatch": null,
+      "note": "9편 수정본 슬랙 1회 발송(사용자 '보내'), 데스크탑 09-대안찾기 교체",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 9편 장면 5장 휴대폰 틀 안 실제 앱 화면, 가림 유지, lint·테스트 34 통과, AI 서명 0",
+        "at": "2026-11-24T14:13:50+09:00"
+      },
+      "files": [
+        "posts/media/alternative"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "31",
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #31: 슬랙 dry-run [인스타 설명란]/[스레드 글] 분리, 스레드 글 해시태그 1·질문 끝, 원고 11개 갱신, lint·테스트 35 통과",
+        "at": "2026-11-24T14:29:43+09:00"
+      },
+      "files": [
+        "tools/daily_posts",
+        "posts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "릴스 10편 '말로 바꾸기' + 11편 '영상 공유→AI 분석→초안'",
+      "agent": "codex",
+      "kind": "design",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": "32",
+      "dispatch": null,
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 10편(말로 바꾸기 22초)·11편(영상→초안 21초) 미리보기 10장 휴대폰 틀 실제 화면, 앱 아이콘·Play 배지, AI 서명 0, 테스트 35 통과. 분석 1회·말로 바꾸기 3회",
+        "at": "2026-11-24T15:07:02+09:00"
+      },
+      "files": [
+        "posts/media/spoken-change",
+        "posts/media/video-to-draft"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "릴스 10·11편 화면 끊김 다듬기 + 녹화 규칙",
+      "agent": "codex",
+      "kind": "design",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "33",
+      "dispatch": null,
+      "note": "자동 배정: design → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인: 10편 계단식 스크롤 1초 제거(21초), 11편 분석 대기 5→2.5초(18.5초), 프레임 간격 33.3ms 고정, 녹화 가이드 추가, 테스트 35 통과",
+        "at": "2026-11-24T15:26:19+09:00"
+      },
+      "files": [
+        "posts/media",
+        "video"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "릴스 12·13·14편: 스레드 댓글 의견대로 상황 먼저(저장만 잔뜩/지도에 찍히는 순간/다시 찾기)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "35",
+      "dispatch": "ctx_f26efb54f3d3",
+      "note": "슬랙 C0CJQ1A4002 발송 3건(ts 1795568166.535979/1795568183.670949/1795568193.868899), 바탕화면 트루바-릴스-시리즈 12~14 저장",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "장면 15개 검수: 큰 글자 판독·실제 앱 녹화·핀 합성 없음, 원고 금지 문구 없음, lint 0. 맛집 결과 없어 13·14편은 연화정도서관(글에 맛집 표현 없음). 새 분석 1회. Windows 심볼릭 링크 테스트 1건은 권한 문제",
+        "at": "2026-11-25T09:55:05+09:00"
+      },
+      "files": [
+        "posts/2026-12-02.json",
+        "posts/2026-12-03.json",
+        "posts/2026-12-04.json",
+        "posts/media",
+        "video/reel12-14"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-23T10:32:53+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-23T10:33:06+09:00",
+      "event": "repo=Trovapp/trova-marketing"
+    },
+    {
+      "at": "2026-11-23T10:35:19+09:00",
+      "event": "작업 추가 T1 (codex, 자동): 첫 게시물(인스타·스레드) 원고와 이미지 만들고 슬랙으로 보내기"
+    },
+    {
+      "at": "2026-11-23T10:36:36+09:00",
+      "event": "작업 T1 변경: status=dispatched, branch=taehyeooo/trova-marketing-T1, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T1, dispatch=ctx_f02d87ecdd6e, note=레퍼런스: 토스뱅크 인스타 스타일(분위기만). 슬랙 발송 1회는 사용자 요청(11/23). 자동화 기획 답: Mac 자동 실행·매일 그날치·자동 검사 후 바로 발송·소재=앱 기능+여행 팁/코스 초안"
+    },
+    {
+      "at": "2026-11-23T10:41:30+09:00",
+      "event": "작업 T1 변경: pr=14, note=완료: 이슈 #13·PR #14, 캐러셀 4장+스레드 원고, 슬랙 1회 발송 성공, lint·테스트 35 통과. 검증·병합 대기"
+    },
+    {
+      "at": "2026-11-23T10:43:44+09:00",
+      "event": "작업 T1 변경: status=dispatched, dispatch=ctx_5b65b1070720, note=수정 요청(11/23): 리뷰 좋은 점·아쉬운 점 정리 기능 장 추가, 슬랙 수정본 1회"
+    },
+    {
+      "at": "2026-11-23T10:47:15+09:00",
+      "event": "작업 T1 변경: note=수정 완료: 4장 리뷰 요약(04-reviews.png)·5장으로, 앱 표기 '리뷰 요약 보기/좋은 점/아쉬운 점' 확인, PR #14 5c82648, 슬랙 수정본 1회 발송"
+    },
+    {
+      "at": "2026-11-23T11:13:56+09:00",
+      "event": "작업 추가 T2 (codex, 자동): 마스코트 릴스 코드 복원 + 1편 앱 화면 최신으로 바꿔 슬랙 발송"
+    },
+    {
+      "at": "2026-11-23T11:14:33+09:00",
+      "event": "작업 T2 변경: status=dispatched, branch=taehyeooo/trova-marketing-T2, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T2, dispatch=ctx_c9f572aee419, note=임시 폴더 코드 삭제 확인 → Codex 기록(~/.codex/sessions 11/17~18)에서 복원, 2편 비교 검증, 1편 앱 클립 재녹화, 11/24 게시물 슬랙 1회"
+    },
+    {
+      "at": "2026-11-23T11:28:37+09:00",
+      "event": "작업 T2 변경: pr=16, note=완료: 마스코트 5편·광고형 코드 복원(PR #16 Closes #12, PR #15 Closes #11), 2~5편 재렌더 해시 일치, 1편 앱 클립=운영 웹 데모 녹화(개인정보 없음, 매니저 프레임 확인), 11/24 게시물 슬랙 1회 발송. 광고형 전체 재제작 미검증"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T1 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T2 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T14:48:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#14)"
+    },
+    {
+      "at": "2026-11-23T14:48:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#16)"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "자동 승인 실행: merge_main(PR#14)"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "작업 T1 변경: status=done, note=PR #14 머지"
+    },
+    {
+      "at": "2026-11-23T14:48:19+09:00",
+      "event": "작업 T2 변경: status=review, note=PR #16 머지 완료. #15(광고형)는 base feat/#7-real-reel — #7/#8 정리 후"
+    },
+    {
+      "at": "2026-11-23T15:54:22+09:00",
+      "event": "작업 추가 T3 (codex, 자동): 오래된 PR #8·#15 정리해 합칠 수 있게"
+    },
+    {
+      "at": "2026-11-23T15:55:26+09:00",
+      "event": "작업 T3 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-marketing/trova-marketing-T3, dispatch=ctx_45cf743263d6"
+    },
+    {
+      "at": "2026-11-23T15:59:55+09:00",
+      "event": "자동 승인 실행: merge_main(PR#8)"
+    },
+    {
+      "at": "2026-11-23T15:59:57+09:00",
+      "event": "작업 T3 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T16:00:25+09:00",
+      "event": "작업 T3 변경: note=#8 머지 완료. #15 base→main 후 충돌, 같은 워커에 해결 요청"
+    },
+    {
+      "at": "2026-11-23T16:02:29+09:00",
+      "event": "자동 승인 실행: merge_main(PR#15)"
+    },
+    {
+      "at": "2026-11-23T16:02:35+09:00",
+      "event": "자동 승인 실행: merge_main(PR#16)"
+    },
+    {
+      "at": "2026-11-23T16:02:35+09:00",
+      "event": "작업 T2 변경: status=done, note=#16·#15 병합 완료"
+    },
+    {
+      "at": "2026-11-23T16:02:38+09:00",
+      "event": "자동 승인 실행: merge_main(PR#15)"
+    },
+    {
+      "at": "2026-11-23T16:02:38+09:00",
+      "event": "작업 T3 변경: status=done, pr=15, note=#8·#15 모두 main 병합"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 추가 T4 (codex, 자동): 릴스: Hook→Problem→Solution→Demo→CTA 구조 새 릴스 + 11/25 게시물 슬랙 발송"
+    },
+    {
+      "at": "2026-11-23T17:15:52+09:00",
+      "event": "작업 T4 변경: status=dispatched, dispatch=ctx_b7647d7c69db"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "작업 T4 변경: pr=18, note=릴스 6편 23초 슬랙 발송 완료, PR #18 검증 대기"
+    },
+    {
+      "at": "2026-11-23T18:23:25+09:00",
+      "event": "자동 승인 실행: merge_main(PR#18)"
+    },
+    {
+      "at": "2026-11-23T18:23:28+09:00",
+      "event": "작업 T4 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T18:23:32+09:00",
+      "event": "자동 승인 실행: merge_main(PR#18)"
+    },
+    {
+      "at": "2026-11-23T18:23:32+09:00",
+      "event": "작업 T4 변경: status=done, note=6편 수정본(21.8초) 슬랙 발송, PR #18 머지"
+    },
+    {
+      "at": "2026-11-23T18:54:36+09:00",
+      "event": "자동 승인 실행: merge_main(PR#18)"
+    },
+    {
+      "at": "2026-11-23T18:54:36+09:00",
+      "event": "작업 T4 변경: note=6편 수정본도 사용자 '별로' → 레퍼런스 고르기부터 다시"
+    },
+    {
+      "at": "2026-11-23T18:57:58+09:00",
+      "event": "작업 추가 T5 (codex, 자동): 릴스 7편: Windows 에뮬레이터 실제 화면 녹화 + 레퍼런스(Ondefica·링크 하나) 스타일"
+    },
+    {
+      "at": "2026-11-23T18:58:11+09:00",
+      "event": "작업 T5 변경: status=dispatched, dispatch=ctx_98d7d5407384, note=1단계 Windows 녹화(poomasi 금지, 새 분석 금지) → 2단계 Mac 편집·슬랙"
+    },
+    {
+      "at": "2026-11-23T19:43:04+09:00",
+      "event": "작업 T5 변경: status=dispatched, dispatch=ctx_a60e30a88af1, note=1단계 녹화 완료(chore/#19-reel7-raw-clips, 5장면, 분석 중 화면 없음). 2단계 Mac 편집 위임"
+    },
+    {
+      "at": "2026-11-23T19:55:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#20)"
+    },
+    {
+      "at": "2026-11-23T19:55:50+09:00",
+      "event": "작업 T5 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T19:55:54+09:00",
+      "event": "자동 승인 실행: merge_main(PR#20)"
+    },
+    {
+      "at": "2026-11-23T19:55:54+09:00",
+      "event": "작업 T5 변경: status=done, pr=20, note=7편 23.8초 슬랙 발송, PR #20 머지"
+    },
+    {
+      "at": "2026-11-23T20:08:07+09:00",
+      "event": "작업 추가 T6 (codex, 자동): HyperFrames 시험 도입 + 릴스 7편 비교판"
+    },
+    {
+      "at": "2026-11-23T20:08:13+09:00",
+      "event": "작업 T6 변경: status=dispatched, dispatch=ctx_55aec291f41f"
+    },
+    {
+      "at": "2026-11-23T20:20:48+09:00",
+      "event": "작업 T6 변경: pr=22, note=HyperFrames 0.9.85(Apache-2.0) 레포 안 설치, 통계·자동 업데이트 끔, 7편 비교판 데스크탑 비교 폴더. 사용자 선택 대기"
+    },
+    {
+      "at": "2026-11-23T20:27:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#22)"
+    },
+    {
+      "at": "2026-11-23T20:27:50+09:00",
+      "event": "작업 T6 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T20:27:54+09:00",
+      "event": "자동 승인 실행: merge_main(PR#22)"
+    },
+    {
+      "at": "2026-11-23T20:27:54+09:00",
+      "event": "작업 T6 변경: status=done, note=7편 최종본(HyperFrames) 슬랙 발송, PR #22 머지"
+    },
+    {
+      "at": "2026-11-24T10:06:58+09:00",
+      "event": "작업 추가 T7 (codex, 자동): 릴스 8편: Codex가 기획·연출 전부(imagegen+HyperFrames), 최종본 하나"
+    },
+    {
+      "at": "2026-11-24T10:07:06+09:00",
+      "event": "작업 T7 변경: status=dispatched, dispatch=ctx_b68cf8bcbcf3"
+    },
+    {
+      "at": "2026-11-24T10:42:31+09:00",
+      "event": "작업 T7 변경: pr=23, note=8편 수정본 22.2초(실제 리뷰 녹화·지도·구글 플레이 설치 엔딩+공식 배지) 슬랙 발송. 데스크탑 교체는 사용자 터미널 실행 대기(macOS 권한)"
+    },
+    {
+      "at": "2026-11-24T10:43:14+09:00",
+      "event": "작업 추가 T8 (codex, 자동): 홍보 문구 규칙 변경: 안내 문구·'링크는 프로필에' 빼기, 인기 해시태그"
+    },
+    {
+      "at": "2026-11-24T10:43:36+09:00",
+      "event": "작업 T8 변경: status=dispatched, dispatch=ctx_a763b1504720"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#25)"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#24)"
+    },
+    {
+      "at": "2026-11-24T10:57:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#23)"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T7 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "자동 승인 실행: merge_main(PR#23)"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T7 변경: status=done"
+    },
+    {
+      "at": "2026-11-24T10:58:14+09:00",
+      "event": "작업 T8 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T11:05:09+09:00",
+      "event": "작업 추가 T9 (codex, 자동): 릴스 9편 '대안 찾기'(Codex 연출) + 8편 피드 게시물 재작업(실제 앱 캡처 위주)"
+    },
+    {
+      "at": "2026-11-24T11:05:17+09:00",
+      "event": "작업 T9 변경: status=dispatched, dispatch=ctx_7c679e57402f, note=1단계 Windows 캡처·녹화 → 2단계 Mac 편집(9편 Codex 자유 연출, 8편 피드 새 이미지)"
+    },
+    {
+      "at": "2026-11-24T11:20:36+09:00",
+      "event": "승인 기록: paid_service (reel9-alternatives)"
+    },
+    {
+      "at": "2026-11-24T11:33:05+09:00",
+      "event": "작업 T9 변경: note=캡처 10장·녹화 5개 완료(chore/#26-reel9-feed-raw). 대안 후보·교체는 '인터넷 연결 오류'로 미촬영 → 백엔드 조사"
+    },
+    {
+      "at": "2026-11-24T12:05:58+09:00",
+      "event": "작업 T9 변경: note=8편 피드 재작업 Windows Codex 위임(슬랙·데스크탑은 Mac 후처리). 9편은 대안 장면 재촬영 후 편집"
+    },
+    {
+      "at": "2026-11-24T12:12:43+09:00",
+      "event": "자동 승인 실행: merge_main(PR#27)"
+    },
+    {
+      "at": "2026-11-24T12:13:37+09:00",
+      "event": "승인 기록: paid_service (alternatives-multi)"
+    },
+    {
+      "at": "2026-11-24T12:16:41+09:00",
+      "event": "작업 추가 T10 (codex, 자동): 슬랙 발송 메시지에서 날짜 없애기"
+    },
+    {
+      "at": "2026-11-24T12:26:55+09:00",
+      "event": "자동 승인 실행: merge_main(PR#28)"
+    },
+    {
+      "at": "2026-11-24T12:26:56+09:00",
+      "event": "작업 T10 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T12:27:00+09:00",
+      "event": "자동 승인 실행: merge_main(PR#28)"
+    },
+    {
+      "at": "2026-11-24T12:27:00+09:00",
+      "event": "작업 T10 변경: status=done, pr=28"
+    },
+    {
+      "at": "2026-11-24T12:27:55+09:00",
+      "event": "작업 T9 변경: note=9편 장면 8클립 완료(봉봉방앗간 교체). Windows 편집 위임. 8편 피드 수정본 발송 완료"
+    },
+    {
+      "at": "2026-11-24T13:54:09+09:00",
+      "event": "자동 승인 실행: merge_main(PR#29)"
+    },
+    {
+      "at": "2026-11-24T13:54:24+09:00",
+      "event": "작업 T9 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T13:57:35+09:00",
+      "event": "자동 승인 실행: merge_main(PR#29)"
+    },
+    {
+      "at": "2026-11-24T13:57:35+09:00",
+      "event": "작업 T9 변경: status=done, pr=29, note=9편 슬랙 1회 발송·데스크탑 09-대안찾기 전달 완료. 새 스레드 글(188자)은 원고 PR 미생성(Codex 자동 승인 심사 거부) — 사소, 다음 원고 작업 때 반영"
+    },
+    {
+      "at": "2026-11-24T14:04:13+09:00",
+      "event": "작업 추가 T11 (codex, 자동): 9편 다듬기: 앱 화면을 휴대폰 안에(온보딩처럼)"
+    },
+    {
+      "at": "2026-11-24T14:13:50+09:00",
+      "event": "작업 T11 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T14:13:50+09:00",
+      "event": "작업 T11 변경: pr=30"
+    },
+    {
+      "at": "2026-11-24T14:17:20+09:00",
+      "event": "자동 승인 실행: merge_main(PR#30)"
+    },
+    {
+      "at": "2026-11-24T14:17:20+09:00",
+      "event": "작업 T11 변경: status=done, note=9편 수정본 슬랙 1회 발송(사용자 '보내'), 데스크탑 09-대안찾기 교체"
+    },
+    {
+      "at": "2026-11-24T14:25:04+09:00",
+      "event": "작업 추가 T12 (codex, 자동): 슬랙 원고 인스타·스레드 분리 + 스레드 글 규칙"
+    },
+    {
+      "at": "2026-11-24T14:29:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#31)"
+    },
+    {
+      "at": "2026-11-24T14:29:43+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T14:29:47+09:00",
+      "event": "자동 승인 실행: merge_main(PR#31)"
+    },
+    {
+      "at": "2026-11-24T14:29:47+09:00",
+      "event": "작업 T12 변경: status=done, pr=31"
+    },
+    {
+      "at": "2026-11-24T14:31:22+09:00",
+      "event": "승인 기록: paid_service (reels-10-11-ai)"
+    },
+    {
+      "at": "2026-11-24T14:31:22+09:00",
+      "event": "작업 추가 T13 (codex, 자동): 릴스 10편 '말로 바꾸기' + 11편 '영상 공유→AI 분석→초안'"
+    },
+    {
+      "at": "2026-11-24T15:06:46+09:00",
+      "event": "자동 승인 실행: merge_main(PR#32)"
+    },
+    {
+      "at": "2026-11-24T15:07:02+09:00",
+      "event": "작업 T13 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:07:02+09:00",
+      "event": "작업 T13 변경: pr=32"
+    },
+    {
+      "at": "2026-11-24T15:18:32+09:00",
+      "event": "작업 추가 T14 (codex, 자동): 릴스 10·11편 화면 끊김 다듬기 + 녹화 규칙"
+    },
+    {
+      "at": "2026-11-24T15:26:05+09:00",
+      "event": "자동 승인 실행: merge_main(PR#33)"
+    },
+    {
+      "at": "2026-11-24T15:26:19+09:00",
+      "event": "작업 T14 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:26:19+09:00",
+      "event": "자동 승인 실행: merge_main(PR#33)"
+    },
+    {
+      "at": "2026-11-24T15:26:19+09:00",
+      "event": "작업 T14 변경: status=done, pr=33"
+    },
+    {
+      "at": "2026-11-24T23:14:07+09:00",
+      "event": "작업 추가 T15 (codex, 자동): 릴스 12·13·14편: 스레드 댓글 의견대로 상황 먼저(저장만 잔뜩/지도에 찍히는 순간/다시 찾기)"
+    },
+    {
+      "at": "2026-11-24T23:18:46+09:00",
+      "event": "작업 T15 변경: status=dispatched, dispatch=ctx_3792af6d33fc, note=스레드 댓글 의견 반영, 레퍼런스는 기존 Ondefica·UGC promo 재사용"
+    },
+    {
+      "at": "2026-11-24T23:40:54+09:00",
+      "event": "작업 T15 변경: note=사용자 2026-11-24 밤: 끝나면 슬랙(C0CJQ1A4002)에 영상+글 보내 놓기 승인('슬랙에 보내놔 영상이랑 글이랑'). 매니저 검수 후 Mac send_slack.py로 편당 1회"
+    },
+    {
+      "at": "2026-11-25T09:55:05+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-25T09:55:05+09:00",
+      "event": "승인 기록: merge_main (PR#35) — auto_gates"
+    },
+    {
+      "at": "2026-11-25T09:55:18+09:00",
+      "event": "작업 T15 변경: pr=35, dispatch=ctx_f26efb54f3d3"
+    },
+    {
+      "at": "2026-11-25T10:01:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#35)"
+    },
+    {
+      "at": "2026-11-25T10:01:48+09:00",
+      "event": "작업 T15 변경: status=done, note=슬랙 C0CJQ1A4002 발송 3건(ts 1795568166.535979/1795568183.670949/1795568193.868899), 바탕화면 트루바-릴스-시리즈 12~14 저장"
+    }
+  ],
+  "created_at": "2026-11-23T10:32:53+09:00",
+  "updated_at": "2026-11-25T10:01:48+09:00"
+}

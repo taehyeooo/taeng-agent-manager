@@ -1,0 +1,3235 @@
+{
+  "slug": "trova-backend",
+  "name": "Trova 백엔드",
+  "idea": "운영 중인 Trova 서비스의 백엔드(Java/Spring, Gradle). 기존 레포를 매니저 관리로 편입 — 성능·운영·기능 작업을 위임·검증 흐름으로 진행.",
+  "phase": "developing",
+  "repo": "Trovapp/trova-backend",
+  "test_cmd": "./gradlew test",
+  "approvals": [
+    {
+      "gate": "push",
+      "ref": "chore/am-guard",
+      "note": "사용자 승인(2026-11-18): Trova에 가드 설정(.claude/settings.json) 올리고 PR 생성",
+      "at": "2026-11-18T10:09:51+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#458",
+      "note": "사용자 승인(2026-11-18): 가드 설정 머지",
+      "at": "2026-11-18T10:13:33+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#428-memory-pressure-stall-alert",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 통과 PR push",
+      "at": "2026-11-18T11:23:46+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#459",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): O1 교차 검증 통과, Java 변경 없음(경보 설정·문서), validate·단위 10개 통과",
+      "at": "2026-11-18T11:39:04+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "grafana-alert-bg3yd8j9d5fr4a",
+      "note": "사용자 승인(2026-11-18 '승인'): O1 PR #459 내용을 Grafana Cloud 운영 경보 HighMemoryPressure에 runbook 7절대로 반영",
+      "at": "2026-11-18T11:43:38+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#460-memory-pressure-cloud-sync",
+      "note": "사용자 위임(2026-11-18): 검증 통과 PR",
+      "at": "2026-11-18T14:01:55+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#461",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 pass",
+      "at": "2026-11-18T14:01:55+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#462-trip-day-places",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T17:25:13+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#463",
+      "note": "사용자 위임(2026-11-18 '그냥 다 승인해줘'): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T17:25:13+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#464-video-admin-queries",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T18:01:49+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#465",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T18:01:49+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#466-trip-drafts-auto",
+      "note": "사용자 위임(2026-11-18)",
+      "at": "2026-11-18T18:34:57+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#467",
+      "note": "사용자 위임(2026-11-18): 교차 검증 pass, 전체 테스트 통과",
+      "at": "2026-11-18T18:34:58+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "perf-phase1-523308a",
+      "note": "사용자 승인(2026-11-18 '승인(지금)'): main 523308a(P1 #463·P2 #465·P3 #467) 운영 배포, devflow deploy.sh",
+      "at": "2026-11-18T18:44:17+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
+      "note": "사용자 승인(2026-11-18 '승인(지금)'): main 523308a 성능 1단계 운영 배포를 devflow deploy.sh로 실행(이번 배포 한정 의도)",
+      "at": "2026-11-18T18:50:20+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#464-perf-phase1-deploy-record",
+      "note": "배포 기록 문서 1개만 변경, 사용자 위임(검증된 push·PR 진행 후 보고) 2026-11-18",
+      "at": "2026-11-18T22:17:33+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#468",
+      "note": "배포 기록 문서만, 내용 확인 후 사용자 위임으로 병합 2026-11-18",
+      "at": "2026-11-18T22:36:40+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#469",
+      "note": "배포 후 비교 캡처·기록 문서만, 내용 확인 후 사용자 위임으로 병합 2026-11-18",
+      "at": "2026-11-18T22:58:41+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#470",
+      "note": "에뮬레이터 표본 비교 문서·QA 캡처 7장(개인정보 없음 직접 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T00:12:32+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#471-trip-detail-analysis",
+      "note": "T17 분석 문서 5파일, 사용자 위임(검증된 push·PR 진행 후 보고) 2026-11-19",
+      "at": "2026-11-19T08:51:49+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/p4-db-query-metrics",
+      "note": "T16 P4 측정 코드, 테스트 통과 시에만, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T09:09:36+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#472",
+      "note": "T17 분석 문서, 검증 후 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T09:12:53+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#474",
+      "note": "P4 측정, Codex·Claude 교차 검증 통과·새 실패 0, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T11:49:28+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#476-trip-detail-two-queries",
+      "note": "T18 여행 상세 5→2, 사용자 위임(검증된 push·PR) 2026-11-19",
+      "at": "2026-11-19T12:02:04+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": "/private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline",
+      "note": "P4 비교용 임시 작업 폴더 삭제, 사용자 답 '삭제' 2026-11-19",
+      "at": "2026-11-19T12:13:42+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#477",
+      "note": "T18 여행 상세 5→2, Codex 교차 검증 통과·보완 반영·새 실패 0, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T13:05:02+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#473-trip-draft-detail",
+      "note": "T19 초안 상세 5→3, 새 실패 0, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T14:07:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#478",
+      "note": "T19 초안 상세 5→3, Codex 검증·보완 반영·새 실패 0, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T14:50:22+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "perf-phase2-69b55fa",
+      "note": "P4·여행 상세 5→2·초안 상세 5→3 운영 배포, 사용자 답 '승인' 2026-11-19",
+      "at": "2026-11-19T14:54:19+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-deploy-record",
+      "note": "배포 기록 문서, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T14:58:42+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#479",
+      "note": "배포 기록 문서만, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T15:02:39+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-results",
+      "note": "성능 2단계 운영 전후 비교 기록, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T15:57:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#480",
+      "note": "성능 2단계 운영 전후 비교 문서·캡처(개인정보 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T16:00:03+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-interview-db-roundtrips",
+      "note": "면접 노트 추가, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T16:05:17+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#481",
+      "note": "면접 노트 추가(숫자 근거 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T16:09:42+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#482-gap-recommendations-queries",
+      "note": "T20 빈 시간 추천 SQL 줄이기, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T16:42:25+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#483",
+      "note": "T20 빈 시간 추천 SQL 줄이기, Codex 재검증 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T18:27:53+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "perf-p7-fa02baf",
+      "note": "빈 시간 추천 SQL 줄이기 운영 배포, 사용자 답 '승인' 2026-11-19",
+      "at": "2026-11-19T18:31:53+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#482-p7-deploy-record",
+      "note": "P7 배포 기록, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T18:31:53+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#484",
+      "note": "P7 배포 기록 문서, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T18:38:25+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#482-p7-results",
+      "note": "P7 운영 전후 비교·면접 노트, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T20:21:02+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#485",
+      "note": "P7 운영 전후 기록·면접 노트(숫자 확인), 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T20:23:19+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#487-gap-nan-sort",
+      "note": "T21 — Windows Codex push(Windows 가드 미설치, 사후 기록), 사용자 위임 2026-11-19",
+      "at": "2026-11-19T21:37:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#488",
+      "note": "T21 NaN 정렬·NPE 수정, Claude 검증 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T21:42:56+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "fix/#489-chat-nan-rerank",
+      "note": "T22 채팅 NaN, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T22:58:29+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#490",
+      "note": "T22 채팅 NaN, Claude 리뷰 통과, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T23:03:06+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "fix-nan-6dbfea3",
+      "note": "추천 NaN·NPE 수정(#488·#490) 운영 배포, 사용자 답 '승인' 2026-11-19",
+      "at": "2026-11-19T23:06:49+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#489-nan-deploy-record",
+      "note": "배포 기록, 사용자 위임 2026-11-19",
+      "at": "2026-11-19T23:06:49+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#491",
+      "note": "배포 기록 문서, 사용자 위임 병합 2026-11-19",
+      "at": "2026-11-19T23:12:54+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#492-alternatives-rule-reason",
+      "note": "T24 대안 장소, 사용자 위임(밤사이 승인 위임) 2026-11-20",
+      "at": "2026-11-20T00:27:47+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#493",
+      "note": "T24 대안 장소 속도, 재검토 통과, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T11:13:47+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "312dbf6",
+      "note": "T24 대안 장소 속도 운영 반영, 사용자 '승인' 2026-11-20",
+      "at": "2026-11-20T11:17:23+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "plugin-script:taeng-marketplace/devflow/scripts/deploy.sh",
+      "note": "312dbf6(T24 PR#493) 운영 반영, 사용자 '승인' 2026-11-20",
+      "at": "2026-11-20T11:35:51+09:00"
+    },
+    {
+      "gate": "credentials",
+      "ref": "T23-prod-bench-ssh",
+      "note": "T23 운영 재측정에 기존 벤치 방식(ssh 키·user2 벤치 토큰, 값 출력 금지) 사용, 사용자 '승인' 2026-11-20",
+      "at": "2026-11-20T12:14:34+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/t23-alternatives-prod-after",
+      "note": "T23 운영 재측정 기록 문서, 사용자 위임(2026-11-18 '그냥 다 승인해줘') 2026-11-20",
+      "at": "2026-11-20T12:32:26+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#494",
+      "note": "T23 운영 재측정 문서만, 비밀값 검사 통과, 사용자 위임(2026-11-18) 2026-11-20",
+      "at": "2026-11-20T12:32:42+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/o2-alert-path",
+      "note": "O2 경보 경로 문서, 사용자 위임 2026-11-20 '운영 배포·비용 빼고 다 진행'",
+      "at": "2026-11-20T16:12:20+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#496-alert-path",
+      "note": "O2 경보 문서, 사용자 위임 2026-11-20",
+      "at": "2026-11-20T16:19:56+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#497",
+      "note": "O2 경보 문서, 리뷰 반영 확인, 사용자 위임 2026-11-20",
+      "at": "2026-11-20T17:19:21+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "feat/trip-collab-members",
+      "note": "auto_gates — 작업 브랜치 push·PR(같이 고치기 서버 1) (auto_gates 사용자 설정)",
+      "at": "2026-11-21T18:29:11+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "trip-collab-2026-11-21",
+      "note": "사용자 '지금 바로 배포'(2026-11-21) — 같이 고치기 서버 #499·#500 운영 배포",
+      "at": "2026-11-21T23:55:02+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#500",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-21T23:55:09+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#499",
+      "note": "auto_gates + 사용자 '지금 바로 배포' — #500을 먼저 #499 브랜치에 합친 뒤 main으로 (auto_gates 사용자 설정)",
+      "at": "2026-11-21T23:55:16+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#501",
+      "note": "auto_gates — 배포 기록 문서만 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T00:06:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "trip-events-kafka",
+      "note": "사용자 '진행해'(2026-11-22) — 실시간 전달 Kafka 전환(운영 .env 설정 + 재시작). 토픽 trova.trip-events는 매니저가 Aiven 콘솔에서 생성(파티션 2, 복제 2)",
+      "at": "2026-11-22T11:22:34+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#502",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T11:28:43+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#502",
+      "note": "auto_gates — Kafka 전환 기록 문서 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T11:28:47+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "T27-video-history",
+      "note": "사용자 '진행해'(2026-11-22) — PR #503 머지·운영 배포",
+      "at": "2026-11-22T17:06:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#503",
+      "note": "auto_gates + 사용자 '진행해' (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:06:50+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#504",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-22T17:14:07+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#504",
+      "note": "auto_gates — 배포 기록 문서 (auto_gates 사용자 설정)",
+      "at": "2026-11-22T17:14:11+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "gap-junk-filter",
+      "note": "사용자 '승인'(2026-11-23) — #505 머지·운영 배포",
+      "at": "2026-11-23T00:13:01+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#505",
+      "note": "auto_gates + 사용자 승인 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:13:01+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#506",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T00:21:07+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#506",
+      "note": "auto_gates — 배포 기록 (auto_gates 사용자 설정)",
+      "at": "2026-11-23T00:21:15+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "share-domain",
+      "note": "사용자 '승인' 2026-11-23: 공유 링크 주소 trova.duckdns.org 운영 적용(Caddy·.env·백엔드 재시작·웹 배포·OTA)",
+      "at": "2026-11-23T12:16:50+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#508",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T12:45:31+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "511",
+      "note": "사용자 '승인' 2026-11-23: 공동 편집 개선 PR #511 머지·운영 배포",
+      "at": "2026-11-23T17:14:59+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#511",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T17:27:56+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "514",
+      "note": "사용자 '그라파나 승인' 2026-11-23: PR #514 머지·운영 배포",
+      "at": "2026-11-23T18:54:26+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#514",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-23T19:08:40+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#517",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T10:40:57+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "518",
+      "note": "사용자 '승인' 2026-11-24: 서버 속도 개선 PR #518 머지·운영 배포",
+      "at": "2026-11-24T15:41:27+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "518-python",
+      "note": "사용자 '승인' 2026-11-24: #518 영상 분석 파이썬 파일 2개(run_pipeline.py, extract_places.py) 운영 교체(분석 0건 시점, 백업 후)",
+      "at": "2026-11-24T15:48:02+09:00"
+    },
+    {
+      "gate": "deploy",
+      "ref": "api-domain",
+      "note": "사용자 '승인' 2026-11-24: API·로그인 주소 api.trova.duckdns.org 운영 적용",
+      "at": "2026-11-24T16:15:21+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#518",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:22:42+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#520",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T16:26:57+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "524",
+      "note": "사용자 '승인' 2026-11-24: 오류 응답 통일 #524 배포",
+      "at": "2026-11-24T17:44:07+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#524",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T17:58:33+09:00",
+      "auto": true
+    },
+    {
+      "gate": "deploy",
+      "ref": "526",
+      "note": "사용자 요청 2026-11-24: '#526 서버 배포도 지금 같이 해 줘'",
+      "at": "2026-11-24T22:28:58+09:00"
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#527",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:49:38+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#527",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T22:49:45+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#526",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T22:49:50+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#529",
+      "note": "auto_gates 사용자 설정",
+      "at": "2026-11-24T23:25:24+09:00",
+      "auto": true
+    },
+    {
+      "gate": "merge_main",
+      "ref": "PR#529",
+      "note": "auto_gates 사용자 설정 2026-11-24 (auto_gates 사용자 설정)",
+      "at": "2026-11-24T23:25:28+09:00",
+      "auto": true
+    }
+  ],
+  "tasks": [
+    {
+      "id": "O1",
+      "title": "운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "fix/#428-memory-pressure-stall-alert",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1",
+      "pr": "459",
+      "dispatch": "ctx_cdc995d9eadf",
+      "note": "PR #459 머지 + 2026-11-18 12:04 KST Grafana 운영 경보 반영(before/after.json Windows grafana-o1/). 후속: 저장본·문서 갱신(O4)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "3차 교차 검증 pass(6c4b38f): 후보 PromQL 공백 보간, runbook 반영·롤백, ADR 0050, 비밀값 없음. validate·단위 10개·promtool 통과",
+        "at": "2026-11-18T11:23:46+09:00"
+      },
+      "files": [
+        "monitoring/grafana-cloud/alerting/candidates/high-memory-pressure-gap.json",
+        "monitoring/grafana-cloud/validate_host_alert.py",
+        "monitoring/grafana-cloud/README.md",
+        "docs/runbooks/memory-pressure.md",
+        "docs/adr/0046-memory-pressure-alert-gap-continuity.md",
+        "docs/monitoring/2026-11-18-memory-pressure-alert-review.md"
+      ]
+    },
+    {
+      "id": "O2",
+      "title": "운영: 밤사이 중단 경보 전달 경로 점검(11-13 9시간 장애 후속)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "docs/#496-alert-path",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2",
+      "pr": "497",
+      "dispatch": "ctx_bf29ad34e193",
+      "note": "완료(2026-11-20): 감지→Slack 정상(11-17 실제 기록), 휴대폰 Slack 알림 설정(채널 모든 메시지·데스크톱 활동 중 푸시·방해 금지 예외) 후 시험 알림 휴대폰 수신 확인. Grafana Cloud는 체험 후 무료로 전환(사용자 선택). 남은 선택: 무료 한도 확인, UptimeRobot 보조",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "경보 경로 문서 PR#497 머지 + 실제 확인: 11-17 실제 장애 경보 Slack 도착 기록, 2026-11-20 시험 알림 2회 Slack·휴대폰 도착(사용자 확인, 설정 변경 후 휴대폰 알림 수신)",
+        "at": "2026-11-20T22:26:19+09:00"
+      },
+      "files": [
+        "docs/monitoring/2026-11-20-alert-path/README.md"
+      ]
+    },
+    {
+      "id": "O3",
+      "title": "운영: 11-13 14:35 출처 모르는 배포 조사(읽기만)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B01",
+      "title": "codex-tasks 01 ADR↔CLAUDE.md 모순 점검",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B02",
+      "title": "codex-tasks 02 인스타 429 재시도 설계 검토(#365)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: docs → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B03",
+      "title": "codex-tasks 03 여행 일차별 장소 조회를 한 번으로(PR #131과 겹침)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B04",
+      "title": "codex-tasks 04 외부 API 클라이언트 테스트",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B05",
+      "title": "codex-tasks 05 일정 생성·소셜 로그인 흐름 테스트",
+      "agent": "codex",
+      "kind": "test",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: test → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "B06",
+      "title": "codex-tasks 06 같은 영상 여행·관리자 상세 조회 줄이기(B03 뒤, PR #133과 겹침)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": null,
+      "note": "자동 배정: general → codex (config/agents.json 선호)"
+    },
+    {
+      "id": "Q1",
+      "title": "QA1: 앱 모니터링 QA — API 요청·응답 시간·서버 CPU/메모리 기록, 캡처 포함 PDF (Windows 노트북)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-monitoring",
+      "pr": null,
+      "dispatch": "ctx_88f516bc2f9a",
+      "note": "v2 PDF 12쪽 완료(11-18, Windows). 지적은 앱 T6 PR#183에서 반영. 작업자 종료"
+    },
+    {
+      "id": "Q2",
+      "title": "QA2: 앱 UI/UX QA — 화면·흐름 점검, 캡처 포함 PDF (Windows 노트북, Q1 뒤 — 에뮬레이터 하나)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-uiux",
+      "pr": null,
+      "dispatch": "ctx_bb1931c8e008",
+      "note": "v2 PDF 12쪽 완료(11-18, Windows, 높음1·중간3·낮음2) — 지적은 앱 T6 PR#183에서 반영. 작업자 기록상 failed는 마지막 단계 보고 실패"
+    },
+    {
+      "id": "T12",
+      "title": "O1 후속: Cloud export로 rules-trova-host.json 갱신, proposals 후보 삭제, validator·테스트·runbook 1~6절·ADR 0050 상태를 실제 반영에 맞추기 (runbook 7절 5단계)",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "461",
+      "dispatch": null,
+      "note": "PR #461 머지",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #461 교차 검증 pass(낮음 4건: 로컬 경로 표기 등), validate·단위 10개 통과, Java 변경 없음",
+        "at": "2026-11-18T14:01:55+09:00"
+      }
+    },
+    {
+      "id": "T13",
+      "title": "P1 성능: 여행 상세·삭제 영향·재구성 일차별 N+1 제거 (codex-tasks 03)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#462-trip-day-places",
+      "worktree": null,
+      "pr": "463",
+      "dispatch": null,
+      "note": "PR #463 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #463 교차 검증 pass(낮음 3: 안 쓰는 import·필드, 완전한 이름, 공유 링크 N+1 범위 밖). Windows WSL 전체 테스트 1217 통과",
+        "at": "2026-11-18T17:25:13+09:00"
+      }
+    },
+    {
+      "id": "T14",
+      "title": "P2 성능: 같은 영상 여행 찾기·관리자 상세 N+1 제거 (codex-tasks 06) + 없음은 404 대신 정상 응답(share-link 포함)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#464-video-admin-queries",
+      "worktree": null,
+      "pr": "465",
+      "dispatch": null,
+      "note": "PR #465 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #465 교차 검증 pass(높음·중간 0, 낮음 3). 정보 노출 없음, 앱 호환 확인, 캡처 개인정보 없음. WSL 전체 테스트 1225 통과",
+        "at": "2026-11-18T18:01:49+09:00"
+      }
+    },
+    {
+      "id": "T15",
+      "title": "P3 성능: 홈 자동 초안(trip-drafts/auto) 짧은 캐시",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#466-trip-drafts-auto",
+      "worktree": null,
+      "pr": "467",
+      "dispatch": null,
+      "note": "PR #467 머지. 운영 배포 전",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR #467 교차 검증 pass(높음·중간 0, 낮음 3). WSL 전체 1229 통과",
+        "at": "2026-11-18T18:34:57+09:00"
+      }
+    },
+    {
+      "id": "T16",
+      "title": "P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": "feat/p4-db-query-metrics",
+      "worktree": null,
+      "pr": "474",
+      "dispatch": "ctx_1ad8a659ed54",
+      "note": "Windows Codex가 연속 2번 읽기 전용으로 시작돼 맥 Codex로 옮김(2026-11-19)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#474: Codex 교차 검증 낮음 3건 반영 후, Claude reviewflow 통과(낮음 5, 정확성·보안 0). 구현은 Codex 초안+Claude 컴파일·지적 수정이라 Claude로 기록하고 Codex 검증",
+        "at": "2026-11-19T11:47:35+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/config/RequestDbQueryMetrics.java",
+        "src/test/java/com/trova/backend/config/RequestDbQueryMetricsTest.java"
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "P1 후속 분석: 여행 상세 응답 시간이 배포 후에도 그대로인 원인(SQL 6~18→5회인데 평균 352→355ms) — 코드·쿼리 읽고 개선안 문서만",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "472",
+      "dispatch": "ctx_7bbb398b1767",
+      "note": "자동 배정: docs → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "문서만 5파일, 숫자 인계서 일치, PNG 개인정보 없음 확인(Claude 커밋 세션)",
+        "at": "2026-11-19T09:12:53+09:00"
+      },
+      "files": [
+        "docs/monitoring/2026-11-18-perf-phase1/trip-detail-analysis.md",
+        "docs/monitoring/2026-11-18-perf-phase1/README.md",
+        "docs/experience-notes.md"
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "P5 성능: 여행 상세 SQL 5→2회(여행 전용 scalar DTO, 사용자·여행 중복 조회 제거) — T17 추천안. Claude 구현 이유: 맥 Codex git·Gradle 쓰기 차단, Windows Codex 읽기 전용 시작. T16 머지 뒤 시작(같은 테스트 파일)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#476-trip-detail-two-queries",
+      "worktree": null,
+      "pr": "477",
+      "dispatch": "ctx_20107c47fcce",
+      "note": "",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#477 Codex 교차 검증 통과: 타인 노출 없음·404 유지·응답 바이트 동일·SQL 2회. 비차단 2건(탈퇴 401 경계 테스트, ADR 0036 범위 갱신) 반영 요청",
+        "at": "2026-11-19T13:03:52+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/controller/TripController.java",
+        "src/main/java/com/trova/backend/repository/TripRepository.java"
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "P6 성능: 초안 상세(/api/trip-drafts/{id}, 461ms) — 최신 job을 작은 projection으로, 저장 장소 전체 엔티티 로딩 제거(SQL 5→3 목표) — T17 추천안. Claude 구현 이유: Codex 쓰기 환경 차단(T18과 같음)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#473-trip-draft-detail",
+      "worktree": null,
+      "pr": "478",
+      "dispatch": "ctx_0601d6bc594c",
+      "note": "",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#478 Codex 교차 검증: 남의 장소 혼입·404 회귀 없음, currentJobIds 의미 보존. 낮음 2건(ADR 0036, 탈퇴 401 테스트) 반영 완료",
+        "at": "2026-11-19T14:50:22+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/service/TripPlannerService.java",
+        "src/main/java/com/trova/backend/repository/SavedPlaceRepository.java"
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "P7 성능: 빈 시간 추천(gap-recommendations) 요청당 SQL 20회 줄이기 — P4 운영 실측으로 발견(2026-11-19)",
+      "agent": "claude",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#482-gap-recommendations-queries",
+      "worktree": null,
+      "pr": "483",
+      "dispatch": "ctx_9eaa34cd2d45",
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "codex",
+        "summary": "PR#483 Codex 1차 수정 필요(pgvector 미검증·H2 간섭·ADR) → 보완 후 재검증 통과. pgvector 70쌍 점수·순서 동일, 전체 1274 실패 0",
+        "at": "2026-11-19T18:27:53+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/recommendation/PersonalizationService.java",
+        "src/main/java/com/trova/backend/repository/UserPreferenceSignalRepository.java"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "버그: 빈 시간 추천 개인화 점수가 0 벡터에서 NaN → NaN 후보가 유한 점수보다 앞에 정렬됨(기존 결함, PR#483 재검증에서 발견) + types 없는 Google 후보 NPE",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "488",
+      "dispatch": "ctx_01a438b97cc6",
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#488 Claude reviewflow 통과(낮음 3), 맥 Docker pgvector 2건 실제 통과(70쌍), 유한 순서 보존·두 추천 경로 일관",
+        "at": "2026-11-19T21:42:55+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/recommendation/PersonalizationService.java",
+        "src/main/java/com/trova/backend/recommendation/GapRecommendationService.java"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "후속: 채팅 재정렬(ConversationToolExecutor:149·대안 107행)의 0 벡터 query 유사도 NaN 미처리(PR#488 리뷰 낮음)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "490",
+      "dispatch": "ctx_89b5c59852a1",
+      "note": "자동 배정: general → codex (config/agents.json 선호)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#490 Claude reviewflow 통과(정확성·보안 0, 낮음 4: ADR 문구·근거 줄·작업 기록·테스트 일부 약함)",
+        "at": "2026-11-19T23:03:06+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/conversation/ConversationToolExecutor.java"
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "대안 장소 운영 측정(응답 시간·요청당 SQL) — 개인화 코드 공유, 지금까지 운영 표본 0건",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T23",
+      "pr": null,
+      "dispatch": "ctx_715d48729793",
+      "note": "운영 재측정 완료: 19.2초→2.049초, SQL 67.4→26.67, PR#494 머지. 코드 변경 없어 테스트·리뷰 칸 해당 없음",
+      "verification": {
+        "tests": "skip",
+        "review": "skip",
+        "security": "pass",
+        "by": "claude",
+        "summary": "측정 작업(코드 변경 없음): 운영 312dbf6 후 12건 평균 2.049초(전 19.2초), SQL 26.67(전 67.4), Gemini 0. 문서 PR#494, 비밀값 검사 통과. 테스트·리뷰는 문서만이라 skip",
+        "at": "2026-11-20T12:32:53+09:00"
+      },
+      "files": [
+        "docs/monitoring/2026-11-20-alternatives/prod-after.md"
+      ]
+    },
+    {
+      "id": "T24",
+      "title": "P8 성능(큰 문제): 대안 장소 API 운영 평균 19.2초·p95 30초 이상·요청당 SQL 67회(2026-11-19 23:38 표본 9건) — 외부 API(Google·임베딩) 시간과 DB N+1 분해 후 개선",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": "perf/#492-alternatives-rule-reason",
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24",
+      "pr": "493",
+      "dispatch": "ctx_bb21b7c32b13",
+      "note": "PR#493 머지 312dbf6, 2026-11-20 11:51 운영 배포(해시 77a30bcc 일치, UP 138초, 확인 3/3, 백업 app.jar.bak-20261120-114805). 운영 재측정 T23",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "PR#493 재검토: 1차 9건 해결. 새 높음 1(커밋 AI 서명 트레일러, 레포 규칙)은 squash 머지 메시지를 직접 지정해 main에 안 남김. 낮음 4 후속. 전체 테스트 1304·실패 0, pgvector 4 실행",
+        "at": "2026-11-20T11:12:48+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/recommendation/AlternativeReason.java",
+        "src/main/java/com/trova/backend/recommendation/AlternativeFinderService.java",
+        "src/main/java/com/trova/backend/repository/TripPlaceRepository.java",
+        "src/main/resources/application.yml",
+        "docs/adr/0052-alternative-rule-reasons.md"
+      ]
+    },
+    {
+      "id": "T25",
+      "title": "같이 고치기 1: 멤버·권한·참여/멤버 API·낙관적 잠금·변경 기록 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "499",
+      "dispatch": "ctx_4f1fc8f52719",
+      "note": "사후 검증 통과(11/23)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) 사후 검증 #499·#500: 권한 우회·IDOR·링크 재사용·티켓 재사용·연결 누수 없음. 경미: If-Match 없으면 버전 검사 생략(의도), 403/404로 여행 id 존재 노출, 백필 기동 1회, Kafka 장애 시 동시 publish 대기·open() 락 안 DB 조회·푸시 큐 DiscardOldest·재기동마다 컨슈머 그룹. 테스트 공백: EDITOR 403 경로, If-Match 생략, JWT 만료 스트림 종료, 원격 MEMBER_REMOVED",
+        "at": "2026-11-23T16:22:51+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend"
+      ]
+    },
+    {
+      "id": "T26",
+      "title": "같이 고치기 2: 실시간 SSE·푸시 묶음 (spec trip-collab)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "500",
+      "dispatch": "ctx_83ce40b18cbb",
+      "note": "Kafka 운영 왕복 확인 완료 2026-11-22 11:36~38: 발행 3·소비 3·fallback 0, 시뮬레이터 반영 3/3(2~3초). PDF /private/tmp/trova-kafka-live/trova-kafka-live-report.pdf"
+    },
+    {
+      "id": "T27",
+      "title": "QA 후속: 재분석 이전 결과 보관·조회, 저장 시 장소 매칭(경포호 주소 불일치) 검증 — PR #221 근거",
+      "agent": "codex",
+      "kind": "general",
+      "status": "dispatched",
+      "branch": null,
+      "worktree": null,
+      "pr": "503",
+      "dispatch": "ctx_e8f19a440ab0",
+      "note": "운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
+    },
+    {
+      "id": "T28",
+      "title": "빈 시간 추천 쓸데없는 곳(아파트·병원 등) 조사·정리 — 사용자 요청 2026-11-22",
+      "agent": "codex",
+      "kind": "general",
+      "status": "todo",
+      "branch": null,
+      "worktree": null,
+      "pr": "505",
+      "dispatch": null,
+      "note": "운영 배포 완료 a6a1ca5(백업 app.jar.bak-20261123-001451), 기록 #506 머지"
+    },
+    {
+      "id": "T29",
+      "title": "공유 링크 주소 trova.duckdns.org 전환 — 조사·변경 준비(운영 반영 전)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": "/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain",
+      "pr": "508",
+      "dispatch": "ctx_9bc69ae7ba42",
+      "note": "사용자 확인 완료(11/23): 앱 업데이트 후 새 주소 링크·웹 로그인 정상",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 직접 리뷰(#508·#249) + Windows Codex 테스트: 앱 418/418·타입 오류 0, 백엔드 PR 1413 통과·31 실패 = main과 동일(Windows에 Python 없음 등 환경 문제) → 회귀 없음",
+        "at": "2026-11-23T12:14:52+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/config/SecurityConfig.java",
+        "src/main/resources/application.yml",
+        ".env.example"
+      ]
+    },
+    {
+      "id": "T30",
+      "title": "Grafana 대시보드 비전공자용 설명서 PDF",
+      "agent": "codex",
+      "kind": "docs",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "514",
+      "dispatch": "ctx_5a75c8b2e2d0",
+      "note": "#514 머지 3d15542·운영 배포 11/23 18:58(중단 약 210초), 백업 app.jar.bak-20261123-185657, Grafana 영상 분석 카드 0건 초록 확인, 기록 #515",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #514: 1분마다 대기·진행 분석 수 count 1회(otlp 켜진 경우만), 실패 시 NaN=미수집, 테스트 2건. 대시보드 JSON·README",
+        "at": "2026-11-23T18:54:26+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/pipeline/OutstandingAnalysisMetrics.java",
+        "src/main/java/com/trova/backend/repository/ProcessingJobRepository.java",
+        "monitoring/grafana-cloud"
+      ]
+    },
+    {
+      "id": "T31",
+      "title": "공동 편집 사후 검증 개선점 반영(Kafka 장애 대기·락·푸시 유실·테스트 공백)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "511",
+      "dispatch": "ctx_e67b6f43c6ea",
+      "note": "#511 머지 a8ffd9c·운영 배포 11/23 17:17~17:21(중단 약 210초), 백업 app.jar.bak-20261123-171704, Kafka 그룹 trova-trip-events-<호스트>-<접미사> 정상, 기록 #512",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "재검증(071fc66): 그룹 ID 호스트 실패 시 대체·기동별 접미사, 전송·삭제 푸시 전용 단일 스레드, 복구·중복 호스트·경합 테스트 추가, 협업 테스트 74 통과. 남은 참고: 삭제 전용 큐 상한 없음(삭제는 드묾)",
+        "at": "2026-11-23T17:01:06+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/events/KafkaTripEventBus.java",
+        "src/main/java/com/trova/backend/events/TripChangePush.java",
+        "src/main/java/com/trova/backend/config/AsyncConfig.java"
+      ]
+    },
+    {
+      "id": "T32",
+      "title": "공동 편집 개선 #511 머지·운영 배포",
+      "agent": "codex",
+      "kind": "general",
+      "status": "blocked",
+      "branch": null,
+      "worktree": null,
+      "pr": "511",
+      "dispatch": "ctx_1bfb6885ae34",
+      "note": "T31에 합쳐 완료(배포 기록용 중복 작업)"
+    },
+    {
+      "id": "T33",
+      "title": "Windows 노트북 Python 설치(테스트 31 실패 해결)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "517",
+      "dispatch": "ctx_f34852e3c485",
+      "note": "Windows 실패 0, #517 병합",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude 확인 #517: 파라미터 테스트를 메서드로 나눠 Windows 제외 정확히 12개(리눅스에선 모두 실행), Gradle test에 PYTHONUTF8=1, 운영 코드 변경 없음. Windows 1468 중 실패 0",
+        "at": "2026-11-24T10:41:05+09:00"
+      },
+      "files": [
+        "build.gradle",
+        "src/test/java"
+      ]
+    },
+    {
+      "id": "T34",
+      "title": "버그 조사: 대안 찾기 '인터넷 연결 오류'(운영)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "blocked",
+      "branch": null,
+      "worktree": null,
+      "pr": null,
+      "dispatch": "ctx_c2ce3fa55fec",
+      "note": "조사 결과: 요청이 운영 서버에 도달하지 않음(대안 GET 0건, Places 호출 0건). 서버 문제 증거 없음. 에뮬레이터 쪽 연결 실패 추정 → v11 QA에서 logcat 켜고 1회 재현 예정. 제안: apiFetch에 경로 유형·경과 시간·예외 분류 로깅"
+    },
+    {
+      "id": "T35",
+      "title": "QA 느림: 영상 분석 38초·말로 바꾸기 5.4초·첫 대안 4.2초 개선",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "518",
+      "dispatch": null,
+      "note": "#518 JAR 운영 15:46 UP(중단 183초), 30분 관찰 정상. 파이썬 2개는 15:58 실패 후 복구 상태 유지 — 실패 링크 자체 문제(제목 404·Gemini 400·yt-dlp 봇 확인) 정황, 새 코드 원인 가능성 낮음. 재반영은 스테이징 대조 후 별도 작업. 기록 #519·#521",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) #518: 제목 병렬화 전용 스레드·예외 처리 OK, 일괄 저장 ON CONFLICT DO NOTHING·저장점 복구 OK, 쿼리 제거·임베딩 생략 결과 동일, 배포 위험 낮음. 보강 권장: 동시 삽입 롤백 경로·후보 0/2+ 테스트",
+        "at": "2026-11-24T15:39:59+09:00"
+      },
+      "files": [
+        "src/main/java",
+        "src/main/python"
+      ]
+    },
+    {
+      "id": "T36",
+      "title": "API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "520",
+      "dispatch": null,
+      "note": "운영 적용 16:16~16:26: Caddy 새 호스트, #520 배포(185초), #258 OTA 그룹 56c01a96(v11), 웹 배포(권한 문제로 41초 영향 후 재배포), 두 호스트 OAuth redirect_uri 일치·공유 200·CSP 확인, 기록 #522. 남은 것: 실기기 로그인·OTA 수신·v10·단축어·공동 편집 확인",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "Claude(Sonnet) #520·#258: redirect_uri 시작 호스트 기준, 쿠키 host-only, CORS·리다이렉트 변경 없음, 앱 OTA 가능(JS만), CSP 두 출처. 위험 낮음~중간. 적용 전 확인: 운영 Caddy 옛 API 블록의 body·timeout 지시어와 새 블록 일치",
+        "at": "2026-11-24T16:07:10+09:00"
+      },
+      "files": [
+        "src/main/resources/application.yml",
+        "deploy/caddy/Caddyfile.api-domain",
+        "docs/runbooks/api-domain.md"
+      ]
+    },
+    {
+      "id": "T37",
+      "title": "체크리스트 중간: API 오류 응답 형식 통일(하위 호환)",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "524",
+      "dispatch": null,
+      "note": "#524 배포 17:46~17:50(228초), 두 API 404·401 JSON·본문 traceId 정상, 공유 200·OAuth 302 정상. 남은 것: JSON 경로 X-Trace-Id 헤더 누락(경미), 운영 409 미검증(로컬 테스트 통과). 백업 app.jar.bak-20261124-174647",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "재검증 70ebad5: 문자열·바이트 변환기와 비객체 본문은 원본 보존(X-Trace-Id 헤더), 4xx INFO·5xx WARN traceId 로그, 실제 AccessDenied·OAuth 실패 redirect·관리자 error·SSE 후 종료·400 본문 보존 테스트 추가, 1467 통과",
+        "at": "2026-11-24T17:29:29+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/controller/ApiErrorAdvice.java",
+        "src/main/java/com/trova/backend/controller/ApiErrors.java"
+      ]
+    },
+    {
+      "id": "T38",
+      "title": "오류 응답 X-Trace-Id 헤더 보완",
+      "agent": "codex",
+      "kind": "general",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "526",
+      "dispatch": "ctx_a58275a59fa1",
+      "note": "사용자 요청으로 지금 배포(묶음 대기 해제) 2026-11-24",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "#526 머지(ce95a4e)·운영 배포. 1,482 통과, 기존 pgvector 1건 예외(T39). 중단 166초. 매니저가 두 주소 401에서 X-Trace-Id 헤더=본문 traceId 직접 확인, 헬스 200. 파이썬 2개 해시 보존",
+        "at": "2026-11-24T22:49:45+09:00"
+      },
+      "files": [
+        "src/main/java/com/trova/backend/controller/ApiErrorAdvice.java",
+        "docs/monitoring/2026-11-24-release-526.md"
+      ]
+    },
+    {
+      "id": "T39",
+      "title": "기존 테스트 실패 정리: pgvector SQL 기대 9·실제 7(main에서도 실패, #525·#526 배포 때 발견)",
+      "agent": "codex",
+      "kind": "test",
+      "status": "done",
+      "branch": null,
+      "worktree": null,
+      "pr": "529",
+      "dispatch": "ctx_8c4ebf932269",
+      "note": "사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)",
+      "verification": {
+        "tests": "pass",
+        "review": "pass",
+        "security": "pass",
+        "by": "claude",
+        "summary": "#518(8bde140)이 일차별 장소 조회를 여행 전체 조회(findByTripOrderByDayAndVisitOrder)로 바꿔 SQL 2회 감소 — 의도한 최적화. 기대값 7·원인 주석, 점수·응답 동등성 유지, 전체 1489 중 실패 0",
+        "at": "2026-11-24T23:25:28+09:00"
+      },
+      "files": [
+        "src/test/java/com/trova/backend/recommendation/PersonalizationPgvectorEquivalenceTest.java"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-18T00:32:26+09:00",
+      "event": "프로젝트 생성 (planning)"
+    },
+    {
+      "at": "2026-11-18T00:32:26+09:00",
+      "event": "repo=Trovapp/trova-backend"
+    },
+    {
+      "at": "2026-11-18T00:32:26+09:00",
+      "event": "test_cmd=./gradlew test"
+    },
+    {
+      "at": "2026-11-18T00:37:13+09:00",
+      "event": "단계 planning → developing"
+    },
+    {
+      "at": "2026-11-18T00:42:45+09:00",
+      "event": "승인 요청: push (main)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O1 (codex, 자동): 운영: 메모리 압박 경보 16분 지연 — 서버가 멈추면 지표가 끊겨 경보 대기가 처음부터 다시 시작됨(11-13 r28)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O2 (codex, 자동): 운영: 밤사이 중단 경보 전달 경로 점검(11-13 9시간 장애 후속)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 O3 (codex, 자동): 운영: 11-13 14:35 출처 모르는 배포 조사(읽기만)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B01 (codex, 자동): codex-tasks 01 ADR↔CLAUDE.md 모순 점검"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B02 (codex, 자동): codex-tasks 02 인스타 429 재시도 설계 검토(#365)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B03 (codex, 자동): codex-tasks 03 여행 일차별 장소 조회를 한 번으로(PR #131과 겹침)"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B04 (codex, 자동): codex-tasks 04 외부 API 클라이언트 테스트"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B05 (codex, 자동): codex-tasks 05 일정 생성·소셜 로그인 흐름 테스트"
+    },
+    {
+      "at": "2026-11-18T00:45:27+09:00",
+      "event": "작업 추가 B06 (codex, 자동): codex-tasks 06 같은 영상 여행·관리자 상세 조회 줄이기(B03 뒤, PR #133과 겹침)"
+    },
+    {
+      "at": "2026-11-18T00:53:51+09:00",
+      "event": "작업 O1 변경: status=dispatched, branch=fix/#428-memory-pressure-stall-alert, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O1, dispatch=ctx_cdc995d9eadf"
+    },
+    {
+      "at": "2026-11-18T01:00:39+09:00",
+      "event": "작업 O1 변경: note=구현 완료 2f84902(로컬, PR 없음): PSI 공백 보완 규칙·ADR 0046 초안. 검사 통과. Claude 교차 검증 dispatch=ctx_8ee67fb3be08"
+    },
+    {
+      "at": "2026-11-18T01:09:40+09:00",
+      "event": "작업 O1 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-18T01:11:20+09:00",
+      "event": "작업 추가 Q1 (codex, 자동): QA1: 앱 모니터링 QA — API 요청·응답 시간·서버 CPU/메모리 기록, 캡처 포함 PDF (Windows 노트북)"
+    },
+    {
+      "at": "2026-11-18T01:11:20+09:00",
+      "event": "작업 추가 Q2 (codex, 자동): QA2: 앱 UI/UX QA — 화면·흐름 점검, 캡처 포함 PDF (Windows 노트북, Q1 뒤 — 에뮬레이터 하나)"
+    },
+    {
+      "at": "2026-11-18T01:11:20+09:00",
+      "event": "작업 Q1 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-monitoring, dispatch=ctx_948a52cf51d8, note=trova-app 작업 폴더에서 실행, 결과는 Windows 바탕화면 trova-qa-2026-11-18/monitoring (공개 레포라 커밋 안 함)"
+    },
+    {
+      "at": "2026-11-18T01:14:51+09:00",
+      "event": "작업 O1 변경: note=1차 지적 반영 5f13c87(로컬): Cloud 저장본 원복, 후보 candidates/로 분리, 검사 판별력 확보. Claude 재검증 dispatch=ctx_076f99dd8233"
+    },
+    {
+      "at": "2026-11-18T01:16:06+09:00",
+      "event": "작업 O1 검증(claude:reviewflow): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T01:16:06+09:00",
+      "event": "작업 O1 변경: status=review, note=검증 통과(5f13c87, 로컬). 남은 것: GitHub 올리기·PR·main 합치기·Grafana 반영 승인(사용자)"
+    },
+    {
+      "at": "2026-11-18T01:21:25+09:00",
+      "event": "작업 Q1 변경: status=blocked, note=부분 수행: PDF 7쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). Grafana 로그인 안 돼 있어 서버 자원 측정 불가, 앱 네트워크 계측 미확보, 조회 화면 4개만. 필요: 사용자가 Windows 브라우저에서 Grafana 로그인 + 앱 요청 계측 방법(qa 빌드/프록시) 결정"
+    },
+    {
+      "at": "2026-11-18T01:21:37+09:00",
+      "event": "작업 Q2 변경: status=dispatched, worktree=windows:C:/Users/user/orca/workspaces/trova-app/trova-qa-uiux, dispatch=ctx_bb1931c8e008"
+    },
+    {
+      "at": "2026-11-18T01:36:32+09:00",
+      "event": "작업 Q2 변경: status=blocked, note=부분 완료: PDF 12쪽(C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/). 높음1(다크 모드 새 여행 이름 입력 대비 1.14:1)·중간3(큰 글자 탭 잘림, 버튼 대비, 장소 정보 없을 때 다음 행동 없음)·낮음1(문구 어절 분리). 미완: 첫 실행·로그인·동의·공유·복사·수정 — 전용 QA 계정 필요. 기기 설정 원복, 개인정보 원본 삭제"
+    },
+    {
+      "at": "2026-11-18T10:08:59+09:00",
+      "event": "작업 Q1 변경: status=dispatched, dispatch=ctx_88f516bc2f9a, note=Grafana 로그인 후 보완 재실행(Windows codex)"
+    },
+    {
+      "at": "2026-11-18T10:09:51+09:00",
+      "event": "승인 기록: push (chore/am-guard)"
+    },
+    {
+      "at": "2026-11-18T10:13:33+09:00",
+      "event": "승인 기록: merge_main (PR#458)"
+    },
+    {
+      "at": "2026-11-18T10:14:49+09:00",
+      "event": "작업 O1 변경: status=dispatched, note=식별자 충돌 정리·main rebase (codex, Mac)"
+    },
+    {
+      "at": "2026-11-18T10:28:42+09:00",
+      "event": "작업 Q1 변경: note=보완 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/monitoring/). 교차 검토 전"
+    },
+    {
+      "at": "2026-11-18T11:04:37+09:00",
+      "event": "작업 Q2 변경: status=dispatched, note=2차: QA 전용 계정 전체 흐름 (Windows codex)"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "작업 O1 변경: agent=codex, branch=fix/#428-memory-pressure-stall-alert"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "작업 O1 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T11:23:46+09:00",
+      "event": "승인 기록: push (fix/#428-memory-pressure-stall-alert)"
+    },
+    {
+      "at": "2026-11-18T11:23:54+09:00",
+      "event": "승인된 작업 실행: push(fix/#428-memory-pressure-stall-alert)"
+    },
+    {
+      "at": "2026-11-18T11:39:04+09:00",
+      "event": "승인 기록: merge_main (PR#459)"
+    },
+    {
+      "at": "2026-11-18T11:39:08+09:00",
+      "event": "작업 O1 변경: status=done, pr=459, note=PR #459 머지. Grafana Cloud 반영은 별도 승인 대기"
+    },
+    {
+      "at": "2026-11-18T11:39:14+09:00",
+      "event": "작업 Q2 변경: note=2차 완료: v2 PDF 12쪽(Windows C:/Users/user/Desktop/trova-qa-2026-11-18/uiux/), 높음1·중간3·낮음2, #149 재현"
+    },
+    {
+      "at": "2026-11-18T11:43:38+09:00",
+      "event": "승인 기록: deploy (grafana-alert-bg3yd8j9d5fr4a)"
+    },
+    {
+      "at": "2026-11-18T12:15:32+09:00",
+      "event": "작업 O1 변경: note=PR #459 머지 + 2026-11-18 12:04 KST Grafana 운영 경보 반영(before/after.json Windows grafana-o1/). 후속: 저장본·문서 갱신(O4)"
+    },
+    {
+      "at": "2026-11-18T12:15:32+09:00",
+      "event": "작업 추가 T12 (codex): O1 후속: Cloud export로 rules-trova-host.json 갱신, proposals 후보 삭제, validator·테스트·runbook 1~6절·ADR 0050 상태를 실제 반영에 맞추기 (runbook 7절 5단계)"
+    },
+    {
+      "at": "2026-11-18T12:15:55+09:00",
+      "event": "작업 T12 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T12:31:46+09:00",
+      "event": "작업 T12 변경: pr=461, note=Codex PR #461(검사 통과, Java 변경 없음). Claude 교차 검증 중. Windows gradle build는 환경 문제로 31개 실패(python3 별칭·nice) — 별도 확인 필요"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "작업 T12 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "승인 기록: push (fix/#460-memory-pressure-cloud-sync)"
+    },
+    {
+      "at": "2026-11-18T14:01:55+09:00",
+      "event": "승인 기록: merge_main (PR#461)"
+    },
+    {
+      "at": "2026-11-18T14:01:59+09:00",
+      "event": "작업 T12 변경: status=done, note=PR #461 머지"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T13 (codex): P1 성능: 여행 상세·삭제 영향·재구성 일차별 N+1 제거 (codex-tasks 03)"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T14 (codex): P2 성능: 같은 영상 여행 찾기·관리자 상세 N+1 제거 (codex-tasks 06) + 없음은 404 대신 정상 응답(share-link 포함)"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T15 (codex): P3 성능: 홈 자동 초안(trip-drafts/auto) 짧은 캐시"
+    },
+    {
+      "at": "2026-11-18T16:41:21+09:00",
+      "event": "작업 추가 T16 (codex): P4 측정: 요청당 DB 쿼리 수 지표, 힙 밖 메모리 구성 지표, Slack 경보 시험"
+    },
+    {
+      "at": "2026-11-18T16:41:44+09:00",
+      "event": "작업 T13 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T17:16:54+09:00",
+      "event": "작업 T13 변경: branch=perf/#462-trip-day-places, pr=463, note=Codex PR #463: 상세 SQL 6·10·14·18→5 고정, 삭제 영향 3~9→3, 전체 테스트 통과(WSL). Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "작업 T13 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "승인 기록: push (perf/#462-trip-day-places)"
+    },
+    {
+      "at": "2026-11-18T17:25:13+09:00",
+      "event": "승인 기록: merge_main (PR#463)"
+    },
+    {
+      "at": "2026-11-18T17:25:17+09:00",
+      "event": "작업 T13 변경: status=done, note=PR #463 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T17:25:40+09:00",
+      "event": "작업 T14 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T17:50:06+09:00",
+      "event": "작업 T14 변경: branch=perf/#464-video-admin-queries, pr=465, note=Codex PR #465: 영상 8·16→7, 관리자 13·17→12, 공개 여행 6~18→5, 정상 없음 200 null(타인·없는 원본 404 유지), 1225 통과(WSL), 기록·캡처 3장. Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "작업 T14 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "승인 기록: push (perf/#464-video-admin-queries)"
+    },
+    {
+      "at": "2026-11-18T18:01:49+09:00",
+      "event": "승인 기록: merge_main (PR#465)"
+    },
+    {
+      "at": "2026-11-18T18:01:53+09:00",
+      "event": "작업 T14 변경: status=done, note=PR #465 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T18:02:18+09:00",
+      "event": "작업 T15 변경: status=dispatched, note=Windows codex"
+    },
+    {
+      "at": "2026-11-18T18:23:13+09:00",
+      "event": "작업 T15 변경: branch=perf/#466-trip-drafts-auto, pr=467, note=Codex PR #467: scalar projection, SQL 5→3, 엔티티 로딩 4·18·42→0, 캐시 없음(a) 선택, 1229 통과. 기준선 캡처 생략(도구 없음). Claude 교차 검증 중"
+    },
+    {
+      "at": "2026-11-18T18:34:57+09:00",
+      "event": "작업 T15 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-18T18:34:57+09:00",
+      "event": "승인 기록: push (perf/#466-trip-drafts-auto)"
+    },
+    {
+      "at": "2026-11-18T18:34:58+09:00",
+      "event": "승인 기록: merge_main (PR#467)"
+    },
+    {
+      "at": "2026-11-18T18:35:03+09:00",
+      "event": "작업 T15 변경: status=done, note=PR #467 머지. 운영 배포 전"
+    },
+    {
+      "at": "2026-11-18T18:44:17+09:00",
+      "event": "승인 기록: deploy (perf-phase1-523308a)"
+    },
+    {
+      "at": "2026-11-18T18:50:20+09:00",
+      "event": "승인 기록: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-18T21:36:02+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-18T21:39:25+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/places/videos/1/trip"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1/share-link"
+    },
+    {
+      "at": "2026-11-18T21:39:28+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trip-drafts/auto"
+    },
+    {
+      "at": "2026-11-18T21:39:29+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-18T21:39:43+09:00",
+      "event": "승인 요청: push (docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:17:33+09:00",
+      "event": "승인 기록: push (docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:17:44+09:00",
+      "event": "승인된 작업 실행: push(docs/#464-perf-phase1-deploy-record)"
+    },
+    {
+      "at": "2026-11-18T22:36:40+09:00",
+      "event": "승인 기록: merge_main (PR#468)"
+    },
+    {
+      "at": "2026-11-18T22:36:40+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#468)"
+    },
+    {
+      "at": "2026-11-18T22:58:41+09:00",
+      "event": "승인 기록: merge_main (PR#469)"
+    },
+    {
+      "at": "2026-11-18T22:58:41+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#469)"
+    },
+    {
+      "at": "2026-11-19T00:12:32+09:00",
+      "event": "승인 기록: merge_main (PR#470)"
+    },
+    {
+      "at": "2026-11-19T00:12:32+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#470)"
+    },
+    {
+      "at": "2026-11-19T00:47:24+09:00",
+      "event": "작업 추가 T17 (codex, 자동): P1 후속 분석: 여행 상세 응답 시간이 배포 후에도 그대로인 원인(SQL 6~18→5회인데 평균 352→355ms) — 코드·쿼리 읽고 개선안 문서만"
+    },
+    {
+      "at": "2026-11-19T00:48:32+09:00",
+      "event": "작업 T16 변경: status=dispatched, dispatch=ctx_db4c3d4ecb56"
+    },
+    {
+      "at": "2026-11-19T00:48:32+09:00",
+      "event": "작업 T17 변경: status=dispatched, dispatch=ctx_7bbb398b1767"
+    },
+    {
+      "at": "2026-11-19T00:50:06+09:00",
+      "event": "작업 T16 변경: dispatch=ctx_9d833de21fab"
+    },
+    {
+      "at": "2026-11-19T00:50:42+09:00",
+      "event": "작업 T16 변경: dispatch=ctx_1ad8a659ed54, note=Windows Codex가 연속 2번 읽기 전용으로 시작돼 맥 Codex로 옮김(2026-11-19)"
+    },
+    {
+      "at": "2026-11-19T08:51:49+09:00",
+      "event": "승인 기록: push (docs/#471-trip-detail-analysis)"
+    },
+    {
+      "at": "2026-11-19T08:52:19+09:00",
+      "event": "승인된 작업 실행: push(docs/#471-trip-detail-analysis)"
+    },
+    {
+      "at": "2026-11-19T09:09:36+09:00",
+      "event": "승인 기록: push (feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T09:12:53+09:00",
+      "event": "작업 T17 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T09:12:53+09:00",
+      "event": "승인 기록: merge_main (PR#472)"
+    },
+    {
+      "at": "2026-11-19T09:13:53+09:00",
+      "event": "승인된 작업 실행: push(docs/#471-trip-detail-analysis)"
+    },
+    {
+      "at": "2026-11-19T09:14:14+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#472)"
+    },
+    {
+      "at": "2026-11-19T09:14:29+09:00",
+      "event": "작업 T17 변경: status=done, pr=472"
+    },
+    {
+      "at": "2026-11-19T09:26:08+09:00",
+      "event": "작업 추가 T18 (claude): P5 성능: 여행 상세 SQL 5→2회(여행 전용 scalar DTO, 사용자·여행 중복 조회 제거) — T17 추천안. Claude 구현 이유: 맥 Codex git·Gradle 쓰기 차단, Windows Codex 읽기 전용 시작. T16 머지 뒤 시작(같은 테스트 파일)"
+    },
+    {
+      "at": "2026-11-19T09:29:11+09:00",
+      "event": "작업 추가 T19 (claude): P6 성능: 초안 상세(/api/trip-drafts/{id}, 461ms) — 최신 job을 작은 projection으로, 저장 장소 전체 엔티티 로딩 제거(SQL 5→3 목표) — T17 추천안. Claude 구현 이유: Codex 쓰기 환경 차단(T18과 같음)"
+    },
+    {
+      "at": "2026-11-19T09:29:24+09:00",
+      "event": "작업 T19 변경: status=dispatched, dispatch=ctx_3d305011a659"
+    },
+    {
+      "at": "2026-11-19T09:40:44+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_1771d3dd0bed"
+    },
+    {
+      "at": "2026-11-19T09:40:55+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:41:15+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.[가림]'"
+    },
+    {
+      "at": "2026-11-19T09:42:31+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:42:58+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest'"
+    },
+    {
+      "at": "2026-11-19T09:43:23+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:43:39+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*TripDetailQueryCountTest.여행_상세의_예열_후_SQL_다섯_회를_요청_지표로_기록하고_ID는_태그에_넣지"
+    },
+    {
+      "at": "2026-11-19T09:43:50+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*TripDetailQueryCountTest.여행_상세의_예열_후_SQL_다섯_회를_요청_지표로_기록하고_ID는_태그에_넣지"
+    },
+    {
+      "at": "2026-11-19T09:44:04+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T09:45:50+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew -p [가림] test --offline --console=plain --quiet"
+    },
+    {
+      "at": "2026-11-19T09:47:27+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T09:47:55+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T09:52:42+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T09:52:54+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest'"
+    },
+    {
+      "at": "2026-11-19T09:53:00+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T09:54:38+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T11:47:35+09:00",
+      "event": "작업 T16 변경: agent=claude"
+    },
+    {
+      "at": "2026-11-19T11:47:35+09:00",
+      "event": "작업 T16 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T11:47:53+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests '*RequestDbQueryMetricsTest' --tests '*TripDetailQueryCountTest' --test"
+    },
+    {
+      "at": "2026-11-19T11:48:23+09:00",
+      "event": "승인된 작업 실행: push(feat/p4-db-query-metrics)"
+    },
+    {
+      "at": "2026-11-19T11:49:28+09:00",
+      "event": "승인 기록: merge_main (PR#474)"
+    },
+    {
+      "at": "2026-11-19T11:49:41+09:00",
+      "event": "작업 T16 변경: status=done, branch=feat/p4-db-query-metrics, pr=474"
+    },
+    {
+      "at": "2026-11-19T11:49:49+09:00",
+      "event": "작업 T18 변경: status=dispatched, dispatch=ctx_20107c47fcce"
+    },
+    {
+      "at": "2026-11-19T11:52:22+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.TripDetail*'"
+    },
+    {
+      "at": "2026-11-19T11:53:07+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.TripDetail*'"
+    },
+    {
+      "at": "2026-11-19T11:53:18+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.[가림]'"
+    },
+    {
+      "at": "2026-11-19T11:53:28+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.[가림]'"
+    },
+    {
+      "at": "2026-11-19T11:54:03+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.TmpTripDetailTimingProbeTest'"
+    },
+    {
+      "at": "2026-11-19T11:54:15+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.TmpTripDetailTimingProbeTest'"
+    },
+    {
+      "at": "2026-11-19T11:54:29+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T11:56:14+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.security.[가림]'"
+    },
+    {
+      "at": "2026-11-19T11:56:29+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew -p [가림] test --offline --console=plain --quiet"
+    },
+    {
+      "at": "2026-11-19T11:58:21+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T11:58:58+09:00",
+      "event": "승인 요청: push (perf/#476-trip-detail-two-queries)"
+    },
+    {
+      "at": "2026-11-19T12:02:04+09:00",
+      "event": "승인 기록: push (perf/#476-trip-detail-two-queries)"
+    },
+    {
+      "at": "2026-11-19T12:02:09+09:00",
+      "event": "승인된 작업 실행: push(perf/#476-trip-detail-two-queries)"
+    },
+    {
+      "at": "2026-11-19T12:13:42+09:00",
+      "event": "승인 기록: destructive_delete (/private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline)"
+    },
+    {
+      "at": "2026-11-19T12:13:46+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T12:13:52+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T13:03:52+09:00",
+      "event": "작업 T18 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T13:04:14+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain --tests 'com.trova.backend.controller.TripDetail*'"
+    },
+    {
+      "at": "2026-11-19T13:04:28+09:00",
+      "event": "승인된 작업 실행: push(perf/#476-trip-detail-two-queries)"
+    },
+    {
+      "at": "2026-11-19T13:05:02+09:00",
+      "event": "승인 기록: merge_main (PR#477)"
+    },
+    {
+      "at": "2026-11-19T13:05:07+09:00",
+      "event": "작업 T18 변경: status=done, branch=perf/#476-trip-detail-two-queries, pr=477"
+    },
+    {
+      "at": "2026-11-19T14:00:29+09:00",
+      "event": "작업 T19 변경: dispatch=ctx_0601d6bc594c"
+    },
+    {
+      "at": "2026-11-19T14:04:00+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: /[가림] -p [가림] test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T14:05:38+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T14:05:42+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T14:05:55+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(od); 명령: tail -c 200 [가림].md | od -c | tail -n 3"
+    },
+    {
+      "at": "2026-11-19T14:06:06+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(od); 명령: tail -c 100 docs/experience-notes.md | od -c | tail -n 2"
+    },
+    {
+      "at": "2026-11-19T14:06:24+09:00",
+      "event": "승인 요청: push (perf/#473-trip-draft-detail)"
+    },
+    {
+      "at": "2026-11-19T14:07:01+09:00",
+      "event": "승인 기록: push (perf/#473-trip-draft-detail)"
+    },
+    {
+      "at": "2026-11-19T14:07:06+09:00",
+      "event": "승인된 작업 실행: push(perf/#473-trip-draft-detail)"
+    },
+    {
+      "at": "2026-11-19T14:44:09+09:00",
+      "event": "승인된 작업 실행: push(perf/#473-trip-draft-detail)"
+    },
+    {
+      "at": "2026-11-19T14:50:22+09:00",
+      "event": "작업 T19 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T14:50:22+09:00",
+      "event": "승인 기록: merge_main (PR#478)"
+    },
+    {
+      "at": "2026-11-19T14:50:36+09:00",
+      "event": "작업 T19 변경: status=done, branch=perf/#473-trip-draft-detail, pr=478"
+    },
+    {
+      "at": "2026-11-19T14:54:19+09:00",
+      "event": "승인 기록: deploy (perf-phase2-69b55fa)"
+    },
+    {
+      "at": "2026-11-19T14:54:31+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-19T14:57:31+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-19T14:57:33+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-19T14:57:34+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trip-drafts/1"
+    },
+    {
+      "at": "2026-11-19T14:57:52+09:00",
+      "event": "승인 요청: push (docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T14:58:42+09:00",
+      "event": "승인 기록: push (docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T14:58:46+09:00",
+      "event": "승인된 작업 실행: push(docs/#476-perf-phase2-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T15:02:39+09:00",
+      "event": "승인 기록: merge_main (PR#479)"
+    },
+    {
+      "at": "2026-11-19T15:57:07+09:00",
+      "event": "승인 기록: push (docs/#476-perf-phase2-results)"
+    },
+    {
+      "at": "2026-11-19T15:58:39+09:00",
+      "event": "승인된 작업 실행: push(docs/#476-perf-phase2-results)"
+    },
+    {
+      "at": "2026-11-19T16:00:03+09:00",
+      "event": "승인 기록: merge_main (PR#480)"
+    },
+    {
+      "at": "2026-11-19T16:00:12+09:00",
+      "event": "작업 추가 T20 (codex, 자동): P7 성능: 빈 시간 추천(gap-recommendations) 요청당 SQL 20회 줄이기 — P4 운영 실측으로 발견(2026-11-19)"
+    },
+    {
+      "at": "2026-11-19T16:05:17+09:00",
+      "event": "승인 기록: push (docs/#476-interview-db-roundtrips)"
+    },
+    {
+      "at": "2026-11-19T16:06:35+09:00",
+      "event": "승인된 작업 실행: push(docs/#476-interview-db-roundtrips)"
+    },
+    {
+      "at": "2026-11-19T16:09:42+09:00",
+      "event": "승인 기록: merge_main (PR#481)"
+    },
+    {
+      "at": "2026-11-19T16:13:59+09:00",
+      "event": "작업 T20 변경: agent=claude"
+    },
+    {
+      "at": "2026-11-19T16:14:10+09:00",
+      "event": "작업 T20 변경: status=dispatched, dispatch=ctx_9eaa34cd2d45"
+    },
+    {
+      "at": "2026-11-19T16:18:25+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T16:19:04+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest.임시_SQL_찍기 --offline --console=plain"
+    },
+    {
+      "at": "2026-11-19T16:22:22+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.recommenda"
+    },
+    {
+      "at": "2026-11-19T16:22:43+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.recommenda"
+    },
+    {
+      "at": "2026-11-19T16:23:09+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:30+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:42+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:23:55+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.recommendation.GapRecommendationServiceTest --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:24:07+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:25:58+09:00",
+      "event": "승인 요청: destructive_delete"
+    },
+    {
+      "at": "2026-11-19T16:26:22+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:28:32+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:30:29+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:33:13+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:36:16+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.controller.GapRecommendationQueryCountTest --tests com.trova.backend.controller"
+    },
+    {
+      "at": "2026-11-19T16:36:26+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:38:58+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --tests com.trova.backend.security.[가림] --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T16:41:04+09:00",
+      "event": "승인 요청: push (perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T16:42:25+09:00",
+      "event": "승인 기록: push (perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T16:42:28+09:00",
+      "event": "승인된 작업 실행: push(perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T18:09:33+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew dependencies --configuration testRuntimeClasspath --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:11:32+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:12:10+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain -q --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:12:25+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain -q --tests com.trova.backend.recommendation.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:13:07+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:15:56+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:19:20+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --offline --console=plain -q"
+    },
+    {
+      "at": "2026-11-19T18:21:31+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew build --offline --console=plain -q -x test"
+    },
+    {
+      "at": "2026-11-19T18:21:46+09:00",
+      "event": "승인된 작업 실행: push(perf/#482-gap-recommendations-queries)"
+    },
+    {
+      "at": "2026-11-19T18:27:53+09:00",
+      "event": "작업 T20 검증(codex): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T18:27:53+09:00",
+      "event": "승인 기록: merge_main (PR#483)"
+    },
+    {
+      "at": "2026-11-19T18:28:06+09:00",
+      "event": "작업 T20 변경: status=done, branch=perf/#482-gap-recommendations-queries, pr=483"
+    },
+    {
+      "at": "2026-11-19T18:28:06+09:00",
+      "event": "작업 추가 T21 (codex, 자동): 버그: 빈 시간 추천 개인화 점수가 0 벡터에서 NaN → NaN 후보가 유한 점수보다 앞에 정렬됨(기존 결함, PR#483 재검증에서 발견) + types 없는 Google 후보 NPE"
+    },
+    {
+      "at": "2026-11-19T18:31:53+09:00",
+      "event": "승인 기록: deploy (perf-p7-fa02baf)"
+    },
+    {
+      "at": "2026-11-19T18:31:53+09:00",
+      "event": "승인 기록: push (docs/#482-p7-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T18:32:09+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-19T18:35:11+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-19T18:35:13+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-19T18:35:13+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.[가림]"
+    },
+    {
+      "at": "2026-11-19T18:35:31+09:00",
+      "event": "승인된 작업 실행: push(docs/#482-p7-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T18:38:25+09:00",
+      "event": "승인 기록: merge_main (PR#484)"
+    },
+    {
+      "at": "2026-11-19T20:21:02+09:00",
+      "event": "승인 기록: push (docs/#482-p7-results)"
+    },
+    {
+      "at": "2026-11-19T20:22:17+09:00",
+      "event": "승인된 작업 실행: push(docs/#482-p7-results)"
+    },
+    {
+      "at": "2026-11-19T20:23:19+09:00",
+      "event": "승인 기록: merge_main (PR#485)"
+    },
+    {
+      "at": "2026-11-19T21:06:29+09:00",
+      "event": "작업 T21 변경: agent=claude"
+    },
+    {
+      "at": "2026-11-19T21:07:12+09:00",
+      "event": "작업 T21 변경: status=dispatched, dispatch=ctx_415a97abcb3e"
+    },
+    {
+      "at": "2026-11-19T21:08:52+09:00",
+      "event": "작업 T21 변경: agent=codex, dispatch=ctx_01a438b97cc6"
+    },
+    {
+      "at": "2026-11-19T21:37:58+09:00",
+      "event": "승인 기록: push (fix/#487-gap-nan-sort)"
+    },
+    {
+      "at": "2026-11-19T21:38:11+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain --tests 'com.trova.backend.recommendation.[가림]'"
+    },
+    {
+      "at": "2026-11-19T21:42:55+09:00",
+      "event": "작업 T21 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T21:42:56+09:00",
+      "event": "승인 기록: merge_main (PR#488)"
+    },
+    {
+      "at": "2026-11-19T21:43:02+09:00",
+      "event": "작업 T21 변경: status=done, pr=488"
+    },
+    {
+      "at": "2026-11-19T21:43:02+09:00",
+      "event": "작업 추가 T22 (codex, 자동): 후속: 채팅 재정렬(ConversationToolExecutor:149·대안 107행)의 0 벡터 query 유사도 NaN 미처리(PR#488 리뷰 낮음)"
+    },
+    {
+      "at": "2026-11-19T22:53:59+09:00",
+      "event": "작업 T22 변경: status=dispatched, agent=codex, dispatch=ctx_89b5c59852a1"
+    },
+    {
+      "at": "2026-11-19T22:58:29+09:00",
+      "event": "승인 기록: push (fix/#489-chat-nan-rerank)"
+    },
+    {
+      "at": "2026-11-19T22:58:44+09:00",
+      "event": "승인된 작업 실행: push(fix/#489-chat-nan-rerank)"
+    },
+    {
+      "at": "2026-11-19T23:03:06+09:00",
+      "event": "작업 T22 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-19T23:03:06+09:00",
+      "event": "승인 기록: merge_main (PR#490)"
+    },
+    {
+      "at": "2026-11-19T23:03:12+09:00",
+      "event": "작업 T22 변경: status=done, pr=490"
+    },
+    {
+      "at": "2026-11-19T23:06:49+09:00",
+      "event": "승인 기록: deploy (fix-nan-6dbfea3)"
+    },
+    {
+      "at": "2026-11-19T23:06:49+09:00",
+      "event": "승인 기록: push (docs/#489-nan-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T23:07:05+09:00",
+      "event": "승인된 작업 실행: deploy(plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-19T23:10:16+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/actuator/health"
+    },
+    {
+      "at": "2026-11-19T23:10:19+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.io/api/trips/1"
+    },
+    {
+      "at": "2026-11-19T23:10:19+09:00",
+      "event": "확인 없이 실행: 자동 허용 목록에 없는 프로그램·스크립트 실행(curl); 명령: curl -s -o /dev/null -w '%{http_code}' https://193-123-161-217.sslip.[가림]"
+    },
+    {
+      "at": "2026-11-19T23:10:33+09:00",
+      "event": "승인된 작업 실행: push(docs/#489-nan-deploy-record)"
+    },
+    {
+      "at": "2026-11-19T23:12:54+09:00",
+      "event": "승인 기록: merge_main (PR#491)"
+    },
+    {
+      "at": "2026-11-19T23:17:02+09:00",
+      "event": "작업 추가 T23 (codex, 자동): 대안 장소 운영 측정(응답 시간·요청당 SQL) — 개인화 코드 공유, 지금까지 운영 표본 0건"
+    },
+    {
+      "at": "2026-11-19T23:59:31+09:00",
+      "event": "작업 추가 T24 (codex, 자동): P8 성능(큰 문제): 대안 장소 API 운영 평균 19.2초·p95 30초 이상·요청당 SQL 67회(2026-11-19 23:38 표본 9건) — 외부 API(Google·임베딩) 시간과 DB N+1 분해 후 개선"
+    },
+    {
+      "at": "2026-11-20T00:01:14+09:00",
+      "event": "작업 T24 변경: status=dispatched, dispatch=ctx_2fddb1333947"
+    },
+    {
+      "at": "2026-11-20T00:15:09+09:00",
+      "event": "작업 T24 변경: dispatch=ctx_20ed96d4cb41"
+    },
+    {
+      "at": "2026-11-20T00:27:47+09:00",
+      "event": "승인 기록: push (perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T00:35:28+09:00",
+      "event": "승인된 작업 실행: push(perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T10:28:56+09:00",
+      "event": "작업 T24 변경: branch=perf/#492-alternatives-rule-reason, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T24, pr=493"
+    },
+    {
+      "at": "2026-11-20T10:34:50+09:00",
+      "event": "작업 T24 변경: note=Codex 완료(PR#493) → Claude reviewflow 검토 ctx_618883493d83"
+    },
+    {
+      "at": "2026-11-20T10:40:56+09:00",
+      "event": "작업 T24 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T10:41:06+09:00",
+      "event": "작업 T24 변경: dispatch=ctx_bb21b7c32b13"
+    },
+    {
+      "at": "2026-11-20T10:49:30+09:00",
+      "event": "승인된 작업 실행: push(perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T10:51:48+09:00",
+      "event": "작업 T24 변경: note=리뷰 수정 3e0db35(테스트 1304·실패 0) → 재검토 ctx_69f46cdde697"
+    },
+    {
+      "at": "2026-11-20T11:04:48+09:00",
+      "event": "승인된 작업 실행: push(perf/#492-alternatives-rule-reason)"
+    },
+    {
+      "at": "2026-11-20T11:12:48+09:00",
+      "event": "작업 T24 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T11:13:47+09:00",
+      "event": "승인 기록: merge_main (PR#493)"
+    },
+    {
+      "at": "2026-11-20T11:13:49+09:00",
+      "event": "승인된 작업 실행: merge_main(PR#493)"
+    },
+    {
+      "at": "2026-11-20T11:14:02+09:00",
+      "event": "작업 T24 변경: status=done, note=PR#493 머지 312dbf6(재검토 통과, main 커밋 메시지에 AI 서명 없음 확인). 운영 미배포 — 배포 후 운영 응답 시간 재측정 필요. 낮음 후속 4"
+    },
+    {
+      "at": "2026-11-20T11:17:23+09:00",
+      "event": "승인 기록: deploy (312dbf6)"
+    },
+    {
+      "at": "2026-11-20T11:35:51+09:00",
+      "event": "승인 기록: deploy (plugin-script:taeng-marketplace/devflow/scripts/deploy.sh)"
+    },
+    {
+      "at": "2026-11-20T11:51:15+09:00",
+      "event": "작업 T24 변경: note=PR#493 머지 312dbf6, 2026-11-20 11:51 운영 배포(해시 77a30bcc 일치, UP 138초, 확인 3/3, 백업 app.jar.bak-20261120-114805). 운영 재측정 T23"
+    },
+    {
+      "at": "2026-11-20T12:06:46+09:00",
+      "event": "작업 T23 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-T23, dispatch=ctx_715d48729793, note=312dbf6 배포 후 운영 재측정: 시뮬레이터로 대안 10회+ → Grafana 전후 비교"
+    },
+    {
+      "at": "2026-11-20T12:14:34+09:00",
+      "event": "승인 기록: credentials (T23-prod-bench-ssh)"
+    },
+    {
+      "at": "2026-11-20T12:32:26+09:00",
+      "event": "승인 기록: push (docs/t23-alternatives-prod-after)"
+    },
+    {
+      "at": "2026-11-20T12:32:42+09:00",
+      "event": "승인 기록: merge_main (PR#494)"
+    },
+    {
+      "at": "2026-11-20T12:32:53+09:00",
+      "event": "작업 T23 검증(claude): tests=skip, review=skip, security=pass"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 Q1 변경: note=v2 PDF 12쪽 완료(11-18, Windows). 지적은 앱 T6 PR#183에서 반영. 작업자 종료"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 Q2 변경: note=v2 PDF 12쪽 완료(11-18, Windows, 높음1·중간3·낮음2) — 지적은 앱 T6 PR#183에서 반영. 작업자 기록상 failed는 마지막 단계 보고 실패"
+    },
+    {
+      "at": "2026-11-20T16:04:45+09:00",
+      "event": "작업 T23 변경: note=운영 재측정 완료: 19.2초→2.049초, SQL 67.4→26.67, PR#494 머지. 코드 변경 없어 테스트·리뷰 칸 해당 없음"
+    },
+    {
+      "at": "2026-11-20T16:07:06+09:00",
+      "event": "작업 O2 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-O2, dispatch=ctx_bf29ad34e193"
+    },
+    {
+      "at": "2026-11-20T16:12:20+09:00",
+      "event": "승인 기록: push (docs/o2-alert-path)"
+    },
+    {
+      "at": "2026-11-20T16:12:31+09:00",
+      "event": "작업 O2 변경: branch=docs/o2-alert-path, pr=495, note=경보 경로 문서 PR#495. 끊김 후보 정리, 11-13 원인 미확정, 야간 종단 시험·UptimeRobot 무료 보조 제안. 리뷰 대기(병렬 한도)"
+    },
+    {
+      "at": "2026-11-20T16:17:29+09:00",
+      "event": "작업 O2 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T16:17:36+09:00",
+      "event": "작업 O2 변경: note=PR#495 리뷰 수정 필요 → 이슈 #496 생성, Codex 문서 보완 중. 보완 후 docs/#496-alert-path 브랜치로 새 PR(Closes #496), #495 닫기"
+    },
+    {
+      "at": "2026-11-20T16:19:56+09:00",
+      "event": "승인 기록: push (docs/#496-alert-path)"
+    },
+    {
+      "at": "2026-11-20T16:21:10+09:00",
+      "event": "작업 O2 변경: branch=docs/#496-alert-path, pr=497, note=리뷰 반영본 PR#497(Closes #496), #495 닫음 → Claude 재검토"
+    },
+    {
+      "at": "2026-11-20T16:28:22+09:00",
+      "event": "작업 O2 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-20T16:32:52+09:00",
+      "event": "승인된 작업 실행: push(docs/#496-alert-path)"
+    },
+    {
+      "at": "2026-11-20T17:18:48+09:00",
+      "event": "승인된 작업 실행: push(docs/#496-alert-path)"
+    },
+    {
+      "at": "2026-11-20T17:19:21+09:00",
+      "event": "작업 O2 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T17:19:21+09:00",
+      "event": "승인 기록: merge_main (PR#497)"
+    },
+    {
+      "at": "2026-11-20T17:19:25+09:00",
+      "event": "작업 O2 변경: status=done, note=PR#497 머지(Closes #496). 남은 일: 야간 종단 수신 시험(운영 영향 — 사용자 확인 후), UptimeRobot 무료 보조(계정 필요)"
+    },
+    {
+      "at": "2026-11-20T22:08:38+09:00",
+      "event": "작업 O2 변경: note=2026-11-20 사용자 승인으로 1단계 수신 시험: Grafana Cloud 체험 종료 창 → 사용자 '무료' 선택(체험 후 Free 전환). trova-slack-alerts(정책 3개 사용) 연락처 Test 전송 성공 표시. 발견: 이 연락처 '전달 시도 없음' — 실제 경보가 Slack으로 간 기록 0. 사용자 휴대폰 수신 확인 대기. 2단계(실제 서버 중단 시험) 미실시"
+    },
+    {
+      "at": "2026-11-20T22:14:44+09:00",
+      "event": "작업 O2 변경: note=1단계: Slack 시험 알림 휴대폰 앱 수신 확인(사용자 '앱에 왔어' 2026-11-20). → Slack·휴대폰 경로는 정상, 실제 경보가 연락처로 간 기록 0 → 감지·정책 쪽 원인 조사 필요"
+    },
+    {
+      "at": "2026-11-20T22:15:29+09:00",
+      "event": "작업 O2 변경: note=1단계 결과: Slack→휴대폰 정상. 정책은 기본·critical·warning 모두 trova-slack-alerts로 감(정상). 그러나 이 연락처 실제 전달 기록 0. ProbeFailedExecutionsTooHigh(서버 다운 감지)는 'Grafana Synthetic Monitoring' 데이터소스 관리 규칙이라 Grafana 관리 정책·Slack 연락처를 안 탈 가능성(가설). Trova 규칙들은 Grafana 관리. 다음: 2단계 실제 중단 시험(10~15분) 승인 요청"
+    },
+    {
+      "at": "2026-11-20T22:17:13+09:00",
+      "event": "작업 O2 변경: note=결론(2026-11-20): 사용자 Slack 기록 — 11-17 15:05 ProbeFailedExecutionsTooHigh FIRING→15:08 RESOLVED가 '1-모니터링-알림' 채널에 실제 도착(Synthetic 경보는 별도 통로라 Grafana 연락처 기록엔 안 남음). 11-13에는 경보가 아직 없었던 것으로 보임. 감지→Slack 정상, 2단계 서버 중단 시험 불필요(요청 취소). 남은 것: 휴대폰 Slack 채널 알림·데스크톱 활동 중 푸시·방해 금지 예외 설정 후 시험 알림 재확인"
+    },
+    {
+      "at": "2026-11-20T22:26:19+09:00",
+      "event": "작업 O2 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-20T22:26:19+09:00",
+      "event": "작업 O2 변경: status=done, note=완료(2026-11-20): 감지→Slack 정상(11-17 실제 기록), 휴대폰 Slack 알림 설정(채널 모든 메시지·데스크톱 활동 중 푸시·방해 금지 예외) 후 시험 알림 휴대폰 수신 확인. Grafana Cloud는 체험 후 무료로 전환(사용자 선택). 남은 선택: 무료 한도 확인, UptimeRobot 보조"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T25 (codex, 자동): 같이 고치기 1: 멤버·권한·참여/멤버 API·낙관적 잠금·변경 기록 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T16:44:52+09:00",
+      "event": "작업 추가 T26 (codex, 자동): 같이 고치기 2: 실시간 SSE·푸시 묶음 (spec trip-collab)"
+    },
+    {
+      "at": "2026-11-21T17:05:58+09:00",
+      "event": "작업 T25 변경: status=dispatched, dispatch=ctx_4f1fc8f52719, note=기획서 projects/trova-app/docs/specs/2026-11-21-trip-collab.md, API 계약 문서 먼저"
+    },
+    {
+      "at": "2026-11-21T18:29:11+09:00",
+      "event": "승인 기록: push (feat/trip-collab-members) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T18:30:42+09:00",
+      "event": "작업 T25 변경: pr=499, note=PR #499: 멤버·권한(TripAccess)·join/members/rotate API·@Version 409·변경 기록, 계약 docs/api/trip-collab.md, ADR 0053. 테스트 1315 통과"
+    },
+    {
+      "at": "2026-11-21T18:31:21+09:00",
+      "event": "확인 없이 실행: 허용 목록 밖 테스트·빌드 실행; 명령: ./gradlew test --console=plain > /[가림].log 2>&1; echo exit=$?"
+    },
+    {
+      "at": "2026-11-21T18:31:42+09:00",
+      "event": "작업 T25 변경: note=Claude 교차 검증 ctx_b7368f048ed7 (권한 누락 표 포함)"
+    },
+    {
+      "at": "2026-11-21T18:58:56+09:00",
+      "event": "작업 추가 T27 (codex, 자동): QA 후속: 재분석 이전 결과 보관·조회, 저장 시 장소 매칭(경포호 주소 불일치) 검증 — PR #221 근거"
+    },
+    {
+      "at": "2026-11-21T20:04:55+09:00",
+      "event": "작업 T25 검증(claude:reviewflow): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-21T20:05:54+09:00",
+      "event": "작업 T25 변경: note=S1 사용자 결정: 기존 링크도 바로 참여 가능(실사용 없음) — ADR 0053에 기록"
+    },
+    {
+      "at": "2026-11-21T20:17:45+09:00",
+      "event": "작업 T25 변경: note=수정 2ae5e61(재사용 여행 단위, X-Trip-Version 헤더, 테스트 4개, 백필 순서), 테스트 1318. 재검증 Codex 다른 세션 ctx_c5afa2833053(Claude 사용량 부족 예외)"
+    },
+    {
+      "at": "2026-11-21T20:30:15+09:00",
+      "event": "작업 T25 변경: note=재검증(Codex 다른 세션, 2ae5e61): 1차 지적 해결, 꼭 고칠 것 높음1(개인화 설명 다른 멤버 노출)·중간2 → 수정 요청. CLI가 같은 모델 검증 기록을 막아 verify 미기록 — 머지 전 최종 검증은 Claude(11/23 이후) 또는 사용자 판단"
+    },
+    {
+      "at": "2026-11-21T20:39:59+09:00",
+      "event": "작업 T25 변경: note=3건 수정 0fc6c20(테스트 1319·PG 162) → Codex 재확인"
+    },
+    {
+      "at": "2026-11-21T20:42:26+09:00",
+      "event": "작업 T25 변경: note=Codex 재확인 0fc6c20: 3/3 pass, 남은 필수 0. 머지 전 최종 검증 방식 사용자 결정 대기"
+    },
+    {
+      "at": "2026-11-21T20:42:26+09:00",
+      "event": "작업 T26 변경: status=dispatched, dispatch=ctx_b8e692de7a6c, note=#499 브랜치 위에서 SSE+Kafka(넘기기)·ticket·푸시 묶음"
+    },
+    {
+      "at": "2026-11-21T22:02:18+09:00",
+      "event": "작업 T26 변경: pr=500, note=PR #500(cbd8a61): SSE·ticket·Kafka/memory 넘기기·푸시 묶음·CORS, ADR 0054, Ubuntu 1332 통과. Codex 다른 세션 검증 중"
+    },
+    {
+      "at": "2026-11-21T22:07:12+09:00",
+      "event": "작업 T26 변경: note=Codex 다른 세션 검증: 새 테스트 13 통과, 꼭 고칠 것 높음1(느린 연결이 스레드 막음)·보안 중간2(세션 폐기 미반영 ticket·전역 한도)·중간2(Kafka 경로 분리·푸시 큐) → 수정 요청"
+    },
+    {
+      "at": "2026-11-21T22:24:32+09:00",
+      "event": "작업 T26 변경: note=수정 84ebab6(Ubuntu 1338·실패0) → Codex 재확인"
+    },
+    {
+      "at": "2026-11-21T22:29:49+09:00",
+      "event": "작업 T26 변경: note=재확인 84ebab6: 5건 PASS, 남은 중간1(보류 맵 상한) + SSE 테스트 간헐 실패 → 수정 요청"
+    },
+    {
+      "at": "2026-11-21T22:50:04+09:00",
+      "event": "작업 T26 변경: note=068892f: 보류 1000여행/60초 상한·복구, 실시간 HTTP 테스트 10/10, Ubuntu 1342·실패0. 검증 지적 모두 해소"
+    },
+    {
+      "at": "2026-11-21T23:05:55+09:00",
+      "event": "작업 T25 변경: note=정렬 보조 키(id desc) 2659575, 해당 테스트 10회 40개 통과, 전체 1319·실패0. #500은 이 위로 다시 맞춰야 함(머지 때)"
+    },
+    {
+      "at": "2026-11-21T23:36:54+09:00",
+      "event": "작업 T26 변경: dispatch=ctx_0580a564705f, note=여행 삭제 이벤트 추가 작업 재시작(이전 보낸 메시지는 작업자가 이미 종료돼 미전달)"
+    },
+    {
+      "at": "2026-11-21T23:39:04+09:00",
+      "event": "작업 T26 변경: dispatch=ctx_83ce40b18cbb, note=삭제 이벤트는 기존 작업자가 진행 중이었음(상태 표시 오인) — 새로 띄운 ctx_0580a564705f는 중복이라 종료 지시"
+    },
+    {
+      "at": "2026-11-21T23:45:11+09:00",
+      "event": "작업 T26 변경: note=삭제 이벤트 40a3731(#499 2659575 병합), Ubuntu 1344·실패0"
+    },
+    {
+      "at": "2026-11-21T23:55:02+09:00",
+      "event": "승인 기록: deploy (trip-collab-2026-11-21)"
+    },
+    {
+      "at": "2026-11-21T23:55:09+09:00",
+      "event": "자동 승인 실행: merge_main(PR#500)"
+    },
+    {
+      "at": "2026-11-21T23:55:16+09:00",
+      "event": "승인 기록: merge_main (PR#499) — auto_gates"
+    },
+    {
+      "at": "2026-11-21T23:55:26+09:00",
+      "event": "자동 승인 실행: merge_main(PR#499)"
+    },
+    {
+      "at": "2026-11-21T23:56:52+09:00",
+      "event": "작업 T25 변경: pr=499, note=main acfed70 머지(#500 포함). 같은 모델 검증이라 verify 미기록 — 사용자 '지금 바로 배포' 판단으로 진행. 11/23 이후 Claude 사후 검증 예정"
+    },
+    {
+      "at": "2026-11-22T00:06:47+09:00",
+      "event": "승인 기록: merge_main (PR#501) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T00:06:51+09:00",
+      "event": "작업 T26 변경: note=운영 배포 완료 acfed70: 해시 일치, UP 146초, OWNER 누락 0, 이벤트 memory. 백업 app.jar.bak-20261121-235732. 남음: Caddy 무버퍼 실측, Aiven 토픽 후 Kafka 전환"
+    },
+    {
+      "at": "2026-11-22T11:22:34+09:00",
+      "event": "승인 기록: deploy (trip-events-kafka)"
+    },
+    {
+      "at": "2026-11-22T11:28:43+09:00",
+      "event": "자동 승인 실행: merge_main(PR#502)"
+    },
+    {
+      "at": "2026-11-22T11:28:47+09:00",
+      "event": "승인 기록: merge_main (PR#502) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T11:28:50+09:00",
+      "event": "작업 T26 변경: note=운영 Kafka 전환 완료 2026-11-22 11:26: 소비자 그룹 파티션 0·1, fallback 0. 실제 이벤트 왕복은 사용자 실기기 사용 시 확인. 되돌리기: .env 한 줄 삭제+재시작(.env.bak-trip-events-kafka-20261122-112325)"
+    },
+    {
+      "at": "2026-11-22T11:55:49+09:00",
+      "event": "작업 T26 변경: note=Kafka 운영 왕복 확인 완료 2026-11-22 11:36~38: 발행 3·소비 3·fallback 0, 시뮬레이터 반영 3/3(2~3초). PDF /private/tmp/trova-kafka-live/trova-kafka-live-report.pdf"
+    },
+    {
+      "at": "2026-11-22T12:07:25+09:00",
+      "event": "작업 T27 변경: status=dispatched, dispatch=ctx_e8f19a440ab0, note=사용자 외출 중 진행: 재분석 이력 보관·조회 API, 장소 매칭 원인. 머지·배포 금지"
+    },
+    {
+      "at": "2026-11-22T12:36:58+09:00",
+      "event": "작업 T27 변경: pr=503, note=PR #503: 이력 목록·회차별 조회, 주소 출처 필드, 매칭 검증(이름+300m, 가까운 핀 우선), 테스트 1347·실패0. Codex 검증"
+    },
+    {
+      "at": "2026-11-22T12:42:47+09:00",
+      "event": "작업 T27 변경: note=Codex 검증: 보안 pass, 중간 4(영상 키 통일, 같은 지점 별칭 422, 읽기 정책 분리, 빈 좌표 복구) → 수정 요청"
+    },
+    {
+      "at": "2026-11-22T13:34:30+09:00",
+      "event": "작업 T27 변경: note=PR #503 최종 fa0ed7f: Codex 검증 PASS(관련 114·HTTP 24, 오저장 0, 알려진 한계 기록). 머지·배포는 사용자 복귀 후. 앱 이력 화면은 별도 작업 필요"
+    },
+    {
+      "at": "2026-11-22T17:06:50+09:00",
+      "event": "승인 기록: deploy (T27-video-history)"
+    },
+    {
+      "at": "2026-11-22T17:06:50+09:00",
+      "event": "승인 기록: merge_main (PR#503) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:06:58+09:00",
+      "event": "자동 승인 실행: merge_main(PR#503)"
+    },
+    {
+      "at": "2026-11-22T17:07:59+09:00",
+      "event": "작업 T27 변경: pr=503, note=main f6f4e6a 머지, 운영 배포 위임"
+    },
+    {
+      "at": "2026-11-22T17:14:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#504)"
+    },
+    {
+      "at": "2026-11-22T17:14:11+09:00",
+      "event": "승인 기록: merge_main (PR#504) — auto_gates"
+    },
+    {
+      "at": "2026-11-22T17:14:15+09:00",
+      "event": "작업 T27 변경: note=운영 배포 완료 f6f4e6a: 해시 일치, UP 150초, Kafka 유지, 이력 API 익명 401. 백업 app.jar.bak-20261122-170805"
+    },
+    {
+      "at": "2026-11-22T23:27:16+09:00",
+      "event": "작업 추가 T28 (codex, 자동): 빈 시간 추천 쓸데없는 곳(아파트·병원 등) 조사·정리 — 사용자 요청 2026-11-22"
+    },
+    {
+      "at": "2026-11-22T23:30:22+09:00",
+      "event": "작업 T28 변경: note=조사 완료(보고서 docs/gap-junk-report 5ef3ef9): 식사 시간 외 업종 제한 없음 + 첫 type만 검사 → 아파트·병원 통과. 운영 카탈로그 실례 확인(아파트·병원·의원·학교·관공서·공장·묘지·카센터 등). 제외 목록 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-22T23:31:14+09:00",
+      "event": "작업 T28 변경: note=사용자: 애매 3종(대학교·편의점·숙박) 그냥 두기, 나머지 제외 구현 위임"
+    },
+    {
+      "at": "2026-11-22T23:44:22+09:00",
+      "event": "작업 T28 변경: pr=505, note=PR #505 구현(1409 통과·실패0). 대안 찾기에도 적용됨 — 검증에서 판단"
+    },
+    {
+      "at": "2026-11-22T23:51:13+09:00",
+      "event": "작업 T28 변경: note=검증: 수정 3(일반 태그가 판단 덮음, 일반 태그뿐인 역 통과, 공식 유형 누락) → 요청"
+    },
+    {
+      "at": "2026-11-23T00:03:40+09:00",
+      "event": "작업 T28 변경: note=남은 2건 수정 a6f7fe2 → Codex 마지막 재확인"
+    },
+    {
+      "at": "2026-11-23T00:05:25+09:00",
+      "event": "작업 T28 변경: note=PR #505 Codex 마지막 재확인 PASS(관련 102, 남은 필수 0). 머지·배포 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: deploy (gap-junk-filter)"
+    },
+    {
+      "at": "2026-11-23T00:13:01+09:00",
+      "event": "승인 기록: merge_main (PR#505) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:13:52+09:00",
+      "event": "작업 T28 변경: pr=505, note=main a6a1ca5 머지, 배포 위임"
+    },
+    {
+      "at": "2026-11-23T00:21:07+09:00",
+      "event": "자동 승인 실행: merge_main(PR#506)"
+    },
+    {
+      "at": "2026-11-23T00:21:15+09:00",
+      "event": "승인 기록: merge_main (PR#506) — auto_gates"
+    },
+    {
+      "at": "2026-11-23T00:21:51+09:00",
+      "event": "작업 T28 변경: note=운영 배포 완료 a6a1ca5(백업 app.jar.bak-20261123-001451), 기록 #506 머지"
+    },
+    {
+      "at": "2026-11-23T11:17:18+09:00",
+      "event": "작업 추가 T29 (codex, 자동): 공유 링크 주소 trova.duckdns.org 전환 — 조사·변경 준비(운영 반영 전)"
+    },
+    {
+      "at": "2026-11-23T11:18:01+09:00",
+      "event": "작업 T29 변경: status=dispatched, worktree=/Users/gimtaehyeong/orca/workspaces/trova-backend/trova-backend-domain, dispatch=ctx_c8a528ff4612, note=trova.duckdns.org 생성·193.123.161.217 연결(11/23, dig 확인). 조사·PR·Caddy 설정안까지, 운영 반영은 사용자 승인 후"
+    },
+    {
+      "at": "2026-11-23T11:29:00+09:00",
+      "event": "작업 T29 변경: pr=508, note=준비 완료: 백엔드 PR #508(APP_WEB_APP_LEGACY_ORIGIN 추가), 앱 PR #249, Caddy 설정안 deploy/caddy/Caddyfile.share-domain, 런북 docs/runbooks/share-web-domain.md. 구글·카카오 로그인 콘솔 변경 불필요, 카카오 지도 JS SDK 도메인 추가 필요(사용자). 운영 반영은 승인 후"
+    },
+    {
+      "at": "2026-11-23T11:43:46+09:00",
+      "event": "작업 T29 변경: note=카카오 JS 키 'Trova - local'(앱 .env 지도 키와 앞자리 일치) SDK 도메인에 https://trova.duckdns.org 추가·저장(11/23, 사용자 요청). 참고: 지금 웹 주소 app.193-123-161-217.sslip.io는 그 목록에 없음 — 현재 웹 지도 동작 여부 검증 때 확인"
+    },
+    {
+      "at": "2026-11-23T12:00:41+09:00",
+      "event": "작업 T29 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T12:01:34+09:00",
+      "event": "작업 T29 변경: note=Claude 직접 리뷰 통과(#508·#249). 두 레포 PR에 CI 없음 → Windows Codex ctx_ad88d2b3fc25가 테스트만 실행 중. 통과하면 tests pass로 재기록 후 운영 적용 승인 요청"
+    },
+    {
+      "at": "2026-11-23T12:14:52+09:00",
+      "event": "작업 T29 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T12:16:50+09:00",
+      "event": "승인 기록: deploy (share-domain)"
+    },
+    {
+      "at": "2026-11-23T12:17:53+09:00",
+      "event": "작업 T29 변경: status=dispatched, dispatch=ctx_9bc69ae7ba42, note=운영 적용 위임(사용자 승인 11/23): 머지 #508·#249 → 백업 → Caddy 1단계 → .env → 백엔드 배포 → 웹 배포 → 확인 → 301 → OTA"
+    },
+    {
+      "at": "2026-11-23T12:45:31+09:00",
+      "event": "자동 승인 실행: merge_main(PR#508)"
+    },
+    {
+      "at": "2026-11-23T12:45:31+09:00",
+      "event": "작업 T29 변경: status=done, note=운영 적용 완료 11/23 12:18~12:44: #508·#249 머지, 백업 /var/backups/trova-domain-20261123-031940, 중단 약 199초, 새 링크 trova.duckdns.org/t/ 시뮬레이터 확인(테스트 여행 삭제), 웹 지도 OK, 옛 링크 301, OTA 9c0fc37e(지문 v10 일치), 기록 #509·#250. 남은 확인: 웹 로그인 복귀·실기기 OTA 수신"
+    },
+    {
+      "at": "2026-11-23T14:02:48+09:00",
+      "event": "자동 승인 실행: merge_main(PR#508)"
+    },
+    {
+      "at": "2026-11-23T14:02:48+09:00",
+      "event": "작업 T29 변경: note=사용자 확인 완료(11/23): 앱 업데이트 후 새 주소 링크·웹 로그인 정상"
+    },
+    {
+      "at": "2026-11-23T14:47:08+09:00",
+      "event": "작업 추가 T30 (codex, 자동): Grafana 대시보드 비전공자용 설명서 PDF"
+    },
+    {
+      "at": "2026-11-23T14:47:56+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_44e58651d990"
+    },
+    {
+      "at": "2026-11-23T15:13:01+09:00",
+      "event": "작업 T30 검증(claude): tests=skip, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "작업 T25 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "자동 승인 실행: merge_main(PR#499)"
+    },
+    {
+      "at": "2026-11-23T16:22:51+09:00",
+      "event": "작업 T25 변경: status=done, note=사후 검증 통과(11/23)"
+    },
+    {
+      "at": "2026-11-23T16:23:43+09:00",
+      "event": "작업 추가 T31 (codex, 자동): 공동 편집 사후 검증 개선점 반영(Kafka 장애 대기·락·푸시 유실·테스트 공백)"
+    },
+    {
+      "at": "2026-11-23T16:23:56+09:00",
+      "event": "작업 T31 변경: status=dispatched, dispatch=ctx_e67b6f43c6ea, note=Windows Codex. 사후 검증(T25) 경미 지적 6항목. 머지·배포는 검증 후"
+    },
+    {
+      "at": "2026-11-23T16:43:48+09:00",
+      "event": "작업 T30 변경: status=dispatched, dispatch=ctx_9dc30128c166, note=사용자 피드백(11/23): 이해 어려움 → 앱 기능 중심(행동→그래프→느려지는 것) 새 PDF ~/Desktop/트루바-그라파나-쉬운설명.pdf"
+    },
+    {
+      "at": "2026-11-23T16:48:19+09:00",
+      "event": "작업 T31 변경: pr=511, note=PR #511(이슈 #510) 완료, 협업 테스트 71 통과, Windows 31 실패=main과 동일 Python 환경. Claude 검증 대기"
+    },
+    {
+      "at": "2026-11-23T16:49:43+09:00",
+      "event": "작업 T31 검증(claude): tests=pass, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-23T17:01:06+09:00",
+      "event": "작업 T31 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T17:11:51+09:00",
+      "event": "작업 T30 변경: note=쉬운 설명서 완성: ~/Desktop/트루바-그라파나-쉬운설명.pdf 16쪽, 13개 기능 흐름도·실제 캡처 14장, 앞뒤 찾아보기 표. 사용자 확인 대기"
+    },
+    {
+      "at": "2026-11-23T17:14:59+09:00",
+      "event": "승인 기록: deploy (511)"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 추가 T32 (codex, 자동): 공동 편집 개선 #511 머지·운영 배포"
+    },
+    {
+      "at": "2026-11-23T17:15:19+09:00",
+      "event": "작업 T32 변경: status=dispatched, pr=511, dispatch=ctx_1bfb6885ae34, note=사용자 승인 11/23"
+    },
+    {
+      "at": "2026-11-23T17:27:12+09:00",
+      "event": "작업 T30 변경: status=dispatched, note=추가(11/23): '한눈에 보기' 대시보드 + 5쪽 그림 설명서"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "자동 승인 실행: merge_main(PR#511)"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "작업 T31 변경: status=done, note=#511 머지 a8ffd9c·운영 배포 11/23 17:17~17:21(중단 약 210초), 백업 app.jar.bak-20261123-171704, Kafka 그룹 trova-trip-events-<호스트>-<접미사> 정상, 기록 #512"
+    },
+    {
+      "at": "2026-11-23T17:27:56+09:00",
+      "event": "작업 T32 변경: status=blocked, note=T31에 합쳐 완료(배포 기록용 중복 작업)"
+    },
+    {
+      "at": "2026-11-23T18:00:01+09:00",
+      "event": "작업 T30 변경: pr=514, note=한눈에 보기 대시보드 게시(/d/trova-at-a-glance), 5쪽 PDF, PR #514(대시보드 JSON + 영상 대기·진행 수 계측 코드) — 검증·배포 승인 필요"
+    },
+    {
+      "at": "2026-11-23T18:54:26+09:00",
+      "event": "작업 T30 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-23T18:54:26+09:00",
+      "event": "승인 기록: deploy (514)"
+    },
+    {
+      "at": "2026-11-23T18:54:36+09:00",
+      "event": "작업 T30 변경: status=dispatched, pr=514, dispatch=ctx_5a75c8b2e2d0, note=사용자 승인 → #514 머지·배포 위임"
+    },
+    {
+      "at": "2026-11-23T19:08:40+09:00",
+      "event": "자동 승인 실행: merge_main(PR#514)"
+    },
+    {
+      "at": "2026-11-23T19:08:40+09:00",
+      "event": "작업 T30 변경: status=done, note=#514 머지 3d15542·운영 배포 11/23 18:58(중단 약 210초), 백업 app.jar.bak-20261123-185657, Grafana 영상 분석 카드 0건 초록 확인, 기록 #515"
+    },
+    {
+      "at": "2026-11-24T10:16:16+09:00",
+      "event": "작업 추가 T33 (codex, 자동): Windows 노트북 Python 설치(테스트 31 실패 해결)"
+    },
+    {
+      "at": "2026-11-24T10:16:40+09:00",
+      "event": "작업 T33 변경: status=dispatched, dispatch=ctx_d32ec854a482, note=사용자 승인 11/24"
+    },
+    {
+      "at": "2026-11-24T10:30:29+09:00",
+      "event": "작업 T33 변경: dispatch=ctx_f34852e3c485, note=Python 호출 복구: 31→12 실패(PYTHONUTF8). 남은 12개는 리눅스 전용(os.nice·프로세스 그룹) → @DisabledOnOs(WINDOWS)+Gradle PYTHONUTF8 후속 위임"
+    },
+    {
+      "at": "2026-11-24T10:40:57+09:00",
+      "event": "자동 승인 실행: merge_main(PR#517)"
+    },
+    {
+      "at": "2026-11-24T10:41:05+09:00",
+      "event": "작업 T33 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T10:41:09+09:00",
+      "event": "자동 승인 실행: merge_main(PR#517)"
+    },
+    {
+      "at": "2026-11-24T10:41:09+09:00",
+      "event": "작업 T33 변경: status=done, pr=517, note=Windows 실패 0, #517 병합"
+    },
+    {
+      "at": "2026-11-24T11:32:59+09:00",
+      "event": "작업 추가 T34 (codex, 자동): 버그 조사: 대안 찾기 '인터넷 연결 오류'(운영)"
+    },
+    {
+      "at": "2026-11-24T11:33:05+09:00",
+      "event": "작업 T34 변경: status=dispatched, dispatch=ctx_c2ce3fa55fec"
+    },
+    {
+      "at": "2026-11-24T11:39:47+09:00",
+      "event": "작업 T34 변경: status=blocked, note=조사 결과: 요청이 운영 서버에 도달하지 않음(대안 GET 0건, Places 호출 0건). 서버 문제 증거 없음. 에뮬레이터 쪽 연결 실패 추정 → v11 QA에서 logcat 켜고 1회 재현 예정. 제안: apiFetch에 경로 유형·경과 시간·예외 분류 로깅"
+    },
+    {
+      "at": "2026-11-24T15:08:58+09:00",
+      "event": "작업 추가 T35 (codex, 자동): QA 느림: 영상 분석 38초·말로 바꾸기 5.4초·첫 대안 4.2초 개선"
+    },
+    {
+      "at": "2026-11-24T15:39:59+09:00",
+      "event": "작업 T35 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T15:39:59+09:00",
+      "event": "작업 T35 변경: pr=518"
+    },
+    {
+      "at": "2026-11-24T15:41:27+09:00",
+      "event": "승인 기록: deploy (518)"
+    },
+    {
+      "at": "2026-11-24T15:48:02+09:00",
+      "event": "승인 기록: deploy (518-python)"
+    },
+    {
+      "at": "2026-11-24T15:57:14+09:00",
+      "event": "작업 추가 T36 (codex, 자동): API·로그인 주소 api.trova.duckdns.org 전환 준비(백엔드·앱 PR, Caddy 설정안)"
+    },
+    {
+      "at": "2026-11-24T16:03:13+09:00",
+      "event": "작업 T35 변경: note=#518 JAR 운영 반영(UP). 파이썬 2개 15:50 반영 → 15:58 첫 실사용 분석 실패 → 15:58:36 백업 복구. 원인 조사 중(yt-dlp YouTube 로그인 확인 기록)"
+    },
+    {
+      "at": "2026-11-24T16:07:10+09:00",
+      "event": "작업 T36 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T16:13:50+09:00",
+      "event": "작업 T36 변경: pr=520, note=콘솔 등록 완료(11/24, 사용자 로그인 후 매니저 Chrome): 구글 trova 프로젝트(trovapp 계정 authuser=2) OAuth 클라이언트 trova-backend에 https://api.trova.duckdns.org/login/oauth2/code/google 추가, 카카오 REST 키 'Trova - local'에 .../code/kakao 추가. 기존 URI 유지. 주의: GCP 무료 평가판 10일 남음(크레딧 ₩414,984) — Places·Gemini 키가 이 프로젝트"
+    },
+    {
+      "at": "2026-11-24T16:15:21+09:00",
+      "event": "승인 기록: deploy (api-domain)"
+    },
+    {
+      "at": "2026-11-24T16:22:42+09:00",
+      "event": "자동 승인 실행: merge_main(PR#518)"
+    },
+    {
+      "at": "2026-11-24T16:22:42+09:00",
+      "event": "작업 T35 변경: status=done, note=#518 JAR 운영 15:46 UP(중단 183초), 30분 관찰 정상. 파이썬 2개는 15:58 실패 후 복구 상태 유지 — 실패 링크 자체 문제(제목 404·Gemini 400·yt-dlp 봇 확인) 정황, 새 코드 원인 가능성 낮음. 재반영은 스테이징 대조 후 별도 작업. 기록 #519·#521"
+    },
+    {
+      "at": "2026-11-24T16:26:57+09:00",
+      "event": "자동 승인 실행: merge_main(PR#520)"
+    },
+    {
+      "at": "2026-11-24T16:26:57+09:00",
+      "event": "작업 T36 변경: status=done, pr=520, note=운영 적용 16:16~16:26: Caddy 새 호스트, #520 배포(185초), #258 OTA 그룹 56c01a96(v11), 웹 배포(권한 문제로 41초 영향 후 재배포), 두 호스트 OAuth redirect_uri 일치·공유 200·CSP 확인, 기록 #522. 남은 것: 실기기 로그인·OTA 수신·v10·단축어·공동 편집 확인"
+    },
+    {
+      "at": "2026-11-24T17:03:55+09:00",
+      "event": "작업 추가 T37 (codex, 자동): 체크리스트 중간: API 오류 응답 형식 통일(하위 호환)"
+    },
+    {
+      "at": "2026-11-24T17:23:37+09:00",
+      "event": "작업 T37 검증(claude): tests=fail, review=fail, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:23:37+09:00",
+      "event": "작업 T37 변경: pr=524"
+    },
+    {
+      "at": "2026-11-24T17:29:29+09:00",
+      "event": "작업 T37 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T17:44:07+09:00",
+      "event": "승인 기록: deploy (524)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "자동 승인 실행: merge_main(PR#524)"
+    },
+    {
+      "at": "2026-11-24T17:58:33+09:00",
+      "event": "작업 T37 변경: status=done, note=#524 배포 17:46~17:50(228초), 두 API 404·401 JSON·본문 traceId 정상, 공유 200·OAuth 302 정상. 남은 것: JSON 경로 X-Trace-Id 헤더 누락(경미), 운영 409 미검증(로컬 테스트 통과). 백업 app.jar.bak-20261124-174647"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 추가 T38 (codex, 자동): 오류 응답 X-Trace-Id 헤더 보완"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 T38 변경: pr=526"
+    },
+    {
+      "at": "2026-11-24T18:19:32+09:00",
+      "event": "작업 T38 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T18:20:11+09:00",
+      "event": "작업 T38 변경: note=사용자 결정 11/24: 다음 서버 변경과 묶어서 배포(PR #526 검증 통과, 머지 대기)"
+    },
+    {
+      "at": "2026-11-24T22:28:58+09:00",
+      "event": "승인 기록: deploy (526)"
+    },
+    {
+      "at": "2026-11-24T22:29:16+09:00",
+      "event": "작업 T38 변경: status=dispatched, dispatch=ctx_a58275a59fa1, note=사용자 요청으로 지금 배포(묶음 대기 해제) 2026-11-24"
+    },
+    {
+      "at": "2026-11-24T22:34:42+09:00",
+      "event": "작업 추가 T39 (codex, 자동): 기존 테스트 실패 정리: pgvector SQL 기대 9·실제 7(main에서도 실패, #525·#526 배포 때 발견)"
+    },
+    {
+      "at": "2026-11-24T22:49:38+09:00",
+      "event": "자동 승인 실행: merge_main(PR#527)"
+    },
+    {
+      "at": "2026-11-24T22:49:45+09:00",
+      "event": "작업 T38 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T22:49:45+09:00",
+      "event": "승인 기록: merge_main (PR#527) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T22:49:50+09:00",
+      "event": "자동 승인 실행: merge_main(PR#526)"
+    },
+    {
+      "at": "2026-11-24T22:49:50+09:00",
+      "event": "작업 T38 변경: status=done, pr=526"
+    },
+    {
+      "at": "2026-11-24T23:18:46+09:00",
+      "event": "작업 T39 변경: status=dispatched, dispatch=ctx_8c4ebf932269, note=사용자 지시 2026-11-24: 줄인 게 맞으면 기대값 7로. Mac 실행(Windows는 릴스 녹화)"
+    },
+    {
+      "at": "2026-11-24T23:25:24+09:00",
+      "event": "자동 승인 실행: merge_main(PR#529)"
+    },
+    {
+      "at": "2026-11-24T23:25:28+09:00",
+      "event": "작업 T39 검증(claude): tests=pass, review=pass, security=pass"
+    },
+    {
+      "at": "2026-11-24T23:25:28+09:00",
+      "event": "승인 기록: merge_main (PR#529) — auto_gates"
+    },
+    {
+      "at": "2026-11-24T23:25:34+09:00",
+      "event": "자동 승인 실행: merge_main(PR#529)"
+    },
+    {
+      "at": "2026-11-24T23:25:34+09:00",
+      "event": "작업 T39 변경: status=done, pr=529"
+    }
+  ],
+  "created_at": "2026-11-18T00:32:26+09:00",
+  "updated_at": "2026-11-24T23:25:34+09:00",
+  "requests": [
+    {
+      "gate": "push",
+      "ref": "main",
+      "cmd": "git push origin main",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-18T00:42:45+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#464-perf-phase1-deploy-record",
+      "cmd": "git push -q -u origin \"docs/#464-perf-phase1-deploy-record\"",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-18T21:39:43+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove --force /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T09:47:27+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove --force /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T18/dd9fc8a9-2e4a-4194-8e31-364fc63baafc/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T11:58:21+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#476-trip-detail-two-queries",
+      "cmd": "git push -u origin perf/#476-trip-detail-two-queries",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T11:58:58+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git -C /Users/gimtaehyeong/orca/trova-backend worktree remove /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline 2>&1",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T12:13:46+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git -C /Users/gimtaehyeong/orca/trova-backend worktree remove /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T16c/6841bbb8-2498-4170-aff6-215e6349990c/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T12:13:52+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove --force /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T19/d6c0be89-d065-451a-8ee6-af0b5132c876/scratchpad/main-check",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T14:05:38+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T19/d6c0be89-d065-451a-8ee6-af0b5132c876/scratchpad/main-check",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T14:05:42+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#473-trip-draft-detail",
+      "cmd": "git push -u origin perf/#473-trip-draft-detail",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T14:06:24+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "docs/#476-perf-phase2-deploy-record",
+      "cmd": "git push -u origin docs/#476-perf-phase2-deploy-record",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T14:57:52+09:00"
+    },
+    {
+      "gate": "destructive_delete",
+      "ref": null,
+      "cmd": "git worktree remove /private/tmp/claude-501/-Users-gimtaehyeong-orca-workspaces-trova-backend-trova-backend-T20/7fd623b2-a129-466f-9285-dd040e76383f/scratchpad/main-baseline",
+      "impact": "파일이나 작업 기록이 지워진다",
+      "risk": "되살리지 못할 수 있다",
+      "at": "2026-11-19T16:25:58+09:00"
+    },
+    {
+      "gate": "push",
+      "ref": "perf/#482-gap-recommendations-queries",
+      "cmd": "git push -u origin perf/#482-gap-recommendations-queries",
+      "impact": "내 PC의 코드가 GitHub에 올라간다",
+      "risk": "공개 저장소면 바로 누구나 볼 수 있고, 올린 기록은 지우기 어렵다",
+      "at": "2026-11-19T16:41:04+09:00"
+    }
+  ]
+}
